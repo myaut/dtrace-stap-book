@@ -57,8 +57,9 @@ ID    PROVIDER        MODULE      FUNCTION NAME
 Let's create script `test.d` with following contents:
 
 ```
-#!/usr/sbin/dtrace -qs -x dynvarsize=64m
+#!/usr/sbin/dtrace -qs
 #pragma D option flowindent
+#pragma D option dynvarsize=64m
 
 syscall::write:entry
 /pid == $target/    
