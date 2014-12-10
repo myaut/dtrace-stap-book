@@ -1,0 +1,4 @@
+probe lstat {
+    printf("%s %d\n", filename, size);
+}
+

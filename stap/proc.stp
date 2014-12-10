@@ -1,0 +1,19 @@
+#!/usr/bin/stap
+
+probe scheduler.process*, scheduler.wakeup_new, syscall.fork, 
+    syscall.exec*, syscall.exit, syscall.wait*, kprocess.* { 
+	printf("%6d[%8s]/%6d[%8s] %s\n", 
+		pid(), execname(), ppid(), pid2execname(ppid()), pn());
+}
+
+probe scheduler.process_fork {
+	printf("\tPID: %d -> %d\n", parent_pid, child_pid);
+}
+
+probe kprocess.exec {
+    printf("\tfilename: %s\n", filename);
+}
+
+probe kprocess.exit {
+    printf("\treturn code: %d\n", code);
+}

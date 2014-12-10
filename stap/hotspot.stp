@@ -1,0 +1,22 @@
+#!/usr/bin/stap
+
+probe hotspot.class_loaded
+{
+        printf("%12s [???] %s\n", name, class);
+}
+
+probe hotspot.method_entry, hotspot.method_return
+{
+        printf("%12s [%3d] %s.%s\n", name, thread_id, class, method);
+}
+
+probe hotspot.thread_start, hotspot.thread_stop
+{
+        printf("%12s [%3d] %s\n", name, id, thread_name);
+}
+
+probe hotspot.monitor_contended_enter, hotspot.monitor_contended_exit
+{
+        printf("%12s [%3d] %s\n", name, thread_id, class);
+}
+

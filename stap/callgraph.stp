@@ -1,0 +1,35 @@
+#!/usr/bin/stap
+
+global traceme;
+
+probe syscall.open {
+    if(pid() != target() || filename != "not_exists") 
+        next;   
+
+    traceme = target();
+
+    printf("=> syscall.open [%s]\n", execname());
+}
+
+probe syscall.open.return {
+    if(pid() == target()) {
+        traceme = 0;
+    }   
+}
+
+probe kernel.function("*@fs/*").call ?,
+      kernel.function("*@fs/*").return ? {
+    if(!traceme || traceme != pid()) 
+        next;
+
+    if(!is_return()) {
+        printf("%s -> %s\n", indent( 1), probefunc());
+    }
+    else {
+        ret = 0;
+        if(@defined($return))
+                ret = $return;
+
+        printf("%s <- %s [%d]\n", indent(-1), probefunc(), ret);
+    }
+}

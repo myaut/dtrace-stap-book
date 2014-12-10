@@ -1,0 +1,62 @@
+#!/usr/bin/stap
+
+global specs, times;
+
+function probe_print:string(bio:long) {
+    return sprintf("%-24s %p [%p:%d] %u\n", pn(), bio, task_current(), cpu(), 
+                   gettimeofday_ns() - times[bio]);
+}
+
+function proc_print:string() {
+    return sprintf("\tPROC: %d/%d %s\n", pid(), tid(), execname());
+}
+
+probe ioblock.request {
+    bio = $bio;
+    specs[$bio] = speculation();
+
+    times[bio] = gettimeofday_ns();
+
+    speculate(specs[bio], probe_print(bio));
+    speculate(specs[bio], proc_print());
+    
+    speculate(specs[bio], 
+              sprintf("\tBUF flags: %s %x count: %d blkno: %d comp: %s\n", 
+                       bio_rw_str(rw), flags, size, sector, 
+                       symname($bio->bi_end_io)));
+    
+    speculate(specs[bio], sprintf("\tDEV %s\tINO %d\n", devname, ino));
+}
+
+probe ioscheduler.elv_add_request {
+    if(rq == 0)
+        next;
+    bio = @cast(rq, "struct request")->bio;
+    speculate(specs[bio], probe_print(bio));
+    speculate(specs[bio], sprintf("\tDEV %d/%d\n", disk_major, disk_minor));
+}
+
+probe scsi.ioentry, scsi.iodone, scsi.iocompleted {
+    bio = @cast(req_addr, "struct request")->bio;
+    speculate(specs[bio], probe_print(bio));
+}
+
+probe scsi.iodispatching {
+    bio = @cast(req_addr, "struct request")->bio;
+    speculate(specs[bio], probe_print(bio));
+    speculate(specs[bio], 
+              sprintf("\tSCSI DEV %d:%d:%d:%d %s\n", 
+                      host_no, channel, lun, dev_id, device_state_str));
+    speculate(specs[bio], 
+              sprintf("\tSCSI PKT flags: %x comp: %s\n", 
+                      @cast(req_addr, "struct request")->cmd_flags, 
+                      symname($cmd->scsi_done)));
+}
+
+probe ioblock.end {
+    bio = $bio;
+
+    speculate(specs[bio], probe_print(bio));
+
+    commit(specs[bio]);
+}

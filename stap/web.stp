@@ -1,0 +1,76 @@
+/**
+    # export PATH="$PATH:/usr/local/apache2/bin:/usr/local/apache2/modules/:/usr/local/mysql/bin/"
+*/
+
+global parsequery;
+global execquery;
+
+function basename:string(s:string) {
+    len = strlen(s)
+    i = len
+    
+    while(i > 0) {
+        /* 47 is code for '/' */
+        if(stringat(s, i - 1) == 47)
+            return substr(s, i, len - i);
+            
+        --i;
+    }
+    
+    return s;
+}
+
+probe process("httpd").mark("internal__redirect")  {
+    printf("[httpd] redirect\t'%s' -> '%s'\n", 
+           user_string($arg1), user_string($arg2));
+}
+
+probe process("httpd").mark("read__request__entry") {
+    printf("[httpd] read-request\n");
+}
+
+probe process("httpd").mark("read__request__success") {
+    servername = ($arg4) ? user_string($arg4) : "???";
+    
+    printf("[httpd] read-request\t%s %s %s  [status: %d]\n",
+           user_string($arg2), servername, user_string($arg3), $arg5);
+}
+
+probe process("httpd").mark("process__request__entry") {
+    printf("[httpd] process-request\t'%s'\n", user_string($arg2));
+}
+
+probe process("httpd").mark("process__request__return") {
+    printf("[httpd] process-request\t'%s' access-status: %d\n",
+           user_string($arg2), $arg3);
+}
+
+probe process("libphp5.so").mark("request__startup"),
+      process("libphp5.so").mark("request__shutdown") {
+    printf("[ PHP ] %s\t%s '%s' file: %s \n", pn(), user_string($arg3),
+           user_string($arg2), user_string($arg1));
+}
+
+probe process("libphp5.so").mark("function__entry"),
+      process("libphp5.so").mark("function__return") {
+    printf("[ PHP ] %s\t%s%s%s file: %s:%d \n", pn(), 
+          user_string($arg4), user_string($arg5), user_string($arg1),
+          basename(user_string($arg2)), $arg3);
+}
+
+probe process("mysqld").mark("query__parse__start") {
+   parsequery[tid()] = user_string_n($arg1, 1024);
+}
+
+probe process("mysqld").mark("query__parse__done") {
+   printf("[MySQL] query-parse\t'%s' status: %d\n", parsequery[tid()], $arg1);
+}
+
+probe process("mysqld").mark("query__exec__start") {
+   execquery[tid()] = user_string_n($arg1, 1024);
+}
+
+probe process("mysqld").mark("query__exec__done") {
+   printf("[MySQL] query-exec\t'%s' status: %d\n", execquery[tid()], $arg1);
+}
+

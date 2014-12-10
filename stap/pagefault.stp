@@ -1,0 +1,121 @@
+#!/usr/bin/stap
+
+/**
+ * pagefault.stp
+ * 
+ * Трассирует страничные сбои, обрабатываемые функцией handle_mm_fault
+ * 
+ * Оттестировано на Linux 2.6.32
+ */
+
+global fault_flags;
+global vma_flags;
+
+probe begin {
+    /* См. linux/mm.h */
+    fault_flags[0] = "WRITE";        fault_flags[1] = "NONLINEAR";
+    fault_flags[2] = "MKWRITE";      fault_flags[3] = "ALLOW_RETRY";
+    fault_flags[4] = "RETRY_NOWAIT"; fault_flags[5] = "KILLABLE";
+    
+    vma_flags[0] = "VM_GROWSDOWN";
+    vma_flags[1] = %( CONFIG_STACK_GROWSUP == "y" || arch == "ia64"
+                     %? "VM_GROWSUP" 
+                     %: "VM_NOHUGEPAGE" %);
+    vma_flags[2] = "VM_PFNMAP";
+    vma_flags[3] = "VM_DENYWRITE";
+    vma_flags[4] = "VM_EXECUTABLE";
+    vma_flags[5] = "VM_LOCKED";
+    vma_flags[6] = "VM_IO";
+    vma_flags[7] = "VM_SEQ_READ";
+    vma_flags[8] = "VM_RAND_READ";
+    vma_flags[9] = "VM_DONTCOPY";
+    vma_flags[10] = "VM_DONTEXPAND";
+    vma_flags[11] = "VM_RESERVED";
+    vma_flags[12] = "VM_ACCOUNT";
+    vma_flags[13] = "VM_NORESERVE";
+    vma_flags[14] = "VM_HUGETLB";
+    vma_flags[15] = "VM_NONLINEAR";
+    vma_flags[16] = %( CONFIG_TRANSPARENT_HUGEPAGE == "y" 
+                        %? "VM_HUGEPAGE" 
+                        %: "VM_MAPPED_COPY" %);
+    vma_flags[17] = "VM_INSERTPAGE";
+    vma_flags[18] = "VM_ALWAYSDUMP";
+    vma_flags[19] = "VM_CAN_NONLINEAR";
+    vma_flags[20] = "VM_MIXEDMAP";
+    vma_flags[21] = "VM_SAO";
+    vma_flags[22] = "VM_PFN_AT_MMAP";
+    vma_flags[23] = "VM_MERGEABLE";
+}
+
+function prot_str:string(prot: long) {
+    return sprintf("%s%s%s%s",
+            (prot & 0x1) ? "r" : "-",
+            (prot & 0x2) ? "w" : "-",
+            (prot & 0x4) ? "x" : "-",
+            (prot & 0x8) ? "s" : "-");
+}
+
+function vma_flags_str:string(flags: long) {
+    prot = flags & 0xf;
+    mprot = (flags >> 4) & 0xf;
+    flags = flags >> 8;
+    
+    for(i = 0; i < 23; ++i) {
+        if(flags & 1) {
+            str = sprintf("%s|%s", str, vma_flags[i]);
+        }
+        
+        flags >>= 1;
+    }
+    
+    return sprintf("prot: %s may: %s flags: %s", 
+                    prot_str(prot), prot_str(mprot),
+                    substr(str, 1, strlen(str) - 1));
+}
+
+function fault_flags_str:string(flags: long) {
+    for(i = 0; i < 6; ++i) {
+        if(flags & 1) {
+            str = sprintf("%s|%s", str, fault_flags[i]);
+        }
+        
+        flags >>= 1;
+    }
+    
+    /* Вырезаем первый знак '|' */
+    return substr(str, 1, strlen(str) - 1);
+}
+
+function vm_fault_str(fault_type: long) {
+    if(vm_fault_contains(fault_type, VM_FAULT_OOM))
+        return "OOM";
+    else if(vm_fault_contains(fault_type, VM_FAULT_SIGBUS))
+        return "SIGBUS";
+    else if(vm_fault_contains(fault_type, VM_FAULT_MINOR))
+        return "MINOR";
+    else if(vm_fault_contains(fault_type, VM_FAULT_MAJOR))
+        return "MAJOR";
+    else if(vm_fault_contains(fault_type, VM_FAULT_NOPAGE))
+        return "NOPAGE";
+    else if(vm_fault_contains(fault_type, VM_FAULT_LOCKED))
+        return "LOCKED";
+    else if(vm_fault_contains(fault_type, VM_FAULT_ERROR))
+        return "ERROR";
+    
+    return "???";
+}
+
+probe vm.pagefault {
+    printf("vm.pagefault pid: %d mm: %p\n", pid(), $mm);
+    printf("\taddr: %p flags: %s\n", $address, fault_flags_str($flags));
+    printf("\tVMA [%p:%p]\n", $vma->vm_start, $vma->vm_end);
+    printf("\t%s\n", vma_flags_str($vma->vm_flags));
+    printf("\tamp: %p\n", $vma->anon_vma) 
+    
+    if($vma->vm_file != 0)
+        printf("\tfile: %s\n", d_name($vma->vm_file->f_path->dentry)) 
+}
+
+probe vm.pagefault.return { 
+    printf("\t => pid: %d pf: %s\n", pid(), vm_fault_str(fault_type));
+}

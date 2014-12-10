@@ -1,0 +1,169 @@
+/**
+ * taskdump.stp
+ * 
+ * Один раз в секунду печатает информацию по текущему процессу
+ * Включает функции извлечения из task_struct
+ * 
+ * Оттестировано на 2.6.32
+ */
+
+/**
+ * dentry_name и file_dentry
+ * Функции-помошники, позволяющие получать имя открытого файла 
+ * по структуре file* или его dentry в кеше файловых узлов
+ * 
+ * ЗАМЕЧАНИЕ: Linux не кеширует имена нод, поэтом dentry_name вернет только
+ * базовое имя
+ * Более подробные разъяснения будут даны в части, посвященной VFS
+ */
+function dentry_name:string(dentry:long)
+{
+	len = @cast(dentry, "dentry")->d_name->len;
+	return kernel_string_n(@cast(dentry, "dentry")->d_name->name, len);
+}
+
+function file_dentry:long (file:long) {
+  return (@defined(@cast(file,"file")->f_path->dentry)
+    ? @cast(file,"file")->f_path->dentry
+    : @cast(file,"file")->f_dentry)
+}
+
+/**
+ * Печатает имя исполняемого файла по mm->exe_file
+ */
+function task_exefile(mm_ptr:long) {
+	if(mm_ptr) {
+		dentry = file_dentry(@cast(mm_ptr, "mm_struct")->exe_file);
+		printf("\texe: %s\n", dentry_name(dentry));
+	}
+}
+/**
+ * Печатает корневую и текущую директории процесса
+ */
+function task_paths(fs_ptr:long) {
+	if(fs_ptr) {
+		root = @cast(fs_ptr, "fs_struct")->root->dentry; 
+		cwd = @cast(fs_ptr, "fs_struct")->pwd->dentry;
+		printf("\troot: %s\n", dentry_name(root));
+		printf("\tcwd: %s\n", dentry_name(cwd));
+	}
+}
+
+/**
+ * Печатает аргументы. Аргументы отображены в виртуальное адресное 
+ * пространство процесса и представляют собой область памяти (mm->arg_start; 
+ * mm_arg_end), содержащую последовательно стоящие строки, например:
+ * 
+ * +-----+----+-------------+----+
+ * | cat | \0 | /etc/passwd | \0 |
+ * +-----+----+-------------+----+
+ * ^                             ^
+ * arg_start                     arg_end
+ * 
+ * ЗАМЕЧАНИЕ: функции user_string* читают из текущего пространства процесса. 
+ * Для получения аргументов из стороннего процесса используйте Embedded C
+ * и функцию ядра proc_pid_cmdline
+ */
+function task_args(mm_ptr:long) {
+	if(mm_ptr) {
+		arg_start = @cast(mm_ptr, "mm_struct")->arg_start;
+		arg_end = @cast(mm_ptr, "mm_struct")->arg_end;
+		if (arg_start != 0 && arg_end != 0)
+		{
+			len = arg_end - arg_start;
+			nr = 0;
+
+			/*Выбираем первый аргумент*/
+			arg = user_string2(arg_start, "");
+			while (len > 0)
+			{
+				printf("\targ%d: %s\n", nr, arg);
+				arg_len = strlen(arg);
+				arg_start += arg_len + 1;
+				len -= arg_len + 1;
+				nr++;
+
+				arg = user_string2(arg_start, "");
+			}
+		}
+	}
+}
+
+/**
+ * Возвращает файловый дескриптор из таблицы по номеру fd
+ * 
+ * См. также: реализацию pfiles.stp
+ */
+function task_fd_filp:long(files:long, fd:long) {
+	filp = @cast(files, "files_struct")->fdt->fd[fd];
+
+	return filp;
+}
+
+function task_fds(task:long) {
+	task_files = @cast(task, "task_struct", "kernel<linux/sched.h>")->files;
+
+	if(task_files) {
+		max_fds = task_max_file_handles(task);
+
+		for (fd = 0; fd < max_fds; fd++) {
+			filp = task_fd_filp(task_files, fd);
+
+			if(filp) {
+				dentry = file_dentry(filp);
+				path = dentry_name(dentry);
+				printf("\tfile%d: %s\n", fd, path);
+			}
+		}
+	}
+}
+
+/**
+ * Печатает разницу время запуска системы
+ * start time - монотонное (monotonic)
+ * real start time - с момента запуска системы (bootbased)
+ */
+function task_start_time_x(task:long) {
+	if(@defined(@cast(task, "task_struct", "kernel<linux/sched.h>")
+			->start_time)) {
+		start_time_sec = @cast(task, "task_struct", "kernel<linux/sched.h>")
+			->start_time->tv_sec;
+		real_time_sec = @cast(task, "task_struct", "kernel<linux/sched.h>")
+			->real_time->tv_sec;	
+	}
+	else {
+      	start_time_sec = 0;
+      	real_time_sec = @cast(task, "task_struct", "kernel<linux/sched.h>")
+			->real_start_time->tv_sec;
+	}
+
+	printf("\tstart time: %ds\t real start time: %ds\n", start_time_sec, real_time_sec);
+}
+
+/**
+ * Печатает статистику выполнения задачи на процессоре
+ */
+function task_time_stats(task:long) {
+	user = @cast(task, "task_struct", "kernel<linux/sched.h>")->utime;
+	kernel = @cast(task, "task_struct", "kernel<linux/sched.h>")->stime;
+	
+	printf("\tuser: %s\t kernel: %s\n", cputime_to_string(user), cputime_to_string(kernel));
+}
+
+function dump_task(task:long) {
+	task_mm = @cast(task, "task_struct", "kernel<linux/sched.h>")->mm;
+	task_fs = @cast(task, "task_struct", "kernel<linux/sched.h>")->fs;
+
+	printf("Task %p is %d@%d %s\n", task, task_pid(task), task_cpu(task), task_execname(task));
+
+	task_exefile(task_mm);
+	task_paths(task_fs);
+	task_args(task_mm);
+	task_fds(task);
+	task_start_time_x(task);
+	task_time_stats(task);
+}
+
+probe timer.s(1) {
+    dump_task(task_current());
+}
