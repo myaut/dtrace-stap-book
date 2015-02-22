@@ -1,0 +1,28 @@
+global open, creat, success
+global O_CREAT = 64;
+
+probe syscall.open {
+    if(flags & O_CREAT)
+        creat[execname(), pid()] <<< 1;
+    else
+        open[execname(), pid()] <<< 1;
+}
+
+probe syscall.open.return {
+    if($return >= 0)
+        success[execname(), pid()] <<< 1;
+}
+
+probe timer.s($1) {
+    println(ctime(gettimeofday_s()));
+    
+    printf("%12s %6s %6s %6s %s\n", 
+           "EXECNAME", "PID", "CREATE", "OPEN", "SUCCESS");
+    foreach([en, pid+] in open) {
+        printf("%12s %6d %6d %6d %d\n", 
+               en, pid, @count(creat[en, pid]), @count(open[en, pid]),
+               @count(success[en, pid]));
+    }
+
+    delete open; delete creat; delete success;
+}
