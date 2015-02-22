@@ -163,6 +163,6 @@ function dump_task(task:long) {
 	task_time_stats(task);
 }
 
-probe timer.s(1) {
+probe kprocess.exec_complete, kprocess.exit {
     dump_task(task_current());
 }

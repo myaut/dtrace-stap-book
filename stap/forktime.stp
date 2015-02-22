@@ -1,0 +1,48 @@
+global tm_fork_start_par[128], tm_fork_start[128], tm_fork_end[128], 
+       tm_exec_start[128], tm_exec_end[128], p_argstr[128];
+global fork[128], postfork[128], exec[128], proc[128];
+
+probe syscall.fork {
+    tm_fork_start_par[tid()] = local_clock_us();   
+}
+probe syscall.fork.return {
+    if($return > 1) {
+        tm_fork_start[$return] = tm_fork_start_par[tid()];
+        delete tm_fork_start_par[tid()];
+    }
+}
+probe kprocess.start {
+    tm_fork_end[pid()] = local_clock_us();
+}
+probe kprocess.exec {
+    p_argstr[pid()] = argstr;
+    tm_exec_start[pid()] = local_clock_us();
+}
+probe kprocess.exec_complete {
+    tm_exec_end[pid()] = local_clock_us();
+}
+probe kprocess.exit {
+    argstr = p_argstr[pid()];
+
+    fork[execname(), argstr] <<< tm_fork_end[pid()] - tm_fork_start[pid()];
+    postfork[execname(), argstr] <<< tm_exec_start[pid()] - tm_fork_end[pid()];
+    exec[execname(), argstr] <<< tm_exec_end[pid()] - tm_exec_start[pid()];
+    proc[execname(), argstr] <<< local_clock_us() - tm_exec_end[pid()];
+
+    delete tm_fork_start[pid()];    delete tm_fork_end[pid()];
+    delete tm_exec_start[pid()];    delete tm_exec_end[pid()];
+    delete p_argstr[pid()];
+}
+
+probe timer.s(1) {
+    printf("%48s %8s %8s %8s %8s\n",
+            "COMMAND", "FORK", "POSTFORK", "EXEC", "PROC");
+    foreach([execname, args] in proc) {
+        printf("%10s %36s  %6dus %6dus %6dus %6dus\n", execname, args, 
+                @avg(fork[execname, args]), 
+                @avg(postfork[execname, args]), 
+                @avg(exec[execname, args]), 
+                @avg(proc[execname, args]));
+    }
+    delete fork; delete postfork; delete exec; delete proc;
+}

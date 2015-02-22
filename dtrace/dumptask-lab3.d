@@ -134,9 +134,9 @@ BEGIN {
     fdnum = 0;
 }
 
-tick-1s {
+proc:::exec-*, proc:::exit {
     DUMP_TASK(curthread);
 }
 
-DUMP_ARG_PROBE(tick-1s)
-DUMP_FILE_PROBE(tick-1s)
+DUMP_ARG_PROBE(proc:::exec-*)   DUMP_ARG_PROBE(proc:::exit)
+DUMP_FILE_PROBE(proc:::exec-*)  DUMP_FILE_PROBE(proc:::exit)
