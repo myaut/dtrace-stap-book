@@ -1,0 +1,35 @@
+global O_WRONLY = 1;
+global O_RDWR = 2;
+global O_APPEND = 1024;
+global O_CREAT = 64;
+
+global t_path, t_flags;
+
+probe syscall.open {
+    t_path[tid()] = filename;
+    t_flags[tid()] = flags;
+}
+
+probe syscall.open.return {
+    flags = t_flags[tid()];
+
+    if(flags & O_RDWR) {
+        flags_str = "O_RDWR";
+    }
+    else if(flags & O_WRONLY) {
+        flags_str = "O_WRONLY";
+    }
+    else {
+        flags_str = "O_RDONLY";
+    }
+    if(flags & O_APPEND) {
+        flags_str = sprintf("%s|%s", flags_str, "O_APPEND");
+    }
+    if(flags & O_CREAT) {
+        flags_str = sprintf("%s|%s", flags_str, "O_CREAT");
+    }
+
+    printf("%s[%d(%d:%d)] open(%s, %s) = %d\n",
+                execname(), pid(), uid(), gid(), 
+                t_path[tid()], flags_str, $return);
+}
