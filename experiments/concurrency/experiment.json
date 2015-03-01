@@ -1,0 +1,30 @@
+{
+    "name": "concurrency",
+    "steps": {        
+        "worker": {
+            "num_steps": 20,
+            "num_requests": 40,
+        }
+    },
+    "threadpools": {       
+        "tp_worker": {
+            "num_threads": 2,
+            "quantum": 1000000000,
+            "disp": {
+                "type": "benchmark"
+            },
+            "sched" : [
+                { "wid": "all",
+                  "objects": ["strand:0:0:0"] }
+            ]
+        }
+    },
+    "workloads" : {       
+        "worker": {
+            "wltype": "busy_wait",
+            "threadpool": "tp_worker",
+            "rqsched": { "type": "simple" },
+            "params": {  "num_cycles": 4000000 }
+        }
+    }
+}

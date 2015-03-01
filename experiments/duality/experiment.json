@@ -1,0 +1,54 @@
+{
+    "name": "duality",
+    "steps": {
+        "manager": {
+            "num_steps": 20,
+            "num_requests": 20,
+        },
+        "worker": {
+            "num_steps": 20,
+            "num_requests": 20,
+        }
+    },
+    "threadpools": {
+        "tp_manager": {
+            "num_threads": 1,
+            "quantum": 1000000000,
+            "disp": {
+                "type": "round-robin"
+            },
+            "sched" : [
+                { "wid": 0,
+                  "objects": ["strand:0:0:0"] }
+            ]
+        },
+        "tp_worker": {
+            "num_threads": 1,
+            "quantum": 1000000000,
+            "disp": {
+                "type": "benchmark"
+            },
+            "sched" : [
+                { "wid": 0,
+                  "objects": ["strand:0:0:0"] }
+            ]
+        }
+    },
+    "workloads" : {
+        "manager": {
+            "wltype": "busy_wait",
+            "threadpool": "tp_manager",
+            "rqsched": {
+                "type": "iat",
+                "distribution": "exponential"
+            },
+            "params": {  "num_cycles": 800000 }
+        },
+        "worker": {
+            "wltype": "busy_wait",
+            "threadpool": "tp_worker",
+            "rqsched": { "type": "simple" },
+            "params": {  "num_cycles": 4000000 }
+        }
+    }
+}
