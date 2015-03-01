@@ -6,12 +6,11 @@
  * Использование: 
  *      сfstrace.stp CPU
  * 
- * Оттестировано на 2.6.32 (RedHat), 3.9
+ * Оттестировано на 3.10 (CentOS 7)
  */
 
 /* Глобальные параметры */
 global be_verbose = 1;
-global print_stacks = 0;
 global print_cfs_tree = 1;
 
 global pnetime;
@@ -23,6 +22,7 @@ global policy_names;
 
 global cpu_cfs_rq;
 global rq_curr;
+global rq_clock_task;
 
 /* get_task_se возвращает task_struct для se */
 function get_task_se:long(se:long) {
@@ -45,8 +45,8 @@ function get_rb_se:long(rb:long) {
 /* возвращает строку, соответствующую задаче t */
 function sprint_task(t:long) {
     policy = @cast(t, "struct task_struct")->policy;
-    return sprintf("t: %p %s/%d %s se: %p", t, task_execname(t), task_tid(t),
-                    policy_names[policy], get_se_task(t));
+    return sprintf("t: %p %s/%d %s", t, task_execname(t), task_tid(t),
+                    policy_names[policy]);
 }
 
 function sprint_cfs_rq_path(cfs_rq:long) {
@@ -70,36 +70,34 @@ function sprint_cfs_rq_path(cfs_rq:long) {
     catch {
         return "/???";
     }
-}   
+}
+    
+function sprint_vruntime(se:long, min_vruntime:long) {
+    vruntime = @cast(se, "struct sched_entity")->vruntime;
+    if(min_vruntime)
+        return sprintf("MIN+%d", vruntime - min_vruntime);
+    else
+        return sprintf("%d", vruntime);
+}
 
 /* Выводит информацию о сущности планирования se */
-function print_se(s:string, se:long, verbose:long) {
+function print_se(s:string, se:long, verbose:long, min_vruntime:long) {
     printf("\tse:%8s ", s);
     
     my_q = @cast(se, "struct sched_entity")->my_q;
     
     if(my_q == 0) {    
         println(sprint_task(get_task_se(se)));
-    }
-    else {
+    } else {
         printf("se: %p my_q: %p %s", se, my_q, sprint_cfs_rq_path(my_q));
     }
     
     if(verbose) {
-        printf("\t\tload.weight: %d load.inv_weight: %d exec_start: %d vruntime: %d sum_exec_runtime: %d\n",
-                    @cast(se, "struct sched_entity")->load->weight,
-                    @cast(se, "struct sched_entity")->load->inv_weight,
-                    @cast(se, "struct sched_entity")->exec_start,
-                    @cast(se, "struct sched_entity")->vruntime,
-                    @cast(se, "struct sched_entity")->sum_exec_runtime);
-        if(@defined(@cast(se, "struct sched_entity")->avg)) {
-            printf("\t\tavg: runnable_avg_sum: %d runnable_avg_period: %d \n",
-                        @cast(se, "struct sched_entity")->avg->runnable_avg_sum,
-                        @cast(se, "struct sched_entity")->avg->runnable_avg_period);
-            printf("\t\tavg: load_avg_contrib: %d decay_count: %d\n",
-                        @cast(se, "struct sched_entity")->avg->load_avg_contrib,
-                        @cast(se, "struct sched_entity")->avg->decay_count);
-        }
+        printf("\t\tload.weight: %d exec_start: RQ+%d vruntime: %s sum_exec_runtime: %d\n",
+               @cast(se, "struct sched_entity")->load->weight,
+               rq_clock_task - @cast(se, "struct sched_entity")->exec_start,
+               sprint_vruntime(se, min_vruntime), 
+               @cast(se, "struct sched_entity")->sum_exec_runtime);
     }
 }
 
@@ -109,61 +107,60 @@ function print_cfs_rq(cfs_rq:long, verbose:long) {
     skip = @cast(cfs_rq, "struct cfs_rq")->skip;
     last = @cast(cfs_rq, "struct cfs_rq")->last;
     nextse = @cast(cfs_rq, "struct cfs_rq")->next;
+    min_vruntime = @cast(cfs_rq, "struct cfs_rq")->min_vruntime;
     
     printf("\tCFS_RQ: %s\n", sprint_cfs_rq_path(cfs_rq));
 
     if(verbose) {
-        printf("\t\tnr_running: %d load.weight: %d load.inv_weight: %d \n",
+        printf("\t\tnr_running: %d load.weight: %d min_vruntime: %d\n",
             @cast(cfs_rq, "struct cfs_rq")->nr_running, 
             @cast(cfs_rq, "struct cfs_rq")->load->weight,
-            @cast(cfs_rq, "struct cfs_rq")->load->inv_weight);
+            @cast(cfs_rq, "struct cfs_rq")->min_vruntime);
         if(@defined(@cast(cfs_rq, "struct cfs_rq")->runnable_load_avg)) {
             printf("\t\trunnable_load_avg: %d blocked_load_avg: %d \n",
-                @cast(cfs_rq, "struct cfs_rq")->runnable_load_avg, 
-                @cast(cfs_rq, "struct cfs_rq")->blocked_load_avg);
+                   @cast(cfs_rq, "struct cfs_rq")->runnable_load_avg, 
+                   @cast(cfs_rq, "struct cfs_rq")->blocked_load_avg);
         }
         else {
             printf("\t\tload_avg: %d\n",
-                @cast(cfs_rq, "struct cfs_rq")->load_avg);
+                   @cast(cfs_rq, "struct cfs_rq")->load_avg);
         }
     }
     
     if(firstrb) {
         firstse = get_rb_se(firstrb);
-        print_se("first", firstse, verbose);
+        print_se("first", firstse, verbose, min_vruntime);
     }
     
-    if(skip)
-        print_se("skip", skip, 0);
-    if(last)
-        print_se("last", last, 0);
-    if(nextse)
-        print_se("next", nextse, 0);
+    if(skip) print_se("skip", skip, 0, min_vruntime);
+    if(last) print_se("last", last, 0, min_vruntime);
+    if(nextse) print_se("next", nextse, 0, min_vruntime);
+        
+    if(print_cfs_tree)
+        dump_cfs_rq(cpu_cfs_rq, be_verbose, min_vruntime);
 }
 
-function dump_cfs_rq_rb(indstr:string, rb:long, verbose:long) {
+function dump_cfs_rq_rb(indstr:string, rb:long, verbose:long, min_vruntime:long) {
     left  = @cast(rb, "struct rb_node")->rb_left;
     right = @cast(rb, "struct rb_node")->rb_right;
     
-    print_se(sprintf("%s:", indstr), get_rb_se(rb), verbose);
+    print_se(sprintf("%s:", indstr), get_rb_se(rb), verbose, min_vruntime);
     
-    if(left)
-        dump_cfs_rq_rb(sprintf("%s-l", indstr), left, verbose);
-    if(right)
-        dump_cfs_rq_rb(sprintf("%s-r", indstr), right, verbose);
+    if(left) dump_cfs_rq_rb(sprintf("%s-l", indstr), left, verbose, min_vruntime);
+    if(right) dump_cfs_rq_rb(sprintf("%s-r", indstr), right, verbose, min_vruntime);
 }
 
 /* Выводит дерево tasks_timeline очереди cfs_rq */
-function dump_cfs_rq(cfs_rq:long, verbose:long) {
+function dump_cfs_rq(cfs_rq:long, verbose:long, min_vruntime:long) {
     root = @cast(cfs_rq, "struct cfs_rq")->tasks_timeline->rb_node;
     
-    dump_cfs_rq_rb("rb", root, verbose);
+    if(root)
+        dump_cfs_rq_rb("rb", root, verbose, min_vruntime);
 }
 
 probe begin {
     pnetime = local_clock_ns();
-    cpu_cfs_rq = 0;
-    rq_curr = 0;
+    cpu_cfs_rq = 0;    rq_curr = 0;
 
     trace_cpu = $1;
 
@@ -174,27 +171,27 @@ probe begin {
     policy_names[4] = "SCHED_ISO";      policy_names[5] = "SCHED_IDLE";
 }
 
+/* pick_next_task_fair пытается найти следующую подходящую задачу на 
+   исполнение. pick_next_entity - функция-помощник для работы с группами */
 probe kernel.function("pick_next_task_fair") {
     if(cpu() != trace_cpu) next;
     
     pnetime2 = local_clock_ns();
     printf("=> pick_next_task_fair D=%d J=%d\n", pnetime2 - pnetime, $jiffies);
     
-    if(print_stacks)
-        print_backtrace();
-    
     pnetime = pnetime2;
     cpu_cfs_rq = &$rq->cfs;
 }
 
 probe kernel.function("pick_next_task_fair").return {
-    if(cpu() != trace_cpu) next;
+    if(cpu() != trace_cpu || cpu_cfs_rq == 0) next;
     
     printf("<= pick_next_task_fair\n");
 
     if($return != 0) {
         se = &$return->se;
-        print_se("sched", se, 0);
+        print_se("sched", se, 0,
+                 @cast(cpu_cfs_rq, "struct cfs_rq")->min_vruntime);
     }
     
     println("");
@@ -205,16 +202,15 @@ probe kernel.function("pick_next_entity") {
     if(cpu() != trace_cpu || cpu_cfs_rq == 0) next;
     
     printf("\tpick_next_entity\n");
-    print_cfs_rq(cpu_cfs_rq, be_verbose);
-    
-    if(print_cfs_tree)
-        dump_cfs_rq(cpu_cfs_rq, be_verbose);
+    print_cfs_rq(cpu_cfs_rq, be_verbose);   
 }
 
+/* task_tick_fair - функция системного тика*/
 probe kernel.function("task_tick_fair") {  
     if(cpu() != trace_cpu) next;
 
-    printf("=> task_tick_fair J=%d queued: %d curr: %s\n", $jiffies, $queued, sprint_task($curr));
+    printf("=> task_tick_fair J=%d queued: %d curr: %s\n", $jiffies, $queued, 
+           sprint_task($curr));
 
     rq_curr = get_se_task($curr);
     cpu_cfs_rq = &$rq->cfs;
@@ -226,10 +222,11 @@ probe kernel.function("sched_slice").return {
     printf("\tsched_slice: %d\n", $return);
 }
 
-probe kernel.function("check_preempt_tick") {
-    if(cpu() != trace_cpu || rq_curr == 0 || cpu_cfs_rq == 0) next;
+probe kernel.function("task_tick_fair").return {
+    if(cpu() != trace_cpu) next;
     
-    print_se("curr", rq_curr, be_verbose);
+    print_se("curr", rq_curr, be_verbose,
+             @cast(cpu_cfs_rq, "struct cfs_rq")->min_vruntime);
     printf("\t\tdelta_exec: %d\n", 
             @cast(rq_curr, "struct sched_entity")->sum_exec_runtime - 
             @cast(rq_curr, "struct sched_entity")->prev_sum_exec_runtime);
@@ -237,52 +234,45 @@ probe kernel.function("check_preempt_tick") {
     firstrb = @cast(cpu_cfs_rq, "struct cfs_rq")->rb_leftmost;
     if(firstrb) {
         firstse = get_rb_se(firstrb);
-        printf("\t\tdelta: %d", 
+        printf("\t\tdelta: %d\n", 
             @cast(rq_curr, "struct sched_entity")->vruntime - 
             @cast(firstse, "struct sched_entity")->vruntime);
     }
-}
-
-probe kernel.function("task_tick_fair").return {
-    if(cpu() != trace_cpu) next;
 
     cpu_cfs_rq = 0;
     rq_curr = 0;
 
-    println("<= task_tick_fair");
+    println("<= task_tick_fair\n");
 }
 
-probe kernel.function("wakeup_preempt_entity") {                                                                                                                                              
-    if(cpu() != trace_cpu || rq_curr == 0 || cpetrace == 0) next;
-                                                                                                                                                                                                                                                                                                                                                                           
-    vdiff = @cast(rq_curr, "struct sched_entity")->vruntime - $se->vruntime;                                                                                                                                                   
-                                                                                                                                                                                              
-    printf("\twakeup_preempt_entity: vdiff: %d\n", vdiff);      
-}  
-
+/* check_preempt_wakeup - проверяет, может ли просыпающаяся задача
+    вытеснить текущую */
 probe kernel.function("check_preempt_wakeup") {
     if(cpu() != trace_cpu) next;
     cpetrace = 1;
+       
+    cpu_cfs_rq = &$rq->cfs;
+    min_vruntime = @cast(cpu_cfs_rq, "struct cfs_rq")->min_vruntime;
 
     t_curr = task_current();
     t_se = $p;
 
     println("=> check_preempt_wakeup:");
-    printf("\tcurr: %s\n", sprint_task(t_curr));
-    printf("\tse: %s\n", sprint_task(t_se));
-    
-    if(print_stacks)
-        print_backtrace();
+    print_se("curr", get_se_task(t_curr), be_verbose, min_vruntime);   
+    print_se("se", get_se_task(t_se), be_verbose, min_vruntime);
 }
 
 probe kernel.function("check_preempt_wakeup").return {
     if(cpu() != trace_cpu) next;
-
-    cpetrace = 0;
     
-    printf("<= check_preempt_wakeup\n\n");
+    cpetrace = 0;
+
+    print_cfs_rq(cpu_cfs_rq, be_verbose);   
+    println("<= check_preempt_wakeup\n");
 }
 
+/* resched_task - перепланировать задачу. В новых версиях 
+   ядер заменена на resched_curr. */
 probe kernel.function("resched_task") {
     if(cpu() != trace_cpu || cpetrace == 0) next;
     
@@ -292,4 +282,8 @@ probe kernel.function("resched_task") {
        task_string = "???";
     
     printf("\tresched_task %s\n", task_string);
+}
+
+probe kernel.function("update_rq_clock").return {
+    rq_clock_task = $rq->clock_task;
 }

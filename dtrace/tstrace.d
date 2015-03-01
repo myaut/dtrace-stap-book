@@ -8,6 +8,8 @@
 */
 
 string classnames[struct thread_ops*];
+int disp_spec;
+int disp_commit;
 
 /* Преобразует время, содержащееся в t_disp_time/cpu_last_swtch в наносекунды
     - В Solaris 10 используется время в тиках (lbolt)
@@ -15,10 +17,8 @@ string classnames[struct thread_ops*];
    Макрос HRT_CONVERT преобразует немасштабированное время в наносекунды,
    HRT_DELTA вычисляет разность с текущим системным временем */
 #ifdef SOLARIS10
-#   define CLOCK_TICK_KTHREAD arg0
 #   define HRT_DELTA(ns)      (`nsec_per_tick * (`lbolt64 - (ns)))
 #else
-#   define CLOCK_TICK_KTHREAD arg1
 #   define __HRT_CONVERT(ts)                                         \
         (((ts >> (32 - NSEC_SHIFT)) * NSEC_SCALE)        +           \
          ((((ts << NSEC_SHIFT) & 0xFFFFFFFF) * NSEC_SCALE) >> 32))
@@ -65,9 +65,9 @@ string classnames[struct thread_ops*];
      (t->t_clfuncs == &`ia_classfuncs.thread))
 
 #define TCLNAME(t_clfuncs)      classnames[t_clfuncs] 
-  
-#define DUMP_KTHREAD_INFO(thread)                                        \
-    printf(" t: %p %s[%d]/%d %s pri: %d\n", thread,                      \
+
+#define DUMP_KTHREAD_INFO(hdr, thread)                                   \
+    printf("\t%s t: %p %s[%d]/%d %s pri: %d\n", hdr, thread,             \
        PSINFO(thread)->pr_fname, PSINFO(thread)->pr_pid, thread->t_tid,  \
        TCLNAME(thread->t_clfuncs), thread->t_pri)
 
@@ -78,20 +78,25 @@ string classnames[struct thread_ops*];
 
 #define DUMP_CPU_INFO(cpup)                                              \
     this->delta = HRT_DELTA((cpup)->cpu_last_swtch);                     \
-    printf("\tCPU : last switch: t-%d rr: %d kprr: %d\n",                \
-            this->delta, (cpup)->cpu_runrun, (cpup)->cpu_kprunrun);      \
-    printf("\t\tcurrent: "); DUMP_KTHREAD_INFO((cpup)->cpu_thread);      \
-    printf("\t\tdisp   : "); DUMP_KTHREAD_INFO((cpup)->cpu_dispthread);  \
+    printf("\tCPU : last switch: T-%dus rr: %d kprr: %d\n",                \
+            this->delta / 1000, (cpup)->cpu_runrun, (cpup)->cpu_kprunrun); \
+    DUMP_KTHREAD_INFO("\tcurrent", (cpup)->cpu_thread);                  \
+    DUMP_KTHREAD_INFO("\tdisp   ", (cpup)->cpu_dispthread);              \
     DUMP_DISP_INFO(cpup->cpu_disp) 
 
-#define DUMP_TSPROC_INFO(thread)        \
-    printf("\tTS  : timeleft: %d flags: %s \n\t\tcpupri: %d upri: %d boost: %d => %d\n", \
-            TSINFO(thread)->ts_timeleft, TSFLAGSSTR(thread),        \
+#define TS_QUANTUM_LEFT(tspp)                  \
+    ((tspp)->ts_flags & TSKPRI)                \
+        ?   (tspp)->ts_timeleft                \
+        :   (tspp)->ts_timer - (tspp)->ts_lwp->lwp_ac.ac_clock       
+
+#define DUMP_TSPROC_INFO(thread)                                    \
+    printf("\tTS: timeleft: %d flags: %s cpupri: %d upri: %d boost: %d => %d\n",  \
+            TS_QUANTUM_LEFT(TSINFO(thread)), TSFLAGSSTR(thread),    \
             TSINFO(thread)->ts_cpupri, TSINFO(thread)->ts_upri,     \
             TSINFO(thread)->ts_boost, TSINFO(thread)->ts_scpri )      
 
 BEGIN {
-    printf("Tracing CPU%d...", $1);
+    printf("Tracing CPU%d...\n", $1);
 
     classnames[&`ts_classfuncs.thread]  =  "TS";   
     classnames[&`ia_classfuncs.thread]  =  "IA";   
@@ -101,90 +106,78 @@ BEGIN {
     classnames[&`sysdc_classfuncs.thread] = "SDC";
 }
 
-/* Вспомогательные функции: cpu_surrender, setbackdq, setfrontdq */
+/* Вспомогательные функции: 
+    cpu_surrender - вызывается, когда поток покидает процессор
+    setbackdq  - вызывается, когда поток помещается в хвост очереди
+    setfrontdq  - вызывается, когда поток помещается в голову очереди */
 fbt::cpu_surrender:entry 
 /cpu == $1/ {
-    printf("\tcpu_surrender");
-    DUMP_KTHREAD_INFO(KTHREAD(arg0));
-}
-
-fbt::set*dq:entry 
-/KTHREADCPU(arg0) == $1/ {
-    self->kthreadcpu = KTHREADCPU(arg0);
-
-    printf("\t%s", probefunc);
-    DUMP_KTHREAD_INFO(KTHREAD(arg0));
+    DUMP_KTHREAD_INFO("cpu_surrender", KTHREAD(arg0));
 }
 
 fbt::set*dq:entry 
 /KTHREADCPU(arg0) == $1 && ISTSTHREAD(KTHREAD(arg0))/ {
-    DUMP_TSPROC_INFO(KTHREAD(arg0));
+    printf("=> %s \n", probefunc);
+    DUMP_KTHREAD_INFO(probefunc, KTHREAD(arg0));
+    DUMP_TSPROC_INFO(KTHREAD(arg0));    
 }
 
-fbt::set*dq:return 
-/self->kthreadcpu == $1/ {
-    printf("-----------------------------\n");
-    self->kthreadcpu = -1;
-}
-
-/* Функция планировщика disp() */
+/* Основная функция планировщика disp() */
 fbt::disp:entry 
 /cpu == $1/ {
+    disp_spec = speculation();
+    disp_commit = 0;
+    
+    speculate(disp_spec);
     printf("=> disp \n");
     DUMP_CPU_INFO(`cpu[$1]);
-
-    stack();
+}
+    
+fbt::disp:entry 
+/cpu == $1/ {
+    speculate(disp_spec);   DUMP_KTHREAD_INFO("curthread: ", curthread);
 }
 
-fbt::disp:entry
+fbt::disp:entry 
 /cpu == $1 && ISTSTHREAD(curthread)/ {
-    DUMP_TSPROC_INFO(curthread);
+    speculate(disp_spec);   DUMP_TSPROC_INFO(curthread);
+    disp_commit = 1;
 }
 
 fbt::disp:return
 /cpu == $1/ {
-    printf("<= disp\n");
-    DUMP_CPU_INFO(`cpu[$1]);
+    speculate(disp_spec);   DUMP_KTHREAD_INFO("disp", KTHREAD(arg1));
 }
 
 fbt::disp:return
 /cpu == $1 && ISTSTHREAD(KTHREAD(arg1))/ {
-    DUMP_TSPROC_INFO(KTHREAD(arg1));
+    speculate(disp_spec);   DUMP_TSPROC_INFO(KTHREAD(arg1));
+    disp_commit = 1;
 }
 
 fbt::disp:return
-/cpu == $1/ {
-    printf("-----------------------------\n");
+/cpu == $1 && disp_commit/ {
+    commit(disp_spec);    
 }
 
-/* Функция систеного тика clock_tick */
-fbt::clock_tick:entry 
-/cpu == $1/ {
+fbt::disp:return
+/cpu == $1 && !disp_commit/ {
+    discard(disp_spec);
+}
+
+/* Функция системного тика clock_tick */
+sched:::tick
+/cpu == $1 && ISTSTHREAD(KTHREAD(arg0))/ {
     printf("=> clock_tick \n");
     DUMP_CPU_INFO(`cpu[$1]);
-}
-
-fbt::clock_tick:entry 
-/cpu == $1 && ISTSTHREAD(KTHREAD(CLOCK_TICK_KTHREAD))/ {
-    DUMP_TSPROC_INFO(KTHREAD(CLOCK_TICK_KTHREAD));
-}
-
-fbt::clock_tick:return
-/cpu == $1/ {
-    printf("<= clock_tick \n");
-    printf("-----------------------------\n");
-}
-
-/* sched:::wakeup */
-sched:::wakeup
-/KTHREADCPU(arg0) == $1/ {
-    printf("=> %s [wakeup] \n", probefunc);
-    DUMP_CPU_INFO(`cpu[$1]);
-
-    stack();
+    DUMP_KTHREAD_INFO("clock_tick", KTHREAD(arg0));
+    DUMP_TSPROC_INFO(KTHREAD(arg0));    
 }
 
 sched:::wakeup
 /KTHREADCPU(arg0) == $1 && ISTSTHREAD(KTHREAD(arg0))/ {
+    printf("=> %s [wakeup] \n", probefunc);
+    DUMP_CPU_INFO(`cpu[$1]);
+    DUMP_KTHREAD_INFO("wakeup", KTHREAD(arg0));
     DUMP_TSPROC_INFO(KTHREAD(arg0));
 }
