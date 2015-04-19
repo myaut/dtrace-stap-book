@@ -5,7 +5,7 @@
  * 
  * Трассирует страничные сбои, обрабатываемые функцией handle_mm_fault
  * 
- * Оттестировано на Linux 2.6.32
+ * Оттестировано на Linux 3.10
  */
 
 global fault_flags;
@@ -17,34 +17,15 @@ probe begin {
     fault_flags[2] = "MKWRITE";      fault_flags[3] = "ALLOW_RETRY";
     fault_flags[4] = "RETRY_NOWAIT"; fault_flags[5] = "KILLABLE";
     
-    vma_flags[0] = "VM_GROWSDOWN";
-    vma_flags[1] = %( CONFIG_STACK_GROWSUP == "y" || arch == "ia64"
-                     %? "VM_GROWSUP" 
-                     %: "VM_NOHUGEPAGE" %);
-    vma_flags[2] = "VM_PFNMAP";
-    vma_flags[3] = "VM_DENYWRITE";
-    vma_flags[4] = "VM_EXECUTABLE";
-    vma_flags[5] = "VM_LOCKED";
-    vma_flags[6] = "VM_IO";
-    vma_flags[7] = "VM_SEQ_READ";
-    vma_flags[8] = "VM_RAND_READ";
-    vma_flags[9] = "VM_DONTCOPY";
-    vma_flags[10] = "VM_DONTEXPAND";
-    vma_flags[11] = "VM_RESERVED";
-    vma_flags[12] = "VM_ACCOUNT";
-    vma_flags[13] = "VM_NORESERVE";
-    vma_flags[14] = "VM_HUGETLB";
-    vma_flags[15] = "VM_NONLINEAR";
-    vma_flags[16] = %( CONFIG_TRANSPARENT_HUGEPAGE == "y" 
-                        %? "VM_HUGEPAGE" 
-                        %: "VM_MAPPED_COPY" %);
-    vma_flags[17] = "VM_INSERTPAGE";
-    vma_flags[18] = "VM_ALWAYSDUMP";
-    vma_flags[19] = "VM_CAN_NONLINEAR";
-    vma_flags[20] = "VM_MIXEDMAP";
-    vma_flags[21] = "VM_SAO";
-    vma_flags[22] = "VM_PFN_AT_MMAP";
-    vma_flags[23] = "VM_MERGEABLE";
+    vma_flags[0] = "VM_GROWSDOWN";      vma_flags[2] = "VM_PFNMAP";
+    vma_flags[3] = "VM_DENYWRITE";      vma_flags[5] = "VM_LOCKED";
+    vma_flags[6] = "VM_IO";             vma_flags[7] = "VM_SEQ_READ";
+    vma_flags[8] = "VM_RAND_READ";      vma_flags[9] = "VM_DONTCOPY";
+    vma_flags[10] = "VM_DONTEXPAND";    vma_flags[12] = "VM_ACCOUNT";
+    vma_flags[13] = "VM_NORESERVE";     vma_flags[14] = "VM_HUGETLB";
+    vma_flags[15] = "VM_NONLINEAR";     vma_flags[16] = "VM_ARCH_1";
+    vma_flags[18] = "VM_DONTDUMP";      vma_flags[20] = "VM_MIXEDMAP";
+    vma_flags[21] = "VM_HUGEPAGE";      vma_flags[22] = "VM_NOHUGEPAGE";
 }
 
 function prot_str:string(prot: long) {
