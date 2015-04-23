@@ -1,2 +1,5 @@
 .kdev4
 *.kdev4
+.sconsign.dblite
+build/
+*.pyc

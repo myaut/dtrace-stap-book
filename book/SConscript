@@ -1,0 +1,39 @@
+import sys
+
+from SCons.Errors import StopError
+
+Import('env')
+
+def GlobDocs(doc_dir):
+    return Dir(doc_dir).glob('*.md')
+
+doc_format = GetOption('doc_format')
+if doc_format == 'html':
+    doc_suffix = '.html'
+elif doc_format == 'markdown':
+    doc_suffix = '.md'
+elif doc_format == 'latex':
+    doc_suffix = '.tex'
+elif doc_format == 'creole':
+    doc_suffix = '.creole'            
+else:
+    raise StopError("Invalid documentation format '%s'" % doc_format)
+
+DocGenerator = Builder(action = Action('%s tsdoc/gen-doc.py $SOURCES' % (sys.executable)),
+                       src_suffix = '.md', suffix = doc_suffix)
+
+env.Append(BUILDERS = {'DocGenerator': DocGenerator})
+
+env.Append(ENV = {'TSDOC_FORMAT': doc_format})
+env.Append(ENV = {'TSDOC_HEADER': 'Dynamic Tracing with DTrace & SystemTap'})
+env.Append(ENV = {'TSDOC_HTML_TEMPLATE': File('../book/template.html').abspath})
+if GetOption('verbose'):
+    env.Append(ENV = {'TSDOC_VERBOSE': True})
+
+index = File('index.md')
+
+if doc_format == 'html':
+    for css in Dir('bootstrap').Dir('css').glob('*.css'):
+        env.Depends(index, css)
+
+env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools'))
