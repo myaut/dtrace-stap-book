@@ -1,0 +1,33 @@
+{   "name": "jump_table",
+    "steps": {
+        "jt": {
+            "num_steps":    100,
+            "num_requests": 2000 } 
+    },
+    "threadpools": {
+        "tp_jt" : {
+            "num_threads": 24,
+            "quantum": 2000000000,
+            "disp": { "type": "round-robin" } } 
+    },
+    "workloads" : {
+        "jt" : {
+            "wltype": "jt",
+            "threadpool": "tp_jt",
+            "params": {
+                "num_request_types": 5000,
+                "request_type": {
+                    "randgen": { "class": "lcg" } },
+                "is_incorrect": {
+                    "randgen": { "class": "lcg" },
+                    "pmap": [
+                        { "probability": 0.2, "value": true },
+                        { "probability": 0.8, "value": false }
+                    ] } },
+            "rqsched": {
+                "type": "iat",
+                "distribution": "exponential"
+            } 
+        } 
+    } 
+}
