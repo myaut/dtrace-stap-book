@@ -1,0 +1,29 @@
+#!/usr/bin/stap
+
+global allocs, frees;
+
+probe kernel.function("kmem_cache_alloc"),
+      kernel.function("kmem_cache_alloc_node") {
+    cache = @choose_defined($s, $cachep);
+    name = kernel_string(@cast(cache, "struct kmem_cache")->name);
+
+    allocs[name] <<< 1;
+}
+
+probe kernel.function("kmem_cache_free")  {
+    cache = @choose_defined($s, $cachep);
+    name = kernel_string(@cast(cache, "struct kmem_cache")->name);
+
+    frees[name] <<< 1;
+}
+
+probe timer.s(1) {
+    printf("%8s %8s %s\n", "ALLOCS", "FREES", "SLAB");
+    foreach([cache] in allocs) {
+        printf("%8u %8u %s\n", @count(allocs[cache]), 
+                @count(frees[cache]), cache);
+    }
+    
+    delete allocs;
+    delete frees;
+}

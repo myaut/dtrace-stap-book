@@ -1,0 +1,20 @@
+#!/usr/bin/stap
+
+global pfs;
+
+probe vm.pagefault {
+    vm_file = "???";
+    if($vma->vm_file != 0)
+        vm_file = d_name($vma->vm_file->f_path->dentry);
+
+    pfs[vm_file] <<< 1;
+}
+
+probe timer.s(1) {
+    printf("%8s %s\n", "FAULTS", "VMFILE");
+    foreach([vm_file] in pfs) {
+        printf("%8u %s\n", @count(pfs[vm_file]), vm_file);
+    }
+
+    delete pfs;
+}
