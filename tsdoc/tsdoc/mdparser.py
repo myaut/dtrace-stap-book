@@ -1,3 +1,4 @@
+import os
 import string
 import traceback
 
@@ -60,6 +61,8 @@ class MarkdownParser:
         self.table_block = None
         self.table_row = None
         
+        self.incut = None
+        
         self.text = text
     
     def init_state(self, **state):
@@ -68,6 +71,7 @@ class MarkdownParser:
             setattr(self, attr, value)
     
     def _error(self, idx, e):
+        traceback.print_exc()
         lineno = self.text[:idx].count('\n')
         print 'Parsing error at %s:%d:%d -> %s' % (self.name, lineno, idx, str(e))
     
@@ -94,6 +98,13 @@ class MarkdownParser:
             if char == '-':
                 try:
                     idx = self._parse_table(idx, char)
+                except Exception as e:
+                    self._error(idx, e)
+                continue
+            
+            if char == '!':
+                try:
+                    idx = self._parse_incut(idx, char)
                 except Exception as e:
                     self._error(idx, e)
                 continue
@@ -137,7 +148,10 @@ class MarkdownParser:
     
     def _parse_code(self, idx, char):
         count = self.ctl_count(idx, '`')
-             
+        
+        if count >= 5:
+            return self.code_listing_block(count, idx)
+        
         if count >= 3:
             # this is code block and not inline code
             if self.icode_cnt == -1:
@@ -145,6 +159,24 @@ class MarkdownParser:
         elif not isinstance(self.block, Code):
             # inline code
             self.inline_code(count, idx)
+        
+        return idx + count
+    
+    def _parse_incut(self, idx, char):
+        count = self.ctl_count(idx, '!')
+             
+        if count == 3:
+            # have to parse incut style
+            incut = None
+            if not self.incut:
+                nlidx = self.text.find('\n', idx + count)
+                incut = self.text[idx+count+1:nlidx]
+                incut = incut.split()
+                
+                count = nlidx - idx
+                
+            
+            self.incut_block(count, idx, incut)
         
         return idx + count
     
@@ -215,8 +247,8 @@ class MarkdownParser:
         elif char == '[':
             if self.link_pos == -1:
                 self.link_image = self.text[idx - 1] == '!'
-                self.begin_text(idx, 1, 
-                                link_pos=idx)
+                self.begin_text(idx - 1 if self.link_image else idx, 1, 
+                                link_pos = idx)
         elif char in [']', ')']:
             if not self.link_end_char and char == ']':
                 char = self.text[idx + 1]
@@ -474,6 +506,12 @@ class MarkdownParser:
             self.list_blocks = {}
             self.list_parent = None
         
+        if self.incut:
+            if self.block is not self.incut:
+                self.incut.add(self.block)
+            self.block = self.incut
+            return
+        
         if root_block:
             if self.block.parts:
                 self.blocks.append(self.block)
@@ -488,6 +526,41 @@ class MarkdownParser:
             self.end_block(idx)
             self.block = Code()
             self.in_code = True
+        self.text_pos += count
+    
+    def code_listing_block(self, count, idx):
+        # TODO: group
+        
+        # Parse parameters
+        nlidx = self.text.find('\n', idx + count)
+        params = self.text[idx+count+1:nlidx]
+        params = params.split()
+        
+        self.end_block(idx)
+        
+        # Read code from file if possible
+        fname = params[0]
+        code = ''
+        with open(fname) as f:
+            code = f.read()
+        
+        # Append as block
+        block = CodeListing(os.path.basename(fname))
+        block.add(code)
+        
+        self.blocks.append(block)
+        
+        # Ignore code listing text
+        self.text_pos = nlidx
+        
+        return nlidx
+    
+    def incut_block(self, count, idx, incut):
+        self.end_block(idx)
+        if not self.incut:
+            self.incut = self.block = Incut(incut[0])
+        else:
+            self.incut = None
         self.text_pos += count
     
     def _filter_escape(self, etext):
@@ -517,7 +590,7 @@ class MarkdownParser:
                    ('link_text_end', lambda pos: pos >= 0),
                    ('link_end_char', bool),
                    ('link_type', lambda pos: pos >= 0),
-                   ('block_quote', bool),
+                   ('block_quote', bool)
                   ]
     
     def dump_state(self, idx, opttext = ''):

@@ -148,7 +148,18 @@ class TableCell(Block):
 
 class BlockQuote(Block):
     pass
+
+class CodeListing(Code):
+    def __init__(self, fname = ''):
+        Code.__init__(self)
         
+        self.fname = fname
+
+class Incut(Block):
+    def __init__(self, style):
+        Block.__init__(self, [])
+        
+        self.style = style
 
 class NavLink(object):
     PREV = 0

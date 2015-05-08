@@ -36,4 +36,5 @@ if doc_format == 'html':
     for css in Dir('bootstrap').Dir('css').glob('*.css'):
         env.Depends(index, css)
 
-env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools'))
+docs = env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools')  + GlobDocs('lang'))
+env.AlwaysBuild(docs)

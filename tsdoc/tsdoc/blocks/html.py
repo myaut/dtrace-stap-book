@@ -14,6 +14,11 @@ class HTMLPrinter(Printer):
                  (NavLink.REF, 'pull-center', 'Reference'),
                  (NavLink.NEXT, 'pull-right', 'Next')]
     
+    INCUT_CLASSES = { 'DEF' : 'alert alert-success',
+                      'WARN' : 'alert',
+                      'INFO': 'alert alert-info',
+                      'DANGER': 'alert alert-error' }
+    
     def __init__(self, template_path):
         template_file = file(template_path, 'r')
         self.template = string.Template(template_file.read())
@@ -98,16 +103,18 @@ class HTMLPrinter(Printer):
         elif isinstance(block, TableRow):
             block_tags.append(('tr', None))
         elif isinstance(block, TableCell):
+            attrs = ''
             if block.colspan > 1:
-                attrs = 'colspan="%d"' % block.colspan
-            elif block.rowspan > 1:
-                attrs = 'rowspan="%d"' % block.rowspan
-            else:
-                attrs = None
+                attrs += ' colspan="%d"' % block.colspan
+            if block.rowspan > 1:
+                attrs += ' rowspan="%d"' % block.rowspan
             
             block_tags.append(('td', attrs))
         elif isinstance(block, BlockQuote):
-             block_tags.append(('blockquote', None))
+            block_tags.append(('blockquote', None))
+        elif isinstance(block, Incut):
+            _class = HTMLPrinter.INCUT_CLASSES[block.style]
+            block_tags.append(('div', 'class="{}"'.format(_class)))
         
         for tag, attrs in block_tags:
             self.stream.write(' ' * indent)
@@ -140,6 +147,11 @@ class HTMLPrinter(Printer):
                     tag = 'a'
                     tag_attrs['name'] = part.text
                     part.text = ''
+                elif isinstance(part, Image):
+                    # XXX: very dependent on book's directory structure
+                    tag = '<img src="{}" alt="{}" />'.format('../images/' + part.where, text)
+                    self.stream.write(tag)
+                    continue
                 elif isinstance(part, Link):
                     tag = 'a'
                     tag_attrs['href'] = part.where
