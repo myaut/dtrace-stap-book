@@ -9,3 +9,14 @@
 [__docspace__:tools]
 
  * [Tracing][tools/tracing]
+ * [Dynamic tracing][tools/dyntrace]
+ * [DTrace][tools/dtrace]
+ * [SystemTap][tools/systemtap]
+ * [Safety and errors][tools/safety]
+ * [Stability][tools/stability]
+ 
+### Module 2: Dynamic tracing languages
+[__docspace__:lang]
+
+ * [Introduction][lang/intro]
+

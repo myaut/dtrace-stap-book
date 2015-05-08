@@ -1,6 +1,10 @@
-!!! DEFINITION
+### Operating System Kernel
+
+!!! DEF
 According to Wikipedia, [Operating System Kernel](http://en.wikipedia.org/wiki/Kernel_%28operating_system%29) is
+
 > a computer program that manages I/O (input/output) requests from software, and translates them into data processing instructions for the central processing unit and other electron components of a computer. The kernel is a fundamental part of a modern computer's operating system.
+
 !!!
 
 We will refer to operating system kernel as _kernel_ in the rest of the book. To access various kernel functions applications are using _system call_ mechanism, and by doing that they transfer control to kernel routines. The current state of application including all variables and current _program counter_ is called _context_. C is a programming language which is vastly used for writing Unix-like operating systems kernels such as Solaris, FreeBSD and Linux. C supports only procedural programming, but kernel developers adopted object-oriented and even functional programming. 
@@ -21,6 +25,6 @@ Some sources about Solaris:
   * Richard McDougall and Jim Mauro book "Solaris(TM) Internals: Solaris 10 and OpenSolaris Kernel Architecture"
   * Oracle course "Solaris 10 Operating System Internals"
   
-!!! WARNING
+!!! WARN
 Solaris sources was closed after Oracle buyed Sun in 2009 and some information on Solaris become outdated.
 !!!

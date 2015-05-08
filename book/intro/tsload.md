@@ -4,7 +4,7 @@ During this course we will need to demostrate created scripts on a real system. 
 
 Experiment configuration files are kept in JSON format: each experiment starts with directory with `experiment.json` file in it (it can also be accompanied by traces and timeseries). This file contains description of threadpools and workloads: their types and parameters. 
 
-[listing:experiment.json]
+````` book/intro/experiment.json
 
 For example, [ref:experiment.json] defines an experiment called `jump_table`. `workloads` section defines workload `jt` which type is also `jt`. That workload have the following parameters:
 
