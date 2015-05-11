@@ -3,7 +3,7 @@
 global specs, times;
 
 function probe_print:string(bio:long) {
-    return sprintf("%-24s %p [%p:%d] %u\n", pn(), bio, task_current(), cpu(), 
+    return sprintf("%-24s %p cpu%d %u\n", pn(), bio, cpu(), 
                    gettimeofday_ns() - times[bio]);
 }
 
@@ -11,12 +11,21 @@ function proc_print:string() {
     return sprintf("\tPROC: %d/%d %s\n", pid(), tid(), execname());
 }
 
+function rq_probe_print(rq:long) {
+	bio = @cast(rq, "struct request")->bio;
+    biotail = @cast(rq, "struct request")->biotail;
+    
+    while(bio != biotail && bio != 0) {    
+        speculate(specs[bio], probe_print(bio));        
+        bio = @cast(bio, "struct bio")->bi_next;
+    }
+}
+
 probe ioblock.request {
     bio = $bio;
-    specs[$bio] = speculation();
-
+    specs[bio] = speculation();
     times[bio] = gettimeofday_ns();
-
+    
     speculate(specs[bio], probe_print(bio));
     speculate(specs[bio], proc_print());
     
@@ -28,22 +37,20 @@ probe ioblock.request {
     speculate(specs[bio], sprintf("\tDEV %s\tINO %d\n", devname, ino));
 }
 
-probe ioscheduler.elv_add_request {
-    if(rq == 0)
-        next;
-    bio = @cast(rq, "struct request")->bio;
-    speculate(specs[bio], probe_print(bio));
-    speculate(specs[bio], sprintf("\tDEV %d/%d\n", disk_major, disk_minor));
+probe ioscheduler.elv_add_request, ioscheduler.elv_completed_request {
+    if(rq == 0) next;    
+    rq_probe_print(rq);
+    // speculate(specs[bio], sprintf("\tDEV %d/%d\n", disk_major, disk_minor));
 }
 
-probe scsi.ioentry, scsi.iodone, scsi.iocompleted {
-    bio = @cast(req_addr, "struct request")->bio;
-    speculate(specs[bio], probe_print(bio));
+probe scsi.ioentry, scsi.iodone, scsi.iocompleted, scsi.iodispatching {
+    rq_probe_print(req_addr);
 }
 
 probe scsi.iodispatching {
-    bio = @cast(req_addr, "struct request")->bio;
-    speculate(specs[bio], probe_print(bio));
+    bio = @cast(req_addr, "struct request")->bio;        
+    rq_probe_print(req_addr);
+    
     speculate(specs[bio], 
               sprintf("\tSCSI DEV %d:%d:%d:%d %s\n", 
                       host_no, channel, lun, dev_id, device_state_str));
@@ -54,9 +61,10 @@ probe scsi.iodispatching {
 }
 
 probe ioblock.end {
-    bio = $bio;
-
+    bio = $bio;    
+    
     speculate(specs[bio], probe_print(bio));
-
     commit(specs[bio]);
+    
+    delete specs[bio]; delete times[bio];
 }
