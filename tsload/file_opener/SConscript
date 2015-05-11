@@ -1,0 +1,15 @@
+from pathutil import *
+
+target = 'file_opener'
+
+Import('env')
+
+mod = env.Clone()
+file_opener = mod.Module('load', target)
+
+experiment_json = File('experiment.json')
+
+mod.Depends(file_opener, [experiment_json])
+
+install_path = PathJoin(mod['INSTALL_VAR'], target)
+mod.InstallTarget(target, install_path, experiment_json)

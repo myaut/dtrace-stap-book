@@ -1,0 +1,51 @@
+{
+        "name": "proc_starter",
+        "steps": {
+                "open": {
+                        "num_steps": 10,
+                        "num_requests": 150
+                }
+        },
+        "threadpools": {
+                "tp_proc" : {
+                         "num_threads": 12,
+                         "quantum": 1000000000,
+                         "disp": {
+                                "type": "round-robin"
+                         }
+                }
+        },
+        "workloads": {
+                "open": {
+                        "wltype": "proc_starter",
+                        "threadpool": "tp_proc",
+                        "rqsched" : {
+                                "type": "iat",
+                                "distribution": "exponential"
+                        },
+                        "params": {
+                                "num_shells": 12,
+                                "command": {
+                                        "randgen": { "class": "lcg" }, 
+                                        "pmap" : [
+                                                { "probability": 0.4,
+                                                  "value": "cat /etc/passwd"
+                                                },
+                                                { "probability": 0.2,
+                                                  "value": "ls /var"
+                                                },
+                                                { "probability": 0.1,
+                                                  "value": "ls /usr/lib"
+                                                },
+                                                { "probability": 0.2,
+                                                  "value": "bash -c 'exit 0'"
+                                                },
+                                                { "probability": 0.1,
+                                                  "value": "gcc -v"
+                                                }
+                                        ]
+                                }
+                        }
+                }
+        }
+}

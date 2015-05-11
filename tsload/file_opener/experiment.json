@@ -1,0 +1,41 @@
+{
+	"name": "file_opener",
+	"steps": {
+		"open": {
+			"num_steps": 20,
+			"num_requests": 100
+		}
+	},
+	"threadpools": {
+		"tp_open" : {
+			 "num_threads": 2,
+			 "quantum": 1000000000,
+			 "disp": {
+			 	"type": "round-robin"
+			 }
+		}
+	},
+	"workloads": {
+		"open": {
+			"wltype": "file_opener",
+			"threadpool": "tp_open",
+			"rqsched" : {
+				"type": "iat",
+				"distribution": "exponential"
+			},
+			"params": {
+				"root_dir": "/tmp/fopen1",
+				"created_files": 480,
+				"max_files": 1024,
+				"file": { "randgen": { "class": "lcg" } },
+				"create": {
+					"randgen": { "class": "lcg" }, 
+					"pmap" : [
+						{ "value" : true, "probability" : 0.3 },
+						{ "value" : false, "probability" : 0.7 }
+					]
+				}
+			}
+		}
+	}
+}

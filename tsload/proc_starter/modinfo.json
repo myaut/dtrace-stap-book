@@ -1,0 +1,26 @@
+{
+	"name": "proc_starter",
+	"wlt_class": [ "os" ],
+	"has_data": true,
+	"params": {
+		"num_shells": {
+			"_type": "tsload.wlparam.WLParamInteger",
+			"description": "Number of pre-forked shells. It is recommended to set this value to number of threads in threadpool.",
+			"min": 1,
+			"max": 1000			
+		},
+		"shell": {
+			"_type": "tsload.wlparam.WLParamString",
+			"optional": true,
+			"default": "/usr/bin/sh",
+			"description": "Path to pre-forked shell",
+			"len": 1024
+		},
+		"command": {
+			"_type": "tsload.wlparam.WLParamString",
+			"request": true,
+			"description": "Command to be executed in request",
+			"len": 512
+		}
+	}
+}

@@ -1,0 +1,41 @@
+import os
+
+from SCons.Action import ActionFactory
+
+PathJoin = os.path.join
+PathBaseName = os.path.basename
+PathExists = os.path.exists
+
+from SCons.Errors import StopError
+
+# Setup path to TSLoad
+AddOption('--with-tsload',  dest='tsload', action="store", 
+          default=PathJoin('/home/myaut/univer/tsload/agent/build/tsload-0.2.a1-linux2', 'share/tsload/devel'),
+          metavar='DIR', help='Path to tsload development directory')
+          
+if not GetOption('tsload') or not PathExists(GetOption('tsload')):
+    raise StopError('Provide path to tsload by specifying --with-tsload option')
+
+env = DefaultEnvironment(ENV = {'PATH': os.environ['PATH']})
+
+env['TSLOAD_DEVEL_PATH'] = GetOption('tsload')
+env['TSPROJECT'] = 'file_opener'
+env['TSVERSION'] = '0.1'
+env['TSNAME'] =  env['TSPROJECT'] + '-' + env['TSVERSION']
+
+env['TSEXTPATH'] = Dir('#').abspath
+
+env['VERBOSE_BUILD'] = ['cmdline']
+
+SConscript(PathJoin(env['TSLOAD_DEVEL_PATH'], 'SConscript.ext.py'), 'env')
+
+# ------------
+# MODULES
+
+modules = ['file_opener', 'proc_starter']
+
+for mod in modules:
+    variant_dir = env.BuildDir(PathJoin('file_opener', mod))
+    
+    SConscript(PathJoin(mod, 'SConscript'), 'env',
+               variant_dir = variant_dir)

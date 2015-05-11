@@ -1,0 +1,17 @@
+from pathutil import *
+import subprocess
+
+target = 'proc_starter'
+
+Import('env')
+
+mod = env.Clone()
+
+proc_starter = mod.Module('load', target)
+
+experiment_json = File('experiment.json')
+
+mod.Depends(proc_starter, [experiment_json])
+
+install_path = PathJoin(mod['INSTALL_VAR'], target)
+mod.InstallTarget(target, install_path, experiment_json)
