@@ -375,13 +375,14 @@ class MarkdownParser:
     
     def newline(self, idx):
         if self.table_block is not None:
-            # End current cell
-            self.end_block(idx, False)
-            
-            self.table_row = TableRow()
-            self.table_block.add(self.table_row)
-            
-            self._parse_table_cell(idx + 1)
+            if idx - 1 not in self._escape:
+                # End current cell
+                self.end_block(idx, False)
+                
+                self.table_row = TableRow()
+                self.table_block.add(self.table_row)
+                
+                self._parse_table_cell(idx + 1)
         
         if self.header_size >= 0:
             self.end_text(idx, 1, Header, [self.header_size], 

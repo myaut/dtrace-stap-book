@@ -74,13 +74,16 @@ class HTMLPrinter(Printer):
         return nav_home + '\n'.join(nav_links) 
     
     def _html_filter(self, block, s):
+        # FIXME: Allow to use raw HTML in Code (breaks compatibility with other printers!)
         if isinstance(block, Code):
             s = self._fix_tab_stops(s)
+            
+            s = s.replace('\\<', '&lt;')
+            s = s.replace('\\>', '&gt;')
+        else:
+            s = s.replace('<', '&lt;')
+            s = s.replace('>', '&gt;')
         
-        s = s.replace('<', '&lt;')
-        s = s.replace('>', '&gt;')
-        
-        if not isinstance(block, Code):
             s = s.replace('\n', '<br />')
         
         return s
