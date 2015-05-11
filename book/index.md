@@ -19,4 +19,16 @@
 [__docspace__:lang]
 
  * [Introduction][lang/intro]
-
+ * [Probes][lang/probes]
+ * [Arguments][lang/args]
+ * [Context][lang/context]
+ * [Predicates][lang/predicates]
+ * [Types and Variables][lang/vars]
+ * [Pointers][lang/pointers]
+ * [Strings and Structures][lang/strstr]
+    * [Exercise 1][lang/ex1]
+ * [Associative arrays and aggregations][lang/assocarr]
+ * [Time][lang/time]
+ * [Printing and speculations][lang/print]
+ * [Tapsets & translators][lang/tapset]
+     * [Exercise 2][lang/ex2]

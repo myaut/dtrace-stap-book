@@ -1,0 +1,18 @@
+global wstat;
+
+probe syscall.write {
+    wstat[pid(), execname(), fd] <<< count;
+}
+
+probe timer.s(1) {
+    printf("%5s %12s %3s %7s %7s\n",
+        "PID", "EXECNAME", "FD", "OPS", "KBYTES");
+
+    foreach([pid+, execname, fd] in wstat) {
+        printf("%5d %12s %3d %7u %7u\n", 
+                    pid, execname, fd, @count(wstat), 
+                    @sum(wstat) / 1024);
+    }
+
+    delete wstat;
+}

@@ -1,0 +1,13 @@
+probe lstat = kernel.function("sys_lstat64").return ? ,
+              kernel.function("sys32_lstat64").return ? {
+    filename = user_string($filename);
+    size = user_uint64(& @cast($statbuf, "struct stat64")->st_size);
+}
+
+probe lstat = kernel.function("sys_newlstat").return ? {
+    filename = user_string($filename);
+%( arch == "x86_64"
+%?  size = user_uint64(& @cast($statbuf, "struct stat")->st_size);
+%:  size = user_uint32(& @cast($statbuf, "struct stat")->st_size);
+%)
+}

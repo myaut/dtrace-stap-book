@@ -1,0 +1,50 @@
+#!/usr/bin/stap
+
+
+
+function rq_print(rq:long) {
+    bio = @cast(rq, "struct request")->bio;
+    biotail = @cast(rq, "struct request")->biotail;
+    
+    if(bio == 0) {
+		printf("RQ: %p NO BIO!\n", rq);
+		return 0;
+	}
+    
+    while(bio != biotail && bio != 0) {
+		dev = @cast(bio, "struct bio")->bi_bdev->bd_dev;
+        printf("RQ: %d,%d/%d --> %p\n", MAJOR(dev), MINOR(dev), 
+               @cast(bio, "struct bio")->bi_sector, rq);
+        bio = @cast(bio, "struct bio")->bi_next;
+    }
+}
+
+probe ioblock.request {
+	bio = $bio;
+	dev = @cast(bio, "struct bio")->bi_bdev->bd_dev;
+	printf("BIO %d,%d/%d\n", MAJOR(dev), MINOR(dev),
+           @cast(bio, "struct bio")->bi_sector);
+}
+
+probe kernel.function("get_request").return {
+	bio = $bio;	
+	rq = $return;
+	
+	if(bio == 0) {
+		println("GETRQ -> NO BIO");
+		next;
+	}
+	
+	if(rq == 0) {
+		println("GETRQ -> NO RQ");
+		next;
+	}
+	
+	dev = @cast(bio, "struct bio")->bi_bdev->bd_dev;
+	printf("RQ: %d,%d/%d --> %p\n", MAJOR(dev), MINOR(dev), 
+           @cast(bio, "struct bio")->bi_sector, rq);
+}
+
+probe scsi.ioentry {
+	rq_print(req_addr);
+}
