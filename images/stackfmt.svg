@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="670.08966"
+   height="205.14285"
+   id="svg3019"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="stackfmt.svg">
+  <defs
+     id="defs3021" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="515.73177"
+     inkscape:cy="-81.183486"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1136"
+     inkscape:window-x="1919"
+     inkscape:window-y="-15"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata3024">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-18.848803,-5.8621815)">
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="67.14286"
+       y="167.36218"
+       id="text3380"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3382"
+         x="67.14286"
+         y="167.36218"></tspan></text>
+    <g
+       id="g3606"
+       transform="translate(0,-0.17774324)">
+      <g
+         transform="translate(-137.14286,-222.48149)"
+         id="g3326">
+        <path
+           style="fill:#c6e9af;fill-opacity:1;stroke:#447821;stroke-width:0.66344386;stroke-opacity:1"
+           d="m 192.24152,283.81223 c -3.85373,0 -6.9614,2.46923 -6.9614,5.53125 l 0,25.96875 c 0,3.06202 3.10767,5.53125 6.9614,5.53125 l 28.75018,0 1.45521,16.875 59.15222,-16.875 26.6657,0 c 3.85373,0 6.92207,-2.46923 6.92207,-5.53125 l 0,-25.96875 c 0,-3.06202 -3.06834,-5.53125 -6.92207,-5.53125 l -116.02331,0 z"
+           id="rect3218-4"
+           inkscape:connector-curvature="0" />
+        <text
+           sodipodi:linespacing="125%"
+           id="text3988-3"
+           y="310.53152"
+           x="195.76138"
+           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           xml:space="preserve"><tspan
+             y="310.53152"
+             x="195.76138"
+             id="tspan3990-2"
+             sodipodi:role="line"
+             style="font-size:24px">Function</tspan></text>
+      </g>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3057"
+         y="135.32771"
+         x="16.768724"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           y="135.32771"
+           x="16.768724"
+           id="tspan3059"
+           sodipodi:role="line">syscall_call+0x7/0xb [kernel]</tspan></text>
+      <g
+         transform="translate(-137.14286,-222.60718)"
+         id="g3331">
+        <path
+           style="fill:#ffccaa;fill-opacity:1;stroke:#aa4400;stroke-width:0.59138125;stroke-opacity:1"
+           d="m 356.19495,417.6654 c 3.06202,0 5.53125,-2.46923 5.53125,-5.53125 l 0,-25.96875 c 0,-3.06202 -2.46923,-5.53125 -5.53125,-5.53125 l -22.84375,0 -1.15625,-16.875 -47,16.875 -21.1875,0 c -3.06202,0 -5.5,2.46923 -5.5,5.53125 l 0,25.96875 c 0,3.06202 2.43798,5.53125 5.5,5.53125 l 92.1875,0 z"
+           id="rect3218-4-1"
+           inkscape:connector-curvature="0" />
+        <text
+           sodipodi:linespacing="125%"
+           id="text3988-3-4"
+           y="407.51855"
+           x="271.17963"
+           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           xml:space="preserve"><tspan
+             y="407.51855"
+             x="271.17963"
+             id="tspan3990-2-8"
+             sodipodi:role="line"
+             style="font-size:24px">Offset</tspan></text>
+      </g>
+      <g
+         transform="translate(-137.14286,-225.15173)"
+         id="g3320">
+        <g
+           id="g3317">
+          <path
+             inkscape:connector-curvature="0"
+             id="rect3218-4-1-8"
+             d="m 410.76337,286.48247 c -3.06202,0 -5.53125,2.46923 -5.53125,5.53125 l 0,25.96875 c 0,3.06202 2.46923,5.53125 5.53125,5.53125 l 22.84375,0 1.15625,16.875 47,-16.875 21.1875,0 c 3.06202,0 5.5,-2.46923 5.5,-5.53125 l 0,-25.96875 c 0,-3.06202 -2.43798,-5.53125 -5.5,-5.53125 l -92.1875,0 z"
+             style="fill:#80b3ff;fill-opacity:1;stroke:#0044aa;stroke-width:0.59138125;stroke-opacity:1" />
+        </g>
+        <text
+           sodipodi:linespacing="125%"
+           id="text3988-3-4-9"
+           y="313.54999"
+           x="412.24387"
+           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           xml:space="preserve"><tspan
+             y="313.54999"
+             x="412.24387"
+             id="tspan3990-2-8-4"
+             sodipodi:role="line"
+             style="font-size:24px">Module</tspan></text>
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         x="16.608803"
+         y="44.141609"
+         id="text3988-3-8"
+         sodipodi:linespacing="125%"><tspan
+           style="font-size:40px"
+           sodipodi:role="line"
+           id="tspan3990-2-2"
+           x="16.608803"
+           y="44.141609">SystemTap:</tspan></text>
+    </g>
+    <g
+       id="g3625"
+       transform="translate(-35,0.71428572)">
+      <g
+         transform="translate(243.57143,-290.92822)"
+         id="g3568">
+        <path
+           style="fill:#c6e9af;fill-opacity:1;stroke:#447821;stroke-width:0.66344386;stroke-opacity:1"
+           d="m 368.71353,485.98644 c 3.85373,0 6.9614,-2.46922 6.9614,-5.53125 l 0,-25.96875 c 0,-3.06202 -3.10766,-5.53125 -6.9614,-5.53125 l -28.75018,0 -1.45521,-16.875 -59.15222,16.875 -26.6657,0 c -3.85373,0 -6.92207,2.46923 -6.92207,5.53125 l 0,25.96875 c 0,3.06203 3.06834,5.53125 6.92207,5.53125 l 116.02331,0 z"
+           id="rect3218-4-6"
+           inkscape:connector-curvature="0" />
+        <text
+           sodipodi:linespacing="125%"
+           id="text3988-3-47"
+           y="474.51379"
+           x="256.24942"
+           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           xml:space="preserve"><tspan
+             y="474.51379"
+             x="256.24942"
+             id="tspan3990-2-5"
+             sodipodi:role="line"
+             style="font-size:24px">Function</tspan></text>
+      </g>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3057-8"
+         y="135.67439"
+         x="457.56967"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           y="135.67439"
+           x="457.56967"
+           id="tspan3059-5"
+           sodipodi:role="line">unix`sys_call+0x100</tspan></text>
+      <g
+         transform="translate(64.285714,-150.69637)"
+         id="g3542">
+        <path
+           style="fill:#ffccaa;fill-opacity:1;stroke:#aa4400;stroke-width:0.59138125;stroke-opacity:1"
+           d="m 561.66958,212.02712 c -3.06202,0 -5.53125,2.46923 -5.53125,5.53125 l 0,25.96875 c 0,3.06202 2.46923,5.53125 5.53125,5.53125 l 22.84375,0 1.15625,16.875 47,-16.875 21.1875,0 c 3.06202,0 5.5,-2.46923 5.5,-5.53125 l 0,-25.96875 c 0,-3.06202 -2.43798,-5.53125 -5.5,-5.53125 l -92.1875,0 z"
+           id="rect3218-4-1-9"
+           inkscape:connector-curvature="0" />
+        <text
+           sodipodi:linespacing="125%"
+           id="text3988-3-4-5"
+           y="237.92938"
+           x="568.81055"
+           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           xml:space="preserve"><tspan
+             y="237.92938"
+             x="568.81055"
+             id="tspan3990-2-8-7"
+             sodipodi:role="line"
+             style="font-size:24px">Offset</tspan></text>
+      </g>
+      <g
+         transform="translate(54.53755,-225.15173)"
+         id="g3320-3">
+        <g
+           id="g3317-8">
+          <path
+             inkscape:connector-curvature="0"
+             id="rect3218-4-1-8-9"
+             d="m 410.76337,286.48247 c -3.06202,0 -5.53125,2.46923 -5.53125,5.53125 l 0,25.96875 c 0,3.06202 2.46923,5.53125 5.53125,5.53125 l 22.84375,0 1.15625,16.875 47,-16.875 21.1875,0 c 3.06202,0 5.5,-2.46923 5.5,-5.53125 l 0,-25.96875 c 0,-3.06202 -2.43798,-5.53125 -5.5,-5.53125 l -92.1875,0 z"
+             style="fill:#80b3ff;fill-opacity:1;stroke:#0044aa;stroke-width:0.59138125;stroke-opacity:1" />
+        </g>
+        <text
+           sodipodi:linespacing="125%"
+           id="text3988-3-4-9-5"
+           y="313.54999"
+           x="412.24387"
+           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           xml:space="preserve"><tspan
+             y="313.54999"
+             x="412.24387"
+             id="tspan3990-2-8-4-2"
+             sodipodi:role="line"
+             style="font-size:24px">Module</tspan></text>
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         x="454.95398"
+         y="42.40958"
+         id="text3988-3-8-2"
+         sodipodi:linespacing="125%"><tspan
+           style="font-size:40px"
+           sodipodi:role="line"
+           id="tspan3990-2-2-5"
+           x="454.95398"
+           y="42.40958">DTrace:</tspan></text>
+    </g>
+    <path
+       style="fill:none;stroke:#cccccc;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 394.28571,7.3621815 0,202.1428585"
+       id="path3644"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

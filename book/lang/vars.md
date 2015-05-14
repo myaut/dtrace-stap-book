@@ -132,7 +132,7 @@ syscall.read.return {
 }
 ```
 
-Other use-case for thread-local variables is when you want to trace only processes that did certain actions, and filter others. In this cases, you will introduce a kind of thread-local `do_trace` flag, which will be set to 1 if action was done (and probably, reset later), and later check this flag in predicate. If value is not set in associative array in SystemTap or as thread-local variable in DTrace, it defaults to 0, which by default disables probes. This approach is idiomatic, and for example used in [Dynamic code analysis][basics/dynanal] for building code graphs. 
+Other use-case for thread-local variables is when you want to trace only processes that did certain actions, and filter others. In this cases, you will introduce a kind of thread-local `do_trace` flag, which will be set to 1 if action was done (and probably, reset later), and later check this flag in predicate. If value is not set in associative array in SystemTap or as thread-local variable in DTrace, it defaults to 0, which by default disables probes. This approach is idiomatic, and for example used in [Dynamic code analysis][principles/dyncode] for building code graphs. 
 
 #### References
 

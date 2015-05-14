@@ -39,7 +39,7 @@ ID    PROVIDER        MODULE      FUNCTION NAME
    * `cpu` -- processor on which tracing is enabled (same as `-c`)
    * `dynvarsize` -- size of buffers for dynamic variables (associative arrays in particular)
    * `quiet` -- quiet mode (same as `-q`)
-   * `flowindent` -- print probes in tree mode with indentation. See more in [Dynamic code analysis][basics/dyncode].
+   * `flowindent` -- print probes in tree mode with indentation. See more in [Dynamic code analysis][principles/dyncode].
    * `destructive` -- enables destructive mode (same as `-w`).
    These options may be set inside script using #pragma-directive:
    `#pragma D option bufsize=64m`

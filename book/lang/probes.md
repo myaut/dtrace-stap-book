@@ -196,6 +196,7 @@ In ideal case, statically defined probe is just a `nop` instruction or a sequenc
 
 Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as _alias probe_. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by [Translators and tapsets][lang/tapsets.md] topic. 
 
+[timers]
 #### Timers and service probes
 
 These probes are not related to a kernel events, but to execution of tracing script itself. They may trace starting of script, end of it and occured error, thus handle initialization of global variables and printing results on end of script execution. Another kind of service probe is timer probe, which is called every ΔT time on one or all system CPUs. Timers are useful for creating stat-like utilities which print data every second or for profiling. 

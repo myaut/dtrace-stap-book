@@ -32,3 +32,10 @@
  * [Printing and speculations][lang/print]
  * [Tapsets & translators][lang/tapset]
      * [Exercise 2][lang/ex2]
+     
+### Module 3: Principles of dynamic tracing
+[__docspace__:principles]
+
+ * [Applying tracing][principles/apply]
+ * [Dynamic code analysis][principles/dyncode]
+ * [Profiling][principles/profiling]

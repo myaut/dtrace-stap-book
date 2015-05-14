@@ -321,7 +321,7 @@ class IndexPage(MarkdownPage):
                 
                 if page is None:
                     link.type = Link.INVALID
-                    print >> sys.stderr, 'WARNING: Not found page for link "%s"' % link
+                    print >> sys.stderr, 'WARNING: Not found page for link "%s" for page %s' % (link, refpage)
                     continue
                 
                 # Not all page headers are set in _collect_ref_links()

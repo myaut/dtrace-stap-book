@@ -10,7 +10,7 @@ Mediocre |1,2 Global variables and raw arguments like `args[0]` or `(struct_t*) 
 Lowest  | `fbt` and `pid$$` providers | DWARF probes like `kernel.function("kfree")`
 ---
 
-So to achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provider lesser information than you could access with other approaches. These options will be described in [Translators and tapsets][lang/tapsets.md] section of next module. 
+So to achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provider lesser information than you could access with other approaches. These options will be described in [Translators and tapsets][lang/tapset] section of next module. 
 
 Linux kernel is changing faster: it has stable releases each 2-3 months, and moreover, its builds are configurable, so some features present in one kernel may be disabled in another and vice versa which makes stability is much more fragile. To overcome that, SystemTap Language has conditional compilation statements which like in C allow to disable certain paths in code. Simplest conditional compilation statements are `@defined` which evaluates to true if variable passed to it is present in debug information and `@choose_defined` which chooses from several variables. It also support ternary conditional expression:
 ```
