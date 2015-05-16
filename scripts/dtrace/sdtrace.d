@@ -1,6 +1,7 @@
 #!/usr/sbin/dtrace -qCs
 
-#pragma D option nspec=512
+#pragma D option nspec=1024
+#pragma D option dynvarsize=4m
 
 int specs[uint64_t];
 uint64_t timestamps[uint64_t];

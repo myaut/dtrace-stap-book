@@ -1,9 +1,16 @@
 #!/usr/bin/stap
 
-global specs, times;
+global rqs, bio2rq, specs, times;
 
 function probe_print:string(bio:long) {
     return sprintf("%-24s %p cpu%d %u\n", pn(), bio, cpu(), 
+                   gettimeofday_ns() - times[bio2rq[bio]]);
+}
+
+function rq_probe_print(rq:long, bio:long) {
+    if(bio == 0)
+        bio = @cast(rq, "struct request")->bio;
+    return sprintf("%-24s %p %p cpu%d %u\n", pn(), bio, rq, cpu(), 
                    gettimeofday_ns() - times[bio]);
 }
 
@@ -11,60 +18,89 @@ function proc_print:string() {
     return sprintf("\tPROC: %d/%d %s\n", pid(), tid(), execname());
 }
 
-function rq_probe_print(rq:long) {
-	bio = @cast(rq, "struct request")->bio;
-    biotail = @cast(rq, "struct request")->biotail;
-    
-    while(bio != biotail && bio != 0) {    
-        speculate(specs[bio], probe_print(bio));        
-        bio = @cast(bio, "struct bio")->bi_next;
+function handle_bio2rq(bio:long, rq:long) {
+    if(specs[rq] == 0) {
+        specs[rq] = speculation();
     }
+
+    rqs[rq] += 1;
+    bio2rq[bio] = rq;
+
+    speculate(specs[rq], 
+        rq_probe_print(rq, bio)
+       .proc_print()
+       .sprintf("\tBUF flags: %s %x count: %d blkno: %d comp: %s\n", 
+                bio_rw_str(@cast(bio, "bio")->bi_rw), @cast(bio, "bio")->bi_flags, 
+                @cast(bio, "bio")->bi_size, @cast(bio, "bio")->bi_sector, 
+                symname(@cast(bio, "bio")->bi_end_io))
+       .sprintf("\tDEV %d,%d\tINO %d\n", MAJOR(@cast(bio, "bio")->bi_bdev->bd_dev), 
+                MINOR(@cast(bio, "bio")->bi_bdev->bd_dev), __bio_ino(bio)));
 }
 
 probe ioblock.request {
+    times[$bio] = gettimeofday_ns();
+}
+
+probe kernel.function("bio_attempt_front_merge").return,
+      kernel.function("bio_attempt_back_merge").return {
+    if($return) {
+        /* BIO was merged with request */
+        rq = $req;
+        bio = $bio;
+
+        if(bio == 0) next;
+
+        handle_bio2rq(bio, rq);
+    }
+}
+
+probe kernel.function("get_request").return {
+    rq = $return;
     bio = $bio;
-    specs[bio] = speculation();
-    times[bio] = gettimeofday_ns();
-    
-    speculate(specs[bio], probe_print(bio));
-    speculate(specs[bio], proc_print());
-    
-    speculate(specs[bio], 
-              sprintf("\tBUF flags: %s %x count: %d blkno: %d comp: %s\n", 
-                       bio_rw_str(rw), flags, size, sector, 
-                       symname($bio->bi_end_io)));
-    
-    speculate(specs[bio], sprintf("\tDEV %s\tINO %d\n", devname, ino));
+
+    if(bio == 0) next;
+
+    /* BIO were created a new request */
+    handle_bio2rq(bio, rq);
 }
 
 probe ioscheduler.elv_add_request, ioscheduler.elv_completed_request {
-    if(rq == 0) next;    
-    rq_probe_print(rq);
-    // speculate(specs[bio], sprintf("\tDEV %d/%d\n", disk_major, disk_minor));
+    if(rq == 0 || specs[rq] == 0) next;    
+    speculate(specs[rq], 
+              rq_probe_print(rq, 0)
+             .sprintf("\tDEV %d,%d\n", disk_major, disk_minor));
 }
 
 probe scsi.ioentry, scsi.iodone, scsi.iocompleted, scsi.iodispatching {
-    rq_probe_print(req_addr);
+    if(req_addr == 0 || specs[req_addr] == 0) next;
+    speculate(specs[req_addr], 
+              rq_probe_print(req_addr, 0));
 }
 
 probe scsi.iodispatching {
-    bio = @cast(req_addr, "struct request")->bio;        
-    rq_probe_print(req_addr);
-    
-    speculate(specs[bio], 
-              sprintf("\tSCSI DEV %d:%d:%d:%d %s\n", 
-                      host_no, channel, lun, dev_id, device_state_str));
-    speculate(specs[bio], 
-              sprintf("\tSCSI PKT flags: %x comp: %s\n", 
+    if(req_addr == 0 || specs[req_addr] == 0) next;
+    speculate(specs[req_addr], 
+              rq_probe_print(req_addr, 0)
+             .sprintf("\tSCSI DEV %d:%d:%d:%d %s\n", 
+                      host_no, channel, lun, dev_id, device_state_str)
+             .sprintf("\tSCSI PKT flags: %x comp: %s\n", 
                       @cast(req_addr, "struct request")->cmd_flags, 
                       symname($cmd->scsi_done)));
 }
 
 probe ioblock.end {
-    bio = $bio;    
-    
-    speculate(specs[bio], probe_print(bio));
-    commit(specs[bio]);
-    
-    delete specs[bio]; delete times[bio];
+    bio = $bio; 
+    rq = bio2rq[bio];
+
+    delete bio2rq[bio];
+    delete times[bio];
+
+    rqs[rq] -= 1;
+    if(rqs[rq] == 0) {
+        speculate(specs[rq], probe_print(bio));
+        speculate(specs[rq], "----------\n");
+        commit(specs[rq]);
+        
+        delete specs[rq];
+    }
 }
