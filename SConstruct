@@ -19,6 +19,10 @@ def ConvertSVGs(env, imgdir, width):
     for image in imgdir.glob('*.svg'):
         tgt = os.path.join('build', image.path.replace('.svg', '.png'))
         img.InkscapeBuilder(tgt, image)
+    for image in imgdir.glob('*.png'):
+        tgt = os.path.join('build', image.path)
+        env.Command(tgt, image, Copy("$TARGET", "$SOURCE"))
+        
 
 ConvertSVGs(env, Dir('images'), 800)
 ConvertSVGs(env, Dir('images').Dir('icons'), 24)
