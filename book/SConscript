@@ -33,8 +33,18 @@ if GetOption('verbose'):
 index = File('index.md')
 
 if doc_format == 'html':
-    for css in Dir('bootstrap').Dir('css').glob('*.css'):
-        env.Depends(index, css)
+    cssdir, lessdir = Dir('bootstrap').Dir('css'), Dir('bootstrap').Dir('less')
+    
+    bsless = lessdir.File('bootstrap.less')
+    bscss = cssdir.File('bootstrap.css')
+    
+    # Implicit dependencies
+    for less in lessdir.glob('*.less'):
+        env.Depends(bscss, less)
+        
+    # Build bootstrap from less
+    env.LessBuilder(bscss, bsless)
+    env.Depends(index, bscss)
 
 docs = env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools')  
                                 + GlobDocs('lang') + GlobDocs('principles'))

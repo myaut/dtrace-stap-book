@@ -247,7 +247,8 @@ class MarkdownParser:
         elif char == '[':
             if self.link_pos == -1:
                 self.link_image = self.text[idx - 1] == '!'
-                self.begin_text(idx - 1 if self.link_image else idx, 1, 
+                self.begin_text(idx - 1 if self.link_image else idx, 
+                                2 if self.link_image else 1, 
                                 link_pos = idx)
         elif char in [']', ')']:
             if not self.link_end_char and char == ']':
@@ -508,7 +509,7 @@ class MarkdownParser:
             self.list_parent = None
         
         if self.incut:
-            if self.block is not self.incut:
+            if self.block is not self.incut and not self.table_block:
                 self.incut.add(self.block)
             self.block = self.incut
             return
@@ -666,6 +667,13 @@ This is \_escaped thing. Escaping: \\\\
 ```
 int a = 777;
     ```
+
+!!! DEF
+---
+1 | 2
+3 | 4
+---
+!!!
         """
 
     MarkdownParser.TRACE = True

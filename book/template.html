@@ -6,8 +6,20 @@
 	
 	<title>$TITLE</title>
 	
-	<link rel="stylesheet" href="${RELPATH}bootstrap/css/bootstrap.min.css" />
-	<link href="${RELPATH}bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="${RELPATH}bootstrap/css/bootstrap.css" />
+	<link href="${RELPATH}bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
 </head>
 <body>
 

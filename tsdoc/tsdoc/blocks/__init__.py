@@ -93,8 +93,9 @@ class Link(Text):
         self.where = where
         
     def __repr__(self):
-        return 'Link(%d, %s, %s)' % (self.type, repr(self.where), 
-                                     repr(self.text))
+        return '%s(%d, %s, %s)' % (self.__class__.__name__,
+                                   self.type, repr(self.where), 
+                                   repr(self.text))
 
 class Image(Link):
     pass

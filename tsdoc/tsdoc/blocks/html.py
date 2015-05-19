@@ -1,4 +1,5 @@
 import string
+import os
 
 from StringIO import StringIO
 
@@ -14,10 +15,10 @@ class HTMLPrinter(Printer):
                  (NavLink.REF, 'pull-center', 'Reference'),
                  (NavLink.NEXT, 'pull-right', 'Next')]
     
-    INCUT_CLASSES = { 'DEF' : 'alert alert-success',
-                      'WARN' : 'alert',
-                      'INFO': 'alert alert-info',
-                      'DANGER': 'alert alert-error' }
+    INCUT_CLASSES = { 'DEF' : ('label label-inverse', 'Definition'),
+                      'WARN' : ('label label-warning', 'Warning'),
+                      'INFO': ('label label-info', 'Information'),
+                      'DANGER': ('label label-important', 'DANGER!') }
     
     def __init__(self, template_path):
         template_file = file(template_path, 'r')
@@ -88,21 +89,24 @@ class HTMLPrinter(Printer):
         
         return s
     
-    def _print_block(self, block, indent = 0):
+    def _print_block(self, block, indent = 0, codeid = None):
         block_tags = [] 
         in_code = False
         
         if isinstance(block, Paragraph):
             block_tags.append(('p', None))
-        if isinstance(block, Code):
-            block_tags.append(('pre', None))
+        if not codeid and isinstance(block, CodeListing):
+            block_tags.append(('div', 'class="well"'))
+        elif isinstance(block, Code):
+            block_tags.append(('pre', None if not codeid 
+                                      else 'id="code%d" class="hide"' % codeid))
             in_code = True
         elif isinstance(block, ListEntry):
             block_tags.append(('li', None))
         elif isinstance(block, ListBlock):
             block_tags.append(('ul', None))
         elif isinstance(block, Table):
-            block_tags.append(('table', 'class="table"'))
+            block_tags.append(('table', 'class="table table-bordered"'))
         elif isinstance(block, TableRow):
             block_tags.append(('tr', None))
         elif isinstance(block, TableCell):
@@ -116,8 +120,10 @@ class HTMLPrinter(Printer):
         elif isinstance(block, BlockQuote):
             block_tags.append(('blockquote', None))
         elif isinstance(block, Incut):
-            _class = HTMLPrinter.INCUT_CLASSES[block.style]
-            block_tags.append(('div', 'class="{}"'.format(_class)))
+            block_tags.append(('div', 'class="well"'))
+            
+            _class, label = HTMLPrinter.INCUT_CLASSES[block.style]
+            self.stream.write('<span class="%s">%s</span>' % (_class, label))
         
         for tag, attrs in block_tags:
             self.stream.write(' ' * indent)
@@ -126,6 +132,19 @@ class HTMLPrinter(Printer):
             else:
                 self.stream.write('<%s>\n' % (tag))
         
+        if not codeid and isinstance(block, CodeListing):
+            # Embedded codelisting
+            fname = os.path.basename(block.fname)
+            self.stream.write('<button class="btn" onclick="toggleCode(\'code%s\')">+</button>' % (id(block)))
+            self.stream.write('&nbsp; Script file %s <br/>' % (fname))
+            self._print_block(block, codeid = id(block))
+        else:
+            self._print_parts(block, indent)
+        
+        for (tag, attrs) in reversed(block_tags):
+            self.stream.write('</%s>\n' % tag)
+            
+    def _print_parts(self, block, indent):
         text = ''
         list_stack = []
         for part in block:
@@ -152,7 +171,8 @@ class HTMLPrinter(Printer):
                     part.text = ''
                 elif isinstance(part, Image):
                     # XXX: very dependent on book's directory structure
-                    tag = '<img src="{}" alt="{}" />'.format('../images/' + part.where, text)
+                    tag = '<img src="{}" alt="{}" />'.format(
+                                '../images/' + part.where, text)
                     self.stream.write(tag)
                     continue
                 elif isinstance(part, Link):
@@ -178,6 +198,3 @@ class HTMLPrinter(Printer):
                 # if not in_code:
                 #    self.stream.write('\n' + ' ' * indent)
                 self.stream.write(text)
-        
-        for (tag, attrs) in reversed(block_tags):
-            self.stream.write('</%s>\n' % tag)

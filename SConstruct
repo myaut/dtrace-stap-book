@@ -10,7 +10,11 @@ AddOption('--verbose', dest='verbose', action='store_true', default=False,
 InkscapeBuilder = Builder(action = Action('inkscape -z -e $TARGET $SOURCE'),
                           suffix = '.png',
                           src_suffix = '.svg')
-env.Append(BUILDERS = {'InkscapeBuilder': InkscapeBuilder})
+LessBuilder = Builder(action = Action('lesscpy $LESSFLAGS $SOURCE > $TARGET'),
+                      suffix = '.css',
+                      src_suffix = '.less')
+env.Append(BUILDERS = {'InkscapeBuilder': InkscapeBuilder,
+                       'LessBuilder': LessBuilder})
 
 def ConvertSVGs(env, imgdir, width):
     img = env.Clone()
@@ -25,6 +29,7 @@ def ConvertSVGs(env, imgdir, width):
         
 
 ConvertSVGs(env, Dir('images'), 800)
+ConvertSVGs(env, Dir('images').Dir('linux'), 800)
 ConvertSVGs(env, Dir('images').Dir('icons'), 24)
 
 env.VariantDir('build/', 'book/')
