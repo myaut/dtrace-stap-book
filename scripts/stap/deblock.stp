@@ -1,0 +1,30 @@
+global vfstp, biotp;
+
+probe kernel.function("vfs_write") {
+    file = $file;
+    if(!file) next;
+        
+    sb = @cast(file, "file")->f_path->mnt->mnt_sb;
+    if(!sb) next;
+    
+    bdev = @cast(sb, "super_block")->s_bdev;
+    if(bdev)
+        vfstp[bdev] <<< $count;
+}
+
+probe ioblock.request {    
+    if(bio_rw_num(rw) != BIO_WRITE)
+        next;
+    
+    biotp[bdev] <<< size;
+}
+
+probe timer.s(1) {
+    printf("%12s %8s BDEV KB/s\n", "BDEV", "VFS KB/s");
+    foreach([bdev] in vfstp) {
+        printf("%12s %8d %d\n", bdevname(bdev),
+                @sum(vfstp[bdev]) / 1024,
+                @sum(biotp[bdev]) / 1024);
+    }
+    delete vfstp; delete biotp;
+}

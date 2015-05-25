@@ -1,0 +1,32 @@
+{
+    "name": "readahead",
+    "steps": {
+        "fileio": {
+            "num_steps": 20,
+            "num_requests": 80
+        }
+    },
+    "threadpools": {
+        "tp_fileio": {
+            "num_threads": 4,
+            "quantum": 1000000000,
+            "disp": { "type": "round-robin" }
+        }
+    },
+    "workloads": {
+        "fileio": {
+            "wltype": "fileio",
+            "threadpool": "tp_fileio",
+            "rqsched": { "type": "iat", "distribution": "exponential" },
+            "params": {
+                "path": "/tiger/READAHEAD",
+                "file_size": 20971520,
+                "overwrite": true,
+                "sync": false,
+                "rw": "read",
+                "block_size": 512,
+                "offset": { "randgen": { "class": "seq" } }
+            }
+        }
+    }
+}

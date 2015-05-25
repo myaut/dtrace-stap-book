@@ -1,0 +1,36 @@
+{
+    "name": "deblock",
+    "steps": {
+        "fileio": {
+            "num_steps": 20,
+            "num_requests": 80
+        }
+    },
+    "threadpools": {
+        "tp_fileio": {
+            "num_threads": 4,
+            "quantum": 1000000000,
+            "disp": { "type": "round-robin" }
+        }
+    },
+    "workloads": {
+        "fileio": {
+            "wltype": "fileio",
+            "threadpool": "tp_fileio",
+            "rqsched": { "type": "iat", "distribution": "exponential" },
+            "params": {
+				"path": "/tiger/DEBLOCK",
+				"file_size": 1048576,
+				"sync": true,
+                "rw": "write",
+				"block_size": {
+                    "randgen": { "class": "lcg" },
+                    "randvar": { "class": "uniform",
+                                 "min": 512,
+                                 "max": 16384 }
+                },
+				"offset": { "randgen": { "class": "lcg" } }
+            }
+        }
+    }
+}

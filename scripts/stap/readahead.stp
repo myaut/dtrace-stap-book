@@ -1,0 +1,38 @@
+global vfsops, bioops, scsiops;
+
+probe kernel.function("vfs_read") {
+    file = $file;
+    if(!file) next;
+        
+    sb = @cast(file, "file")->f_path->mnt->mnt_sb;
+    if(!sb) next;
+    
+    bdev = @cast(sb, "super_block")->s_bdev;
+    if(bdev)
+        vfsops[bdev] <<< 1;
+}
+
+probe ioblock.request {    
+    if(bio_rw_num(rw) != BIO_READ)
+        next;
+    
+    bioops[bdev] <<< 1;
+}
+
+probe scsi.ioentry {
+    bio = @cast(req_addr, "struct request")->bio;
+    if(!bio) next;
+    
+    bdev = @cast(bio, "bio")->bi_bdev;
+    if(bdev)
+        scsiops[bdev] <<< 1;
+}
+
+probe timer.s(1) {
+    printf("%12s %8s %8s SCSI OP/s\n", "BDEV", "VFS OP/s", "BDEV OP/s");
+    foreach([bdev] in vfsops) {
+        printf("%12s %8d %8d %d\n", bdevname(bdev), @count(vfsops[bdev]), 
+               @count(bioops[bdev]), @count(scsiops[bdev]));
+    }
+    delete vfsops; delete bioops; delete scsiops;
+}
