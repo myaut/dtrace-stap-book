@@ -1,50 +1,67 @@
 probe kernel.function("prepare_to_wait*"),
       kernel.function("add_wait_queue*") {
+    if(pid() == stp_pid()) next;
+
     state = -1;
     if(@defined($state))
         state = $state;
       
-    printf("[%d]%s %s wq head: %p wq: %p\n", 
-           pid(), execname(), probefunc(), $q, $wait);
+    printf("[%d]%s %s:%s\n\twq head: %p wq: %p\n", 
+           pid(), execname(), symname(caller_addr()), 
+           probefunc(), $q, $wait);
     printf("\ttsk: %p state: %x func: %s\n", 
            $wait->private, state, symname($wait->func));
 }
 
 probe kernel.function("wait_for_completion*") {
+    if(pid() == stp_pid()) next;
+
     timeout = 0;
     if(@defined($timeout))
         timeout = $timeout;
     
-    printf("[%d]%s %s completion: %p wq head: %p timeout: %d\n", 
-            pid(), execname(), probefunc(), $x, &$x->wait, timeout);
+    printf("[%d]%s %s:%s\n\tcompletion: %pwq head: %p timeout: %d\n", 
+            pid(), execname(), symname(caller_addr()), 
+            probefunc(), $x, &$x->wait, timeout);
 }
 
 probe kernel.function("wait_for_completion*").return {
-    printf("[%d]%s %s completion: %p\n", 
-            pid(), execname(), probefunc(), $x);
+    if(pid() == stp_pid()) next;
+
+    printf("[%d]%s %s:%s\n\tcompletion: %p\n", 
+            pid(), execname(), symname(caller_addr()), probefunc(), $x);
 }
 
 probe kernel.function("finish_wait"),
       kernel.function("remove_wait_queue") {
-    printf("[%d]%s %s head: %p wq: %p\n", 
-           pid(), execname(), probefunc(), $q, $wait);
+    if(pid() == stp_pid()) next;
+
+    printf("[%d]%s %s:%s\n\twq head: %p wq: %p\n", 
+           pid(), execname(), symname(caller_addr()), 
+           probefunc(), $q, $wait);
 }
     
 probe kernel.function("complete"),
       kernel.function("complete_all") {
-    printf("[%d]%s %s completion: %p wq head: %p\n", 
-            pid(), execname(), probefunc(), $x, &$x->wait);
+    if(pid() == stp_pid()) next;
+
+    printf("[%d]%s %s:%s\n\tcompletion: %p wq head: %p\n", 
+            pid(), execname(), symname(caller_addr()), 
+            probefunc(), $x, &$x->wait);
 }
 
 probe kernel.function("__wake_up"),
-      kernel.function("__wake_up_locked"),
-      kernel.function("__wake_up_sync") {
+      kernel.function("__wake_up_locked*"), 
+      kernel.function("__wake_up_sync*") {
+    if(pid() == stp_pid()) next;
+
     nr = -1
     if(@defined($nr_exclusive))
         nr = $nr_exclusive;
     if(@defined($nr))
         nr = $nr;
     
-    printf("[%d]%s %s wq head: %p state: %p nr: %d\n", 
-            pid(), execname(), probefunc(), $q, $mode, nr);
+    printf("[%d]%s %s:%s\n\twq head: %p state: %p nr: %d\n", 
+            pid(), execname(), symname(caller_addr()), 
+            probefunc(), $q, $mode, nr);
 }

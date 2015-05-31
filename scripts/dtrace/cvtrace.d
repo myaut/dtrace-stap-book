@@ -9,6 +9,7 @@ cv_timedwait_sig_hires:entry {
 
 cv_wait:entry,
 cv_wait_sig:entry,
+cv_wait_sig_swap_core:entry,
 cv_timedwait_hires:entry,
 cv_timedwait_sig_hires:entry  {
     printf("[%d] %s %s cv: %p mutex: %p timeout: %d\n", 
