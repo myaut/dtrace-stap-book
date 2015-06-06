@@ -30,6 +30,7 @@ def ConvertSVGs(env, imgdir, width):
 
 ConvertSVGs(env, Dir('images'), 800)
 ConvertSVGs(env, Dir('images').Dir('linux'), 800)
+ConvertSVGs(env, Dir('images').Dir('solaris'), 800)
 ConvertSVGs(env, Dir('images').Dir('icons'), 24)
 
 env.VariantDir('build/', 'book/')

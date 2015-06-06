@@ -27,3 +27,44 @@ Note that in SystemTap, probe will be __omitted__ if condition in `if` statement
 !!! WARN
 Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with `stp_pid()` which returns PID of consumer.
 !!!
+
+Sometimes, if target process forking and you need to trace its children, like with `-f` option in `truss`/`strace`, compaing `pid()` and even `ppid()` is not enough. In this case you may use DTrace subroutine `progenyof()` which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, `progenyof(1)` will be true for all userspace processes because they are all children to the `init`.
+
+`progenyof()` is missing in SystemTap, but it can be simulated with `task_*()` functions and the following SystemTap script (these functions are explained in [Process Management][kernel/proc#task-funcs]):
+```
+function progenyof(pid:long) {
+	parent = task_parent(task_current());
+	task = pid2task(pid);
+
+	while(parent && task_pid(parent) > 0) {
+		if(task == parent)
+			return 1;
+
+		parent = task_parent(parent);
+	}
+}
+
+probe syscall.open { 
+	if(progenyof(target())) 
+			printdln(" ", pid(), execname(), filename);
+}
+```
+
+Assume that 2953 is a process ID of bash interactive session, where we open child `bash` and call `cat` there:
+```
+root@lktest:~# bash
+root@lktest:~# ps
+	PID TTY          TIME CMD
+	2953 pts/1    00:00:01 bash
+	4794 pts/1    00:00:00 bash
+	4800 pts/1    00:00:00 ps
+root@lktest:~# cat /etc/passwd
+[...]
+```
+
+`cat` is shown by this script even if it is not direct ancestor of `bash` process that we are tracing:
+```
+# stap ./progeny.stp -x 2953 | grep passwd
+4801 cat /etc/passwd
+```
+

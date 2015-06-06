@@ -3,11 +3,11 @@
 /**
  * dumptask.d
  * 
- * Один раз в секунду печатает информацию по текущему процессу
- * Включает макросы извлечения из kthread_t и сопутствующих структур
- * Использует стандартные трансляторы psinfo_t* и lwpsinfo_t*s
+ * Prints information about current task once per second
+ * Contains macros to extract data from `kthread_t` and its siblings
+ * Some parts use standard translators `psinfo_t` and `lwpsinfo_t*`
  * 
- * Оттестировано на Solaris 11.2
+ * Tested on Solaris 11.2
  */
 
 int argnum;
@@ -23,8 +23,8 @@ uf_entry_t* fdlist;
 #define PUSER(thread) thread->t_procp->p_user
 
 /**
- * Вытаскиваем указатель из массива указателей в зависимости
- * от модели процесса (32- или 64-бита)
+ * Extract pointer depending on data model: 8 byte for 64-bit
+ * programs and 4 bytes for 32-bit programs.
  */
 #define DATAMODEL_ILP32 0x00100000
 #define GETPTR(proc, array, idx)                                \
@@ -36,33 +36,33 @@ uf_entry_t* fdlist;
 #define FILE(list, num)     list[num].uf_file
 #define CLOCK_TO_MS(clk)    (clk) * (`nsec_per_tick / 1000000)
 
-/* Вытаскиваем путь до vnode */
+/* Helper to extract vnode path in safe manner */
 #define VPATH(vn)                                \
     ((vn) == NULL || (vn)->v_path == NULL)       \
         ? "unknown" : stringof((vn)->v_path)
 
-/* Корневая директория процесса - для зон может не совпадать с / */
+/* Prints process root - can be not `/` for zones */
 #define DUMP_TASK_ROOT(thread)                   \
     printf("\troot: %s\n",                       \
         PUSER(thread).u_rdir == NULL             \
         ? "/"                                    \
         : VPATH(PUSER(thread).u_rdir));
 
-/* Текущая рабочая директория процесса */
+/* Prints current working directory of a process */
 #define DUMP_TASK_CWD(thread)                    \
     printf("\tcwd: %s\n",                        \
         VPATH(PUSER(thread).u_cdir));        
 
-/* Исполнимый файл процесса */
+/* Prints executable file of a process */
 #define DUMP_TASK_EXEFILE(thread)                \
     printf("\texe: %s\n",                        \
         VPATH(thread->t_procp->p_exec));    
 
-/* Копируем до 9 аргументов процесса. Само количество получаем
-   через транслятор psinfo_t, сами же аргументы и указатели (необходимой
-   в процессе длины) размещаются в стеке процесса. Копируем указатели 
-   в argvec и сами аргументы в массив pargs. 
-   См. также функцию ядра exec_args() */
+/* Copy up to 9 process arguments. We use `psinfo_t` tapset to get 
+   number of arguments, and copy pointers to them into `argvec` array,
+   and strings into `pargs` array.
+   
+   See also kernel function `exec_args()` */
 #define COPYARG(t, n)                                           \
     pargs[n] = (n < argnum && argvec != 0)                      \
         ? copyinstr(GETPTR(t->t_procp, argvec, n)) : "???"
@@ -76,14 +76,13 @@ uf_entry_t* fdlist;
     COPYARG(thread, 3); COPYARG(thread, 4); COPYARG(thread, 5); \
     COPYARG(thread, 6); COPYARG(thread, 7); COPYARG(thread, 8); 
 
-/* Время запуска процесса */
+/* Prints start time of process */
 #define DUMP_TASK_START_TIME(thread)                         \
     printf("\tstart time: %ums\n",                           \
         (unsigned long) thread->t_procp->p_mstart / 1000000);
 
-/* Процессорное время, затраченное процессом. Вообще говоря,
-   оно измеряется через LWP microstate, а поля p_utime и p_stime
-   устанавливаются при выходе из процесса  */
+/* Processor time used by a process. Only for conformance
+   with dumptask.d, it is actually set when process exits */
 #define DUMP_TASK_TIME_STATS(thread)                         \
     printf("\tuser: %ldms\t kernel: %ldms\n",                \
         CLOCK_TO_MS(thread->t_procp->p_utime),               \
@@ -118,6 +117,7 @@ probe /argi < argnum/ {                                      \
     _DUMP_ARG_PROBE(probe, 6)   _DUMP_ARG_PROBE(probe, 7)    \
     _DUMP_ARG_PROBE(probe, 8)
 
+/* Dumps path to file if it opened */
 #define _DUMP_FILE_PROBE(probe, fd)                          \
 probe /fd < fdnum && FILE(fdlist, fd)/ {                     \
     printf("\tfile%d: %s\n", fd,                             \

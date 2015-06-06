@@ -43,3 +43,8 @@
  * [Pre- and post-processing][principles/prepost]
  * [Vizualization][principles/viz]
  
+### Module 4: Operating system kernel tracing
+[__docspace__:kernel]
+
+ * [Process management][kernel/proc]
+    * [Exercise 3][kernel/ex3]

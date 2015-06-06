@@ -1,23 +1,24 @@
 /**
  * taskdump.stp
  * 
- * Один раз в секунду печатает информацию по текущему процессу
- * Включает функции извлечения из task_struct
+ * Prints information about current task
+ * Extracts data from `task_struct`
+ * 
+ * Tested on CentOS 7.0
  */
 
 /**
- * В старых ядрах структуры dentry и vfsmnt существовали раздельно.
- * В новых ядрах они были объединены в единую структуру path. 
+ * Structures `dentry` and `vfsmnt` were separate in older kernels.
+ * Newer kernels feature unified `path` structures that contain them both.
  * 
- * SystemTap не кеширует полный путь до директории, поэтому 
- * нам бы пришлось воспользоваться функцией task_dentry_path(), чтобы
- * собрать его например так: 
+ * SystemTap doesn't cache full path, so we have to use function task_dentry_path(), 
+ * to get entire path in this manner:
  *      dentry = @cast(file, "file")->f_path->dentry;
  *      vfsmnt = @cast(file, "file")->f_path->mnt;
  *      return task_dentry_path(task, dentry, vfsmnt);
  * 
- * Однако в SystemTap присутствует баг 16991, закрытый в версии 2.6
- * Поэтому мы ограничимся выводом имени файла внутри директории
+ * Unfortunately, SystemTap has bug 16991, fixed in 2.6, so
+ * we limit output to a basename
  */
 function file_path:string(task:long, file:long) {
     if(@defined(@cast(file, "file")->f_vfsmnt))
@@ -36,16 +37,16 @@ function task_pwd_path:string(task:long, fs_ptr:long) {
 }
 
 /**
- * Печатает имя исполняемого файла по mm->exe_file */
+ * Prints exectuable file name from `mm->exe_file` */
 function task_exefile(task:long, mm_ptr:long) {
 	if(mm_ptr) {
 		printf("\texe: %s\n", 
                file_path(task, @cast(mm_ptr, "mm_struct")->exe_file));
 	}
 }
+
 /**
- * Печатает корневую и текущую директории процесса
- */
+ * Prints root and current dir of a task */
 function task_paths(task:long, fs_ptr:long) {
 	if(fs_ptr) {
 		printf("\troot: %s\n", task_root_path(task, fs_ptr));
@@ -54,19 +55,21 @@ function task_paths(task:long, fs_ptr:long) {
 }
 
 /**
- * Печатает аргументы. Аргументы отображены в виртуальное адресное 
- * пространство процесса и представляют собой область памяти (mm->arg_start; 
- * mm_arg_end), содержащую последовательно стоящие строки, например:
- * 
+ * Prints arguments vector. Arguments are copied into process memory (stack)
+ * and located in memory area (mm->arg_start; mm_arg_end), of the strings that 
+ * separated with NULL-terminators, i.e.:
  * +-----+----+-------------+----+
  * | cat | \0 | /etc/passwd | \0 |
  * +-----+----+-------------+----+
  * ^                             ^
  * arg_start                     arg_end
  * 
- * ЗАМЕЧАНИЕ: функции user_string* читают из текущего пространства процесса. 
- * Для получения аргументов из стороннего процесса используйте Embedded C
- * и функцию ядра proc_pid_cmdline
+ * WARNING: This is only a demostration functions, use cmdline_*() functions
+ * instead
+ * 
+ * NOTE: functions user_string* read from current address space 
+ * To get arguments from other processes, use Embedded C and 
+ * function that look like proc_pid_cmdline
  */
 function task_args(mm_ptr:long) {
 	if(mm_ptr) {
@@ -94,8 +97,8 @@ function task_args(mm_ptr:long) {
 }
 
 /**
- * Возвращает файловый дескриптор из таблицы по номеру fd
- * См. также: реализацию pfiles.stp
+ * Returns file descriptor using fd
+ * NOTE: see pfiles.stp
  */
 function task_fd_filp:long(files:long, fd:long) {
 	return @cast(files, "files_struct")->fdt->fd[fd];
@@ -117,12 +120,12 @@ function task_fds(task:long) {
 }
 
 /**
- * Печатает разницу время запуска системы
- * start time - монотонное (monotonic)
- * real start time - с момента запуска системы (bootbased)
+ * Prints start time of a process in seconds
+ * start time - monotonic
+ * real start time - boot time based
  * 
- * Замечание: эта функция работает с timespec, однако начиная с 3.17 они 
- * были заменены на u64
+ * NOTE: This function assumes that `timespec` is used, but these
+ * variables were replaced with u64 in kernel 3.17
  */
 function task_start_time_x(task:long) {
 	if(@defined(@cast(task, "task_struct", "kernel<linux/sched.h>")
@@ -142,7 +145,7 @@ function task_start_time_x(task:long) {
 }
 
 /**
- * Печатает статистику выполнения задачи на процессоре */
+ * Prints scheduler stats */
 function task_time_stats(task:long) {
 	user = @cast(task, "task_struct", "kernel<linux/sched.h>")->utime;
 	kernel = @cast(task, "task_struct", "kernel<linux/sched.h>")->stime;

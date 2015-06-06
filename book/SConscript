@@ -47,5 +47,6 @@ if doc_format == 'html':
     env.Depends(index, bscss)
 
 docs = env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools')  
-                                + GlobDocs('lang') + GlobDocs('principles'))
+                                + GlobDocs('lang') + GlobDocs('principles')
+                                + GlobDocs('kernel'))
 env.AlwaysBuild(docs)
