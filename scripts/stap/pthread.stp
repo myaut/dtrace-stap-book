@@ -1,47 +1,56 @@
 #!/usr/bin/env stap
 
-probe process("libpthread.so.0").mark("pthread_create") {
+@define libpthread %( "/lib64/libpthread.so.0" %)
+@define libc %( "/lib64/libc.so.6" %)
+
+probe process(@libpthread).mark("pthread_create") {
     if(pid() != target()) next;
 
     thread_id = user_long($arg1);
     thread_caller = usymname($arg3);
     thread_arg = $arg4;
     
-    printf("[%d] pthread_create %x %s(%x)\n", tid(), thread_id, thread_caller, thread_arg);
+    printf("[%d] pthread_create %x %s(%x)\n", tid(),
+            thread_id, thread_caller, thread_arg);
 }
 
-probe process("libpthread.so.0").mark("pthread_start") {
+probe process(@libpthread).mark("pthread_start") {
     if(pid() != target()) next;
 
     thread_id = $arg1;
     printf("[%d] pthread_start %x\n", tid(), thread_id);
 }
 
-probe process("libpthread.so.0").mark("pthread_join") {
+probe process(@libpthread).mark("pthread_join") {
     if(pid() != target()) next;
 
     thread_id = $arg1;
     printf("[%d] pthread_join %x\n", tid(), thread_id);
 }
 
-probe process("libpthread.so.0").mark("pthread_join_ret") {
+probe process(@libpthread).mark("pthread_join_ret") {
     if(pid() != target()) next;
 
     thread_id = $arg1;
-    printf("[%d] pthread_join %x return -> %d/%d \n", tid(), thread_id, $arg2, $arg3);
+    printf("[%d] pthread_join %x return -> %d/%d \n", tid(),
+            thread_id, $arg2, $arg3);
 }
 
-probe process("libpthread.so.0").mark("mutex_*"),
-      process("libpthread.so.0").mark("cond_*"),
-      process("libpthread.so.0").mark("rdlock_*"),
-      process("libpthread.so.0").mark("wrlock_*"),
-      process("libpthread.so.0").mark("rwlock_*") {
+probe process(@libpthread).mark("mutex_*"),
+      process(@libpthread).mark("cond_*"),
+      process(@libpthread).mark("rdlock_*"),
+      process(@libpthread).mark("wrlock_*"),
+      process(@libpthread).mark("rwlock_*") {
     if(pid() != target()) next;
+
     printf("[%d] %s %p\n", tid(), pn(), $arg1);
+    print_ustack(ucallers(5));
 }
 
-probe process("libpthread.so.0").mark("lll_*"),
-      process("libc.so.6").mark("lll_*") {
+probe process(@libpthread).mark("lll_*"),
+      process(@libc).mark("lll_*") {
     if(pid() != target()) next;
+
     printf("[%d] %s\n", tid(), pn());
+    print_ustack(ucallers(5));
 }

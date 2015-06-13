@@ -1,0 +1,31 @@
+global mtxtime[128], mtxlockt;
+
+@define libpthread %( "/lib64/libpthread.so.0" %)
+@define tsexperiment %( "/opt/tsload/bin/tsexperiment" %)
+
+probe process(@libpthread).mark("mutex_entry") {
+	if(pid() != target()) next;
+
+	mtxtime[tid()] = local_clock_ns();
+}
+
+probe process(@libpthread).mark("mutex_acquired") {
+	if(pid() != target()) next;
+
+	tm = mtxtime[tid()];
+	if(tm == 0) next;
+
+	mtxlockt[ucallers(6)] <<< local_clock_ns() - tm;
+	delete mtxtime[tid()];
+}
+
+probe process(@tsexperiment).function("experiment_unconfigure") {
+	foreach([ub] in mtxlockt) {
+		if(@count(mtxlockt[ub]) < 100)
+			continue;
+		
+		println("-=-=-=-=-=-=-=-=-=-=-=-=-");
+		print_usyms(ub);
+		print(@hist_log(mtxlockt[ub]));
+	}
+}

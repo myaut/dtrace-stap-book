@@ -1,0 +1,31 @@
+{
+	"name": "pthread",
+	"steps": {
+		"busy": {
+			"num_steps":	20,
+ 			"num_requests": 1000
+		}
+	},
+	"threadpools": {
+		"busy_tp" : {
+            "num_threads": 2,
+            "quantum": 1000000000,
+            "disp": {
+            	"type": "round-robin"
+            }
+        }
+	},
+	"workloads" :	{
+		"busy" : {
+			"wltype": "busy_wait",
+			"threadpool": "busy_tp",
+			"rqsched": {
+				"type": "iat",
+				"distribution": "exponential"
+			},
+			"params": { 
+				"num_cycles": 100000
+			}
+		},
+	}
+}

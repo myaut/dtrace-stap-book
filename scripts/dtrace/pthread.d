@@ -1,4 +1,6 @@
 #!/usr/bin/dtrace
+#pragma D option bufsize=8m
+#pragma D option switchrate=100hz
 
 pid$target::pthread_create:entry {
     self->thread_id_ptr = (uintptr_t) arg0;
@@ -19,9 +21,13 @@ pid$target::pthread_join:return {
     printf("[%d] pthread_join:return %x -> %d\n", tid, self->thread_id, arg1);
 }
 
-plockstat$target::: {
-    printf("[%d] %s ", tid, probename);
+plockstat$target:::, 
+pid$target::pthread_cond_*wait*:entry,
+pid$target::pthread_cond_*wait*:return,
+pid$target::pthread_cond_signal:entry,
+pid$target::pthread_cond_broadcast:entry {
+    printf("[%d] %s:%s ", tid, probefunc, probename);
     usym(arg0);
     printf("[%p]\n", arg0);
+    ustack(6);
 }
-
