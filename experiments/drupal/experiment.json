@@ -1,0 +1,101 @@
+{
+	"name": "drupal",
+	"steps": {
+		"drupal": {
+			"num_steps":	10,
+ 			"num_requests": 14
+		}
+	},
+	"threadpools": {
+		"drupal_users" : {
+            "num_threads": 8,
+            "quantum": 4000000000,
+            "disp": {
+            	"type": "user"
+            }
+        }
+	},
+	"workloads" :	{
+		"drupal" : {
+			"wltype": "http",
+			"threadpool": "drupal_users",
+			"rqsched": {
+				"type": "think",
+				"nusers": 8,
+				"distribution": "exponential"
+			},
+			"params": { 
+				"server": "localhost",
+				"port": 80,
+				"uri": {
+					"randgen": { "class" : "lcg" },
+					"pmap" : [
+						{
+							"value": "/drupal/",
+							"probability": 0.4
+						},
+						{
+							"value": "/drupal/?q=node&page=1",
+							"probability": 0.3
+						},
+						{
+							"valarray": 
+								[   "/drupal/?q=node/1",
+									"/drupal/?q=node/2",
+									"/drupal/?q=node/3",
+									"/drupal/?q=node/4",
+									"/drupal/?q=node/5",
+									"/drupal/?q=node/6",
+									"/drupal/?q=node/7",
+									"/drupal/?q=node/8",
+									"/drupal/?q=node/9",
+									"/drupal/?q=node/10",
+									"/drupal/?q=node/11",
+									"/drupal/?q=node/12",
+									"/drupal/?q=node/13",
+									"/drupal/?q=node/14",
+									"/drupal/?q=node/15",
+									"/drupal/?q=node/16",
+									"/drupal/?q=node/17",
+									"/drupal/?q=node/18",
+									"/drupal/?q=node/19",
+									"/drupal/?q=node/20",
+									"/drupal/?q=node/21",
+									"/drupal/?q=node/22",
+									"/drupal/?q=node/23",
+									"/drupal/?q=node/24",
+									"/drupal/?q=node/25",
+									"/drupal/?q=node/26",
+									"/drupal/?q=node/27",
+									"/drupal/?q=node/28",
+									"/drupal/?q=node/29",
+									"/drupal/?q=node/30",
+									"/drupal/?q=node/31",
+									"/drupal/?q=node/32",
+									"/drupal/?q=node/33",
+									"/drupal/?q=node/34",
+									"/drupal/?q=node/35",
+									"/drupal/?q=node/36",                                                                                                                                                                         
+									"/drupal/?q=node/37",                                                                                                                                                                         
+									"/drupal/?q=node/38",                                                                                                                                                                         
+									"/drupal/?q=node/39",                                                                                                                                                                         
+									"/drupal/?q=node/40",
+									"/drupal/?q=node/41",
+									"/drupal/?q=node/42",
+									"/drupal/?q=node/43",
+									"/drupal/?q=node/44",
+									"/drupal/?q=node/45",
+									"/drupal/?q=node/46",
+									"/drupal/?q=node/47",
+									"/drupal/?q=node/48",
+									"/drupal/?q=node/49",
+									"/drupal/?q=node/50"
+								],
+							"probability": 0.3
+						}
+					]
+				}
+			}
+		},
+	}
+}

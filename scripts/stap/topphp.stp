@@ -1,0 +1,26 @@
+@define httpd %( "/usr/local/apache2/bin/httpd" %)
+@define libphp5 %( "/usr/local/apache2/modules/libphp5.so" %)
+
+global rquri, starttime, functime;
+
+probe process(@httpd).mark("process__request__entry") {
+    rquri[tid()] = user_string($arg2);
+}
+
+probe process(@libphp5).mark("function__entry") {
+	starttime[tid()] = gettimeofday_ns();
+}
+
+probe process(@libphp5).mark("function__return") {
+	if(starttime[tid()] == 0) next;
+
+	func = user_string($arg4) . user_string($arg5) . user_string($arg1);
+	functime[func, rquri[tid()]] <<< (gettimeofday_ns() - starttime[tid()]);
+}
+
+probe end {
+	foreach([func, uri] in functime) {
+		printf("%40s %32s %8d %d\n", func, uri,
+			   @count(functime[func, uri]), @avg(functime[func, uri]));
+	}
+}
