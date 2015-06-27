@@ -48,3 +48,4 @@
 
  * [Process management][kernel/proc]
     * [Exercise 3][kernel/ex3]
+ * [Process scheduler][kernel/sched]

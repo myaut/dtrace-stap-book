@@ -1,21 +1,21 @@
 #!/usr/sbin/dtrace -qCs
 /**
-    tstrace.d - трассирует планировщик потоков в Solaris
-    Использование: tstrace.d <cpu#>
-    Замечание: на Solaris 10 определите макрос SOLARIS10
+    tstrace.d -  traces Solaris dispatcher (and prints some TS information)
+    Usage: tstrace.d <cpu#> 
+    Note: Use -DSOLARIS10 on Solaris 10
 
-    Протестировано на Solaris 10 SPARC и на Solaris 11.1 (SPARC и x86)
+    Tested on Solaris 11.2
 */
 
 string classnames[struct thread_ops*];
 int disp_spec;
 int disp_commit;
 
-/* Преобразует время, содержащееся в t_disp_time/cpu_last_swtch в наносекунды
-    - В Solaris 10 используется время в тиках (lbolt)
-    - В Solaris 11 используется немасштабированное (unscaled) hrtime_t 
-   Макрос HRT_CONVERT преобразует немасштабированное время в наносекунды,
-   HRT_DELTA вычисляет разность с текущим системным временем */
+/* Converts time from t_disp_time/cpu_last_swtch to nanoseconds
+    - Solaris 10 uses system ticks (lbolts)
+    - Solaris 11 uses unscaled hrtime_t 
+   HRT_CONVERT converts unscaled time to nanoseconds
+   HRT_DELTA substracts system time from its argument */
 #ifdef SOLARIS10
 #   define HRT_DELTA(ns)      (`nsec_per_tick * (`lbolt64 - (ns)))
 #else
@@ -45,10 +45,10 @@ int disp_commit;
 #define TSKPRI      0x01    
 #define TSBACKQ     0x02    
 #define TSIA        0x04    
-/* Флаги TSIA* не учитываем  */
+/* We ignore TSIA* flags here */
 #define TSRESTORE   0x20    
 
-/* TSFLAGSSTR выводит строковое представление флагов */
+/* TSFLAGSSTR creates string represenation for TS flags */
 #define TSFLAGS(t)              (TSINFO(t)->ts_flags)
 #define TSFLAGSSTR(t)                                              \
         strjoin(                                                   \
@@ -59,7 +59,7 @@ int disp_commit;
                 (TSFLAGS(t) & TSIA)      ?   "TSIA|" : "",         \
                 (TSFLAGS(t) & TSRESTORE) ?   "TSRESTORE" : ""))
 
-/* Возвращает, относится ли поток t к классам TS или IA */
+/* Returns true value if thread belongs to TS or IA class */
 #define ISTSTHREAD(t)                                               \
     ((t->t_clfuncs == &`ts_classfuncs.thread) ||                    \
      (t->t_clfuncs == &`ia_classfuncs.thread))
@@ -106,10 +106,10 @@ BEGIN {
     classnames[&`sysdc_classfuncs.thread] = "SDC";
 }
 
-/* Вспомогательные функции: 
-    cpu_surrender - вызывается, когда поток покидает процессор
-    setbackdq  - вызывается, когда поток помещается в хвост очереди
-    setfrontdq  - вызывается, когда поток помещается в голову очереди */
+/* Helper functions tracer
+    cpu_surrender - called when thread leaves CPU
+    setbackdq  - called when thread is put onto queue tail
+    setfrontdq  - called when thread is put onto disp queue head */
 fbt::cpu_surrender:entry 
 /cpu == $1/ {
     DUMP_KTHREAD_INFO("cpu_surrender", KTHREAD(arg0));
@@ -122,7 +122,8 @@ fbt::set*dq:entry
     DUMP_TSPROC_INFO(KTHREAD(arg0));    
 }
 
-/* Основная функция планировщика disp() */
+/* Man dispatcher function disp(). Uses speculations so only when 
+   TS thread moves onto CPU or/and leaves it, data will be printed. */
 fbt::disp:entry 
 /cpu == $1/ {
     disp_spec = speculation();
@@ -165,7 +166,8 @@ fbt::disp:return
     discard(disp_spec);
 }
 
-/* Функция системного тика clock_tick */
+/* System tick function clock_tick -- reflects changes in 
+   thread and CPU parameters after tick */
 sched:::tick
 /cpu == $1 && ISTSTHREAD(KTHREAD(arg0))/ {
     printf("=> clock_tick \n");
@@ -174,6 +176,7 @@ sched:::tick
     DUMP_TSPROC_INFO(KTHREAD(arg0));    
 }
 
+/* Trace for wakeups -- traces awoken thread */
 sched:::wakeup
 /KTHREADCPU(arg0) == $1 && ISTSTHREAD(KTHREAD(arg0))/ {
     printf("=> %s [wakeup] \n", probefunc);

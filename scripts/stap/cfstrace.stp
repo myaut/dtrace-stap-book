@@ -2,14 +2,14 @@
 /**
  * cfstrace.stp
  * 
- * Трассирует переключение процессов планировщиком CFS Linux
- * Использование: 
+ * Traces context switching by CFS scheduler
+ * Usage: 
  *      сfstrace.stp CPU
  * 
- * Оттестировано на 3.10 (CentOS 7)
+ * Tested on Linux 3.10 (CentOS 7)
  */
 
-/* Глобальные параметры */
+/* Global parameters */
 global be_verbose = 1;
 global print_cfs_tree = 1;
 
@@ -24,31 +24,32 @@ global cpu_cfs_rq;
 global rq_curr;
 global rq_clock_task;
 
-/* get_task_se возвращает task_struct для se */
+/* get_task_se returns task_struct corresponding to scheduler entity se*/
 function get_task_se:long(se:long) {
     offset = &@cast(0, "struct task_struct")->se;    
     return se - offset;
 }
 
-/* get_task_se возвращает sched_entity для task */
+/* get_task_se returns sched_entity for task */
 function get_se_task:long(task:long) {
     offset = &@cast(0, "struct task_struct")->se;
     return task +  offset;
 }
 
-/* get_rb_se возвращает sched_entity для rb */
+/* get_rb_se returns sched_entity for red-black node */
 function get_rb_se:long(rb:long) {
     offset = &@cast(0, "struct sched_entity")->run_node;
     return rb - offset;
 }
 
-/* возвращает строку, соответствующую задаче t */
+/* formats pretty string for task_struct t */
 function sprint_task(t:long) {
     policy = @cast(t, "struct task_struct")->policy;
     return sprintf("t: %p %s/%d %s", t, task_execname(t), task_tid(t),
                     policy_names[policy]);
 }
 
+/* Generates CGroup or autogrou path for CFS run-queue */
 function sprint_cfs_rq_path(cfs_rq:long) {
     tg = @cast(cfs_rq, "struct cfs_rq")->tg;        
     if(!tg)
@@ -71,7 +72,8 @@ function sprint_cfs_rq_path(cfs_rq:long) {
         return "/???";
     }
 }
-    
+
+/* formats relative representation of vruntime */
 function sprint_vruntime(se:long, min_vruntime:long) {
     vruntime = @cast(se, "struct sched_entity")->vruntime;
     if(min_vruntime)
@@ -80,7 +82,7 @@ function sprint_vruntime(se:long, min_vruntime:long) {
         return sprintf("%d", vruntime);
 }
 
-/* Выводит информацию о сущности планирования se */
+/* Prints information about sched_entity se */
 function print_se(s:string, se:long, verbose:long, min_vruntime:long) {
     printf("\tse:%8s ", s);
     
@@ -101,7 +103,7 @@ function print_se(s:string, se:long, verbose:long, min_vruntime:long) {
     }
 }
 
-/* Выводит информацию об очереди cfs_rq */
+/* Prints information about cfs_rq run-queue */
 function print_cfs_rq(cfs_rq:long, verbose:long) {
     firstrb = @cast(cfs_rq, "struct cfs_rq")->rb_leftmost;
     skip = @cast(cfs_rq, "struct cfs_rq")->skip;
@@ -150,7 +152,7 @@ function dump_cfs_rq_rb(indstr:string, rb:long, verbose:long, min_vruntime:long)
     if(right) dump_cfs_rq_rb(sprintf("%s-r", indstr), right, verbose, min_vruntime);
 }
 
-/* Выводит дерево tasks_timeline очереди cfs_rq */
+/* Prints tree tasks_timeline for  cfs_rq */
 function dump_cfs_rq(cfs_rq:long, verbose:long, min_vruntime:long) {
     root = @cast(cfs_rq, "struct cfs_rq")->tasks_timeline->rb_node;
     
@@ -171,8 +173,10 @@ probe begin {
     policy_names[4] = "SCHED_ISO";      policy_names[5] = "SCHED_IDLE";
 }
 
-/* pick_next_task_fair пытается найти следующую подходящую задачу на 
-   исполнение. pick_next_entity - функция-помощник для работы с группами */
+/* pick_next_task_fair tries to find next task for execution. 
+
+   pick_next_entity - picks "next" entity from cfs_rq. If it returns another
+   CGroup, not a task, pick_next_task_fair calls it again unless task is returned*/
 probe kernel.function("pick_next_task_fair") {
     if(cpu() != trace_cpu) next;
     
@@ -205,7 +209,7 @@ probe kernel.function("pick_next_entity") {
     print_cfs_rq(cpu_cfs_rq, be_verbose);   
 }
 
-/* task_tick_fair - функция системного тика*/
+/* task_tick_fair - called by system timer */
 probe kernel.function("task_tick_fair") {  
     if(cpu() != trace_cpu) next;
 
@@ -245,8 +249,7 @@ probe kernel.function("task_tick_fair").return {
     println("<= task_tick_fair\n");
 }
 
-/* check_preempt_wakeup - проверяет, может ли просыпающаяся задача
-    вытеснить текущую */
+/* check_preempt_wakeup - checks if tasks that waking up can preempt current task */
 probe kernel.function("check_preempt_wakeup") {
     if(cpu() != trace_cpu) next;
     cpetrace = 1;
@@ -271,8 +274,7 @@ probe kernel.function("check_preempt_wakeup").return {
     println("<= check_preempt_wakeup\n");
 }
 
-/* resched_task - перепланировать задачу. В новых версиях 
-   ядер заменена на resched_curr. */
+/* resched_task - reschedule task. Replaced by resched_curr in modern kernels. */
 probe kernel.function("resched_task") {
     if(cpu() != trace_cpu || cpetrace == 0) next;
     
