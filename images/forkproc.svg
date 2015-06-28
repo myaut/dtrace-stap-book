@@ -22,9 +22,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70000001"
-     inkscape:cx="348.37102"
-     inkscape:cy="214.53795"
+     inkscape:zoom="1.4"
+     inkscape:cx="161.06342"
+     inkscape:cy="100.7599"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -507,7 +507,7 @@
            x="27.274118"
            y="184.97136"
            style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono" /></flowRegion><flowPara
-         id="flowPara5124"></flowPara></flowRoot>    <path
+         id="flowPara5124" /></flowRoot>    <path
        inkscape:connector-curvature="0"
        id="path4277"
        d="m 97.579619,265.16101 139.401041,0"
@@ -644,7 +644,7 @@
              id="flowPara5409-5-3"
              style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">scheduler.process_free</flowPara><flowPara
              id="flowPara5720"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">kprocess.release</flowPara></flowRoot>      </g>
+             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono;fill-opacity:1">kprocess.release</flowPara></flowRoot>      </g>
       <rect
          transform="translate(79.828843,44.834316)"
          y="470.79993"

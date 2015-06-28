@@ -18,6 +18,7 @@ class HTMLPrinter(Printer):
     INCUT_CLASSES = { 'DEF' : ('label label-inverse', 'Definition'),
                       'WARN' : ('label label-warning', 'Warning'),
                       'INFO': ('label label-info', 'Information'),
+                      'NOTE': ('label label-info', 'Note'),
                       'DANGER': ('label label-important', 'DANGER!') }
     
     def __init__(self, template_path):

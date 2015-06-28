@@ -3,9 +3,9 @@
 /**
  * pagefault.d
  * 
- * Трассирует страничные сбои, обрабатываемые функцией as_fault
+ * Traces page faults which are handled by as_fault()
  * 
- * Оттестировано на Solaris 11
+ * Tested on Solaris 11
  */
 
 string fault_type[4];

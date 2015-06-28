@@ -3,16 +3,16 @@
 /**
  * pagefault.stp
  * 
- * Трассирует страничные сбои, обрабатываемые функцией handle_mm_fault
+ * Traces page faults handled by handle_mm_fault()
  * 
- * Оттестировано на Linux 3.10
+ * Tested on Linux 3.10 (CentOS 7)
  */
 
 global fault_flags;
 global vma_flags;
 
 probe begin {
-    /* См. linux/mm.h */
+    /* See include/linux/mm.h */
     fault_flags[0] = "WRITE";        fault_flags[1] = "NONLINEAR";
     fault_flags[2] = "MKWRITE";      fault_flags[3] = "ALLOW_RETRY";
     fault_flags[4] = "RETRY_NOWAIT"; fault_flags[5] = "KILLABLE";
@@ -63,7 +63,7 @@ function fault_flags_str:string(flags: long) {
         flags >>= 1;
     }
     
-    /* Вырезаем первый знак '|' */
+    /* Cut first pipe sign ('|') */
     return substr(str, 1, strlen(str) - 1);
 }
 

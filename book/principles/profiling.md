@@ -108,6 +108,7 @@ perf.hw.branch_instructions
 perf.hw_cache.bpu.read.access
 ```
 
+[perf]
 These probes are actually aliases for the following probes:
 ```
 perf.type(<i>type</i>).config(<i>config</i>)[.sample(<i>sample</i>)][.process("<i>process-name</i>")][.counter("<i>counter-name</i>")]
