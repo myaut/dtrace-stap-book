@@ -7,20 +7,27 @@ In DTrace predicate is a separate language construct which is going in slashes `
 syscall::write:entry 
 /pid == $target/
 {
-    printf("Written %d bytes", args[3]);
+	printf("Written %d bytes", args[3]);
 }
 ```
 
 In SystemTap, however, there is no separate predicate language construct, but it supports conditional statement and `next` statement which exits from the probe, so combining them will give similiar effect:
 ```
 probe syscall.write {
-   if(pid() != target())
-       next;
-
-   printf("Written %d bytes", $count);
+	if(pid() != target())
+		next;
+	printf("Written %d bytes", $count);
 }
 ```
 Note that in SystemTap, probe will be __omitted__ if condition in `if` statement is evaluated to true thus making this logic inverse to DTrace.
+
+Starting with SystemTap 2.6, it supports mechanism similiar to predicates which is called on-the-fly arming/disarming. When it is active, probes will be installed only when certain condition will become true. For example:
+```
+probe syscall.write if(i > 4) {
+		printf("Written %d bytes", $count);
+}
+```
+This probe will be installed when `i` becomes more than four. 
 
 `$target` in DTrace (macro-substitution) and `target()` context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as `-c` option argument or its PID was passed as `-p`/`-x` option argument). In these examples only `write` syscalls from traced process will be printed.
 

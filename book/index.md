@@ -49,5 +49,6 @@
  * [Process management][kernel/proc]
     * [Exercise 3][kernel/ex3]
  * [Process scheduler][kernel/sched]
- * [Virtual memory][kernel/virtmem]
+ * [Virtual Memory][kernel/virtmem]
     * [Exercise 4][kernel/ex4]
+ * [Virtual File System][kernel/fs]
