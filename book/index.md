@@ -52,3 +52,14 @@
  * [Virtual Memory][kernel/virtmem]
     * [Exercise 4][kernel/ex4]
  * [Virtual File System][kernel/fs]
+ * [Block Input-Output][kernel/bio]
+ * [Asynchronity in kernel][kernel/async]
+    * [Exercise 5][kernel/ex5]
+ * [Network Input-Output][kernel/net]
+ * [Synchronization primitives][kernel/sync]
+ * [Interrupt handling][kernel/irq]
+
+### Module 4: Application tracing
+[__docspace__:app]
+ 
+ * [Userspace process tracing][app/proc]

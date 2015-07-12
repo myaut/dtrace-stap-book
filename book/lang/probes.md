@@ -86,6 +86,7 @@ bdev_strategy+4:  subq   $0x10,%rsp        subq   $0x10,%rsp
 Userspace probes will be covered in [Module 5][app/userspace].
 !!!
 
+[stap-syntax]
 ##### SystemTap
 
 SystemTap function probe names have the following syntax:
