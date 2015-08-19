@@ -63,3 +63,7 @@
 [__docspace__:app]
  
  * [Userspace process tracing][app/proc]
+ * [Unix C library][app/libc]
+    * [Exercise 6][app/ex6]
+ 
+ 
