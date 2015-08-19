@@ -45,6 +45,10 @@ class Text(object):
         return '%s(%s)' % (self.__class__.__name__, 
                            repr(self.text))
 
+class BreakLine(Text):
+    def __init__(self):
+        Text.__init__(self, '')
+
 class BoldText(Text):
     pass
 

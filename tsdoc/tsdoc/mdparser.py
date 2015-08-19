@@ -110,11 +110,20 @@ class MarkdownParser:
                 continue
             
             if char == '>':
-                match, prefix = self.prefix(self.newline_pos, idx - 1, ' \t')
-                if match:
-                    self.block = BlockQuote()
-                    idx += 1
-                    self.text_pos += 1
+                count = self.ctl_count(idx, '>')
+                
+                if count == 1:
+                    match, prefix = self.prefix(self.newline_pos, idx - 1, ' \t')
+                    if match:
+                        self.block = BlockQuote()
+                        idx += 1
+                        self.text_pos += 1
+                        continue
+                elif count == 3:
+                    self.end_text(idx)
+                    self.block.add(BreakLine())
+                    self.begin_text(idx, count)
+                    idx += count
                     continue
             
             if self.in_code:

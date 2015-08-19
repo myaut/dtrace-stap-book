@@ -182,6 +182,9 @@ class HTMLPrinter(Printer):
                     
                     if part.type == Link.INVALID:
                         tag_attrs['style'] = "color: red"
+                elif isinstance(part, BreakLine):
+                    self.stream.write('<br />')
+                    continue
                 
                 text = self._html_filter(block, str(part))
                 
