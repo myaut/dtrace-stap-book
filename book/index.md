@@ -65,5 +65,6 @@
  * [Userspace process tracing][app/proc]
  * [Unix C library][app/libc]
     * [Exercise 6][app/ex6]
+ * [Java Virtual Machine][app/java]
  
  
