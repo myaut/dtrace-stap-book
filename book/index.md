@@ -59,12 +59,14 @@
  * [Synchronization primitives][kernel/sync]
  * [Interrupt handling][kernel/irq]
 
-### Module 4: Application tracing
+### Module 5: Application tracing
 [__docspace__:app]
  
  * [Userspace process tracing][app/proc]
  * [Unix C library][app/libc]
     * [Exercise 6][app/ex6]
  * [Java Virtual Machine][app/java]
+ * [Web applications][app/web]
+    * [Exercise 7][app/ex7]
  
  
