@@ -1,4 +1,4 @@
-/* Подсказка: определены в /usr/lib/dtrace/io.d
+/* These constants are already defined in /usr/lib/dtrace/io.d
 inline int O_WRONLY = 1;
 inline int O_RDWR = 2;
 inline int O_APPEND = 8;

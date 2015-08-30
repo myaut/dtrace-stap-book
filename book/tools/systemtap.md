@@ -21,6 +21,8 @@ Unlike DTrace, SystemTap has several front-end tools with different capabilities
 If `stap` parent is exited, than `killall -9 stap` won't finish `stapio` daemon. You have to signal it with SIGTERM: `killall -15 stap`
 !!!
 
+[stap]
+
 #### stap 
 
 Like many other scripting tools, SystemTap accepts script as command line option or external file, for example:

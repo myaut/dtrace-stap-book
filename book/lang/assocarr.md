@@ -44,6 +44,7 @@ Starting with SystemTap 2.1 it allocates `MAXMAPENTRIES` entries for associative
 * ![image:dtraceicon](icons/dtrace.png) [Variables/Associative arrays](http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr)
 * ![image:staplang](icons/staplang.png) [Associative arrays](https://sourceware.org/systemtap/langref/Associative_arrays.html)
 
+[aggr]
 ### Aggregations
 
 _Aggregations_ are most useful for evaluating system performance (they are called _statistics_ in SystemTap). Aggregation will update intermediate set of parameters when new value is added, and when needed provide capability to print statistical characteristics of values sample added to it. Let's for example see how it works for mean value -- dynanamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:
@@ -81,6 +82,7 @@ Limit number of values | `trunc(@aggr, num)` | Use `limit` clause in `foreach`
 Aggregations may be sorted in DTrace using `aggsortkey`, `aggsortpos`, `aggsortkeypos` and `aggsortrev` tunables.
 !!!
 
+[aggr-example]
 Aggregations are extremely useful for writing stat-like utitilies. For example, let's write utilities that count number of `write` system calls and amount of kilobytes they written. 
 
 ````` scripts/dtrace/wstat.d

@@ -106,6 +106,7 @@ But when you run multiple `dd` processes, local and global numbers will eventual
 
 !!!
 
+[thread-local-vars]
 #### Thread-local variables
 
 Thread local variables are created in a context of a thread, and after thread will be switched, you will access new instance of variable. They are similiar to local DTrace variables, but use `self` keyword instead of `this`. They are extremely useful in passing data between distinct probes:

@@ -69,4 +69,9 @@
  * [Web applications][app/web]
     * [Exercise 7][app/ex7]
  
- 
+### Appendix A. Exercise hints and solutions 
+[__docspace__:hints]
+
+ * [Exercise 1][hints/ex1]
+ * [Exercise 2][hints/ex2]
+ * [Exercise 3][hints/ex3] 
