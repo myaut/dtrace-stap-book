@@ -44,6 +44,7 @@ Or with DTrace:
 
 To measure _arrival rate_, on contrary, we need first functions which handle request "arrival" which are in our case `ioblock.request` and `io:::start` correspondingly. These probes will be covered in [Block Input-Output][kernel/bio] section.
 
+[latency]
 Latency measurement is a bit more complicated. We will need to add probes to request arrival and final handler and calculate time difference between these two moments. So we need to save a timestamp of a request arrival and retrive it at the final handler probe. The easiest way to do that is thread-local variables, but it is not guaranteed that final handler will be called from same context request was created from. For example, final handler may be called from IRQ handler thread. In such cases we will need associative arrays and a unique request key retrivable on both sides, which is usually an address of requests descriptor in memory. For block input-output is `struct buf` in Solaris and `struct bio` in Linux. So let's calculate mean latency in SystemTap:
 ```
 # stap -e ' global start, times;    

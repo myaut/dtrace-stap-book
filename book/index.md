@@ -75,3 +75,8 @@
  * [Exercise 1][hints/ex1]
  * [Exercise 2][hints/ex2]
  * [Exercise 3][hints/ex3] 
+ * [Exercise 4][hints/ex4]
+ * [Exercise 5][hints/ex5] 
+ * [Exercise 6][hints/ex6]
+ * [Exercise 7][hints/ex7] 
+ 
