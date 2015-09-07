@@ -75,7 +75,7 @@ class DocPage(object):
         where = self.gen_link_to(page)
         self.nav_links[nav_type] = NavLink(nav_type, page, where)
         
-    def gen_link_to(self, page):        
+    def gen_link_to(self, page):
         doc_dir = os.path.dirname(self.doc_path)
         return os.path.relpath(page.doc_path, doc_dir)
     
@@ -98,8 +98,22 @@ class MarkdownPage(DocPage):
         text = fp.read()
         fp.close()
         
-        parser = MarkdownParser(text, self.      page_path)
+        parser = MarkdownParser(text, self.page_path)
         self.blocks = parser.parse()
+
+class IncompletePage(DocPage):
+    def __init__(self, page_path):
+        path, name = os.path.split(page_path)
+        _, docspace = os.path.split(path)
+        
+        DocPage.__init__(self, docspace, name)
+        
+        self.blocks = [Incut('WARN')]
+        self.blocks[0].add('This page is not yet written. Sorry. ')
+        
+    def add_index_link(self, index):
+        self.blocks[0].add(Link('Return to index.', Link.EXTERNAL, 
+                                self.gen_link_to(index)))
 
 class IndexPage(MarkdownPage):
     DOCSPACE_HSIZE = 3
@@ -212,8 +226,6 @@ class IndexPage(MarkdownPage):
                 page.create_doc_path(index.doc_dir, index.doc_suffix)
                 
         def generate(self, printer, index, joint = False):   
-            pages = self.pages.values()   
-            
             if self.is_external:
                 self.add_nav_link(NavLink.HOME, index)
             
@@ -221,7 +233,9 @@ class IndexPage(MarkdownPage):
             self._gen_nav_links(self.index_links, index)
             
             # Substitute links with references to pages
-            self._xref()
+            self._xref(index)
+            
+            pages = self.pages.values()
             
             if printer.single_doc:
                 if self.is_external:
@@ -231,7 +245,9 @@ class IndexPage(MarkdownPage):
                 for page in pages:
                     if VERBOSE:
                         print 'Generating %s...' % page.doc_path
-                    
+                    if not os.path.isdir(os.path.dirname(page.doc_path)):
+                        print >> sys.stderr, 'WARNING: Directory "%s" does not exist' % (os.path.dirname(page.doc_path))
+                        continue
                     stream = file(page.doc_path, 'w')
                     printer.do_print(stream, self.header, page)
         
@@ -312,7 +328,20 @@ class IndexPage(MarkdownPage):
                 
                 self.reference.add_nav_link(NavLink.HOME, index)
         
-        def _xref(self):
+        def _create_incomplete_page(self, index, name):
+            # Create IncompletePage
+            if '#' in name:
+                name = name[:name.rfind('#')]                    
+            page = IncompletePage(name)
+            page.prep_print()
+            page.create_doc_path(index.doc_dir, index.doc_suffix)
+            page.add_index_link(index)
+            
+            self.pages[name] = page
+            
+            return page
+            
+        def _xref(self, index):
             for (refpage, link) in self.links:
                 if link.type != Link.INTERNAL:
                     continue
@@ -320,9 +349,13 @@ class IndexPage(MarkdownPage):
                 page = self.find_page(link)
                 
                 if page is None:
+                    page = self._create_incomplete_page(index, link.where)
+                
+                if isinstance(page, IncompletePage):
                     link.type = Link.INVALID
                     print >> sys.stderr, 'WARNING: Not found page for link "%s" for page %s' % (link, refpage)
-                    continue
+                else:
+                    link.type = Link.EXTERNAL
                 
                 # Not all page headers are set in _collect_ref_links()
                 # so set them here but only if reference page is an docspace index page
@@ -335,9 +368,7 @@ class IndexPage(MarkdownPage):
                 else:
                     anchor = ''
                 
-                link.type = Link.EXTERNAL
-                link.where = refpage.gen_link_to(page) + anchor
-                
+                link.where = refpage.gen_link_to(page) + anchor            
         
         def _create_reference(self):
             reference = IndexPage.DocSpaceReference(self.docspace,

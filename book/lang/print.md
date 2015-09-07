@@ -17,7 +17,7 @@ exec B
 new B
 exec A
 ```
-This makes interpretation of output is extremely complicated especially in case of dozens events (such as tracing ZIO pipeline in ZFS filesystem). This problem can be solved only by adding extra key related to a request (such as process ID, like `A` and `B` in this example) to a each line and group events in [post-processing][basics/prepost].
+This makes interpretation of output is extremely complicated especially in case of dozens events (such as tracing ZIO pipeline in ZFS filesystem). This problem can be solved only by adding extra key related to a request (such as process ID, like `A` and `B` in this example) to a each line and group events in [post-processing][principles/prepost].
 
 #### References
 

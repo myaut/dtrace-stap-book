@@ -83,7 +83,7 @@ bdev_strategy+4:  subq   $0x10,%rsp        subq   $0x10,%rsp
 ```
 
 !!! WARN
-Userspace probes will be covered in [Module 5][app/userspace].
+Userspace probes will be covered in [Module 5][app/proc].
 !!!
 
 [stap-syntax]
@@ -195,7 +195,7 @@ In ideal case, statically defined probe is just a `nop` instruction or a sequenc
 
 #### Alias probes
 
-Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as _alias probe_. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by [Translators and tapsets][lang/tapsets.md] topic. 
+Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as _alias probe_. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by [Translators and tapsets][lang/tapset] topic. 
 
 [timers]
 #### Timers and service probes
@@ -206,7 +206,7 @@ Take for example profiler probe which records task name from `current` pointer (
 
 ![image:timer-probe](timer-probe.png)
 
-So if we count that timer probe has fired two times, once in context of left process and once in context of right process, we can conclude that they both consume 50% of CPU time, like `prstat` and `top` utilities do. Profiling will be covered in [Profiling][basics/profiling] section of Module 3.
+So if we count that timer probe has fired two times, once in context of left process and once in context of right process, we can conclude that they both consume 50% of CPU time, like `prstat` and `top` utilities do. Profiling will be covered in [Profiling][principles/profiling] section of Module 3.
 
 In **SystemTap** service probes have following syntax:
 ```
