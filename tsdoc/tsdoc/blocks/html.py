@@ -34,11 +34,13 @@ class HTMLPrinter(Printer):
             self._print_block(block)
             
         body = self.stream.getvalue()
-        navbar = self._gen_navbar(page)
+        navbar_top = self._gen_navbar(page, True)
+        navbar_bottom = self._gen_navbar(page, False)
         
         text = self.template.substitute(TITLE = header,
                                         BODY = body,
-                                        NAVBAR = navbar,
+                                        NAVBAR_TOP = navbar_top,
+                                        NAVBAR_BOTTOM = navbar_bottom,
                                         GENERATOR = 'TSDoc 0.2',
                                         HEADER = '<!-- HEADER -->',
                                         TAIL = '<!-- TAIL -->',
@@ -48,14 +50,17 @@ class HTMLPrinter(Printer):
         
         self.stream.close()
     
-    def _gen_navbar(self, page):
+    def _gen_navbar(self, page, brand_link):
         nav_home = ''
         nav_links = []
                 
         if NavLink.HOME in page.nav_links:
-            nav_link = page.nav_links[NavLink.HOME]
-            nav_home = '<a class="brand" href="%s">%s</a>' % (nav_link.where, 
-                                                              nav_link.page.header)
+            if brand_link:
+                nav_link = page.nav_links[NavLink.HOME]
+                nav_home = '<a class="brand" href="%s">%s</a>' % (nav_link.where, 
+                                                                  nav_link.page.header)
+            elif NavLink.UP not in page.nav_links:
+                page.nav_links[NavLink.UP] = page.nav_links[NavLink.HOME]
         
         for nav_type, nav_class, nav_text in HTMLPrinter.NAV_LINKS:
             if nav_type in page.nav_links:
