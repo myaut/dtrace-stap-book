@@ -79,4 +79,10 @@
  * [Exercise 5][hints/ex5] 
  * [Exercise 6][hints/ex6]
  * [Exercise 7][hints/ex7] 
- 
+
+### Appendix B. Lab setup
+[__docspace__:lab]
+
+ * [Setting up Operating Systems][lab/os]
+ * [iSCSI][lab/iscsi]
+ * [Web application stack][lab/web]

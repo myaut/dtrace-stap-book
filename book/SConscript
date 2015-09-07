@@ -49,5 +49,5 @@ if doc_format == 'html':
 docs = env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools')  
                                 + GlobDocs('lang') + GlobDocs('principles')
                                 + GlobDocs('kernel') + GlobDocs('app')
-                                + GlobDocs('hints'))
+                                + GlobDocs('hints') + GlobDocs('lab'))
 env.AlwaysBuild(docs)
