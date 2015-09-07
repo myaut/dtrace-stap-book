@@ -55,6 +55,7 @@ class MarkdownParser:
         self.block = Paragraph()
         self.list_blocks = {}
         self.list_parent = None
+        self.list_entry = None
         self.blocks = []
         
         self.table_parent = None
@@ -184,7 +185,6 @@ class MarkdownParser:
                 
                 count = nlidx - idx
                 
-            
             self.incut_block(count, idx, incut)
         
         return idx + count
@@ -240,7 +240,7 @@ class MarkdownParser:
         elif char == '*':
             match, prefix = self.prefix(self.newline_pos, idx - 1, ' \t')
             if match:
-                self.list_entry(idx, prefix)
+                self.add_list_entry(idx, prefix)
             else: 
                 count = self.ctl_count(idx, '*')
                 self.styled_text(count, idx, char)
@@ -316,7 +316,7 @@ class MarkdownParser:
             
         return count
     
-    def list_entry(self, idx, prefix):
+    def add_list_entry(self, idx, prefix):
         self.end_text(idx)
         
         level = self.get_list_level(prefix)
@@ -511,11 +511,12 @@ class MarkdownParser:
         
         self.end_text(idx)
         
-        self.list_levels = {}
-        if self.list_parent is not None:
-            self.block = self.list_parent
-            self.list_blocks = {}
-            self.list_parent = None
+        if isinstance(self.block, ListEntry):
+            self.list_levels = {}
+            if self.list_parent is not None:
+                self.block = self.list_parent
+                self.list_blocks = {}
+                self.list_parent = None
         
         if self.incut:
             if self.block is not self.incut and not self.table_block:
@@ -532,9 +533,19 @@ class MarkdownParser:
     def code_block(self, count, idx):
         if self.in_code:
             self.in_code = False
-            self.end_block(idx)
+            if self.list_entry is not None:
+                self.end_block(idx, root_block=False)
+                self.list_entry.add(self.block)
+                self.block = self.list_entry
+                self.list_entry = None
+            else:
+                self.end_block(idx)
         else:
-            self.end_block(idx)
+            if isinstance(self.block, ListEntry):
+                self.list_entry = self.block
+                self.end_text(idx)
+            else:
+                self.end_block(idx)
             self.block = Code()
             self.in_code = True
         self.text_pos += count
