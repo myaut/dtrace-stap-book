@@ -508,7 +508,7 @@ class IndexPage(MarkdownPage):
                 
                 header = None
             else:
-                docspace_index.blocks.append(block)
+                blocks.append(block)
             
             if is_external:
                 self.blocks.remove(block)

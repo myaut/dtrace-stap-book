@@ -1,3 +1,9 @@
+_Sergey Klyaus_
+
+Copyright © 2011-2015 Sergey Klyauss
+
+This work is licensed under the  Creative Commons Attribution-Noncommercial-ShareAlike 3.0 License. To view a copy of this license, visit [http://creativecommons.org/licenses/by/3.0/](http://creativecommons.org/licenses/by/3.0/) or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
 ### Introduction
 [__docspace__:intro]
 
