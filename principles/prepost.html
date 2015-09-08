@@ -1,0 +1,413 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 3: Principles of dynamic tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="perf.html"><strong>Prev</strong>(Performance analysis)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="viz.html"><strong>Next</strong>(Vizualization)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Pre- and post-processing</h3></p>
+<p>
+Despite the flexibility of the dynamic tracing languages, it lacks of common tools to create user-friendly interfaces like command line options to generate different filtering with predicates, sorting and omitting columns, making scripts are hard to reuse. For example, <code>iosnoop</code> from DTraceToolkit allows to generate user-printable timestamps or not with <code>-v</code> option, filter device or PID with <code>-d</code> and <code>-p</code> options, and a series of options that enable or disable showing various columns. <br /></p>
+<p>
+In such cases we can use general purpose scripting language such as Python, Perl or even shell-script to generate dynamic tracing on-the fly, run it, read its output in some form and than print it in human-readable form:<br /></p>
+<p>
+<img src="../images/prepost.png" alt="" /></p>
+<p>
+For example, let's add the following capabilities to our <code>open()</code> system call tracer: customizable per-pid and per-user filters, and also make it universal -- capable running in DTrace and SystemTap.<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000696201104')">+</button>&nbsp; Script file opentrace.py <br/><p>
+<pre id="code140000696201104" class="hide">
+#!/usr/bin/env python
+
+import sys, os, subprocess, platform
+from optparse import OptionParser
+
+# ----------------------------
+# opentrace.py - Trace open syscalls via SystemTap or DTrace
+# supports filtering per UID or PID
+
+optparser = OptionParser()
+
+optparser.add_option('-S', '--stap', action='store_true',    
+                     dest='systemtap', help='Run SystemTap')
+optparser.add_option('-D', '--dtrace', action='store_true',   
+                     dest='dtrace', help='Run DTrace')
+optparser.add_option('-p', '--pid', action='store', type='int', 
+                     dest='pid', default='-1', metavar='PID',
+                     help='Trace process with specified PID')
+optparser.add_option('-u', '--uid', action='store', type='int', 
+                     dest='uid', default='-1', metavar='UID', 
+                     help='Filter traced processes by UID')
+optparser.add_option('-c', '--command', action='store', type='string', 
+                     dest='command', metavar='CMD', 
+                     help='Run specified command CMD and trace it')
+
+(opts, args) = optparser.parse_args()
+
+if opts.pid >= 0 and opts.command is not None:
+    optparser.error('-p and -c are mutually exclusive')  
+if (opts.pid >= 0 or opts.command is not None) and opts.uid >= 0:
+    optparser.error('-p or -c are mutually exclusive with -u')    
+if opts.systemtap and opts.dtrace:
+    optparser.error('-S and -D are mutually exclusive')
+            
+if not opts.systemtap and not opts.dtrace:
+    # Try to guess based on operating system
+    opts.systemtap = sys.platform == 'linux2'
+    opts.dtrace = sys.platform == 'sunos5'
+if not opts.systemtap and not opts.dtrace:
+    optparser.error('DTrace or SystemTap are non-standard for your platform, please specify -S or -D option')
+
+def run_tracer(entry, ret, cond_proc, cond_user, cond_default, 
+               env_bin_var, env_bin_path, 
+               opt_pid, opt_command, args, fmt_probe):    
+    cmdargs = [os.getenv(env_bin_var, env_bin_path)]
+    if opts.pid >= 0:
+        cmdargs.extend([opt_pid, str(opts.pid)])
+        entry['cond'] = ret['cond'] = cond_proc
+    elif opts.command is not None:
+        cmdargs.extend([opt_command, opts.command])    
+        entry['cond'] = ret['cond'] = cond_proc
+    elif opts.uid >= 0:
+        entry['cond'] = ret['cond'] = cond_user % opts.uid
+    else:
+        entry['cond'] = ret['cond'] = cond_default
+    cmdargs.extend(args)
+    
+    proc = subprocess.Popen(cmdargs, stdin=subprocess.PIPE)
+    proc.stdin.write(fmt_probe % entry)
+    proc.stdin.write(fmt_probe % ret)
+    
+    proc.stdin.close()    
+    proc.wait()
+
+if opts.systemtap:
+    entry = {'name': 'syscall.open',
+             'dump': '''printf("=> uid: %d pid: %d open: %s %d\\n", 
+                        uid(), pid(), filename, gettimeofday_ns());'''}
+    ret =   {'name': 'syscall.open.return',
+             'dump': '''printf("<= uid: %d pid: %d ret: %d %d\\n", 
+                        uid(), pid(), $return, gettimeofday_ns());'''}
+    
+    run_tracer(entry, ret, cond_proc = 'pid() != target()', 
+               cond_user = 'uid() != %d', cond_default = '0', 
+               env_bin_var = 'STAP_PATH',   
+               env_bin_path = '/usr/bin/stap', 
+               opt_pid = '-x', opt_command = '-c',
+               args = ['-'],
+               fmt_probe = ''' probe %(name)s {
+                    if(%(cond)s) next;
+                    
+                    %(dump)s
+                }
+                ''' )
+elif opts.dtrace:
+    # In Solaris >= 11 open is replaced with openat    
+    is_sol11 = int(platform.release().split('.')[-1]) >= 11
+    sc_name = 'openat*' if is_sol11 else 'open*'
+    fn_arg = 'arg1' if is_sol11 else 'arg0'
+    
+    entry = {'name': 'syscall::%s:entry' % sc_name, 
+        'dump': '''printf("=> uid: %%d pid: %%d open: %%s %%lld\\n", 
+        uid, pid, copyinstr(%s), (long long) timestamp); ''' % fn_arg}
+    ret =   {'name': 'syscall::%s:return' % sc_name,
+        'dump': '''printf("<= uid: %d pid: %d ret: %d %lld\\n", 
+                uid, pid, arg1, (long long) timestamp);'''}
+
+    run_tracer(entry, ret, cond_proc = 'pid == $target', 
+               cond_user = 'uid == %d', cond_default = '1', 
+               env_bin_var = 'DTRACE_PATH', 
+               env_bin_path = '/usr/sbin/dtrace', 
+               opt_pid = '-p', opt_command = '-c', 
+               args = ['-q', '-s', '/dev/fd/0'],
+               fmt_probe = ''' %(name)s 
+                /%(cond)s/
+                {
+                    %(dump)s
+                }
+                ''' )</pre>
+</p>
+</div>
+</p>
+<p>
+First half of this script is an option parser implemented with <code>OptionParser</code> Python class and intended to parse command-line arguments, provide help for them and check their correctness -- i.e. mutually-exclusive options, etc. Second half of the script is a <code>run_tracer()</code> function that accepts multiple arguments and <code>if-else</code> statement that depending on chosen dynamic tracing system, generates parameters for <code>run_tracer()</code> as follows:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<strong>Parameter</strong></td>
+            <td>
+<strong>Description</strong></td>
+            <td>
+<strong>SystemTap</strong></td>
+            <td>
+<strong>DTrace</strong></td>
+</tr>
+        <tr>
+            <td>
+<code>entry</code></td>
+            <td>
+ entry probe name and body </td>
+            <td>
+<code>syscall.open</code></td>
+            <td>
+<code>syscall::open*:entry</code> or <br />                                                       <code>syscall::openat*:entry</code> depending on Solaris version</td>
+</tr>
+        <tr>
+            <td>
+<code>ret</code></td>
+            <td>
+ return probe name and body </td>
+            <td>
+<code>syscall.open.return</code></td>
+            <td>
+ Similiar to entry probe, but with name <code>return</code></td>
+</tr>
+        <tr>
+            <td>
+<code>cond_proc</code></td>
+            <td>
+ predicate for picking a process </td>
+            <td>
+<code>pid() != target()</code></td>
+            <td>
+<code>pid == $target</code></td>
+</tr>
+        <tr>
+            <td>
+<code>cond_user</code></td>
+            <td>
+ predicate template for per-user tracing </td>
+            <td>
+<code>uid() != %d</code></td>
+            <td>
+<code>uid == %d</code></td>
+</tr>
+        <tr>
+            <td>
+<code>cond_default</code></td>
+            <td>
+ always-true predicate </td>
+            <td>
+<code>0</code></td>
+            <td>
+<code>1</code></td>
+</tr>
+        <tr>
+            <td>
+<code>env_bin_var</code></td>
+            <td>
+ environment option used to override path to DTrace/SystemTap binary </td>
+            <td>
+<code>STAP_PATH</code></td>
+            <td>
+<code>DTRACE_PATH</code></td>
+</tr>
+        <tr>
+            <td>
+<code>env_bin_path</code></td>
+            <td>
+ default path to  DTrace/SystemTap binary </td>
+            <td>
+<code>/usr/bin/stap</code></td>
+            <td>
+<code>/usr/sbin/dtrace</code></td>
+</tr>
+        <tr>
+            <td>
+<code>opt_pid</code></td>
+            <td>
+ option for tracing tool accepting PID </td>
+            <td>
+<code>-x</code></td>
+            <td>
+<code>-p</code></td>
+</tr>
+        <tr>
+            <td>
+<code>opt_pid</code></td>
+            <td>
+ option for tracing tool accepting new command </td>
+            <td>
+<code>-c</code></td>
+            <td>
+<code>-c</code></td>
+</tr>
+        <tr>
+            <td>
+<code>args</code></td>
+            <td>
+ arguments to read script from stdin </td>
+            <td>
+<code>-</code></td>
+            <td>
+<code>-q -s /dev/fd/0</code></td>
+</tr>
+        <tr>
+            <td>
+<code>fmt_probe</code></td>
+            <td  colspan="3">
+ format string for constructing probes</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+So this script generate predicate condition <code>uid == 100</code> for the following command-line:<br /></p>
+<p>
+<pre>
+# python opentrace.py -D -u 100
+</pre>
+</p>
+<p>
+Post-processing is intended to analyse already collected trace file, but it might be run in parallel with tracing process. However, it allows to defer trace analysis -- i.e. collect maximum data as we can, and then cut out irrelevant data, showing only useful. This can be performed using either Python, Perl, or other scripting languages or even use statical analysis languages like R. Moreover, post-processing allows to reorder or sort tracing output which can also help to avoid data mixing caused by per-process buffers. <br /></p>
+<p>
+The next script will read <code>opentrace.py</code> output, merge information from entry and return probes, and convert user-ids and time intervals to a convenient form. Like in dynamic tracing languages we will use an associative array <code>states</code> which is implemented as <code>dict</code> type in Python to save data from entry probes and use process ID as a key.<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000696262032')">+</button>&nbsp; Script file openproc.py <br/><p>
+<pre id="code140000696262032" class="hide">
+#!/usr/bin/env python
+
+import re
+import sys
+
+# ----------------------------
+# openproc.py - Collect data from opentrace.py and merge :entry and :return probes 
+
+# Open trace file or use stdin 
+try:
+    inf = file(sys.argv[1], 'r')
+except OSError as ose:
+    print ose
+    print '''openproc.py [filename]'''
+    sys.exit(1)
+except IndexError:
+    inf = sys.stdin
+
+# Convert time to human time
+def human_time(ns):
+    ns = float(ns)
+    for unit in ['ns', 'us', 'ms']:
+        if abs(ns) < 1000.0:
+            break
+        ns /= 1000.0
+    else:
+        unit = 's'
+    return "%.2f %s" % (ns, unit)
+
+# Parse /etc/passwd and create UID-to-USERNAME map
+uid_name = lambda user: (int(user[2]), user[0])    
+users = dict([uid_name(user.split(':'))
+              for user in file('/etc/passwd')])
+
+# Per-PID state - tuples (start time, file name)
+state = {}
+
+# Regular expressions for parsing tracer output
+re_entry = re.compile("=> uid: (\d+) pid: (\d+) open: (.*?) (\d+)")
+re_return = re.compile("<= uid: (\d+) pid: (\d+) ret: (-?\d+) (\d+)")
+    
+for line in inf:
+    if line.startswith('=>'):
+        # :entry probe, extract start time and filename
+        m = re_entry.match(line)
+        _, pid, fname, tm = m.groups()
+        
+        state[int(pid)] = (int(tm), fname)
+    elif line.startswith('<='):
+        # :return probe, get return value, timestamp and print information
+        m = re_return.match(line)
+        uid, pid, ret, tm = map(int, m.groups())
+        
+        if pid not in state:
+            continue
+        
+        status = 'FD %d' % ret if ret >= 0 else 'ERROR %d' % ret
+        
+        print 'OPEN %s %d %s => %s [%s]' % (users.get(uid, str(uid)), 
+                                            pid, state[pid][1], status,
+                                            human_time(tm - state[pid][0]))
+        del state[pid]
+</pre>
+</p>
+</div>
+</p>
+<p>
+If we pipe <code>opentrace.py</code> output to this script, we can get similar data:<br /></p>
+<p>
+<pre>
+# python opentrace.py -c 'cat /tmp/not_exists' |
+            python openproc.py 
+    cat: cannot open /tmp/not_exists: No such file or directory
+    [...]
+    OPEN root 3584 /tmp/not_exists => ERROR -1 [10.17 us]
+    [...]
+</pre>
+</p>
+<span class="label label-warning">Warning</span><div class="well">
+This is only a demonstration script, and many of their features may be implemented using SystemTap or DTrace. Moreover, they allow to use <code>system()</code> calls an external program, for example to parse <code>/etc/passwd</code> and get user name. However, it will cost much more, and if this call will introduce more <code>open()</code> calls (which it will obviously do), we will get more traced calls and a eternal loop. <br /></div>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="perf.html"><strong>Prev</strong>(Performance analysis)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="viz.html"><strong>Next</strong>(Vizualization)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

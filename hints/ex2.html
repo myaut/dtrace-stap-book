@@ -1,0 +1,140 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Appendix A. Exercise hints and solutions </title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="ex1.html"><strong>Prev</strong>(Exercise 1)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex3.html"><strong>Next</strong>(Exercise 3)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Exercise 2</h3></p>
+<p>
+We will have to use <code>count()</code><a href="../lang/assocarr.html#aggr">aggregation</a> to count <code>open()</code> and <code>openat()</code> system calls. It can be cleaned up from outdated data with <code>trunc()</code> action in DTrace or <code>delete</code> operation in SystemTap. These scripts are roughly based on <code>wstat.d</code> and <code>wstat.stp</code> from <a href="../lang/assocarr.html#aggr-example">aggregations example</a>.<br /></p>
+<p>
+To print current timestamp we can use <code>%Y</code> formatting specifier and <code>walltimestamp</code> variable in DTrace. Same can be achieved with <code>ctime()</code> and <code>gettimeofday_s()</code> functions from SystemTap. To print data periodically, we can use <a href="../lang/probes.html#timers">timer probes</a>: <code>timer.s($1)</code> in SystemTap or <code>tick-$1s</code> from DTrace. <code>$1</code> here represents first command line argument.<br /></p>
+<p>
+Finally, we need to determine if open operation requests creation of file or not. We should write predicate for that which tests flags passed to open for <code>O_CREAT</code> flag (we have learned how to access flags in previous exercise). <br /></p>
+<p>
+Here are resulting scripts:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694955024')">+</button>&nbsp; Script file openaggr.d <br/><p>
+<pre id="code140000694955024" class="hide">
+syscall::openat*:entry
+/(arg2 & O_CREAT) == O_CREAT/ {
+    @create[execname, pid] = count();
+}
+
+syscall::openat*:entry
+/(arg2 & O_CREAT) == 0/ {
+    @open[execname, pid] = count();
+}
+
+syscall::openat*:return
+/ arg1 > 0 / {
+    @success[execname, pid] = count();
+}
+
+tick-$1s {
+    printf("%Y\n", walltimestamp);
+    printf("%12s %6s %6s %6s %s\n", 
+              "EXECNAME", "PID", "CREATE", "OPEN", "SUCCESS");
+    printa("%12s %6d %@6d %@6d %@d\n", @create, @open, @success);
+    trunc(@create); trunc(@open); trunc(@success);
+}</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694955152')">+</button>&nbsp; Script file openaggr.stp <br/><p>
+<pre id="code140000694955152" class="hide">
+global open, creat, success
+global O_CREAT = 64;
+
+probe syscall.open {
+    if(flags & O_CREAT)
+        creat[execname(), pid()] <<< 1;
+    else
+        open[execname(), pid()] <<< 1;
+}
+
+probe syscall.open.return {
+    if($return >= 0)
+        success[execname(), pid()] <<< 1;
+}
+
+probe timer.s($1) {
+    println(ctime(gettimeofday_s()));
+    
+    printf("%12s %6s %6s %6s %s\n", 
+           "EXECNAME", "PID", "CREATE", "OPEN", "SUCCESS");
+    foreach([en, pid+] in open) {
+        printf("%12s %6d %6d %6d %d\n", 
+               en, pid, @count(creat[en, pid]), @count(open[en, pid]),
+               @count(success[en, pid]));
+    }
+
+    delete open; delete creat; delete success;
+}</pre>
+</p>
+</div>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="ex1.html"><strong>Prev</strong>(Exercise 1)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex3.html"><strong>Next</strong>(Exercise 3)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

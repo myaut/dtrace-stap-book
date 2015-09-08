@@ -1,0 +1,157 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="probes.html"><strong>Prev</strong>(Probes)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="context.html"><strong>Next</strong>(Context)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Arguments</h3></p>
+<p>
+When you bind a probe, you need to collect some data in it. In C, data is usually is passed as arguments to a function, or returned as <em>return value</em>. So, when you bind a function boundary tracing probe, you may need to gather them. Argument extraction rely on calling conventions, and extracts data directly from registers or stack.<br /></p>
+<p>
+For example, let's look at Solaris kernel function from ZFS: <code>void spa_sync(spa_t *spa, uint64_t txg);</code>. First argument is ZFS representation of a pool, second is 64-bit unsigned integer which is transaction group number. So when we bind a probe to a <code>spa_sync</code>, we can print both of them:<br /></p>
+<p>
+<pre>
+# dtrace -qn '
+    ::spa_sync:entry { 
+        printf("synced txg=%d [%s]\n", 
+            args[1], args[0]->spa_name); }' 
+</pre>
+</p>
+<p>
+DTrace supports two forms of arguments: <code>arg0</code>, <code>arg1</code> ... <code>argN</code> are <code>uint64_t</code> values, while <code>args[0]</code>, <code>args[1]</code> ... <code>args[N]</code> have actual types if DTrace were able to extract them (i.e. DTrace forbids type hinting for unstable probes). If <code>args[N]</code> is unavailable, you can still treat <code>arg0</code> as pointer and covert them as you want:<br /></p>
+<p>
+<pre>
+# dtrace -qn '
+    ::spa_sync:entry { 
+        printf("synced txg=%ld [%s]\n", 
+            (long) arg1, ((spa_t*) arg0)->spa_name); }' 
+</pre>
+</p>
+<p>
+DTrace supplies two arguments for return probes: <code>arg0</code> is an instruction pointer to a caller, and <code>arg1</code> or <code>args[1]</code> is a return value.<br /></p>
+<p>
+DWARF format used in Linux is richer than CTF from Solaris and saves not only argument types, but their names too. They are provided in SystemTap in separate namespace beginning with <code>$</code> and followed by name of argument. It provides access to locals as well as arguments. However, some of them may be unavailable at the probe, because they were overwritten by other data (which is called <em>optimized out</em>). For example, let's look at <code>vfs_read</code> function from Linux kernel:<br /></p>
+<p>
+<pre>
+ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos) {
+    ssize_t ret;
+
+    [...]
+
+    return ret;
+}
+</pre>
+</p>
+<p>
+Unfortunately, variable <code>ret</code> is inaccessible at the return probe, but you can still get it from <code>%rax</code> register on x86_64 which is used for saving return values. SystemTap supplies return values in <code>$return</code> variable:<br /></p>
+<p>
+<pre>
+# stap -e '
+    probe kernel.function("vfs_read").return { 
+        printf("VARS:%s\nreturn: %d\n", $$vars, $return);
+        exit(); }'
+VARS: file=0xcfa79580 buf=0xbf9fa8b8 count=0x2004 pos=0xcf2e9f98 ret=?
+return: 12
+</pre>
+</p>
+<p>
+To handle such situations (and many others, i.e. when name of argument was changed in current kernel), you may use <code>@defined</code> expression, or <code>@choose_defined</code> which works like ternary operator: <code>@choose_defined($a, $b)</code> is equivalent to <code>@defined($a)? $a : $b</code>. Here are an example of <code>@defined</code>:<br /></p>
+<p>
+<pre>
+if (@defined($var->field)) { 
+    println($var->field);
+} 
+</pre>
+</p>
+<p>
+If you want to print all arguments simultaneously, you should carefully handle each argument. However, SystemTap can do it automatically. Such strings provided in meta-variables:<br />     <ul>
+        <li>
+<code>$$parms</code> contains function arguments with their names<br /> </li>
+        <li>
+<code>$$locals</code> contains local variables with their names<br /> </li>
+        <li>
+<code>$$vars</code> contains both <code>$$parms</code> and <code>$$locals</code></li>
+        <li>
+<code>$$return</code> contains return value.<br />An example of <code>$$vars</code> may be found above.<br /></li>
+</ul>
+</p>
+<p>
+Finally, SystemTap allows to convert arguments to string, including pretty representation of structure pointers when all fields are read, if trailing dollar sign is added to an argument:<br /></p>
+<p>
+<pre>
+# stap -e '
+    probe kernel.function("vfs_read") { 
+        println($file$); }'
+</pre>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Probe_points.html#SECTION00052000000000000000">Built-in probe point types (DWARF probes) </a></li>
+        <li>
+<a href="https://sourceware.org/systemtap/wiki/TipContextVariables">Troublesome Context Variables</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="probes.html"><strong>Prev</strong>(Probes)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="context.html"><strong>Next</strong>(Context)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

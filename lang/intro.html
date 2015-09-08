@@ -1,0 +1,163 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-right">
+<li><a href="probes.html"><strong>Next</strong>(Probes)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h2>Module 2: Dynamic tracing languages </h2></p>
+<p>
+Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have predicate which acts as a filter unnecessary probes, i.e. if you want to trace specific process or specific kind of query. <br /></p>
+<p>
+Each script consists of global variables declarations followed by probes, and possibly function declarations. In SystemTap each declaration is preceded by <code>global</code>, <code>function</code> or <code>probe</code> keyword:<br /></p>
+<p>
+<pre>
+global counter;
+function inc_counter() {
+    ++counter;
+}
+probe timer.s(1) {
+    inc_counter();
+    println(counter);
+}
+</pre>
+</p>
+<span class="label label-info">Note</span><div class="well">
+Trailing semicolons may be omitted in SystemTap Language, but we will use them in our demonstration scripts to improve readability.<br /></div>
+<p>
+Same works for DTrace, but the syntax of definitions is different:<br /></p>
+<p>
+<pre>
+int xcounter;
+tick-1s {
+    ++xcounter;
+    trace(xcounter);
+}
+</pre>
+</p>
+<p>
+DTrace language is limited due to safety reasons, so it doesn't support loops and conditional statements. Conditional branch in DTrace may be emulated using predicates, and also a limited support of ternary operator <code>?:</code> is available. SystemTap, on the other hand, supports wider subset of C language: it has <code>for</code>, <code>while</code>, <code>if</code>/<code>else</code>, <code>foreach</code> statements, and <code>break</code>/<code>continue</code> for controlling loop behavior.<br /></p>
+<p>
+SystemTap supports declaration of functions:<br /></p>
+<p>
+<pre>
+function dentry_name:string(dentry:long) {
+    len = @cast(dentry, "dentry")->d_name->len;
+    return kernel_string_n(@cast(dentry, "dentry")->d_name->name, len);
+}
+</pre>
+</p>
+<p>
+In this example, function <code>dentry_name()</code> accepts <code>dentry</code> argument of type <code>long</code> (in this case, <code>long</code> is equivalent to a missing pointer type) and returns a string. It converts received pointer to a type <code>struct dentry</code>, extracts string from it and returns it.<br /></p>
+<p>
+DTrace doesn't have a functions, but you may use C macro in simple cases:<br /></p>
+<p>
+<pre>
+#define CLOCK_TO_MS(clk)      (clk) * (`nsec_per_tick / 1000000)
+</pre>
+</p>
+<p>
+SystemTap language supports <code>try</code>/<code>catch</code> statement to handle tracing errors which were described in <a href="../tools/safety.html">Safety and errors</a> section:<br /></p>
+<p>
+<pre>
+try {
+    /* Errorneous expression: read integer on address 4 */
+    println(kernel_int(4));
+}
+catch(msg) {
+    /* Ignore errors or print message `msg` */
+}
+</pre>
+</p>
+<p>
+There is a hackish way of building loops in DTrace using timer probes:<br /></p>
+<p>
+<pre>
+int count;
+BEGIN {
+    count = 10;
+}
+timer-1ms
+/--count > 0/ {
+    printf("Hello, world!\n");
+}
+</pre>
+</p>
+<p>
+This script prints "Hello, world" phrase each millisecond 10 times. <br /></p>
+<p>
+Finally, SystemTap have Embedded C extension (enabled only in Guru-Mode or in tapsets), which allow to write raw C code compiled directly to module's code without passing first three stages of translation:<br /></p>
+<p>
+<pre>
+function task_valid_file_handle:long (task:long, fd:long) %{ /* pure */
+    [...]
+    
+    rcu_read_lock();
+    if ((files = kread(&p->files))) {
+        filp = fcheck_files(files, STAP_ARG_fd);
+        STAP_RETVALUE = !!filp;
+    }
+
+    CATCH_DEREF_FAULT();
+    rcu_read_unlock();
+%}
+</pre>
+</p>
+<p>
+This example is taken from <em>pfiles.stp</em> sample. It has to grab RCU lock to access file pointer safely, which is done by direct call to <code>rcu_read_lock()</code> and <code>rcu_read_unlock()</code> functions. Note that to access arguments and return value it has to use names prefixed with <code>STAP</code> (in early versions of SystemTap there were magic pointers <code>THIS</code> and <code>CONTEXT</code> for this). To read pointer safely it uses <code>kread()</code> function. <br /></p>
+<p>
+Embedded C part starts with <code>%{</code> and ends with <code>%}</code> and may be used as function body, and in global scope if you need extra includes.</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="probes.html"><strong>Next</strong>(Probes)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

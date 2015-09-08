@@ -1,0 +1,135 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Appendix A. Exercise hints and solutions </title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-right">
+<li><a href="ex7.html"><strong>Next</strong>(Exercise 7)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Exercise 6</h3></p>
+<p>
+This exercise is not so different than any <a href="../principles/perf.html#latency">latency measurement</a> script where latency is measured as difference between timestamps of two probe firings and saved to an aggregation. <br /></p>
+<p>
+Note that <code>plockstat$</code> provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using <code>pid$</code> provider. As you may notice from ustack outputs in <code>pthread.d</code> example, mutex lock attempts are implemented by <code>mutex_lock_impl()</code> libc function. We will use <code>quantize()</code> aggregation which will be printed with <code>printa</code>:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694522320')">+</button>&nbsp; Script file mtxtime.d <br/><p>
+<pre id="code140000694522320" class="hide">
+pid$target::mutex_lock_impl:entry
+{ 
+    self->mtxtime = timestamp; 
+}
+
+plockstat$target:::mutex-acquire
+/ self->mtxtime != 0 /
+{ 
+    @[ustack()] = quantize(timestamp - self->mtxtime);
+    self->mtxtime = 0;
+}
+
+pid$target::experiment_unconfigure:entry
+{
+    printa(@);
+}</pre>
+</p>
+</div>
+</p>
+<p>
+You will need to bind this script to tsexperiment process using <code>-c</code> or <code>-p</code> option.<br /></p>
+<p>
+We will need to use static probes <code>mutex_entry</code> and <code>mutex_acquired</code> for a SystemTap version of that script. However, we will need to be careful while working with userspace backtraces. First of all, we should use <code>-d</code> option to provide path to SystemTap for resolving symbols or <code>--ldd</code> to make it scan library dependencies of traced binary and automatically add them (when some of them are missing, <code>stap</code> utility will provide a hint with full paths).<br /></p>
+<p>
+Mutexes are also often used in TSLoad which can cause excessive overheads when we try to trace them, especially when we will use <code>ubacktrace()</code> function. You can use <code>STP_NO_OVERLOAD</code> macro definition (which can be passed to <code>stap</code> with <code>-D</code> option) to prevent stap from failing when overheads are big, or you can reduce overheads. In our case we will limit amount of traced callers by using <code>ucallers()</code> function which accepts depth of backtrace as a first argument like <code>ustack()</code> function from backtrace and only collects addresses without resolving them to symbols. We will defer symbol resolving to an aggregation printing.<br /></p>
+<p>
+Here are our script for SystemTap:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694523536')">+</button>&nbsp; Script file mtxtime.stp <br/><p>
+<pre id="code140000694523536" class="hide">
+global mtxtime[128], mtxlockt;
+
+@define libpthread %( "/lib64/libpthread.so.0" %)
+@define tsexperiment %( "/opt/tsload/bin/tsexperiment" %)
+
+probe process(@libpthread).mark("mutex_entry") {
+    if(pid() != target()) next;
+
+    mtxtime[tid()] = local_clock_ns();
+}
+
+probe process(@libpthread).mark("mutex_acquired") {
+    if(pid() != target()) next;
+
+    tm = mtxtime[tid()];
+    if(tm == 0) next;
+
+    mtxlockt[ucallers(6)] <<< local_clock_ns() - tm;
+    delete mtxtime[tid()];
+}
+
+probe process(@tsexperiment).function("experiment_unconfigure") {
+    foreach([ub] in mtxlockt) {
+        if(@count(mtxlockt[ub]) < 100)
+            continue;
+        
+        println("-=-=-=-=-=-=-=-=-=-=-=-=-");
+        print_usyms(ub);
+        print(@hist_log(mtxlockt[ub]));
+    }
+}</pre>
+</p>
+</div>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex7.html"><strong>Next</strong>(Exercise 7)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

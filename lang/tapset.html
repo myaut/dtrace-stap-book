@@ -1,0 +1,178 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="print.html"><strong>Prev</strong>(Printing and speculations)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex2.html"><strong>Next</strong>(Exercise 2)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Tapsets & translators</h3></p>
+<p>
+We already discussed problem with probe stability. Some issues may be related to changing data structures in kernel, or several variants may exist in kernel, for example for 32- and 64-bit calls. Let's see how access to fields of that structure may be unified.<br /></p>
+<p>
+DTrace has a <em>translators</em> for doing that:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000696488272')">+</button>&nbsp; Script file stat.d <br/><p>
+<pre id="code140000696488272" class="hide">
+struct stat_info {
+    long long st_size;
+};
+
+translator struct stat_info < uintptr_t s > {
+    st_size = * ((long long*) copyin(s + offsetof(struct stat64_32, st_size),
+                                     sizeof (long long)));
+};
+
+syscall::fstatat64:entry
+{
+        self->filename = copyinstr(arg1);
+        self->statptr = arg2;
+}
+
+syscall::fstatat64:return
+{
+        printf("STAT %s size: %d\n", self->filename, 
+               xlate < struct stat_info* > (self->statptr)->st_size);
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+In this example translator describes rules of converting source structure <code>stat64_32</code> to a structure with known format defined in DTrace <code>stat_info</code>. After that, <code>xlate</code> operator is called which receives pointer to <code>stat64_32</code> structure to a <code>stat_info</code>. Note that our translator also responsible for copying data from userspace to kernel. Built-in DTrace translators are located in <code>/usr/lib/dtrace</code>.<br /></p>
+<p>
+SystemTap doesn't have translators, but you can create <em>prologue</em> or <em>epilogue alias</em> which performs necessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called <em>tapsets</em> and put into <code>/usr/share/systemtap/tapset</code> directory. Many probes that we will use in following modules are implemented in such tapsets. <br /></p>
+<p>
+Linux has several variants for <code>stat</code> structure in <code>stat()</code> system call, some of them deprecated, some are intended to support 64-bit sizes for 32-bit callers. By using following tapset we will remove such differences and make them universally available through <code>filename</code> and <code>size</code> variables:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000696489488')">+</button>&nbsp; Script file lstat.stp <br/><p>
+<pre id="code140000696489488" class="hide">
+probe lstat = kernel.function("sys_lstat64").return ? ,
+              kernel.function("sys32_lstat64").return ? {
+    filename = user_string($filename);
+    size = user_uint64(& @cast($statbuf, "struct stat64")->st_size);
+}
+
+probe lstat = kernel.function("sys_newlstat").return ? {
+    filename = user_string($filename);
+%( arch == "x86_64"
+%?  size = user_uint64(& @cast($statbuf, "struct stat")->st_size);
+%:  size = user_uint32(& @cast($statbuf, "struct stat")->st_size);
+%)
+}</pre>
+</p>
+</div>
+</p>
+<p>
+This example is unrealistic: it is easier to attach to <code>vfs_lstat</code> function which has universal representation of <code>stat</code> structure and doesn't involve copying from userspace. Summarizing the syntax of creating aliases:<br /></p>
+<p>
+<pre>
+probe <i>alias-name</i> {=|+=} <i>probe-name-1</i> [?] [,<i>probe-name-2</i> [?] ...] <i>probe-body</i>
+</pre>
+</p>
+<p>
+Here <code>=</code> is used for creating prologue aliases and <code>+=</code> is for epilogue aliases. Question mark <code>?</code> suffix is optional and used if some functions are not present in kernel -- it allows to choose probe from multiple possibilities.<br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+Note that this tapset only checks for 64-bit Intel architecture. You will need additional checks for PowerPC, AArch64 and S/390 architectures.<br /></div>
+<p>
+After we created this tapset, it can be used very easy:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000696490192')">+</button>&nbsp; Script file lstat.stp <br/><p>
+<pre id="code140000696490192" class="hide">
+probe lstat {
+    printf("%s %d\n", filename, size);
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+Also, sometimes we have to define constants in dynamic tracing scripts that match corresponding kernel or application constants. You can use enumerations for that in DTrace, or define a constant variable with <code>inline</code> keyword:<br /></p>
+<p>
+<pre>
+inline int TS_RUN = 2;
+</pre>
+</p>
+<p>
+You may use initializer for global variable to do that in SystemTap:<br /></p>
+<p>
+<pre>
+global TASK_RUNNING = 0;
+</pre>
+</p>
+<p>
+If you have enabled preprocessor with <code>-C</code> option, you may use <code>#define</code> to create macro as well.<br /></p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a></li>
+        <li>
+<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="print.html"><strong>Prev</strong>(Printing and speculations)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex2.html"><strong>Next</strong>(Exercise 2)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

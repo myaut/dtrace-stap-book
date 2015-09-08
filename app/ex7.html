@@ -1,0 +1,72 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 5: Application tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="web.html"><strong>Prev</strong>(Web applications)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Exercise 7</h3></p>
+<p>
+Create two scripts: <code>topphp.d</code> and <code>topphp.stp</code> which will measure mean execution time of each PHP function and count number of calls to that function. Group functions by request URI and full function name including class name (if defined). Use <code>drupal</code> experiment to demonstrate your script.<br /></p>
+<span class="label label-info">Note</span><div class="well">
+It would be reasonable to run workload generator on system other than server (so it won't affect execution of web applications). You can switch roles of virtual machines in lab environment i.e. use Solaris as server and Linux as client and vice versa. To alter server's address, use <code>-s</code> option in <code>tsexperiment</code> command line:<br />    <p>
+    <pre>
+# /opt/tsload/bin/tsexperiment -e drupal/ run  \
+    -s workloads:drupal:params:server=192.168.13.102
+</pre>
+</p>
+</div>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="web.html"><strong>Prev</strong>(Web applications)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

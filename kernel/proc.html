@@ -1,0 +1,861 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 4: Operating system kernel tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-right">
+<li><a href="ex3.html"><strong>Next</strong>(Exercise 3)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Process management</h3></p>
+<span class="label label-inverse">Definition</span><div class="well">
+According to Andrew Tanenbaum's book "Modern Operating Systems",<br />    <blockquote>
+ All the runnable software on the computer, sometimes including the operating system, is organized into a number of sequential processes, or just <em>processes</em> for short. A process is just an instance of an executing program, including the current values of the program counter, registers, and variables.<br /></blockquote>
+</div>
+<span class="label label-info">Information</span><div class="well">
+Each process has its own address space -- in modern processors it is implemented as a set of pages which map virtual addresses to a physical memory. When another process has to be executed on CPU, <em>context switch</em> occurs: after it processor special registers point to a new set of page tables, thus new virtual address space is used. Virtual address space also contains all binaries and libraries and saved process counter value, so another process will be executed after context switch. Processes may also have multiple <em>threads</em>. Each thread has independent state, including program counter and stack, thus threads may be executed in parallel, but they all threads share same address space.<br /></div>
+<p>
+<h4>Process tree in Linux</h4></p>
+<p>
+Processes and threads are implemented through universal <code>task_struct</code> structure (defined in <code>include/linux/sched.h</code>), so we will refer in our book as <em>tasks</em>. First thread in process is called <em>task group leader</em> and all other threads are linked through list node <code>thread_node</code> list head and contain pointer <code>group_leader</code> which references <code>task_struct</code> of their process. Children processes refer to parent process through <code>parent</code> pointer and linked through <code>sibling</code> list node. Parent process linked with its children using <code>children</code> list head. <br /></p>
+<p>
+<img src="../images/linux/task.png" alt="" /></p>
+<p>
+Task which is currently executed on CPU is accessible through <code>current</code> macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use <code>task_current()</code>. You can also get pointer to a <code>task_struct</code> using <code>pid2task()</code> function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as <a href="../lang/context.html">Probe Context</a>. <a name="task-funcs"></a> They all get pointer to a <code>task_struct</code> as their argument:<br />        <ul>
+        <li>
+<code>task_pid()</code> and <code>task_tid()</code> -- ID of the process ID (stored in <code>tgid</code> field) and thread (stored in <code>pid</code> field) respectively. Note that kernel most of the kernel code doesn't check cached <code>pid</code> and <code>tgid</code> but use namespace wrappers.<br />    </li>
+        <li>
+<code>task_parent()</code> -- returns pointer to a parent process, stored in <code>parent</code>/<code>real_parent</code> fields<br />    </li>
+        <li>
+<code>task_state()</code> -- returns state bitmask stored in <code>state</code>, such as <code>TASK_RUNNING</code> (0), <code>TASK_INTERRUPTIBLE</code> (1), <code>TASK_UNINTTERRUPTIBLE</code> (2). Last 2 values are for sleeping or waiting tasks -- the difference that only interruptible tasks may receive signals. <br />    </li>
+        <li>
+<code>task_execname()</code> -- reads executable name from <code>comm</code> field, which stores base name of executable path. Note that <code>comm</code> respects symbolic links.<br />    </li>
+        <li>
+<code>task_cpu()</code> -- returns CPU to which task belongs<br /></li>
+</ul>
+</p>
+<p>
+There are several other useful fields in <code>task_struct</code>:<br />        <ul>
+        <li>
+<code>mm</code> (pointer to <code>struct mm_struct</code>) refers to a address space of a process. For example, <code>exe_file</code> (pointer to <code>struct file</code>) refers to executable file, while <code>arg_start</code> and <code>arg_end</code> are addresses of first and last byte of argv passed to a process respectively<br />    </li>
+        <li>
+<code>fs</code> (pointer to <code>struct fs_struct</code>) contains filesystem information: <code>path</code> contains working directory of a task, <code>root</code> contains root directory (alterable using <code>chroot</code> system call)<br />    </li>
+        <li>
+<code>start_time</code> and <code>real_start_time</code> (represented as <code>struct timespec</code> until 3.17, replaced with <code>u64</code> nanosecond timestamps) -- <em>monotonic</em> and <em>real</em> start time of a process.<br />    </li>
+        <li>
+<code>files</code> (pointer to <code>struct fs_struct</code>) contains table of files opened by process<br />    </li>
+        <li>
+<code>utime</code> and <code>stime</code> (<code>cputime_t</code>) contain amount of time spent by CPU in userspace and kernel respectively. They can be accessed through Task Time tapset.<br /></li>
+</ul>
+</p>
+<p>
+Script <code>dumptask.stp</code> demonstrates how these fields may be useful to get information about current process.<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695558608')">+</button>&nbsp; Script file dumptask.stp <br/><p>
+<pre id="code140000695558608" class="hide">
+/**
+ * taskdump.stp
+ * 
+ * Prints information about current task once per second
+ * Extracts data from `task_struct`
+ * 
+ * Tested on CentOS 7.0
+ */
+
+/**
+ * Structures `dentry` and `vfsmnt` were separate in older kernels.
+ * Newer kernels feature unified `path` structures that contain them both.
+ * 
+ * SystemTap doesn't cache full path, so we have to use function task_dentry_path(), 
+ * to get entire path in this manner:
+ *      dentry = @cast(file, "file")->f_path->dentry;
+ *      vfsmnt = @cast(file, "file")->f_path->mnt;
+ *      return task_dentry_path(task, dentry, vfsmnt);
+ * 
+ * Unfortunately, SystemTap has bug 16991, fixed in 2.6, so
+ * we limit output to a basename
+ */
+function file_path:string(task:long, file:long) {
+    if(@defined(@cast(file, "file")->f_vfsmnt))
+        return d_name(@cast(file, "file")->f_dentry);    
+    return d_name(@cast(file, "file")->f_path->dentry);  
+}
+function task_root_path:string(task:long, fs_ptr:long) {
+    if(@defined(@cast(fs_ptr, "fs_struct")->rootmnt))
+        return d_name(@cast(fs_ptr, "fs_struct")->root);
+    return d_name(@cast(fs_ptr, "fs_struct")->root->dentry);
+}
+function task_pwd_path:string(task:long, fs_ptr:long) {
+    if(@defined(@cast(fs_ptr, "fs_struct")->pwdmnt))
+        return d_name(@cast(fs_ptr, "fs_struct")->pwd);
+    return d_name(@cast(fs_ptr, "fs_struct")->pwd->dentry);    
+}
+
+/**
+ * Prints exectuable file name from `mm->exe_file` */
+function task_exefile(task:long, mm_ptr:long) {
+    if(mm_ptr) {
+        printf("\texe: %s\n", 
+               file_path(task, @cast(mm_ptr, "mm_struct")->exe_file));
+    }
+}
+/**
+ * Prints root and current dir of a task */
+function task_paths(task:long, fs_ptr:long) {
+    if(fs_ptr) {
+        printf("\troot: %s\n", task_root_path(task, fs_ptr));
+        printf("\tcwd: %s\n", task_pwd_path(task, fs_ptr));
+    }
+}
+
+/**
+ * Prints arguments vector. Arguments are copied into process memory (stack)
+ * and located in memory area (mm->arg_start; mm_arg_end), of the strings that 
+ * separated with NULL-terminators, i.e.:
+ * +-----+----+-------------+----+
+ * | cat | \0 | /etc/passwd | \0 |
+ * +-----+----+-------------+----+
+ * ^                             ^
+ * arg_start                     arg_end
+ * 
+ * WARNING: This is only a demostration functions, use cmdline_*() functions
+ * instead
+ * 
+ * NOTE: functions user_string* read from current address space 
+ * To get arguments from other processes, use Embedded C and 
+ * function that look like proc_pid_cmdline
+ */
+function task_args(mm_ptr:long) {
+    if(mm_ptr) {
+        arg_start = @cast(mm_ptr, "mm_struct")->arg_start;
+        arg_end = @cast(mm_ptr, "mm_struct")->arg_end;
+        if (arg_start != 0 && arg_end != 0)
+        {
+            len = arg_end - arg_start;
+            nr = 0;
+
+            /* Pick first argument */
+            arg = user_string2(arg_start, "");
+            while (len > 0)
+            {
+                printf("\targ%d: %s\n", nr, arg);
+                arg_len = strlen(arg);
+                arg_start += arg_len + 1;
+                len -= arg_len + 1;
+                nr++;
+
+                arg = user_string2(arg_start, "");
+            }
+        }
+    }
+}
+
+/**
+ * Returns file descriptor using fd
+ * NOTE: see pfiles.stp
+ */
+function task_fd_filp:long(files:long, fd:long) {
+    return @cast(files, "files_struct")->fdt->fd[fd];
+}
+
+function task_fds(task:long) {
+    task_files = @cast(task, "task_struct", "kernel<linux/sched.h>")->files;
+
+    if(task_files) {
+        max_fds = task_max_file_handles(task);
+
+        for (fd = 0; fd < max_fds; fd++) {
+            filp = task_fd_filp(task_files, fd);
+            if(filp) {
+                printf("\tfile%d: %s\n", fd, file_path(task, filp));
+            }
+        }
+    }
+}
+
+/**
+ * Prints start time of a process in seconds
+ * start time - monotonic
+ * real start time - boot time based
+ * 
+ * NOTE: This function assumes that `timespec` is used, but these
+ * variables were replaced with u64 in kernel 3.17
+ */
+function task_start_time_x(task:long) {
+    if(@defined(@cast(task, "task_struct", "kernel<linux/sched.h>")
+            ->start_time)) {
+        start_time_sec = @cast(task, "task_struct", "kernel<linux/sched.h>")
+            ->start_time->tv_sec;
+        real_time_sec = @cast(task, "task_struct", "kernel<linux/sched.h>")
+            ->real_time->tv_sec;    
+        printf("\tstart time: %ds\t real start time: %ds\n", start_time_sec, real_time_sec);
+    }
+    else {
+        real_time_sec = @cast(task, "task_struct", "kernel<linux/sched.h>")
+            ->real_start_time->tv_sec;
+        printf("\treal start time: %ds\n", real_time_sec);
+    }
+    
+}
+
+/**
+ * Prints scheduler stats */
+function task_time_stats(task:long) {
+    user = @cast(task, "task_struct", "kernel<linux/sched.h>")->utime;
+    kernel = @cast(task, "task_struct", "kernel<linux/sched.h>")->stime;
+    printf("\tuser: %s\t kernel: %s\n", cputime_to_string(user), cputime_to_string(kernel));
+}
+
+function dump_task(task:long) {
+    task_mm = @cast(task, "task_struct", "kernel<linux/sched.h>")->mm;
+    task_fs = @cast(task, "task_struct", "kernel<linux/sched.h>")->fs;
+
+    printf("Task %p is %d@%d %s\n", task, task_pid(task), task_cpu(task), task_execname(task));
+
+    task_exefile(task, task_mm);
+    task_paths(task, task_fs);
+    task_args(task_mm);
+    task_fds(task);
+    task_start_time_x(task);
+    task_time_stats(task);
+}
+
+probe timer.s(1) {
+    dump_task(task_current());
+}
+</pre>
+</p>
+</div>
+</p>
+<p>
+<h4>Process tree in Solaris</h4></p>
+<p>
+Solaris Kernel distinguishes threads and processes: on low level all threads represented by <code>kthread_t</code>, which are presented to userspace as <em>Light-Weight Processes</em> (or <em>LWPs</em>) defined as <code>klwp_t</code>. One or multiple LWPs constitute a process <code>proc_t</code>. They all have references to each other, as shown on the following picture:<br /></p>
+<p>
+<img src="../images/solaris/proc.png" alt="" /></p>
+<p>
+Current thread is passed as <code>curthread</code> built-in variable to probes. Solaris <code>proc</code> provider has <code>lwpsinfo_t</code> and <code>psinfo_t</code> providers that extract useful information from corresponding thread, process and LWP structures.<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td  colspan="3">
+<strong>Process</strong></td>
+</tr>
+        <tr>
+            <td>
+<code>psinfo_t</code><strong>field</strong></td>
+            <td>
+<code>proc_t</code><strong>field</strong></td>
+            <td>
+<strong>Description</strong></td>
+</tr>
+        <tr>
+            <td>
+<code>p_exec</code></td>
+            <td>
+</td>
+            <td>
+ vnode of executable file</td>
+</tr>
+        <tr>
+            <td>
+<code>p_as</code></td>
+            <td>
+</td>
+            <td>
+ process address space</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_pid</code></td>
+            <td>
+ In <code>p_pid</code> of type <code>struct pid</code></td>
+            <td>
+ Information about process ID</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_uid</code>, <code>pr_gid</code>, <br /><code>pr_euid</code><code>pr_egid</code></td>
+            <td>
+ In <code>p_cred</code> of type <code>struct cred</code></td>
+            <td>
+ User and group ID of a process</td>
+</tr>
+        <tr>
+            <td>
+</td>
+            <td>
+<code>p_stat</code></td>
+            <td>
+ Process state</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_dmodel</code></td>
+            <td>
+<code>p_model</code></td>
+            <td>
+ Data model of a process (32- or 64- bits)</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_start</code></td>
+            <td>
+<code>p_user.u_start</code>, <code>p_mstart</code></td>
+            <td>
+ Start time of process, from epoch</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_fname</code></td>
+            <td>
+<code>p_user.u_comm</code></td>
+            <td>
+ Executable name</td>
+</tr>
+        <tr>
+            <td>
+</td>
+            <td>
+<code>p_user.p_cdir</code></td>
+            <td>
+ vnode of current process directory</td>
+</tr>
+        <tr>
+            <td>
+</td>
+            <td>
+<code>p_user.p_rdir</code></td>
+            <td>
+ vnode of root process directory</td>
+</tr>
+        <tr>
+            <td>
+For current process -- <code>fds</code> pseudo-array </td>
+            <td>
+<code>p_user.u_finfo</code></td>
+            <td>
+ Open file table </td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Thread / LWP</strong></td>
+</tr>
+        <tr>
+            <td>
+<code>lwpsinfo_t</code><strong>field</strong></td>
+            <td>
+<code>kthread_t</code><strong>field</strong></td>
+            <td>
+<strong>Description</strong></td>
+</tr>
+        <tr>
+            <td>
+<code>pr_lwpid</code></td>
+            <td>
+<code>t_tid</code></td>
+            <td>
+ ID of thread/LWP</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_state</code> (enumeration) <br /> or <code>pr_sname</code> (letter) </td>
+            <td>
+<code>t_state</code></td>
+            <td>
+  State of the thread -- one of <code>SSLEEP</code> for sleeping, <code>SRUN</code> for runnable thread, <code>SONPROC</code> for thread that is currently on process, <code>SZOMB</code> for zombie threads, <code>SSTOP</code> for stopped threads and <code>SWAIT</code> for threads that are waiting to be runnable.</td>
+</tr>
+        <tr>
+            <td>
+<code>pr_stype</code></td>
+            <td>
+</td>
+            <td>
+ If process is sleeping on synchronization object identifiable as <em>wait channel</em> (<code>pr_wchan</code>), this field contains type of that object, i.e.: <code>SOBJ_MUTEX</code> for mutexes and <code>SOBJ_CV</code> for condition variables</td>
+</tr>
+        <tr>
+            <td>
+</td>
+            <td>
+<code>t_mstate</code></td>
+            <td>
+ micro-state of thread (see also <code>prstat -m</code>)</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Parent process has <code>p_child</code> pointer that refers its first child, while list of children is doubly-linked list with <code>p_sibling</code> pointer (next) and <code>p_psibling</code> (previous) pointers. Each child contains <code>p_parent</code> pointer and <code>p_ppid</code> process ID which refers his parent. Threads of the process is also a doubly-linked list with <code>t_forw</code> (next) and <code>t_prev</code> pointers. Thread references corresponding LWP with <code>t_lwp</code> pointer and its process with <code>t_procp</code> pointer. LWP refers to a thread through <code>lwp_thread</code> pointer, and to a process through <code>lwp_procp</code> pointer. <br /></p>
+<p>
+The following script dumps information about current thread and process. Because DTrace doesn't support loops and conditions, it can read only first 9 files and 9 arguments and does that by generating multiple probes with preprocessor. <br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695610512')">+</button>&nbsp; Script file dumptask.d <br/><p>
+<pre id="code140000695610512" class="hide">
+#!/usr/sbin/dtrace -qCs
+
+/**
+ * dumptask.d
+ * 
+ * Prints information about current task once per second
+ * Contains macros to extract data from `kthread_t` and its siblings
+ * Some parts use standard translators `psinfo_t` and `lwpsinfo_t*`
+ * 
+ * Tested on Solaris 11.2
+ */
+
+int argnum;
+void* argvec;
+string pargs[int];
+
+int fdnum;
+uf_entry_t* fdlist;
+
+#define PSINFO(thread) xlate<psinfo_t *>(thread->t_procp)
+#define LWPSINFO(thread) xlate<lwpsinfo_t *>(thread)
+
+#define PUSER(thread) thread->t_procp->p_user
+
+/**
+ * Extract pointer depending on data model: 8 byte for 64-bit
+ * programs and 4 bytes for 32-bit programs.
+ */
+#define DATAMODEL_ILP32 0x00100000
+#define GETPTR(proc, array, idx)                                \
+    ((uintptr_t) ((proc->p_model == DATAMODEL_ILP32)            \
+    ?  ((uint32_t*) array)[idx] : ((uint64_t*) array)[idx]))
+#define GETPTRSIZE(proc)                                        \
+    ((proc->p_model == DATAMODEL_ILP32)? 4 : 8)
+
+#define FILE(list, num)     list[num].uf_file
+#define CLOCK_TO_MS(clk)    (clk) * (`nsec_per_tick / 1000000)
+
+/* Helper to extract vnode path in safe manner */
+#define VPATH(vn)                                \
+    ((vn) == NULL || (vn)->v_path == NULL)       \
+        ? "unknown" : stringof((vn)->v_path)
+
+/* Prints process root - can be not `/` for zones */
+#define DUMP_TASK_ROOT(thread)                   \
+    printf("\troot: %s\n",                       \
+        PUSER(thread).u_rdir == NULL             \
+        ? "/"                                    \
+        : VPATH(PUSER(thread).u_rdir));
+
+/* Prints current working directory of a process */
+#define DUMP_TASK_CWD(thread)                    \
+    printf("\tcwd: %s\n",                        \
+        VPATH(PUSER(thread).u_cdir));        
+
+/* Prints executable file of a process */
+#define DUMP_TASK_EXEFILE(thread)                \
+    printf("\texe: %s\n",                        \
+        VPATH(thread->t_procp->p_exec));    
+
+/* Copy up to 9 process arguments. We use `psinfo_t` tapset to get 
+   number of arguments, and copy pointers to them into `argvec` array,
+   and strings into `pargs` array.
+   
+   See also kernel function `exec_args()` */
+#define COPYARG(t, n)                                           \
+    pargs[n] = (n < argnum && argvec != 0)                      \
+        ? copyinstr(GETPTR(t->t_procp, argvec, n)) : "???"
+#define DUMP_TASK_ARGS_START(thread)                            \
+    printf("\tpsargs: %s\n", PSINFO(thread)->pr_psargs);        \
+    argnum = PSINFO(thread)->pr_argc;                           \
+    argvec = (PSINFO(thread)->pr_argv != 0) ?                   \
+               copyin(PSINFO(thread)->pr_argv,                  \
+                      argnum * GETPTRSIZE(thread->t_procp)) : 0;\
+    COPYARG(thread, 0); COPYARG(thread, 1); COPYARG(thread, 2); \
+    COPYARG(thread, 3); COPYARG(thread, 4); COPYARG(thread, 5); \
+    COPYARG(thread, 6); COPYARG(thread, 7); COPYARG(thread, 8); 
+
+/* Prints start time of process */
+#define DUMP_TASK_START_TIME(thread)                         \
+    printf("\tstart time: %ums\n",                           \
+        (unsigned long) thread->t_procp->p_mstart / 1000000);
+
+/* Processor time used by a process. Only for conformance
+   with dumptask.d, it is actually set when process exits */
+#define DUMP_TASK_TIME_STATS(thread)                         \
+    printf("\tuser: %ldms\t kernel: %ldms\n",                \
+        CLOCK_TO_MS(thread->t_procp->p_utime),               \
+        CLOCK_TO_MS(thread->t_procp->p_stime));            
+    
+#define DUMP_TASK_FDS_START(thread)                          \
+    fdlist = PUSER(thread).u_finfo.fi_list;                  \
+    fdcnt = 0;                                               \
+    fdnum = PUSER(thread).u_finfo.fi_nfiles;                 
+    
+#define DUMP_TASK(thread)                                    \
+    printf("Task %p is %d/%d@%d %s\n", thread,               \
+            PSINFO(thread)->pr_pid,                          \
+            LWPSINFO(thread)->pr_lwpid,                      \
+            LWPSINFO(thread)->pr_onpro,                      \
+            PUSER(thread).u_comm);                           \
+    DUMP_TASK_EXEFILE(thread)                                \
+    DUMP_TASK_ROOT(thread)                                   \
+    DUMP_TASK_CWD(thread)                                    \
+    DUMP_TASK_ARGS_START(thread)                             \
+    DUMP_TASK_FDS_START(thread)                              \
+    DUMP_TASK_START_TIME(thread)                             \
+    DUMP_TASK_TIME_STATS(thread)    
+
+#define _DUMP_ARG_PROBE(probe, argi)                         \
+probe /argi < argnum/ {                                      \
+    printf("\targ%d: %s\n", argi, pargs[argi]); }    
+#define DUMP_ARG_PROBE(probe)                                \
+    _DUMP_ARG_PROBE(probe, 0)   _DUMP_ARG_PROBE(probe, 1)    \
+    _DUMP_ARG_PROBE(probe, 2)   _DUMP_ARG_PROBE(probe, 3)    \
+    _DUMP_ARG_PROBE(probe, 4)   _DUMP_ARG_PROBE(probe, 5)    \
+    _DUMP_ARG_PROBE(probe, 6)   _DUMP_ARG_PROBE(probe, 7)    \
+    _DUMP_ARG_PROBE(probe, 8)
+
+/* Dumps path to file if it opened */
+#define _DUMP_FILE_PROBE(probe, fd)                          \
+probe /fd < fdnum && FILE(fdlist, fd)/ {                     \
+    printf("\tfile%d: %s\n", fd,                             \
+                VPATH(FILE(fdlist, fd)->f_vnode)); }
+#define DUMP_FILE_PROBE(probe)                               \
+    _DUMP_FILE_PROBE(probe, 0)  _DUMP_FILE_PROBE(probe, 1)   \
+    _DUMP_FILE_PROBE(probe, 2)  _DUMP_FILE_PROBE(probe, 3)   \
+    _DUMP_FILE_PROBE(probe, 4)  _DUMP_FILE_PROBE(probe, 5)   \
+    _DUMP_FILE_PROBE(probe, 6)  _DUMP_FILE_PROBE(probe, 7)
+
+BEGIN {
+    proc = 0;
+    argnum = 0;
+    fdnum = 0;
+}
+
+tick-1s {
+    DUMP_TASK(curthread);
+}
+
+DUMP_ARG_PROBE(tick-1s)
+DUMP_FILE_PROBE(tick-1s)
+</pre>
+</p>
+</div>
+</p>
+<span class="label label-warning">Warning</span><div class="well">
+<code>psinfo_t</code> provider features <code>pr_psargs</code> field that contains first 80 characters of process arguments. This script uses direct extraction of arguments only for demonstration purposes and to be conformant with dumptask.stp. Like in SystemTap case, this approach doesn't allow to read non-current process arguments. <br /></div>
+<p>
+<h4>Lifetime of a process</h4></p>
+<p>
+Lifetime of a process and corresponding probes are shown in the following image:<br /></p>
+<p>
+<img src="../images/forkproc.png" alt="" /></p>
+<p>
+Unlike Windows, in Unix process is spawned in two stages:<br />     <ul>
+        <li>
+ Parent process calls <code>fork()</code> system call. Kernel creates exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If <code>fork()</code> was successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. <br /> </li>
+        <li>
+ Child process calls <code>execve()</code> system call, which replaces address space of a process with a new one based on binary which is passed to <code>execve()</code> call. <br /> </li>
+</ul>
+</p>
+<span class="label label-warning">Warning</span><div class="well">
+There is a simpler call, <code>vfork()</code>, which will not cause copying of an address space, which will make it a bit more efficient. Linux features universal <code>clone()</code> call which allow to choose which features of a process should be cloned, but in the end, all these calls are wrappers for <code>do_fork()</code> function.<br /></div>
+<p>
+When child process finishes its job, it will call <code>exit()</code> system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call <code>wait()</code> system call (or <code>waitid()</code> and similar calls), which will stop parent from executing until child exits.<br /><code>wait()</code> call also receive process exit code, so only after that corresponding <code>task_struct</code> will be destroyed. If no process waited on a child, and child is exited, it will be treated as <em>zombie</em> process. Parent process may be also notified by kernel with <code>SIGCHLD</code> signal.<br /></p>
+<p>
+Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<strong>Action</strong></td>
+            <td>
+<strong>DTrace</strong></td>
+            <td>
+<strong>SystemTap</strong></td>
+</tr>
+        <tr>
+            <td>
+Process creation </td>
+            <td>
+<code>proc:::create</code></td>
+            <td>
+                <ul>
+                    <li>
+<code>kprocess.create</code></li>
+                    <li>
+<code>scheduler.process_fork</code></li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Forked process begins its execution </td>
+            <td>
+                <ul>
+                    <li>
+<code>proc:::start</code> -- called in new process context </li>
+</ul>
+</td>
+            <td>
+                <ul>
+                    <li>
+<code>kprocess.start</code> -- called in a new process context <br />        </li>
+                    <li>
+<code>scheduler.wakeup_new</code> -- process has been dispatched onto CPU first time</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>execve()</code></td>
+            <td>
+                <ul>
+                    <li>
+<code>proc:::exec</code> -- entering <code>execve()</code></li>
+                    <li>
+<code>proc:::exec-success</code> -- <code>execve()</code> finished successfully <br />    </li>
+                    <li>
+<code>proc:::exec-failure</code> -- <code>execve()</code> has failed, <br />        <code>args[0]</code> contains errno </li>
+</ul>
+</td>
+            <td>
+                <ul>
+                    <li>
+<code>kprocess.exec</code> -- entering <code>execve()</code></li>
+                    <li>
+<code>kprocess.exec_complete</code> -- <code>execve()</code> has been completed, <br />            <code>success</code> variable has true-value if completed successfully, <br />            <code>errno</code> variable has error number in case of error</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Process finished </td>
+            <td>
+                <ul>
+                    <li>
+<code>process::exit</code> -- process exited normally via <code>exit()</code> syscall <br />    </li>
+                    <li>
+<code>process::fault</code> -- process has been terminated due to fault </li>
+</ul>
+</td>
+            <td>
+                <ul>
+                    <li>
+<code>kprocess.exit</code></li>
+                    <li>
+<code>scheduler.process_exit</code></li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Process structures deallocated due to <code>wait()</code>/<code>SIGCHLD</code></td>
+            <td>
+ <br />    - </td>
+            <td>
+                <ul>
+                    <li>
+<code>kprocess.release</code></li>
+                    <li>
+<code>scheduler.process_free</code></li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+LWP management </td>
+            <td>
+                <ul>
+                    <li>
+<code>proc:::lwp-create</code></li>
+                    <li>
+<code>proc:::lwp-start</code></li>
+                    <li>
+<code>proc:::lwp-exit</code></li>
+</ul>
+</td>
+            <td>
+ <br />        LWPs are not supported in Linux</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+These probes are demonstrated in the following scripts. <br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695672656')">+</button>&nbsp; Script file proc.stp <br/><p>
+<pre id="code140000695672656" class="hide">
+#!/usr/bin/stap
+
+probe scheduler.process*, scheduler.wakeup_new, syscall.fork, 
+    syscall.exec*, syscall.exit, syscall.wait*, kprocess.* { 
+    printf("%6d[%8s]/%6d[%8s] %s\n", 
+        pid(), execname(), ppid(), pid2execname(ppid()), pn());
+}
+
+probe scheduler.process_fork {
+    printf("\tPID: %d -> %d\n", parent_pid, child_pid);
+}
+
+probe kprocess.exec {
+    printf("\tfilename: %s\n", filename);
+}
+
+probe kprocess.exit {
+    printf("\treturn code: %d\n", code);
+}
+</pre>
+</p>
+</div>
+</p>
+<p>
+Running this script for <code>uname</code> program called in foreground of <code>bash</code> shell gives following output:<br /></p>
+<p>
+<pre>
+2578[    bash]/  2576[    sshd] syscall.fork
+2578[    bash]/  2576[    sshd] kprocess.create
+2578[    bash]/  2576[    sshd] scheduler.process_fork
+    PID: 2578 -> 3342
+2578[    bash]/  2576[    sshd] scheduler.wakeup_new
+3342[    bash]/  2578[    bash] kprocess.start
+2578[    bash]/  2576[    sshd] syscall.wait4
+2578[    bash]/  2576[    sshd] scheduler.process_wait
+    filename: /bin/uname
+3342[    bash]/  2578[    bash] kprocess.exec
+3342[    bash]/  2578[    bash] syscall.execve
+3342[   uname]/  2578[    bash] kprocess.exec_complete
+    return code: 0
+3342[   uname]/  2578[    bash] kprocess.exit
+3342[   uname]/  2578[    bash] syscall.exit
+3342[   uname]/  2578[    bash] scheduler.process_exit
+2578[    bash]/  2576[    sshd] kprocess.release
+</pre>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695701840')">+</button>&nbsp; Script file proc.d <br/><p>
+<pre id="code140000695701840" class="hide">
+#!/usr/sbin/dtrace -qCs
+
+#define PARENT_EXECNAME(thread) \
+    (thread->t_procp->p_parent != NULL) \
+        ? stringof(thread->t_procp->p_parent->p_user.u_comm)    \
+        : "???" 
+        
+proc:::, syscall::fork*:entry, syscall::exec*:entry, 
+    syscall::wait*:entry  {
+    printf("%6d[%8s]/%6d[%8s] %s::%s:%s\n", 
+        pid, execname, ppid, PARENT_EXECNAME(curthread), 
+           probeprov, probefunc, probename);
+}
+
+proc:::create {
+    printf("\tPID: %d -> %d\n", curpsinfo->pr_pid, args[0]->pr_pid);
+}
+
+
+proc:::exec {
+    printf("\tfilename: %s\n", args[0]);
+}
+
+proc:::exit {
+    printf("\treturn code: %d\n", args[0]);
+}
+</pre>
+</p>
+</div>
+</p>
+<p>
+DTrace will give similar outputs, but also will reveal LWP creation/destruction:<br /></p>
+<p>
+<pre>
+ 16729[    bash]/ 16728[    sshd] syscall::forksys:entry
+ 16729[    bash]/ 16728[    sshd] proc::lwp_create:lwp-create
+ 16729[    bash]/ 16728[    sshd] proc::cfork:create
+        PID: 16729 -> 17156
+ 16729[    bash]/ 16728[    sshd] syscall::waitsys:entry
+ 17156[    bash]/ 16729[    bash] proc::lwp_rtt_initial:start
+ 17156[    bash]/ 16729[    bash] proc::lwp_rtt_initial:lwp-start
+ 17156[    bash]/ 16729[    bash] syscall::exece:entry
+ 17156[    bash]/ 16729[    bash] proc::exec_common:exec
+        filename: /usr/sbin/uname
+ 17156[   uname]/ 16729[    bash] proc::exec_common:exec-success
+ 17156[   uname]/ 16729[    bash] proc::proc_exit:lwp-exit
+ 17156[   uname]/ 16729[    bash] proc::proc_exit:exit
+        return code: 1
+     0[   sched]/     0[     ???] proc::sigtoproc:signal-send
+</pre>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/context_stp.html">Context Functions</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/task_time_stp.html">Task Time Tapset</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/kprocess.stp.html">Kernel Process Tapset</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/sched.stp.html">Scheduler Tapset</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-proc/index.html">proc Provider</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex3.html"><strong>Next</strong>(Exercise 3)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

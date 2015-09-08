@@ -1,0 +1,157 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="strstr.html"><strong>Prev</strong>(Strings and Structures)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="assocarr.html"><strong>Next</strong>(Associative arrays and aggregations)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Exercise 1</h3></p>
+<p>
+Write <code>opentrace.d</code> and <code>opentrace.stp</code> scripts which are tracing <code>open()</code> system calls. They should print following information in one line:<br />     <ul>
+        <li>
+ Call context: name of executable file, process ID, user and group IDs of user and group which are executing process.<br /> </li>
+        <li>
+ Path to file which should be opened.<br /> </li>
+        <li>
+ A string containing <code>open()</code> flags <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>, <code>O_APPEND</code>, <code>O_CREAT</code></li>
+        <li>
+ Return value of system call<br /> </li>
+</ul>
+</p>
+<p>
+For example:<br /></p>
+<p>
+<pre>
+tee[939(0:0)] open("/tmp/test", O_WRONLY|O_APPEND|O_CREAT) = 3
+</pre>
+</p>
+<p>
+Bit flags values are presented in following table:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<strong>Flag</strong></td>
+            <td>
+<strong>Solaris</strong></td>
+            <td>
+<strong>Linux (x86)</strong></td>
+</tr>
+        <tr>
+            <td>
+<code>O_RDONLY</code></td>
+            <td  colspan="2">
+ bits 0-1 are not set</td>
+</tr>
+        <tr>
+            <td>
+<code>O_WRONLY</code></td>
+            <td>
+ 1 </td>
+            <td>
+ 1</td>
+</tr>
+        <tr>
+            <td>
+<code>O_RDWR</code></td>
+            <td>
+ 2 </td>
+            <td>
+ 2</td>
+</tr>
+        <tr>
+            <td>
+<code>O_APPEND</code></td>
+            <td>
+ 8 </td>
+            <td>
+ 1024</td>
+</tr>
+        <tr>
+            <td>
+<code>O_CREAT</code></td>
+            <td>
+ 256 </td>
+            <td>
+64</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Test script that your created by experimenting with redirection to file or a pipe with <code>tee</code> tool:<br /></p>
+<p>
+<pre>
+# cat /etc/inittab > /tmp/test
+# cat /etc/inittab >> /tmp/test
+# cat /etc/inittab | tee /tmp/test
+# cat /etc/inittab | tee -a /tmp/test
+</pre>
+</p>
+<span class="label label-warning">Warning</span><div class="well">
+In Solaris 11 <code>open()</code> system call was replaced with more generic <code>openat()</code>.<br /></div>
+<p>
+<em>Optional</em>: Modify your scripts so only files that have "/etc" in their path will be shown.</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="strstr.html"><strong>Prev</strong>(Strings and Structures)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="assocarr.html"><strong>Next</strong>(Associative arrays and aggregations)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

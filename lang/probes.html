@@ -1,0 +1,543 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="intro.html"><strong>Prev</strong>(Introduction)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="args.html"><strong>Next</strong>(Arguments)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Probes</h3></p>
+<span class="label label-inverse">Definition</span><div class="well">
+<em>Probe</em> -- is a handler of kernel or application event. When probe is installed into kernel or application, so it can handle such event, we will call it <em>attaching a probe</em> or <em>binding a probe</em>. When event occurs and probe code is executing, we will say <em>probe is firing</em>.<br /></div>
+<p>
+For example, let's see how synchronous writing to a disk is performed in Linux and what can be traced:<br /></p>
+<p>
+<img src="../images/probes.png" alt="" /></p>
+<p>
+When process wants to start synchronous write, it issues <code>write()</code> system call and by doing that it transfers control to a kernel code, to a <code>sys_write()</code> function in particular. This function eventually calls a <code>submit_bio()</code> function which pushes data from user process to a queue of corresponding disk device. If we attach probes to these functions, we can gather the following information:<br />      <ul>
+        <li>
+ Process and thread which started input/output which is accessible via global <code>current</code> pointer.<br />  </li>
+        <li>
+ File descriptor number which is passed as first argument of <code>sys_write</code> and called <code>fd</code>.<br />  </li>
+        <li>
+ Disk I/O parameters such as size and requested sector from <code>bio</code> structure.<br /></li>
+</ul>
+</p>
+<p>
+To satisfy this requirements, tracing languages provide mechanisms of defining probes. Definition of SystemTap probe begins with <code>probe</code> keyword followed by probe name and body of probe handler. Name is a dotted-symbol sequence, where each symbol may have optional parameters in braces. SystemTap supports wildcards in probe names or several probe names in <code>probe</code> clause if you need to use same handler for multiple probes. For example:<br /></p>
+<p>
+<pre>
+probe kernel.function("vfs_*") {
+    // Actions
+}
+
+probe timer.ms(100) {
+    // Actions
+}
+
+probe scheduler.cpu_on {
+    // Actions
+}
+</pre>
+</p>
+<p>
+Probe names in DTrace are four identifiers separated by colons: <code>Provider:Module:Function:Name[-Parameter]</code>.<br />     <ul>
+        <li>
+<em>Provider</em> is a hint to DTrace on how to attach a probe. Different providers usually have different mechanisms of attachment. <br /> </li>
+        <li>
+<em>Function</em> and <em>Module</em> are relate to a code location where probe will be installed.<br /> </li>
+        <li>
+<em>Name</em> and optional parameters provide meaningful names to a event which will be handled in a probe.<br />For example:<br />            <p>
+            <pre>
+fbt::fop_*:entry {
+    // Actions
+}
+
+profile-100ms {
+    // Actions
+}
+
+sched:::on-cpu {
+    // Actions
+}
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+DTrace support wildcards, and some parts of probe name may be omitted: <code>fbt:*:*:entry</code>, <code>fbt:::entry</code> are equivalent, while <code>fop_read:entry</code> is shorter form of <code>fbt:genunix:fop_read:entry</code>. <br /></p>
+<p>
+Probe names may be combined using comma, and have multiple probes attached to same event, for example in SystemTap:<br /></p>
+<p>
+<pre>
+probe syscall.read { 
+    /* Preparations */ }
+probe syscall.read, syscall.write { 
+    /* Common actions for read and write */  }
+</pre>
+</p>
+<p>
+Or in DTrace:<br /></p>
+<p>
+<pre>
+syscall::read:entry { 
+    /* Preparations */ }
+syscall::read:entry, syscall::write:entry { 
+    /* Common actions for read and write */  }
+</pre>
+</p>
+<p>
+First probe body going in script executes first.<br /></p>
+<p>
+If DTrace or SystemTap fail to find a probe, it will abort script translation. To overcome that, use <code>-Z</code> option can be supplied to <code>dtrace</code> or question mark has to be added to a probe name in SystemTap:<br /></p>
+<p>
+<pre>
+probe kernel.function("unknown_function") ?
+</pre>
+</p>
+<p>
+<h4>Function boundary tracing</h4></p>
+<p>
+Function boundary tracing is the largest and most generic class of tracing. Function boundary probes attach to entry point or exit (hence bounds) from a function. Since most functions begin with saving stack and end with <code>retq</code> or similar instruction, tracer simply patches that instruction, by simply replacing it to interrupt or call (depending on a platform). That interrupt is intercepted by probe code which after execution returns control to function, like in <code>submit_bio</code> case described above. Here are similar example for Solaris and DTrace:<br /></p>
+<p>
+<pre>
+bdev_strategy:    pushq  %rbp           →  <b>int    $0x3</b>
+bdev_strategy+1:  movq   %rsp,%rbp         movq   %rsp,%rbp
+bdev_strategy+4:  subq   $0x10,%rsp        subq   $0x10,%rsp
+</pre>
+</p>
+<span class="label label-warning">Warning</span><div class="well">
+Userspace probes will be covered in <a href="../app/proc.html">Module 5</a>.<br /></div>
+<p>
+<a name="stap-syntax"></a><h5>SystemTap</h5></p>
+<p>
+SystemTap function probe names have the following syntax:<br /></p>
+<p>
+<pre>
+{kernel|module("<i>module-pattern</i>")}.function("<i>function-pattern</i>")[.{call|return|inline}]
+</pre>
+</p>
+<p>
+where <em>kernel</em> means that function is statically linked into <code>vmlinux</code> binary, while <em>module</em> followed by its name pattern seeks inside module. <em>module-pattern</em> is usually a name of a kernel module, but may contain wildcards such as <code>*</code>, <code>?</code>, and character class <code>[]</code>. <em>function-pattern</em> is a bit more complex: along with direct specifying its name, or using wildcards, it also support at-suffix followed by a source file name and optional source line number:<br /></p>
+<p>
+<pre>
+<i>function-name</i>[@<i>source-path</i>[{:<i>line-number</i>|:<i>first-line</i>-<i>last-line</i>|+<i>relative-line-number</i>}]]
+</pre>
+</p>
+<p>
+Wildcards can be used in <em>source-path</em>.<br /></p>
+<p>
+Function probe name ends with suffix defining a point in function where probe should be attached:<br />     <ul>
+        <li>
+<code>.call</code> is used to attach entry point non-inlined function, while <code>.inline</code> is used to attach first instruction of inlined function;<br /> </li>
+        <li>
+<code>.return</code> is used for return points of non-inlined functions;<br /> </li>
+        <li>
+ empty suffix is treated as combination of <code>.call</code> and <code>.inline</code> suffixes.<br /> </li>
+</ul>
+</p>
+<p>
+Along with attaching to any line through <em>relative-line-number</em> syntax, SystemTap allows to patch any kernel instruction:<br /></p>
+<p>
+<pre>
+kernel.statement(<i>function-pattern</i>)
+kernel.statement(<i>address</i>).absolute
+module(<i>module-pattern</i>).statement(<i>function-pattern</i>)
+</pre>
+</p>
+<span class="label label-info">Note</span><div class="well">
+When we will use following syntax for probe names:<br />     <ul>
+        <li>
+<code>{x|y|z}</code> -- one of the options <br /> </li>
+        <li>
+<code>[optional]</code> -- optional part of name which can be omitted<br /> </li>
+        <li>
+<em>parameter</em> -- changeable parameter which can have different values described below<br /></li>
+</ul>
+</div>
+<p>
+Another option is DWARF-less probing which uses kprobes if debug information is not available:<br /></p>
+<p>
+<pre>
+kprobe[.module("<i>module-pattern</i>")].function(<i>function-pattern</i>)[.return]
+kprobe.statement(<i>address</i>).absolute
+</pre>
+</p>
+<p>
+<h5>DTrace</h5></p>
+<p>
+DTrace function tracing is much simpler: it is supported by <code>fbt</code> provider which has only two probe names: <code>entry</code> for entry point and <code>return</code> for exit from function. For example:<br /></p>
+<p>
+<pre>
+fbt:e1000g:e1000g_*:entry
+</pre>
+</p>
+<p>
+<h4>System call tracing</h4></p>
+<p>
+A simplest variant of function boundary tracing is a system call tracing. In <strong>SystemTap</strong> they are implemented as aliases on top of corresponding functions and accessible in syscall tapset:<br /></p>
+<p>
+<pre>
+syscall.<i>system-call-name</i>[.return]
+</pre>
+</p>
+<p>
+<strong>DTrace</strong> uses different mechanisms for attaching to a system calls: it is implemented through driver <code>systrace</code> and patches system call entry point in a <code>sysent</code> table. A syntax for probes, however, is similar to <code>fbt</code>:<br /></p>
+<p>
+<pre>
+syscall::<i>system-call-name</i>:{entry|return}
+</pre>
+</p>
+<p>
+Note that if you omit provider name, some probes will match both function and system calls, so probe will fire twice.<br /></p>
+<p>
+<h4>Statically defined tracing</h4></p>
+<p>
+Sometimes is function boundary tracing is not enough: an event may occur inside function, or may be spread through different functions. In <strong>DTrace</strong> and Solaris, for example, there are two implementations of scheduler functions that are responsible for stealing task from cpu: older <code>disp_getbest</code> and newer and available in newer versions of Solaris: <code>disp_getkpq</code>. But they both provide <code>steal</code> probe that fires when dispatcher moves a thread to idle CPU: <code>sdt:::steal</code> or simply <code>steal</code>. You can still distinguish these probes by explicitly setting function name: <code>sdt::disp_getbest:steal</code>.<br /></p>
+<p>
+Another use-case for statically defined probes is long functions that contain multiple steps, like handling TCP flags and advancing FSM of TCP-connection or handling multiple requests at once. For example, Solaris handles task queues like this:<br /></p>
+<p>
+<pre>
+static void taskq_thread(void *arg)
+{
+    /*...*/
+
+    for (;;) {
+        /*...*/
+        tqe->tqent_func(tqe->tqent_arg);
+        /*...*/
+    }
+}
+</pre>
+</p>
+<p>
+It is impossible to attach probe to a <code>tqent_func</code> because it is dynamically set, but Solaris provides <code>taskq-exec-start</code> and <code>taskq-exec-end</code> probes which are set around <code>tqent_func</code> call.<br /></p>
+<p>
+Probes may be added to kernel using <code>DTRACE_PROBEn</code> macros, i.e.:<br /></p>
+<p>
+<pre>
+DTRACE_PROBE3(steal, kthread_t *, tp, cpu_t *, tcp, cpu_t *, cp);
+</pre>
+</p>
+<p>
+Statically defined probes are extremely useful in DTrace because it doesn't provide access to local variables or tracing any instruction of kernel.<br /></p>
+<p>
+In Linux statically defined tracing were added in version 2.6.24, as kernel markers, but it is deprecated now and replaced by <em>FTrace</em> subsystem. <strong>SystemTap</strong> supports both:<br /></p>
+<p>
+<pre>
+kernel.trace("<i>tracepoint-pattern</i>")
+kernel.mark("<i>mark</i>")[.format("<i>format</i>")]
+</pre>
+</p>
+<p>
+Events provided by <em>FTrace</em> tracepoints are defined using <code>TRACE_EVENT</code> macro and later used by calling <code>trace_&lt;name-of-event&gt;</code> function. For example:<br /></p>
+<p>
+<pre>
+TRACE_EVENT(sched_switch, 
+            [...]
+            
+[...]
+static inline void
+prepare_task_switch(struct rq *rq, struct task_struct *prev,
+            struct task_struct *next)
+{
+    trace_sched_switch(prev, next);
+    [...]
+</pre>
+</p>
+<p>
+In ideal case, statically defined probe is just a <code>nop</code> instruction or a sequence of them. In Linux, however it involves multiple instructions. <br /></p>
+<p>
+<h4>Alias probes</h4></p>
+<p>
+Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as <em>alias probe</em>. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by <a href="tapset.html">Translators and tapsets</a> topic. <br /></p>
+<p>
+<a name="timers"></a><h4>Timers and service probes</h4></p>
+<p>
+These probes are not related to a kernel events, but to execution of tracing script itself. They may trace starting of script, end of it and occured error, thus handle initialization of global variables and printing results on end of script execution. Another kind of service probe is timer probe, which is called every ΔT time on one or all system CPUs. Timers are useful for creating stat-like utilities which print data every second or for profiling. <br /></p>
+<p>
+Take for example profiler probe which records task name from <code>current</code> pointer (it always points to task executing on CPU now):<br /></p>
+<p>
+<img src="../images/timer-probe.png" alt="" /></p>
+<p>
+So if we count that timer probe has fired two times, once in context of left process and once in context of right process, we can conclude that they both consume 50% of CPU time, like <code>prstat</code> and <code>top</code> utilities do. Profiling will be covered in <a href="../principles/profiling.html">Profiling</a> section of Module 3.<br /></p>
+<p>
+In <strong>SystemTap</strong> service probes have following syntax:<br /></p>
+<p>
+<pre>
+{begin|end}[(<i>priority</i>)]
+error
+</pre>
+</p>
+<p>
+Where priority is a number which defines an order of executing <code>begin</code> and <code>end</code> statements. Explicit order is needed because begin and end probes may be specified by tapsets.<br /></p>
+<p>
+Timers are specified in a following form:<br /></p>
+<p>
+<pre>
+timer.<i>unit</i>(<i>period</i>)[.randomize(<i>deviation</i>)]
+</pre>
+</p>
+<p>
+Timer probes are executed on single CPU which id is undefined. <em>randomize</em> allows to make period a uniform distributed random value. <br /></p>
+<p>
+For profiling use <code>timer.profile</code> probe which fires on all CPUs and attaches to system timer. You may also use <code>perf</code>-probes for profiling. <br /></p>
+<p>
+<strong>DTrace</strong> has <code>BEGIN</code> and <code>END</code> probes in <code>dtrace</code> providers. Timers are handled by <code>profile</code> provider which provide two types of probes: <code>tick</code> which fires on any CPU once at a time period, and <code>profile</code> which does the same for all CPUs. Probe name is followed by a parameter with number and unit:<br /></p>
+<p>
+<pre>
+[profile:::]{tick|profile}-<i>period</i>[<i>unit</i>]
+</pre>
+</p>
+<p>
+For example <code>tick-1s</code> will fire every second. Note that, not all platforms may provide nanosecond or microsecond resolution, so probe will fire rarely when it should be. Timer probes with period above 1 millisecond are usually safe to use. <br /></p>
+<p>
+SystemTap and DTrace support the following timer units:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td  colspan="2">
+<strong>Unit</strong></td>
+            <td>
+<strong>Description</strong></td>
+</tr>
+        <tr>
+            <td>
+ns </td>
+            <td>
+ nsec </td>
+            <td>
+ nanoseconds</td>
+</tr>
+        <tr>
+            <td>
+us </td>
+            <td>
+ usec </td>
+            <td>
+ microseconds</td>
+</tr>
+        <tr>
+            <td>
+ms </td>
+            <td>
+ msec </td>
+            <td>
+ milliseconds</td>
+</tr>
+        <tr>
+            <td>
+s </td>
+            <td>
+ sec </td>
+            <td>
+ seconds</td>
+</tr>
+        <tr>
+            <td>
+m </td>
+            <td>
+ min </td>
+            <td>
+ minutes (DTrace)</td>
+</tr>
+        <tr>
+            <td>
+h </td>
+            <td>
+ hour </td>
+            <td>
+ hours (DTrace)</td>
+</tr>
+        <tr>
+            <td>
+d </td>
+            <td>
+ day </td>
+            <td>
+ days (DTrace)</td>
+</tr>
+        <tr>
+            <td  colspan="2">
+ hz </td>
+            <td>
+ hertz (frequency per second)</td>
+</tr>
+        <tr>
+            <td  colspan="2">
+ jiffies </td>
+            <td>
+ jiffies (system ticks in SystemTap)</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+<h4>Example</h4></p>
+<p>
+Lets take following C code as an example (assuming it is located in kernel-space) and see how its lines may be probed:<br /></p>
+<p>
+<pre>
+1 float tri_area(float a, float b, 
+2                float angle) {
+3       float height;
+4 
+5       if(a < 0.0 || b < 0.0 || 
+6               angle >= 180.0 || angle < 0.0) 
+7           return NAN;
+8 
+9       height = b * sin(angle);
+10 
+11      DTRACE_PROBE1(triangle__height, h); 
+        <b>or</b>
+        trace_triangle_height(h);
+12
+13      return a * height; 
+14 }
+</pre>
+</p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<strong>Lineno</strong></td>
+            <td>
+<strong>DTrace</strong></td>
+            <td>
+<strong>SystemTap</strong></td>
+</tr>
+        <tr>
+            <td>
+1 </td>
+            <td>
+ fbt::tri_area:entry </td>
+            <td>
+ kernel.tri_area("tri_area").call</td>
+</tr>
+        <tr>
+            <td>
+7 </td>
+            <td>
+ fbt::tri_area:return </td>
+            <td>
+ kernel.tri_area("tri_area").return <br />                           kernel.statement("tri_area+6")</td>
+</tr>
+        <tr>
+            <td>
+9 </td>
+            <td>
+</td>
+            <td>
+ kernel.statement("tri_area+8")</td>
+</tr>
+        <tr>
+            <td>
+11 </td>
+            <td>
+ sdt::tri_area:triangle-height </td>
+            <td>
+ kernel.trace("triangle_height")</td>
+</tr>
+        <tr>
+            <td>
+13 </td>
+            <td>
+ fbt::tri_area:return </td>
+            <td>
+ kernel.tri_area("tri_area").return <br />                            kernel.statement("tri_area+12")</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+<h5>DTrace</h5></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
+</ul>
+</p>
+<p>
+<h5>SystemTap</h5></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/manpage.png" alt="" /><a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a></li>
+        <li>
+<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="intro.html"><strong>Prev</strong>(Introduction)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="args.html"><strong>Next</strong>(Arguments)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

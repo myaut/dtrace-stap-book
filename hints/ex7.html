@@ -1,0 +1,128 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Appendix A. Exercise hints and solutions </title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="ex6.html"><strong>Prev</strong>(Exercise 6)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Exercise 7</h3></p>
+<p>
+Nature of solution of this exercise depends on your Apache and PHP configuration. In our case (as described in <a href="../lab/web.html">lab description</a>), PHP was built as Apache HTTPD module (by using <code>--with-apxs2</code> option of <code>configure</code>-script), so all PHP code will be executed in a context of Apache worker, so we can safely use Thread-Local variables. If PHP was deployed with PHP-FPM, things would be more complicated.<br /></p>
+<p>
+So we will need to use <code>process-request-entry</code> probe to get URI of request and pair of probes <code>function-entry</code>/<code>function-entry</code> to measure execution time of a function. Since name of a method is passed in multiple probe arguments, we will have to use string concatenation. Like in many other exercises, we will use aggregations to collect statistics. Note that you can use PHP probe <code>request-startup</code> instead of <code>process-request-entry</code>.<br /></p>
+<p>
+As you could remember from a <a href="../principles/profiling.html">profiling</a> section of tracing principles, generally you shouldn't measure execution time of a function by tracing entry and exit points of it. However, PHP is an interpreted language, so it has lesser relative overheads of tracing because execution of its opcodes is slower than for the real processor (unless you are using some precompiler to machine language like HHVM) and we can afford full-tracing of it.<br /></p>
+<p>
+Here are resulting implementations of scripts for SystemTap and DTrace:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694524880')">+</button>&nbsp; Script file topphp.stp <br/><p>
+<pre id="code140000694524880" class="hide">
+@define httpd %( "/usr/local/apache2/bin/httpd" %)
+@define libphp5 %( "/usr/local/apache2/modules/libphp5.so" %)
+
+global rquri, starttime, functime;
+
+probe process(@httpd).mark("process__request__entry") {
+    rquri[tid()] = user_string($arg2);
+}
+
+probe process(@libphp5).mark("function__entry") {
+    starttime[tid()] = gettimeofday_ns();
+}
+
+probe process(@libphp5).mark("function__return") {
+    if(starttime[tid()] == 0) next;
+
+    func = user_string($arg4) . user_string($arg5) . user_string($arg1);
+    functime[func, rquri[tid()]] <<< (gettimeofday_ns() - starttime[tid()]);
+}
+
+probe end {
+    foreach([func, uri] in functime) {
+        printf("%40s %32s %8d %d\n", func, uri,
+               @count(functime[func, uri]), @avg(functime[func, uri]));
+    }
+}</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694525008')">+</button>&nbsp; Script file topphp.d <br/><p>
+<pre id="code140000694525008" class="hide">
+ap*:::process-request-entry {
+    self->uri = copyinstr(arg1);
+}
+
+php*:::function-entry {
+    self->starttime = timestamp;
+}
+
+php*:::function-return 
+/ self->starttime != 0 / {
+    this->func = strjoin(copyinstr(arg3), 
+                         strjoin(copyinstr(arg4), copyinstr(arg0)));
+    @[this->func, self->uri] = avg(timestamp - self->starttime);
+}
+
+END {
+    printa(@);
+}</pre>
+</p>
+</div>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="ex6.html"><strong>Prev</strong>(Exercise 6)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

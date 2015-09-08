@@ -1,0 +1,730 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 5: Application tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="ex6.html"><strong>Prev</strong>(Exercise 6)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="web.html"><strong>Next</strong>(Web applications)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Java Virtual Machine</h3></p>
+<p>
+DTrace and SystemTap are intended to trace applications written in native languages like C or C++ and dependent on compiler ABIs. If application requires virtual machine (in case it is interpreted or translated on-the-fly), virtual machine has to implement USDT probes so it can be traceable by DTrace or SystemTap. For example Zend PHP keeps call arguments in a global object, so you have to access that object to get arguments values instead of using <code>arg0-argN</code> syntax. <br /></p>
+<p>
+Same works for <em>Java Virtual Machine</em>. Oracle's implementation of JVM, called <em>Hotspot</em> and <em>OpenJDK</em>, which based on Hotspot support DTrace since version 1.6. It is available through <code>hotspot</code> and <code>hotspot_jni</code> providers. Latter is intended for tracing of Java Native Interface, so we leave it out of our scope. <br /></p>
+<p>
+By default <code>hotspot</code> provider allows to trace only rare events, such as class loading, starting and stopping threads, VM-wide and GC-wide events and JIT compiler events. That was done to reduce overheads of USDT probes. For example, to trace methods, compiler has to inject two calls into produced code:<br /></p>
+<p>
+<img src="../images/java.png" alt="" /></p>
+<p>
+To enable additional probes, use following <code>java</code> command line options:<br />        <ul>
+        <li>
+<code>-XX:+DTraceMethodProbes</code> -- enables function boundary tracing for methids<br />    </li>
+        <li>
+<code>-XX:+DTraceAllocProbes</code> -- enables tracing of object allocation and deallocation<br />    </li>
+        <li>
+<code>-XX:+DTraceMonitorProbes</code> -- enables object monitors tracing <br />    </li>
+        <li>
+<code>-XX:+ExtendedDTraceProbes</code> -- enables all of events listed above<br /></li>
+</ul>
+</p>
+<p>
+These options can be set dynamically for running virtual machine using <code>jinfo</code> tool. <br /></p>
+<p>
+Tracing provider is implemented in shared library <code>libjvm.so</code> which is dynamically loaded using <code>dlopen()</code> call. Due to limitations of <code>pid$$</code> provider we mentioned before, <code>dtrace</code> cannot use <code>hotspot$target</code> syntax directly:<br /></p>
+<p>
+<pre>
+# dtrace -c 'java Test' -n 'hotspot$target:::'
+dtrace: invalid probe specifier hotspot$target:::: probe description hotspot3662::: does not match any probes 
+</pre>
+</p>
+<p>
+To launch tracing, use helper script <code>dtrace_helper.d</code>: it stops execution of JVM (using <code>stop()</code> destructive action) when it loads <code>libjvm.so</code> through <code>dlopen()</code> and restarts execution of JVM only when tracing script is up and running. Moreover, starting with JDK7, Solaris builds of JDK will use <code>-xlazyload</code> linker flag. Due to that, JVM won't register probes automatically until <code>dtrace</code> is attached to it explicitly with <code>-p</code> options so hotspot probes will be missing from <code>dtrace -l</code> outputs. <code>-p</code> option will work as expected:<br /></p>
+<p>
+<pre>
+# dtrace -p 3682 -n 'hotspot$target:::'
+dtrace: description 'hotspot$target:::' matched 66 probes
+</pre>
+</p>
+<p>
+<code>-Z</code> option can also be helpful. <br /></p>
+<p>
+JDK shipped in <code>openjdk</code> packages in RHEL-like operating systems supports hotspot tracing too. SystemTap provides its probes through <code>hotspot</code> tapset which doesn't have such limitations and can be used directly:<br /></p>
+<p>
+<pre>
+# stap -e 'probe hotspot.* { println(pn()); }' -c 'java Test'
+</pre>
+</p>
+<p>
+Let's write small program, called <em>Greeter</em> which will write "Hello, DTrace" from four threads. Its implementation is based on <em>Greeter</em> from <a href="http://www.solarisinternals.com/wiki/index.php/DTrace_Topics_Java">Solaris Internals wiki</a> with small difference: <code>Greeting.greet()</code> method uses <code>synchronized</code> keyword so it will use monitor. <br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695030992')">+</button>&nbsp; Script file Greeting.java <br/><p>
+<pre id="code140000695030992" class="hide">
+public class Greeting {
+        public synchronized void greet() {
+                System.out.println("Hello, DTrace!");
+        }
+}
+</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695031056')">+</button>&nbsp; Script file GreetingThread.java <br/><p>
+<pre id="code140000695031056" class="hide">
+class GreetingThread extends Thread {
+         Greeting greeting;
+
+         GreetingThread(Greeting greeting) {
+             this.greeting = greeting;
+             super.setDaemon(true);
+         }
+
+         public void run() {
+             while(true) {
+                        greeting.greet();
+                        try {
+                                Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                        }
+             }
+         }
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695031120')">+</button>&nbsp; Script file Greeter.java <br/><p>
+<pre id="code140000695031120" class="hide">
+public class Greeter {
+        public static void main(String[] args) {
+                Greeting greeting = new Greeting();
+                GreetingThread threads[] = new GreetingThread[4];
+
+                for(int i = 0; i < 4; ++i) {
+                        threads[i] = new GreetingThread(greeting);
+                        threads[i].start();
+                }
+
+                for(int i = 0; i < 4; ++i) {
+                        try {
+                                threads[i].join();
+                        }
+                        catch(InterruptedException ie) {
+                        }
+                }
+        }
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+Here are small tracer for it implemented with SystemTap:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695031184')">+</button>&nbsp; Script file hotspot.stp <br/><p>
+<pre id="code140000695031184" class="hide">
+#!/usr/bin/stap
+
+probe hotspot.class_loaded
+{
+        printf("%12s [???] %s\n", name, class);
+}
+
+probe hotspot.method_entry, hotspot.method_return
+{
+        printf("%12s [%3d] %s.%s\n", name, thread_id, class, method);
+}
+
+probe hotspot.thread_start, hotspot.thread_stop
+{
+        printf("%12s [%3d] %s\n", name, id, thread_name);
+}
+
+probe hotspot.monitor_contended_enter, hotspot.monitor_contended_exit
+{
+        printf("%12s [%3d] %s\n", name, thread_id, class);
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+Similar script on DTrace will look like this and should use <code>dtrace_helper.d</code> or called with <code>-Z</code> option:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695031504')">+</button>&nbsp; Script file hotspot.d <br/><p>
+<pre id="code140000695031504" class="hide">
+#!/usr/sbin/dtrace -qs
+
+#pragma D option switchrate=10hz
+
+hotspot$target:::class-loaded
+{
+        printf("%12s [???] %s\n", probename, stringof(copyin(arg0, arg1)));
+}
+
+hotspot$target:::method-entry,
+hotspot$target:::method-return
+{
+        printf("%12s [%3d] %s.%s\n", probename, arg0, 
+            stringof(copyin(arg1, arg2)), 
+            stringof(copyin(arg3, arg4)));
+}
+
+hotspot$target:::thread-start,
+hotspot$target:::thread-stop 
+{
+        printf("%12s [%3d] %s\n", probename, arg3, 
+            stringof(copyin(arg0, arg1)));
+}
+
+hotspot$target:::monitor-contended-enter,
+hotspot$target:::monitor-contended-exit
+{
+        printf("%12s [%3d] %s\n", probename, arg0, 
+            stringof(copyin(arg2, arg3)));
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+Note that we are using <code>copyin</code> function to copy strings from userspace instead of <code>copyinstr</code>. That is because hotspot probes pass strings as non-null-terminated. Due to that, it will use additional argument to pass string length. <br /></p>
+<p>
+Here are examples of this script outputs:<br /></p>
+<p>
+<pre>
+class-loaded [???] Test
+...
+class-loaded [???] Greeting<init>
+...
+class-loaded [???] GreetingThread
+...
+thread-start [ 14] Thread-1
+method-entry [ 9] GreetingThread.run
+method-entry [ 9] Greeting.greet
+...
+monitor-contended-exit [ 8] Greeting
+method-return [ 8] Greeting.greet
+method-entry [ 8] java/lang/Thread.sleep
+method-return [ 9] java/lang/Thread.sleep
+monitor-contended-enter [ 9] Greeting
+method-entry [ 9] Greeting.greet
+method-entry [ 9] java/io/PrintStream.println
+</pre>
+</p>
+<p>
+You can see that when thread leaves <code>Thread.sleep()</code> method, it acquires monitor of <code>Greeting</code> object, calls  <code>Greeting.greet()</code> method which  will call <code>PrintStream.println()</code> method to output line. <br /></p>
+<p>
+Here are list of probes provided by JVM in <code>hotspot$target</code> DTrace provider and <code>hotspot</code> tapset:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Action</em></td>
+            <td>
+<em>DTrace</em></td>
+            <td>
+<em>SystemTap</em></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>JVM</strong></td>
+</tr>
+        <tr>
+            <td>
+Start </td>
+            <td>
+<code>vm-init-begin</code><br /><code>vm-init-end</code></td>
+            <td>
+<code>hotspot.vm_init_begin</code><br /><code>hotspot.vm_init_end</code></td>
+</tr>
+        <tr>
+            <td>
+Shutdown </td>
+            <td>
+<code>vm-shutdown</code></td>
+            <td>
+<code>hotspot.vm_shutdown</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Threads</strong></td>
+</tr>
+        <tr>
+            <td>
+Start </td>
+            <td>
+<code>thread-start</code>                <ul>
+                    <li>
+ arg0:arg1 — thread name                     <br />  </li>
+                    <li>
+ arg2 — internal JVM thread's identifier     <br />  </li>
+                    <li>
+ arg3 — system's thread identifier (LWP id)  <br />  </li>
+                    <li>
+ arg4 — is thread a daemon?                  </li>
+</ul>
+</td>
+            <td>
+<code>hotspot.thread_start</code>                <ul>
+                    <li>
+ thread_name — thread name                        <br />  </li>
+                    <li>
+ id — internal JVM thread's identifier            <br />  </li>
+                    <li>
+ native_id — system's thread identifier (task id) <br />  </li>
+                    <li>
+ is_daemon — is thread a daemon?</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Stop </td>
+            <td>
+<code>thread-stop</code><br /> <br />  Arguments are same as for <code>thread-start</code></td>
+            <td>
+<code>hotspot.thread_stop</code><br /> <br />  Arguments are same as for <code>hotspot.thread_start</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Class loader</strong></td>
+</tr>
+        <tr>
+            <td>
+Load </td>
+            <td>
+<code>class-loaded</code>                <ul>
+                    <li>
+ arg0:arg1 — class name      <br />  </li>
+                    <li>
+ arg2 — class loader id      <br />  </li>
+                    <li>
+ arg3 — does class originate from shared archive?    </li>
+</ul>
+</td>
+            <td>
+<code>hotspot.class_loaded</code>                <ul>
+                    <li>
+ class — class name                      <br />  </li>
+                    <li>
+ classloader_id — class loader id        <br />  </li>
+                    <li>
+ is_shared — does class originate from shared archive?</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Monitors (locks)</strong></td>
+</tr>
+        <tr>
+            <td>
+Attempt to acquire </td>
+            <td>
+<code>monitor-contended-enter</code>           <br />  arg0 — Java thread id             <br />  arg1 — unique monitor id          <br />  arg2:arg3 — class name          </td>
+            <td>
+<code>hotspot.monitor_contended_enter</code>   <br />  thread_id — Java thread id        <br />  id — unique monitor id            <br />  class — class name    </td>
+</tr>
+        <tr>
+            <td>
+Acquire                                               </td>
+            <td>
+<code>monitor-contended-entered</code><br /> <br />  Arguments are same as for <code>monitor-contended-enter</code></td>
+            <td>
+<code>hotspot.monitor_contended_entered</code><br /> <br />  Arguments are same as for <code>monitor_contended_enter</code></td>
+</tr>
+        <tr>
+            <td>
+Release                                               </td>
+            <td>
+<code>monitor-contended-exit</code><br /> <br />  Arguments are same as for <code>monitor-contended-enter</code></td>
+            <td>
+<code>hotspot.monitor_contended_exit</code><br /> <br />  Arguments are same as for <code>monitor_contended_enter</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Monitors (events)</strong></td>
+</tr>
+        <tr>
+            <td>
+Entering <code>.wait()</code></td>
+            <td>
+<code>monitor-wait</code><br /> <br />  Arguments are same as for <code>monitor-contended-enter</code>   <br />  with one addition: arg4 keeps timeout               </td>
+            <td>
+<code>hotspot.monitor_wait</code><br /> <br />  Arguments are same as for <code>monitor_contended_enter</code>   <br />  with one addition: timeout variable keeps timeout </td>
+</tr>
+        <tr>
+            <td>
+Leaving <code>.wait()</code></td>
+            <td>
+<code>monitor-waited</code><br /> <br />  Arguments are same as for <code>monitor-contended-enter</code></td>
+            <td>
+<code>hotspot.monitor_waited</code><br /> <br />  Arguments are same as for <code>monitor_contended_enter</code></td>
+</tr>
+        <tr>
+            <td>
+<code>.notify()</code></td>
+            <td>
+<code>monitor-notify</code><br /> <br />  Arguments are same as for <code>monitor-contended-enter</code></td>
+            <td>
+<code>hotspot.monitor_notify</code><br /> <br />  Arguments are same as for <code>monitor_contended_enter</code></td>
+</tr>
+        <tr>
+            <td>
+<code>.notifyAll()</code></td>
+            <td>
+<code>monitor-notifyAll</code><br /> <br />  Arguments are same as for <code>monitor-contended-enter</code></td>
+            <td>
+<code>hotspot.monitor_notifyAll</code><br /> <br />  Arguments are same as for <code>monitor_contended_enter</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Allocator and garbage collector</strong></td>
+</tr>
+        <tr>
+            <td>
+GC cycle has been started                       </td>
+            <td>
+<code>gc-begin</code>                <ul>
+                    <li>
+ arg0 — is this cycle full?                  </li>
+</ul>
+</td>
+            <td>
+<code>hotspot.gc_begin</code>                <ul>
+                    <li>
+ is_full — is this cycle full</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+GC cycle has been finished                      </td>
+            <td>
+<code>gc-end</code></td>
+            <td>
+<code>hotspot.gc_end</code></td>
+</tr>
+        <tr>
+            <td>
+Garbage collection is initiated for memory pool </td>
+            <td>
+<code>mem-pool-gc-begin</code>                <ul>
+                    <li>
+ arg0:arg1 — name of manager                   <br />  </li>
+                    <li>
+ arg2:arg3 — name of memory pool               <br />  </li>
+                    <li>
+ arg4 — initial pool size                      <br />  </li>
+                    <li>
+ arg5 — used memory                            <br />  </li>
+                    <li>
+ arg6 — number of commited pages               <br />  </li>
+                    <li>
+ arg7 — maximum usable memory               </li>
+</ul>
+</td>
+            <td>
+<code>hotspot.mem_pool_gc_begin</code>                <ul>
+                    <li>
+ manager — name of manager                     <br />  </li>
+                    <li>
+ pool — name of memory pool                    <br />  </li>
+                    <li>
+ initial — initial pool size                   <br />  </li>
+                    <li>
+ used — used memory                            <br />  </li>
+                    <li>
+ committed — number of commited pages          <br />  </li>
+                    <li>
+ max — maximum usable memory</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Garbage collection is finished in a memory pool </td>
+            <td>
+<code>mem-pool-gc-end</code>                                 <br />  Arguments are same as for <code>mem-pool-gc-begin</code></td>
+            <td>
+<code>hotspot.mem_pool_gc_end</code>                         <br />  Arguments are same as for <code>hotspot.mem_pool_gc_begin</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>JIT compiler</strong></td>
+</tr>
+        <tr>
+            <td>
+Start of method compilation                       </td>
+            <td>
+<code>method-compile-begin</code>                              <br />  arg0:arg1 — compiler name                         <br />  arg2:arg3 — class name                            <br />  arg4:arg5 — method name                           <br />  arg6:arg7 — method signature                    </td>
+            <td>
+<code>hotspot.method_compile_begin</code>                      <br />  compiler — compiler name                          <br />  class — class name                                <br />  method — method name                              <br />  sig — method signature</td>
+</tr>
+        <tr>
+            <td>
+Ending of method compilation                              </td>
+            <td>
+<code>method-compile-end</code><br />  <br />  Arguments are same as for <code>method-compile-begin</code>.         <br />  with one addition: arg8 keeps compilation result        </td>
+            <td>
+<code>hotspot.method_compile_end</code><br /> <br />  Arguments are same as for <code>hotspot.method_compile_begin</code>. <br />  with one addition: $arg9 keeps compilation result </td>
+</tr>
+        <tr>
+            <td>
+Load of compiled method                              </td>
+            <td>
+<code>compiled-method-load</code>                <ul>
+                    <li>
+ arg0:arg1 — class name                             <br />  </li>
+                    <li>
+ arg2:arg3 — method name                            <br />  </li>
+                    <li>
+ arg4:arg5 — method signature                       <br />  </li>
+                    <li>
+ arg6 — instruction pointer                         <br />  </li>
+                    <li>
+ arg7 — size of compiled code                     </li>
+</ul>
+</td>
+            <td>
+<code>hotspot.compiled_method_load</code>                <ul>
+                    <li>
+ class — class name                                 <br />  </li>
+                    <li>
+ method — method name                               <br />  </li>
+                    <li>
+ sig — method signature                             <br />  </li>
+                    <li>
+ code — instruction pointer                         <br />  </li>
+                    <li>
+ size — size of compiled code</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Unload of compiled method                            </td>
+            <td>
+<code>compiled-method-unload</code>                <ul>
+                    <li>
+ arg0:arg1 — class name                             <br />  </li>
+                    <li>
+ arg2:arg3 — method name                            <br />  </li>
+                    <li>
+ arg4:arg5 — method signature                     </li>
+</ul>
+</td>
+            <td>
+<code>hotspot.compiled_method_unload</code>                <ul>
+                    <li>
+ class — class name                                 <br />  </li>
+                    <li>
+ method — method name                               <br />  </li>
+                    <li>
+ sig — method signature                             </li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+In addition to provided probe arguments, SystemTap will supply <code>name</code> which will contain probe name, and <code>probestr</code> which keeps string with pre-formatted probe arguments. There are also several probes that are not documented: such as <code>class-initialization-*</code> and thread probes: <code>thread-sleep-*</code>, <code>thread-yield</code>.<br /></p>
+<p>
+SystemTap and DTrace can also collect backtraces of a running Java thread. DTrace provide <code>jstack()</code> function for that:<br /></p>
+<p>
+<pre>
+# dtrace -n '
+    syscall::write:entry 
+    / execname == "java" / 
+    { jstack(); }'
+</pre>
+</p>
+<p>
+SystemTap needs to gather some information about VM to build stack traces correctly, so it needs to bind to probe <code>hotspot.vm_init_end</code>, so <code>print_jstack()</code> will work only if you run SystemTap with <code>-c</code> option:<br /></p>
+<p>
+<pre>
+# stap -e '
+    probe syscall.write { 
+        if(pid() == target()) 
+            print_jstack(); 
+        } ' -c 'java Test'
+</pre>
+</p>
+<p>
+However, you can alter source code of jstack tapset to use other global events and use <code>jstack()</code> on live processes. <br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+There is a bug in JDK: <a href="https://bugs.openjdk.java.net/browse/JDK-7187999">JDK-7187999: dtrace jstack action is broken</a>. Due to it, <code>jstack()</code> won't work for Java7 in Solaris 11. One of workarounds is to try to seek for available probes in a process:<br />    <p>
+    <pre>
+# dtrace -P foo<i>Java-PID</i>
+</pre>
+</p>
+That attempt will fail, but it will lead DTrace to extract required helper functions from Java process.<br /></div>
+<p>
+<a name="jsdt"></a><h4>JSDT</h4></p>
+<p>
+You could notice that we can't extract method's arguments in method probes like we did it in other places via args array. That complicates Java application tracing. As you can remember from USDT description, in DTrace applications can register their probes within DTrace. This is also true for Java applications which can provide <em>Java Statically Defined Tracing</em> probes (JSDT). It is supported only in DTrace and only in BSD or Solaris.<br /></p>
+<p>
+JSDT is implemented in packages <code>com.sun.tracing</code> and <code>sun.tracing</code>. Each provider should be a class which implements <code>com.sun.tracing.Provider</code> interface, while each method of this class will be a probe. Reimplement our greeting example with JSDT support:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695151568')">+</button>&nbsp; Script file Greeting.java <br/><p>
+<pre id="code140000695151568" class="hide">
+public class Greeting {
+        GreetingProvider provider;
+
+        public Greeting(GreetingProvider provider) {
+                this.provider = provider;
+        }
+
+        public void greet(int greetingId) {
+                provider.greetingStart(greetingId);
+                System.out.println("Hello DTrace!");
+                provider.greetingEnd(greetingId);
+        }
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695151760')">+</button>&nbsp; Script file GreetingProvider.java <br/><p>
+<pre id="code140000695151760" class="hide">
+import com.sun.tracing.Provider;
+
+public interface GreetingProvider extends Provider {
+        public void greetingStart(int greetingId); 
+        public void greetingEnd(int greetingId);
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000695151696')">+</button>&nbsp; Script file JSDT.java <br/><p>
+<pre id="code140000695151696" class="hide">
+import com.sun.tracing.*;
+
+public class JSDT {
+   static public void main(String[] args) {
+       ProviderFactory providerFactory = 
+        new sun.tracing.dtrace.DTraceProviderFactory();
+       GreetingProvider greetingProvider = (GreetingProvider) 
+            providerFactory.createProvider(GreetingProvider.class);
+
+       Greeting greeter = new Greeting(greetingProvider);
+
+       for(int id = 0; id < 100; ++id) {
+            greeter.greet(id);
+
+            try { Thread.sleep(500); }
+            catch(InterruptedException ie) {}
+       }
+
+       greetingProvider.dispose();
+   }
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+Package <code>sun.tracing</code> is treated as "closed", so you will need to pass an option to <code>javac</code> to compile JSDT:<br /></p>
+<p>
+<pre>
+$ javac -XDignore.symbol.file JSDT.java
+</pre>
+</p>
+<p>
+You can see that our provider was registered within DTrace when we start JSDT example and we can trace it:<br /></p>
+<p>
+<pre>
+root@sol11:~/java1/hs1# dtrace -l | grep GreetingProvider
+69255 GreetingProvider3976      java_tracing                       unspecified greetingStart
+69256 GreetingProvider3976      java_tracing                       unspecified greetingEnd
+root@sol11:~/java1/hs1# dtrace -n 'greetingStart { trace(arg0); }'
+dtrace: description 'greetingStart ' matched 1 probe
+CPU     ID                    FUNCTION:NAME
+  0  69255        unspecified:greetingStart                61
+</pre>
+</p>
+<p>
+P.S.: Of course, DTrace and SystemTap are not the only option to trace Java. It provides JVMTI interface since Java 6 which allows to instrument Java applications as well. Most famous implementation of JVMTI is BTrace.<br /></p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="ex6.html"><strong>Prev</strong>(Exercise 6)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="web.html"><strong>Next</strong>(Web applications)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

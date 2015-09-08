@@ -1,0 +1,186 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="args.html"><strong>Prev</strong>(Arguments)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="predicates.html"><strong>Next</strong>(Predicates)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Context</h3></p>
+<span class="label label-inverse">Definition</span><div class="well">
+<em>Probe context</em> contains system state related to a fired probe, including:<br />     <ul>
+        <li>
+ Register values<br /> </li>
+        <li>
+ Thread and process, which caused probe firing, including CPU where thread is running<br /> </li>
+        <li>
+ Currently executing probe<br /></li>
+</ul>
+</div>
+<p>
+Context is provided as built-in variables in DTrace such as <code>execname</code> or as tapset functions in SystemTap such as <code>execname()</code>. <br /></p>
+<p>
+Userspace register values are available in DTrace through built-in variable <code>uregs</code>. In SystemTap, they available through Embedded C and kernel function <code>task_pt_regs</code>, or a special Embedded C variable <code>CONTEXT</code>, see for example implementation of <code>uaddr()</code> and <code>print_regs()</code> tapset functions. <br /></p>
+<p>
+Here are some useful context information:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Description</em></td>
+            <td>
+<em>DTrace</em></td>
+            <td>
+<em>SystemTap</em></td>
+</tr>
+        <tr>
+            <td>
+Current executing thread </td>
+            <td>
+<code>curthread</code></td>
+            <td>
+<code>task_current()</code></td>
+</tr>
+        <tr>
+            <td>
+ID of current thread </td>
+            <td>
+<code>tid</code></td>
+            <td>
+<code>tid()</code></td>
+</tr>
+        <tr>
+            <td>
+ID of current process </td>
+            <td>
+<code>pid</code></td>
+            <td>
+<code>pid()</code></td>
+</tr>
+        <tr>
+            <td>
+ID of parent of current process </td>
+            <td>
+<code>ppid</code></td>
+            <td>
+<code>ppid()</code></td>
+</tr>
+        <tr>
+            <td>
+User ID and group ID of current process </td>
+            <td>
+<code>uid</code>/<code>gid</code></td>
+            <td>
+<code>uid()</code>/<code>gid()</code>, <br />                                                        <code>euid()</code>, <code>egid()</code></td>
+</tr>
+        <tr>
+            <td>
+Name of current process executable </td>
+            <td>
+<code>execname</code><code>curpsinfo-&gt;ps_fname</code></td>
+            <td>
+<code>execname()</code></td>
+</tr>
+        <tr>
+            <td>
+Command Line Arguments </td>
+            <td>
+<code>curpsinfo-&gt;ps_psargs</code></td>
+            <td>
+<code>cmdline_*()</code></td>
+</tr>
+        <tr>
+            <td>
+CPU number </td>
+            <td>
+<code>cpu</code></td>
+            <td>
+<code>cpu()</code></td>
+</tr>
+        <tr>
+            <td>
+Probe names </td>
+            <td>
+<code>probeprov</code>, <code>probemod</code>, <br />              <code>probefunc</code>, <code>probename</code></td>
+            <td>
+<code>pp()</code>, <code>pn()</code>, <code>ppfunc()</code>,  <br />                                         <code>probefunc()</code>, <code>probemod()</code></td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfu">Built-in Variables</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/context_stp.html">Context Functions</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="args.html"><strong>Prev</strong>(Arguments)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="predicates.html"><strong>Next</strong>(Predicates)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

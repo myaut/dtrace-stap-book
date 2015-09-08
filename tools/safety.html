@@ -1,0 +1,124 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="systemtap.html"><strong>Prev</strong>(SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="stability.html"><strong>Next</strong>(Stability)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Safety and errors</h3></p>
+<p>
+Like we said, dynamic tracing is intended to be safely used in production systems, but since it is intrusive to an OS kernel, there is a room for unsafe actions:<br />     <ul>
+        <li>
+ Fatal actions inside kernel like reading from invalid pointer (like <code>NULL</code>) or division by zero will cause a panic following by a reboot.<br /> </li>
+        <li>
+ If probes are executed for too much time (or too often), it will induce performance degradation in a production system, or at least give results that are very different than from a non-traced system (i.e. making racing condition that you debug a very rare). <br /> </li>
+        <li>
+ Dynamic tracing systems allocate memory for their internal memory which should be limited.<br /> </li>
+</ul>
+</p>
+<p>
+That leads to a common principle for all dynamic tracing systems: <strong>add some checks before executing actual tracing</strong>. For example, DTrace has <em>Deadman Mechanism</em> that detects system unresponsiveness induced by DTrace and aborts tracing, while SystemTap monitors time spent in each tracing probe. The common error messages you'll see due to that are <code>processing aborted: Abort due to systemic unresponsiveness</code> in DTrace and <code>SystemTap probe overhead exceeded threshold</code>. <br /></p>
+<p>
+Unfortunately, SystemTap is not that affective as DTrace, so probe overhead error message is a common thing. To overcome this error in SystemTap you can recompile your script with <code>-t</code> option to see what probes are causing overload and try to optimize them. You may also increase threshold by setting compile macro (with <code>-D</code> option) <code>STP_OVERLOAD_THRESHOLD</code> in percent of overall CPU time or completely disable it with <code>STP_NO_OVERLOAD</code> macro (latest SystemTap versions support it via <code>-g --suppress-time-limits</code>).<br /></p>
+<p>
+Another resource that is limited is memory. Memory limitations are implemented pretty simple: all allocations should be performed when script is launched and with a fixed size. For associative arrays, SystemTap limits number of entries it can hold (changeable by setting macro <code>MAXMAPENTRIES</code>), and <code>ERROR: Array overflow, check MAXMAPENTRIES near identifier 't' at &lt;input&gt;:1:30</code>, while DTrace limits overall space for them via <code>dynvarsize</code> tunable and it will print it as <code>dynamic variable drops</code> error. Note that SystemTap still can exhaust memory if you create too many associative arrays, but this will be handled by OOM which will simply kill <code>stap</code> tool. Both DTrace and SystemTap limit size of strings used in scripts.<br /></p>
+<p>
+Transport buffer between probes and consumer is also limited, so if you will print in probes faster than consumer can take, you will see <code>There were NN transport failures</code> error in SystemTap or <code>DTrace drops on CPU X</code> error on DTrace. The answer to that problem is simple: be less verbose, take data from buffer more frequently (regulated by <code>cleanrate</code> tunable in DTrace) or increase buffer size (<code>-b</code> option and <code>bufsize</code> tunable in DTrace and <code>-s</code> option in SystemTap).<br /> </p>
+<p>
+Both DTrace and SystemTap are also using special handlers for in-kernel pagefaults, that will disable panic and handle fault if it was caused by tracing. For example DTrace will complain with <code>error on enabled probe ID 1 (ID 78: syscall::read:entry): invalid alignment (0x197) in action #1 at DIF offset 24</code> and continue execution, while SystemTap will print <code>ERROR: read fault [man error::fault] at 0x00000000000024a8 (addr) near operator '@cast' at &lt;input&gt;:1:45</code> and stop tracing. Note that SystemTap provides more context than DTrace. That is because error-checking is performed in generated C code, not by RISC-VM inside driver.<br /></p>
+<p>
+<h4>Demonstration scripts</h4></p>
+<p>
+These scripts have errors which cause error messages described above. For associative arrays we will use timestamp to flood array with unrepeated data:<br /></p>
+<p>
+<pre>
+# dtrace -n 'int t[int]; 
+    tick-1ms { 
+        t[timestamp] = timestamp }'
+# stap -e 'global t; 
+    probe timer.ms(1) {
+        t[local_clock_ns()] = local_clock_ns(); }'
+</pre>
+</p>
+<p>
+To demonstrate segmentation violation, you can interpret wrong integral argument (fd for Solaris and file position in Linux) as pointer to a thread structure and try to access its field.<br /></p>
+<p>
+<pre>
+# dtrace -n 'syscall::read:entry { 
+    trace(((kthread_t*) arg0)->t_procp); }' -c 'cat /etc/passwd'
+# stap -e 'probe kernel.function("vfs_read") { 
+    println(@cast($count, "task_struct")->pid); }' -c "cat /etc/passwd"
+</pre>
+</p>
+<p>
+<h4>References </h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00026000000000000000">Safety and security</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-perf/index.html">Performance Considerations</a></li>
+        <li>
+ SystemTap Wiki: <a href="http://sourceware.org/systemtap/wiki/TipExhaustedResourceErrors">Exhausted resources</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="systemtap.html"><strong>Prev</strong>(SystemTap)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="stability.html"><strong>Next</strong>(Stability)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

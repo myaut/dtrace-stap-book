@@ -1,0 +1,171 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 3: Principles of dynamic tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="prepost.html"><strong>Prev</strong>(Pre- and post-processing)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Visualization</h3></p>
+<p>
+Reading trace files is exhausting, so the most popular scenario for the post-processing is visualization. There are multiple standard ways to do that:<br />      <ul>
+        <li>
+ Use GNU Plot as shown here: <a href="https://sourceware.org/systemtap/wiki/WSUtilGraphWithGnuplot">System utilization graphing with Gnuplot</a>. Tracing script directly generates commands which are passed to GNU Plot. <br />  </li>
+        <li>
+<a href="http://wiki.netbeans.org/NetBeans_DTrace_GUI_Plugin_1_0 ">DTrace Chime</a> plugin for the NetBeans<br />  </li>
+        <li>
+<a href="http://stapgui.sourceforge.net/">SystemTap GUI</a></li>
+        <li>
+ Writing you own visualization script. For example, following examples were generated using Python library <code>matplotlib</code>.<br />  </li>
+</ul>
+</p>
+<p>
+Which types diagrams are mostly useful? Let's find out.<br /></p>
+<p>
+<h4>Linear diagram</h4></p>
+<p>
+The simplest one is a <em>linear diagram</em>. X axis in that diagram is the time, so it allows to see changes in system's behaviour over time. These diagrams may be combined together (but the time axis should be same on all plots), which allows to reveal correlations between characteristics, as shown on following image:<br /></p>
+<p>
+<img src="../images/linear.png" alt="" /></p>
+<p>
+These three characteristics are names of the probes from <code>vminfo</code> provider in DTrace: <code>zfod</code> stands for <em>zero-filled on-demand</em> which is page allocation, while <code>pgpgin</code> and <code>pgpgout</code> are events related to reading/writing pages to a backing store, such as disk swap partition. In this case, <code>memeat</code> process (which name is self-explanatory -- it allocates all available RAM) allocates plenty of memory, so number of <code>zfod</code> events is high, causing to some pages being read or written to a disk swap. <br /></p>
+<p>
+<h4>Tracing a scheduler</h4></p>
+<p>
+Now let's run following loop in a shell which periodically eats lots of CPU than sleeps for 5 seconds:<br /></p>
+<p>
+<pre>
+# while : 
+    do
+        for I in {0..4000}
+        do  
+            echo '1' > /dev/null
+        done
+        sleep 5
+    done
+</pre>
+</p>
+<p>
+And gather scheduler trace: each time it dispatches a new process we will trace process name, cpu and timestamp:<br /></p>
+<p>
+<pre>
+# dtrace -n '
+    sched:::on-cpu { 
+        printf("%d %d %s\n", timestamp, 
+        cpu, (curthread == 
+                curthread->t_cpu->cpu_idle_thread)
+                ? "idle" 
+                : execname ); }'
+</pre>
+</p>
+<p>
+<h4>Histograms</h4></p>
+<p>
+In many cases of performance analysis we rely on average values, which are not very representative. <br /></p>
+<span class="label label-info">Information</span><div class="well">
+Consider the following example: you apply to a job in some company which has 100 employees and <em>average</em> salary is about 30k roubles. This data can have many interpretations:<br />    <table class="table table-bordered">
+        <tr>
+            <td>
+<strong>CEO salary</strong></td>
+            <td>
+<strong>Senior staff salary</strong></td>
+            <td>
+<strong>Junior staff salary</strong></td>
+</tr>
+        <tr>
+            <td>
+100k roubles </td>
+            <td>
+ 48k roubles </td>
+            <td>
+ 25k roubles</td>
+</tr>
+        <tr>
+            <td>
+2 million roubles </td>
+            <td>
+ 23k roubles </td>
+            <td>
+ 7k roubles</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+Would you want to work there if salary is distributed according row? Doubtful. Like with employment, you cannot rely on average readings in performance analysis: average latency 10ms doesn't mean that all users are satisfied -- some of them may had to wait seconds for web-page to render.<br /></div>
+<p>
+If we calculate per-process difference between scheduler timestamps and build a logarithmic histogram plot, we'll see several requests which lasts for seconds:<br /></p>
+<p>
+<img src="../images/density.png" alt="" /></p>
+<p>
+Y axis is logarithmic and represents a number of observed intervals when CPU was busy for time period shown on X axis. If we normalize this characteristic, we will get probability density function. <br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+Aggregations <code>quantize()</code>/<code>hist_linear()</code> and <code>lquantize()</code>/<code>hist_log()</code> might do the same, but in text terminal.<br /></div>
+<p>
+<h4>Heat maps</h4></p>
+<p>
+When two axes is not enough for your graph, you may also use a colour intensity of each pixel too. Let's see, how CPU usage is distributed across CPUs. To do so we need pick a step for the observation interval, say <code>T=100ms</code>, accumulate all intervals when non-idle thread were on that CPU, say <code>t</code>, than pixel's intensity will be <code>1.0 - t/T</code> so <code>1.0</code> (white) will say that CPU was idle all the time, while <code>0.0</code> (black) will be evidence that CPU is very busy. For our example, we will see, that CPU 4 is periodically runs CPU-bound tasks:<br /></p>
+<p>
+<img src="../images/heatmap.png" alt="" /></p>
+<p>
+<h4>Gantt charts</h4></p>
+<p>
+Generally speaking, gantt charts help to understand state of the system across the timeline. For example they are helpful in planning projects: what job needs to be done by whom and when, so the jobs are placed on X axis while Y axis is a timeline, and color is used to distinguish teams responsible for jobs. In our case we may be interested in how load distributed across CPUs, and what's causing it, so we here are a gantt chart:<br /></p>
+<p>
+<img src="../images/oncpu.png" alt="" /></p>
+<p>
+We added process name to the longest bars, and it seems that <code>bash</code> process causing trouble. We could discover it before, adding tags on histogram.</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="prepost.html"><strong>Prev</strong>(Pre- and post-processing)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="pointers.html"><strong>Prev</strong>(Pointers)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex1.html"><strong>Next</strong>(Exercise 1)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Strings </h3></p>
+<p>
+Strings in dynamic tracing languages are wrappers around C-style null-terminated <code>char*</code> string, but they behave differently. In SystemTap it is simple alias, while DTrace add extra limitations, for example, you can't access single character to a string. String operations are listed in following table:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<strong>Operation</strong></td>
+            <td>
+<strong>DTrace</strong></td>
+            <td>
+<strong>SystemTap</strong></td>
+</tr>
+        <tr>
+            <td>
+Get kernel string </td>
+            <td  rowspan="2">
+<code>stringof ( expr )</code> or <br />                       <code>(string) expr</code></td>
+            <td>
+<code>kernel_string*()</code></td>
+</tr>
+        <tr>
+            <td>
+Convert a scalar type to a string </td>
+            <td>
+<code>sprint()</code> and <code>sprintf()</code></td>
+</tr>
+        <tr>
+            <td>
+Get userspace string </td>
+            <td>
+<code>copyinstr()</code></td>
+            <td>
+<code>user_string*()</code></td>
+</tr>
+        <tr>
+            <td>
+Compare strings </td>
+            <td  colspan="2">
+<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> -- semantically equivalent to <code>strcmp</code></td>
+</tr>
+        <tr>
+            <td>
+Concatenate two strings </td>
+            <td>
+<code>strjoin(str1, str2)</code></td>
+            <td>
+<code>str1 . str2</code></td>
+</tr>
+        <tr>
+            <td>
+Get string length </td>
+            <td  colspan="2">
+<code>strlen(str)</code></td>
+</tr>
+        <tr>
+            <td>
+Check if substring is in string </td>
+            <td>
+<code>strstr(haystack, needle)</code></td>
+            <td>
+<code>isinstr(haystack, needle)</code></td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Note that this operations may be used in DTrace predicates, for example:<br /></p>
+<p>
+<pre>
+syscall::write:entry
+/strstr(execname, "sh") != 0/ 
+{}
+</pre>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-strings/index.html">Strings</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a></li>
+        <li>
+<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062300000000000000">Strings</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/string.stp.html">A collection of standard string functions</a></li>
+</ul>
+</p>
+<p>
+<h3>Structures</h3></p>
+<p>
+Many subsystems in Linux and Solaris have to represent their data as C structures. For example, path to file corresponds from file-related structure <code>dentry</code> and filesystem-related structure <code>vfsmnt</code>:<br /></p>
+<p>
+<pre>
+struct path {
+    struct vfsmount *mnt;
+    struct dentry *dentry;
+};
+</pre>
+</p>
+<p>
+Structure fields are accessed same way it is done in C: in DTrace depending on what you are getting you need to use <code>-&gt;</code> for pointers and <code>.</code> for structures. In SystemTap you should always use <code>-&gt;</code> which will be contextually converted to <code>.</code> where needed. Information about structures is read from CTF sections in Solaris and DWARF sections in Linux, including field names. To get C structure you may need to cast a generic pointer (<code>void*</code> in most cases) to a needed structures. In DTrace it is done using C-style syntax:<br /></p>
+<p>
+<pre>
+(struct vnode *)((vfs_t *)this->vfsp)->vfs_vnodecovered
+</pre>
+</p>
+<p>
+Conversion in SystemTap is used more often, because in many places, typed pointers are coerced to generic <code>long</code> type. It is performed with <code>@cast</code> expression which accepts address, name of structure as string (<code>struct</code> keyword is optional), and an optional third parameter which contains name of include file, for example:<br /></p>
+<p>
+<pre>
+function get_netdev_name:string (addr:long) {
+    return kernel_string(@cast(addr, "net_device")->name)
+}
+</pre>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-structs/index.html">Structs and Unions</a></li>
+        <li>
+<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION000661000000000000000">Expressions</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="pointers.html"><strong>Prev</strong>(Pointers)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex1.html"><strong>Next</strong>(Exercise 1)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

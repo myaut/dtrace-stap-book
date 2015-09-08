@@ -1,0 +1,74 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 5: Application tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="libc.html"><strong>Prev</strong>(Unix C library)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="java.html"><strong>Next</strong>(Java Virtual Machine)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Exercise 6</h3></p>
+<p>
+Implement two scripts: <code>mtxtime.d</code> and <code>mtxtimd.stp</code> that would compute delay between attempt to acquire a userspace mutex and a moment when mutex is acquired. Group times by user stacks and print data as logarithmic histograms.<br /></p>
+<p>
+Use <code>pthread</code> experiment to demonstrate your scripts, like in previous section, TSLoad workload generator itself would be an object in the experiment. Try to identify mutexes that show delays larger than 1 ms. <br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+To prevent problems with symbol resolving in DTrace after tracing process finishes, you can attach to a function <code>experiment_unconfigure()</code> from <code>tsexperiment</code> to print gathered data. <br /></div>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="libc.html"><strong>Prev</strong>(Unix C library)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="java.html"><strong>Next</strong>(Java Virtual Machine)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,785 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 5: Application tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="java.html"><strong>Prev</strong>(Java Virtual Machine)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex7.html"><strong>Next</strong>(Exercise 7)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Web applications </h3></p>
+<p>
+Many interpreted languages that are used in Web development like Python, Perl, PHP and Ruby implement USDT probes. Some HTTP servers like Apache HTTP server (there is also an nginx fork, called nginx-dtrace) and databases such as MySQL, PostgreSQL and Berkeley DB provide them too. Let's see how that can be used to trace a real web application like Drupal CMS framework. <br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+Despite that Apache HTTP server declares support of USDT probes, it is not supported by its build system (as you can remember, you need to perform additional steps and build extra object file). Due to that, when you build it, with <code>--enable-dtrace</code> option, you will see error message:<br />    <p>
+    <pre>
+DTrace Support in the build system is not complete. Patches Welcome!
+</pre>
+</p>
+There is a patch written by Theo Schlossnagle that modifies build system properly, but it won't accepted. You can find fresh version of it in a bug <a href="https://bz.apache.org/bugzilla/show_bug.cgi?id=55793">55793</a>.<br />An alternative of that is to use mod_dtrace module, but we won't discuss it in our book.<br /></div>
+<p>
+We will use Drupal with MySQL database running under Zend PHP interpreter in Apache web-server in mod_php mode. You can also use PHP-FPM, but it makes requests mapping harder as requests would be processed by different processes. In our case, without PHP-FPM, web-application and http-server would be of same context:<br /></p>
+<p>
+<img src="../images/webapp.png" alt="" /></p>
+<p>
+You will need to use provider name to access PHP, MySQL and Apache HTTP Server probes. Their naming convention is the same as any other USDT probe:<br /></p>
+<p>
+<pre>
+php*:::<i>probe-name</i>
+mysql*:::<i>probe-name</i>
+ap*:::<i>probe-name</i>
+</pre>
+</p>
+<p>
+Same works for SystemTap: provider names are optional, but you will need to specify full path to a binary file or use its name and setup <code>PATH</code> environment variable:<br /></p>
+<p>
+<pre>
+process("httpd").mark("<i>probe__name</i>")
+process("mysqld").mark("<i>probe__name</i>")
+process("libphp5.so").mark("<i>probe__name</i>")
+</pre>
+</p>
+<p>
+We will use full paths in macros in example scripts.<br /></p>
+<p>
+Here are list of arguments and names of some useful Apache probes:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Action</em></td>
+            <td>
+<em>DTrace</em></td>
+            <td>
+<em>SystemTap</em></td>
+</tr>
+        <tr>
+            <td>
+Request is redirected                 </td>
+            <td>
+<code>internal-redirect</code>                <ul>
+                    <li>
+ arg0 — old URI                      <br />  </li>
+                    <li>
+ arg1 — new URI                    </li>
+</ul>
+</td>
+            <td>
+<code>internal__redirect</code>                <ul>
+                    <li>
+ $arg1 — old URI                     <br />  </li>
+                    <li>
+ $arg2 — new URI</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td  rowspan="3">
+ Request is read from socket       </td>
+            <td>
+<code>read-request-entry</code>                <ul>
+                    <li>
+ arg0 — <code>request_rec</code> structure      <br />  </li>
+                    <li>
+ arg1 — <code>conn_rec</code> structure       </li>
+</ul>
+</td>
+            <td>
+<code>read__request__entry</code>                <ul>
+                    <li>
+ $arg1 — <code>request_rec</code> structure     <br />  </li>
+                    <li>
+ $arg2 — <code>conn_rec</code> structure</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>read-request-success</code>                <ul>
+                    <li>
+ arg0 — <code>request_rec</code> structure      <br />  </li>
+                    <li>
+ arg1 — method (GET/POST/...)        <br />  </li>
+                    <li>
+ arg2 — URI                          <br />  </li>
+                    <li>
+ arg3 — server name                  <br />  </li>
+                    <li>
+ arg4 — HTTP status                </li>
+</ul>
+</td>
+            <td>
+<code>read__request__success</code>                <ul>
+                    <li>
+ $arg1 — <code>request_rec</code> structure     <br />  </li>
+                    <li>
+ $arg2 — method (GET/POST/...)       <br />  </li>
+                    <li>
+ $arg3 — URI                         <br />  </li>
+                    <li>
+ $arg4 — server name                 <br />  </li>
+                    <li>
+ $arg5 — HTTP status</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>read-request-failure</code>                <ul>
+                    <li>
+ arg0 — <code>request_rec</code> structure    </li>
+</ul>
+</td>
+            <td>
+<code>read__request__failure</code>                <ul>
+                    <li>
+ $arg1 — <code>request_rec</code> structure</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td  rowspan="2">
+ Request is processed              </td>
+            <td>
+<code>process-request-entry</code>                <ul>
+                    <li>
+ arg0 — <code>request_rec</code> structure      <br />  </li>
+                    <li>
+ arg1 — URI                        </li>
+</ul>
+</td>
+            <td>
+<code>process__request__entry</code>                <ul>
+                    <li>
+ $arg1 — <code>request_rec</code> structure     <br />  </li>
+                    <li>
+ $arg2 — URI</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>process-request-return</code>                <ul>
+                    <li>
+ arg0 — <code>request_rec</code> structure      <br />  </li>
+                    <li>
+ arg1 — URI                          <br />  </li>
+                    <li>
+ arg2 — HTTP status                </li>
+</ul>
+</td>
+            <td>
+<code>process__request__return</code>                <ul>
+                    <li>
+ $arg1 — <code>request_rec</code> structure     <br />  </li>
+                    <li>
+ $arg2 — URI                         <br />  </li>
+                    <li>
+ $arg3 — HTTP status</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<span class="label label-warning">Warning</span><div class="well">
+When <code>read-request-entry</code>/<code>read__request__entry</code> probe is firing, <code>request_rec</code> structure fields is not yet filled.<br /></div>
+<p>
+There are also many Apache Hooks probes, but they are not providing useful arguments. <br /></p>
+<p>
+Following table provides list of useful PHP SAPI probes:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Action</em></td>
+            <td>
+<em>DTrace</em></td>
+            <td>
+<em>SystemTap</em></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Request processing</strong></td>
+</tr>
+        <tr>
+            <td>
+Request processing started                  </td>
+            <td>
+<code>request-startup</code>                <ul>
+                    <li>
+ arg0 — file name                            <br />  </li>
+                    <li>
+ arg1 — request URI                          <br />  </li>
+                    <li>
+ arg2 — request method                   </li>
+</ul>
+</td>
+            <td>
+<code>request__startup</code>                <ul>
+                    <li>
+ $arg1 — file name                           <br />  </li>
+                    <li>
+ $arg2 — request URI                         <br />  </li>
+                    <li>
+ $arg3 — request method</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Request processing finished                 </td>
+            <td>
+<code>request-shutdown</code><br /> <br />  Arguments are same as for <code>request-startup</code></td>
+            <td>
+<code>request__shutdown</code><br /> <br />  Arguments are same as for <code>request__startup</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Compiler</strong></td>
+</tr>
+        <tr>
+            <td>
+Compilation                                 </td>
+            <td>
+<code>compile-file-entry</code>                <ul>
+                    <li>
+ arg0 — source file name                     <br />  </li>
+                    <li>
+ arg1 — compiled file name               </li>
+</ul>
+</td>
+            <td>
+<code>compile__file__entry</code>                <ul>
+                    <li>
+ $arg1 — source file name                    <br />  </li>
+                    <li>
+ $arg2 — compiled file name</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+File is compiled                            </td>
+            <td>
+<code>compile-file-return</code><br /> <br />  Arguments are same as for <code>compile-file-entry</code></td>
+            <td>
+<code>compile__file__return</code><br /> <br />  Arguments are same as for <code>compile__file__entry</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Functions</strong></td>
+</tr>
+        <tr>
+            <td>
+Function call                               </td>
+            <td>
+<code>function-entry</code>                <ul>
+                    <li>
+ arg0 — function name                        <br />  </li>
+                    <li>
+ arg1 — file name                            <br />  </li>
+                    <li>
+ arg2 — line number                          <br />  </li>
+                    <li>
+ arg3 — class name                           <br />  </li>
+                    <li>
+ arg4 — scope operator <code>::</code></li>
+</ul>
+</td>
+            <td>
+<code>function__entry</code>                <ul>
+                    <li>
+ $arg1 — function name                       <br />  </li>
+                    <li>
+ $arg2 — file name                           <br />  </li>
+                    <li>
+ $arg3 — line number                         <br />  </li>
+                    <li>
+ $arg4 — class name                          <br />  </li>
+                    <li>
+ $arg5 — scope operator <code>::</code></li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Function return                             </td>
+            <td>
+<code>function-return</code><br /> <br />  Arguments are same as for <code>function-entry</code></td>
+            <td>
+<code>function__return</code><br /> <br />  Arguments are same as for <code>function__entry</code></td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>VM execution</strong></td>
+</tr>
+        <tr>
+            <td>
+Beginning of operation execution            </td>
+            <td>
+<code>execute-entry</code>                <ul>
+                    <li>
+ arg0 — file name                            <br />  </li>
+                    <li>
+ arg1 — line number                      </li>
+</ul>
+</td>
+            <td>
+<code>execute__entry</code>                                <br />  $arg1 — file name                             <br />  $arg2 — line number</td>
+</tr>
+        <tr>
+            <td>
+Beginning of operation execution            </td>
+            <td>
+<code>execute-return</code><br />                <ul>
+                    <li>
+ Arguments are same as for <code>execute-entry</code></li>
+</ul>
+</td>
+            <td>
+<code>execute__return</code><br />                <ul>
+                    <li>
+ Arguments are same as for <code>execute__entry</code></li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td  colspan="3">
+<strong>Errors and exceptions</strong></td>
+</tr>
+        <tr>
+            <td>
+PHP error                                   </td>
+            <td>
+<code>error</code>                <ul>
+                    <li>
+ arg0 — error message                        <br />  </li>
+                    <li>
+ arg1 — file name                            <br />  </li>
+                    <li>
+ arg2 — line number                      </li>
+</ul>
+</td>
+            <td>
+<code>error</code>                <ul>
+                    <li>
+ $arg1 — error message                       <br />  </li>
+                    <li>
+ $arg2 — file name                           <br />  </li>
+                    <li>
+ $arg3 — line number</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+Thrown exception                            </td>
+            <td>
+<code>exception-thrown</code>                              <br />  arg0 — exception class name               </td>
+            <td>
+<code>exception__thrown</code>                             <br />  arg0 — exception class name</td>
+</tr>
+        <tr>
+            <td>
+Caught exception                            </td>
+            <td>
+<code>exception-caught</code><br />                <ul>
+                    <li>
+ Arguments are same as for <code>exception-thrown</code></li>
+</ul>
+</td>
+            <td>
+<code>exception__caught</code><br />                <ul>
+                    <li>
+ Arguments are same as for <code>exception__thrown</code></li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+MySQL has wide set of probes. They are described in MySQL documentation: <a href="http://dev.mysql.com/doc/refman/5.7/en/dba-dtrace-mysqld-ref.html">5.4.1 mysqld DTrace Probe Reference</a>. Here are list of basic probes which allow to trace queries and connections:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Action</em></td>
+            <td>
+<em>DTrace</em></td>
+            <td>
+<em>SystemTap</em></td>
+</tr>
+        <tr>
+            <td  rowspan="2">
+ Connection                           </td>
+            <td>
+<code>connection-start</code>                <ul>
+                    <li>
+  arg0 — connection number                <br /> </li>
+                    <li>
+  arg1 — user name                        <br /> </li>
+                    <li>
+  arg2 — host name                     </li>
+</ul>
+</td>
+            <td>
+<code>connection__start</code>                <ul>
+                    <li>
+  $arg1 — connection number               <br /> </li>
+                    <li>
+  $arg2 — user name                       <br /> </li>
+                    <li>
+  $arg3 — host name</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>connection-done</code>                <ul>
+                    <li>
+  arg0 — connection status                <br /> </li>
+                    <li>
+  arg1 — connection number             </li>
+</ul>
+</td>
+            <td>
+<code>connection__done</code>                <ul>
+                    <li>
+  $arg1 — connection status               <br /> </li>
+                    <li>
+  $arg2 — connection number</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td  rowspan="2">
+ Query parsing                        </td>
+            <td>
+<code>query-parse-start</code>                <ul>
+                    <li>
+  arg0 — query text                    </li>
+</ul>
+</td>
+            <td>
+<code>query__parse__start</code>                <ul>
+                    <li>
+  $arg1 — query text </li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>query-parse-done</code>                <ul>
+                    <li>
+  arg0 — status                        </li>
+</ul>
+</td>
+            <td>
+<code>query__parse__done</code>                <ul>
+                    <li>
+  $arg1 —  status</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td  rowspan="2">
+ Query execution                      </td>
+            <td>
+<code>query-exec-start</code>                <ul>
+                    <li>
+  arg0 — query text                       <br /> </li>
+                    <li>
+  arg1 — connection number                <br /> </li>
+                    <li>
+  arg2 — database name                    <br /> </li>
+                    <li>
+  arg3 — user name                        <br /> </li>
+                    <li>
+  arg4 — host name                        <br /> </li>
+                    <li>
+  arg5 — source of request (cursor, procedure, etc.)   </li>
+</ul>
+</td>
+            <td>
+<code>query__exec__start</code>                <ul>
+                    <li>
+  $arg1 — query text                      <br /> </li>
+                    <li>
+  $arg2 — connection number               <br /> </li>
+                    <li>
+  $arg3 — database name                   <br /> </li>
+                    <li>
+  $arg4 — user name                       <br /> </li>
+                    <li>
+  $arg5 — host name                       <br /> </li>
+                    <li>
+  $arg6 — source of request (cursor, procedure, etc.)</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+<code>query-exec-done</code>                <ul>
+                    <li>
+  arg0 — status                        </li>
+</ul>
+</td>
+            <td>
+<code>query__exec__done</code>                <ul>
+                    <li>
+  $arg1 —  status</li>
+</ul>
+</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Here are simple tracer for PHP web application which is written on SystemTap:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694928528')">+</button>&nbsp; Script file web.stp <br/><p>
+<pre id="code140000694928528" class="hide">
+@define httpd %( "/usr/local/apache2/bin/httpd" %)
+@define libphp5 %( "/usr/local/apache2/modules/libphp5.so" %)
+@define mysqld %( "/usr/local/mysql/bin/mysqld" %)
+
+global parsequery;
+global execquery;
+
+function basename:string(s:string) {
+    len = strlen(s)
+    i = len
+    
+    while(i > 0) {
+        /* 47 is code for '/' */
+        if(stringat(s, i - 1) == 47)
+            return substr(s, i, len - i);
+            
+        --i;
+    }
+    
+    return s;
+}
+
+probe process(@httpd).mark("internal__redirect")  {
+    printf("[httpd] redirect\t'%s' -> '%s'\n", 
+           user_string($arg1), user_string($arg2));
+}
+
+probe process(@httpd).mark("read__request__entry") {
+    printf("[httpd] read-request\n");
+}
+
+probe process(@httpd).mark("read__request__success") {
+    servername = ($arg4) ? user_string($arg4) : "???";
+    
+    printf("[httpd] read-request\t%s %s %s  [status: %d]\n",
+           user_string($arg2), servername, user_string($arg3), $arg5);
+}
+
+probe process(@httpd).mark("process__request__entry") {
+    printf("[httpd] process-request\t'%s'\n", user_string($arg2));
+}
+
+probe process(@httpd).mark("process__request__return") {
+    printf("[httpd] process-request\t'%s' access-status: %d\n",
+           user_string($arg2), $arg3);
+}
+
+probe process(@libphp5).mark("request__startup"),
+      process(@libphp5).mark("request__shutdown") {
+    printf("[ PHP ] %s\n\t%s '%s' file: %s \n", pn(), user_string($arg3),
+           user_string($arg2), user_string($arg1));
+}
+
+probe process(@libphp5).mark("function__entry"),
+      process(@libphp5).mark("function__return") {
+    printf("[ PHP ] %s\n\t%s%s%s file: %s:%d \n", pn(), 
+          user_string($arg4), user_string($arg5), user_string($arg1),
+          basename(user_string($arg2)), $arg3);
+}
+
+probe process(@mysqld).mark("query__parse__start") {
+   parsequery[tid()] = user_string_n($arg1, 1024);
+}
+
+probe process(@mysqld).mark("query__parse__done") {
+   printf("[MySQL] query-parse\t'%s' status: %d\n", parsequery[tid()], $arg1);
+}
+
+probe process(@mysqld).mark("query__exec__start") {
+   execquery[tid()] = user_string_n($arg1, 1024);
+}
+
+probe process(@mysqld).mark("query__exec__done") {
+   printf("[MySQL] query-exec\t'%s' status: %d\n", execquery[tid()], $arg1);
+}
+
+</pre>
+</p>
+</div>
+</p>
+<p>
+If you run it and try to access index page of Drupal CMS with your web-browser, you will see similar traces:<br /></p>
+<p>
+<pre>
+[httpd] read-request
+[httpd] read-request    GET ??? /drupal/modules/contextual/images/gear-select.png  [status: 200]                                                                            
+[httpd] process-request '/drupal/modules/contextual/images/gear-select.png'                                                                                                 
+[httpd] process-request '/drupal/modules/contextual/images/gear-select.png' access-status: 304                                                                              
+[httpd] read-request                                                                                                                                                        
+[httpd] read-request    GET ??? /drupal/  [status: 200]                                                                                                                     
+[httpd] process-request '/drupal/'                                                                                                                                          
+[ PHP ] request-startup GET '/drupal/index.php' file: /usr/local/apache2/htdocs/drupal/index.php                                                                            
+[ PHP ] function-entry  main file: index.php:19                                                                                                                             
+[ PHP ] function-return main file: index.php:19 
+…
+[ PHP ] function-entry  DatabaseStatementBase::execute file: database.inc:680 
+[MySQL] query-parse     'SELECT u.*, s.* FROM users u INNER JOIN sessions s ON u.uid = s.uid WHERE s.sid = 'yIR5hLWScBNAfwOby2R3FiDfDokiU456ZE-rBDsPfu0'' status: 0
+[MySQL] query-exec      'SELECT u.*, s.* FROM users u INNER JOIN sessions s ON u.uid = s.uid WHERE s.sid = 'yIR5hLWScBNAfwOby2R3FiDfDokiU456ZE-rBDsPfu0'' status: 0
+...
+[ PHP ] request-shutdown        GET '/drupal/index.php' file: /usr/local/apache2/htdocs/drupal/index.php 
+[httpd] process-request '/drupal/index.php' access-status: 200
+</pre>
+</p>
+<p>
+As you can see from this trace, there is a request of a static image <code>gear-select.png</code> which is resulted in status 304 and a dynamic page <code>index.php</code> which eventually accesses database to check user session.<br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+You will need to restart Apache HTTP server after you start web.stp script.<br /></div>
+<p>
+Due to high amounts of script outputs, you will need to increase buffers in DTrace. The rest of script will look similar to <code>web.stp</code>:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140000694929104')">+</button>&nbsp; Script file web.d <br/><p>
+<pre id="code140000694929104" class="hide">
+#pragma D option strsize=2048
+#pragma D option bufsize=128M
+#pragma D option switchrate=20hz
+
+ap*:::internal-redirect  {
+    printf("[httpd] redirect\t'%s' -> '%s'\n", copyinstr(arg0), copyinstr(arg1));
+}
+
+ap*:::read-request-entry {
+    printf("[httpd] read-request\n");
+}
+
+ap*:::read-request-success {
+    this->servername = (arg3) ? copyinstr(arg3) : "???";
+    
+    printf("[httpd] read-request\t%s %s %s  [status: %d]\n", 
+        copyinstr(arg1), this->servername, copyinstr(arg2), arg4);
+}
+
+ap*:::process-request-entry {
+    printf("[httpd] process-request\t'%s'\n", copyinstr(arg1));
+}
+
+ap*:::process-request-return {
+    printf("[httpd] process-request\t'%s' access-status: %d\n", 
+        copyinstr(arg1), arg2);
+}
+
+php*:::request-startup,
+php*:::request-shutdown {
+    printf("[ PHP ] %s\t%s '%s' file: %s \n", probename, 
+        copyinstr(arg2), copyinstr(arg1), copyinstr(arg0));
+}
+
+php*:::function-entry,
+php*:::function-return {
+    printf("[ PHP ] %s\t%s%s%s file: %s:%d \n", probename, 
+        copyinstr(arg3), copyinstr(arg4), copyinstr(arg0),
+        basename(copyinstr(arg1)), arg2);
+}
+
+mysql*:::query-parse-start {
+   self->parsequery = copyinstr(arg0, 1024);
+}
+
+mysql*:::query-parse-done {
+   printf("[MySQL] query-parse\t'%s' status: %d\n", self->parsequery, arg0);
+}
+
+mysql*:::query-exec-start {
+   self->execquery = copyinstr(arg0, 1024);
+}
+
+mysql*:::query-exec-done {
+   printf("[MySQL] query-exec\t'%s' status: %d\n", self->execquery, arg0);
+}
+
+</pre>
+</p>
+</div>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="java.html"><strong>Prev</strong>(Java Virtual Machine)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex7.html"><strong>Next</strong>(Exercise 7)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

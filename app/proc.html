@@ -1,0 +1,274 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 5: Application tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-right">
+<li><a href="libc.html"><strong>Next</strong>(Unix C library)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Userspace process tracing</h3></p>
+<p>
+We had covered kernel organization in detail in previous chapter, but it would be useless without userspace application that services end-user requests. It can be either simple <code>cat</code> program which we used in many previous examples to complex web application which uses web server and relational database. Like with the kernel, DTrace and SystemTap allow to set a probe to any instruction in it, however it will require additional switch to kernel space to execute the code. For example, let's install probe on a <code>read()</code> call on the side of standard C library:<br /></p>
+<p>
+<img src="../images/appprobes.png" alt="" /></p>
+<p>
+In DTrace userspace tracing is performed through <code>pid</code> provider:<br /></p>
+<p>
+<pre>
+    pid1449:libc:__read:entry
+</pre>
+</p>
+<p>
+In this example entry point of <code>__read()</code> function from standard C library is patched for process with PID=1449. You may use <code>return</code> as name for return probes, or hexadecimal number -- in this case it will represent an instruction offset inside that function. <br /></p>
+<p>
+If you need to trace binary file of application itself, you may use <code>a.out</code> as module name in probe specification. To make specifying PID of tracing process easier, DTrace provides special macro <code>$target</code> which is replaced with PID passed from <code>-p</code> option or with PID of command which was run with <code>-c</code> option:<br /></p>
+<p>
+<pre>
+# dtrace -n '
+    pid$target:a.out:main:entry { 
+        ustack(); 
+    }' -c cat
+</pre>
+</p>
+<p>
+Userspace probes are created with <code>process().function()</code> syntax in SystemTap, where process contains path of shared library or executable binary which should be traced. This syntax is similar to <code>kernel</code> syntax (as described in <a href="../lang/probes.html#stap-syntax">Probes</a>): it supports specifying line numbers, source file names, <code>.statement()</code> and <code>.return</code> probes:<br /></p>
+<p>
+<pre>
+# stap -e '
+    probe process("/lib64/libc.so.6").function("*readdir*") {
+        print_ubacktrace();
+    }' -c ls -d /usr/bin/ls
+</pre>
+</p>
+<p>
+Unlike DTrace, in SystemTap any process which invokes <code>readdir()</code> call from standard C library will be traced. Note that we used <code>-d</code> option so SystemTap will recognize symbols inside <code>ls</code> binary. If binary or library is searchable over <code>PATH</code> environment variable, you may omit path and use only library name:<br /></p>
+<p>
+<pre>
+# export PATH=$PATH:/lib64/
+# stap -e '
+    probe process("libc.so.6").function("*readdir*") {
+        [...] }' ...
+</pre>
+</p>
+<p>
+SystemTap uses <em>uprobes</em> subsystem to trace userspace processes, so <code>CONFIG_UPROBES</code> should be turned on. It was introduced in Linux 3.5. Before that, some kernels (mostly RedHat derivatives) were shipped with <em>utrace</em> which wasn't supported by vanilla kernels. It is also worth mentioning that like with kernel tracing, you will need debug information for processes you want to trace that is shipped in <code>-debuginfo</code> or <code>-dbg</code> packages.<br /></p>
+<p>
+Like with kernel probes, you may access probe arguments using <code>arg0</code>-<code>argN</code> syntax in DTrace and <code>$arg_name</code> syntax in SystemTap. Probe context is also available. Accessing data through pointers however, would require using <code>copyin()</code> functions in DTrace and <code>user_&lt;type&gt;()</code> functions in SystemTap as described in <a href="../lang/pointers.html">Pointers</a> section. <br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+Tracing multiple processes in DTrace is hard -- there is no <code>-f</code> option like in <code>truss</code>. It is also may fail if dynamic library is loaded through <code>dlopen()</code>. This limitations, however, may be bypassed by using destructive DTrace actions. Just track required processes through process creation probes or <code>dlopen()</code> probes, use <code>stop()</code> to pause process execution and start required DTrace script. <code>dtrace_helper.d</code> from JDK uses such approach.<br /></div>
+<p>
+<h4>User Statically Defined Tracing</h4></p>
+<p>
+Like in Kernel mode, DTrace and SystemTap allow to add statically defined probes to a user space program. It is usually referred to as <em>User Statically Defined Tracing</em> or <em>USDT</em>. As we discovered for other userspace probes, DTrace is not capable of tracking userspace processes and automatically register probes (as you need explicitly specify PID for <code>pid$$</code> provider). Same works for USDT -- program code needs special post-processing that will add code which will register USDT probes inside DTrace. <br /></p>
+<p>
+SystemTap, on contrary, like in case of ordinary userspace probes, uses its <em>task finder</em> subsystem to find any process that provides a userspace probe. Probes, however are kept in separate ELF section, so it also requires altering build process. Build process involves <code>dtrace</code> tool which is wrapped in SystemTap as Python script, so you can use same build process for DTrace and SystemTap. Building simple program with USDT requires six steps:<br /></p>
+<p>
+    <ul>
+        <li>
+ You will need to create a definition of tracing provider (and use <code>.d</code> suffix to savei it). For example:<br />            <p>
+            <pre>
+provider my_prog {
+    probe input__val(int);
+    probe process__val(int);
+};
+</pre>
+</p>
+    Here, provider <code>my_prog</code> defines two probes <code>input__val</code> and <code>process__val</code>. These probes take single integer argument.<br /></li>
+</ul>
+</p>
+<p>
+    <ul>
+        <li>
+ (<em>optional</em>) Than you need to create a header for this file:<br />            <p>
+            <pre>
+# dtrace -C -h -s provider.d -o provider.h
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+    <ul>
+        <li>
+ Now you need to insert probes into your program code. You may use generic <code>DTRACE_PROBEn</code> macros (in DTrace, supported by SystemTap) or <code>STAP_PROBEn</code> macros (in SystemTap) from <code>&lt;sys/sdt.h&gt;</code> header:<br />            <p>
+            <pre>
+    DTRACE_PROBE<i>n</i>(<i>provider-name</i>, <i>probe-name</i>, <i>arg1</i>, ...);
+</pre>
+</p>
+    Or you may use macros from generated header:<br />            <p>
+            <pre>
+    MY_PROG_INPUT_VAL(arg1);
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+    If probe argument requires additional computation, you may use <em>enabled</em>-macro, to check if probe was enabled by dynamic tracing system:<br /></p>
+<p>
+<pre>
+    if(MY_PROG_INPUT_VAL_ENABLED()) {
+        int arg1 = abs(val);
+        MY_PROG_INPUT_VAL(arg1);
+    }
+</pre>
+</p>
+<p>
+    In our example, program code will look like this:<br /></p>
+<p>
+<pre>
+#include <sys/sdt.h>
+
+int main() {
+    int val;
+    scanf("%d", &val);
+    DTRACE_PROBE1(my_prog, input__val, val);
+    val *= 2;
+    DTRACE_PROBE1(my_prog, process__val, val);
+    return 0;
+}
+</pre>
+</p>
+<p>
+    <ul>
+        <li>
+ Compile your source file:<br />            <p>
+            <pre>
+# gcc -c myprog.c -o myprog.o
+</pre>
+</p>
+</li>
+        <li>
+ You will also need to generate stub code for probe points or additional ELF sections, which is also performed by <code>dtrace</code> tool. Now it has to be called with <code>-G</code> option:<br />            <p>
+            <pre>
+# dtrace -C -G -s provider.d -o provider.o myprog.o
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+    <ul>
+        <li>
+ Finally, you may link your program. Do not forget to include object file from previous step:<br />            <p>
+            <pre>
+# gcc -o myprog myprog.o provider.o
+</pre>
+</p>
+    <br />Name of a probe would be enough to attach an USDT probe with DTrace:<br />            <p>
+            <pre>
+# dtrace -n '
+    input-val { 
+        printf("%d", arg0); 
+    }' 
+</pre>
+</p>
+Full name of the probe in this case will look like this: <code>my_prog10678:myprog:main:input-val</code>. Module would be name of the executable file or shared library, function is the name of C function, name of probe matches name specified in provider except that double underscores <code>__</code> was replaced with single dash <code>-</code>. Name of the provider has PID in it like <code>pid$$</code> provider does, but unlike it you can attach probes to multiple instances of the program even before they are running. <br /></li>
+</ul>
+</p>
+<p>
+USDT probes are available via <code>process</code> tapset:<br /></p>
+<p>
+<pre>
+# stap -e '
+    probe process("./myprog").mark("input__val") { 
+        println($arg1); 
+    }'
+</pre>
+</p>
+<p>
+Full name of the probe will use following naming schema:<br /></p>
+<p>
+<pre>
+process("<i>path-to-program</i>").provider("<i>name-of-provider</i>").mark("<i>name-of-probe</i>")
+</pre>
+</p>
+<p>
+Note that unlike DTrace, SystemTap won't replace underscores with dashes<br /></p>
+<p>
+To implement probe registration, Solaris keeps it in special ELF section called <code>.SUNW_dof</code>:<br /></p>
+<p>
+<pre>
+# elfdump ./myprog | ggrep -A 4 SUNW_dof
+Section Header[19]:  sh_name: .SUNW_dof
+    sh_addr:      0x8051708       sh_flags:   [ SHF_ALLOC ]
+    sh_size:      0x7a9           sh_type:    [ SHT_SUNW_dof ]
+    sh_offset:    0x1708          sh_entsize: 0
+    sh_link:      0               sh_info:    0
+    sh_addralign: 0x8
+</pre>
+</p>
+<p>
+Linux uses ELF <em>notes</em> capability to save probes information:<br /></p>
+<p>
+<pre>
+# readelf -n ./myprog | grep stapsdt
+  stapsdt               0x00000033      Unknown note type: (0x00000003)
+  stapsdt               0x00000035      Unknown note type: (0x00000003)
+</pre>
+</p>
+<p>
+Because of the nature of DTrace probes which are registered dynamically, they could be generated dynamically. We will see it in <a href="java.html#jsdt">JSDT</a>. Another implementation of dynamic DTrace probes is <a href="https://github.com/chrisa/libusdt">libusdt</a> library.<br /></p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+ SystemTap Wiki: <a href="https://sourceware.org/systemtap/wiki/AddingUserSpaceProbingToApps">Adding User Space Probing to an Application</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="libc.html"><strong>Next</strong>(Unix C library)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

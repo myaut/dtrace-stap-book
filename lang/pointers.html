@@ -1,0 +1,219 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="vars.html"><strong>Prev</strong>(Types and Variables)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="strstr.html"><strong>Next</strong>(Strings and Structures)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Pointers</h3></p>
+<p>
+<em>Pointer</em> is a special variable in C language that points (references) to a some data in memory, thus pointer usually contains address of that data. It is common way to keep complex data structures in dynamically allocated memory, and pass a pointer between functions or share data among them by using same pointers at all consumers. SystemTap supports pointers in DWARF variables, but for locals it treats them as <code>long</code>. DTrace simulates full support of pointers, arrays and even dynamic allocation of them. To create a pointer you can use <code>&</code> operator like you do in C.<br /></p>
+<p>
+Things in kernel get complicated because some pointers are point to a <em>user address space</em> which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues <code>open()</code> system call, it keeps <code>pathname</code> argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, <code>badp</code> is bad pointer, which points nowhere, <code>kstr</code> points to a data in <em>kernel address space</em>, while <code>ustr</code> references string in <em>user address space</em>:<br /></p>
+<p>
+<img src="../images/pointers.png" alt="" /></p>
+<p>
+Accessing a data in kernel address space in DTrace is performed by simple dereferencing it in C-style. For example, <code>fop_open()</code> function accepts pointer to pointer to <code>vnode_t</code>, so to get actual address of <code>vnode_t</code>, you need to dereference it:<br /></p>
+<p>
+<pre>
+# dtrace -n '
+    fbt::fop_open:entry { 
+        printf("0x%p", (uintptr_t) *args[0]); }'
+</pre>
+</p>
+<p>
+User address space may be read in DTrace by using <code>copyin</code>, <code>copyinstr</code> or <code>copyinstr</code> subroutines, or be overwritten with <code>copyout</code>/<code>copyoutstr</code> (requires destructive actions to be allowed). For example, <code>poll</code> system call accepts array of <code>fds</code>, which are located in userspace and should be copied into address space of script before being printed:<br /></p>
+<p>
+<pre>
+# dtrace -n '
+    this struct pollfd* fd0;
+    
+    syscall::pollsys:entry
+    /arg1 != 0/
+    {
+        this->fd0 = copyin(arg0, sizeof(struct pollfd));
+        printf("%s: poll %d\n", execname, this->fd0->fd);  }'
+</pre>
+</p>
+<p>
+SystemTap allow to access kernel and user memory through set of functions which are implemented in tapsets <code>conversions.stp</code> and <code>conversions-guru.stp</code>. They also allow to specify different types such as <code>ulong</code> or <code>int16</code>, but they silently convert their result to <code>long</code> or <code>string</code>    <ul>
+        <li>
+<code>kernel_&lt;type&gt;</code> reads kernel memory. For example, <code>vfs_write</code> call changes file position, thus it gets position as pointer to a <code>struct file</code> member or a stack variable. To trace it, we have to dereference it:<br />            <p>
+            <pre>
+# stap -e '
+    probe kernel.function("vfs_write").return {
+        off = kernel_long($pos);
+        printf("write: off=%d\n", off);    }'
+</pre>
+</p>
+</li>
+        <li>
+<code>set_kernel_&lt;type&gt;</code> writes kernel memory if Guru-mode is enabled<br /> </li>
+        <li>
+<code>user_&lt;type&gt;</code> reads userspace memory<br /> </li>
+        <li>
+<code>kread()</code> used for safely reading kernel space in Embedded C<br /> </li>
+</ul>
+</p>
+<p>
+Summarizing all that, we should use following to read or write first character of strings in example above:<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+</td>
+            <td>
+</td>
+            <td>
+<code>kptr</code></td>
+            <td>
+<code>badp</code></td>
+            <td>
+<code>uptr</code></td>
+</tr>
+        <tr>
+            <td  rowspan="2">
+ DTrace </td>
+            <td>
+<strong>read</strong></td>
+            <td>
+<code>*((char*) arg0)</code></td>
+            <td>
+<code>*((char*) arg0)</code></td>
+            <td>
+<code>*((char*) copyin(arg0, 1))</code></td>
+</tr>
+        <tr>
+            <td>
+<strong>write</strong></td>
+            <td  colspan="2">
+</td>
+            <td>
+ Use copyout (see below)</td>
+</tr>
+        <tr>
+            <td  rowspan="2">
+ SystemTap </td>
+            <td>
+<strong>read</strong></td>
+            <td>
+<code>kernel_char($kptr)</code></td>
+            <td>
+<code>kernel_char($badp)</code> with try-catch block </td>
+            <td>
+<code>user_char($uptr)</code></td>
+</tr>
+        <tr>
+            <td>
+<strong>write</strong></td>
+            <td>
+<code>set_kernel_char($kptr, 'M')</code></td>
+            <td>
+<code>set_kernel_char($badp, 'M')</code> with try-catch block </td>
+            <td>
+</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Example for <code>copyout</code>:<br /></p>
+<p>
+<pre>
+this->c = (char*) alloca(1); 
+*this->c = 'M'; 
+copyout(this->c, arg0, 1);</pre>
+</p>
+<p>
+<h4>Safety notes</h4></p>
+<p>
+To avoid system panicking, before actually access memory through raw pointer, DTrace and SystemTap have to:<br />     <ul>
+        <li>
+ Check correctness of userspace pointer by comparing it with base address<br /> </li>
+        <li>
+ Check correctness of address by comparing it to a forbidden segments  (such as OpenFirmware locations in SPARC).<br /> </li>
+        <li>
+ Add extra checks to page fault interrupt handlers (in case of DTrace) or temporarily disable pagefaults (SystemTap)<br /></li>
+</ul>
+</p>
+<p>
+If you access to inorrect address, DTrace will warn you, but continue execution:<br /><code>dtrace: error on enabled probe ID 1 (ID 1: dtrace:::BEGIN): invalid address (0x4) <br /> in action #1 at DIF offset 16</code><br />SystemTap prints similiar message and then fail:<br /><code>ERROR: kernel string copy fault at 0x0000000000000001 near identifier <br /> 'kernel_string' at /usr/share/systemtap/tapset/conversions.stp:18:10</code></p>
+<span class="label label-warning">Warning</span><div class="well">
+Sometimes even correct addresses cause faults if data they point to is not in memory. <br /></div>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-pointers/index.html">Pointers and arrays</a></li>
+        <li>
+<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/conversions.stp.html">String and data retrieving functions Tapset</a></li>
+        <li>
+<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/conversions-guru.stp.html">String and data writing functions Tapset</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="vars.html"><strong>Prev</strong>(Types and Variables)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="strstr.html"><strong>Next</strong>(Strings and Structures)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

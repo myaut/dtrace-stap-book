@@ -1,0 +1,447 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Appendix B. Lab setup</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Web application stack</h3></p>
+<p>
+We will need to setup web stack to complete <a href="../app/ex7.html">exercise 7</a>. We will use following applications: web server <em>Apache HTTPD 2.4</em>, relational database <em>MySQL Community Edition 5.6</em> and PHP interpreter <em>PHP 5.6</em>, and content management system <em>Drupal 7</em> on top of them. This guide can be used to setup both CentOS 7 and Solaris 11 except for few commands (they will be marked). We will need to build these programs from source codes to enable USDT probes in them.<br /></p>
+<span class="label label-important">DANGER!</span><div class="well">
+This guide is intended for lab setup. It could lack security, so do not use it for production systems.<br /></div>
+<p>
+<h5>Download programs sources</h5></p>
+<p>
+    <ul>
+        <li>
+ Download sources with <code>wget</code>:<br />            <p>
+            <pre>
+# wget http://us3.php.net/distributions/php-5.6.10.tar.bz2
+# wget http://cdn.mysql.com/Downloads/MySQL-5.6/mysql-5.6.25.tar.gz
+# wget http://archive.apache.org/dist/httpd/httpd-2.4.9.tar.gz
+# wget http://archive.apache.org/dist/httpd/httpd-2.4.9-deps.tar.gz
+</pre>
+</p>
+</li>
+        <li>
+ We will also need patch for Apache HTTPD build system:<br />            <p>
+            <pre>
+# wget -O dtrace.patch https://bz.apache.org/bugzilla/attachment.cgi?id=31665
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only CentOS7</em>) Remove programs that were installed from package repositories and install some dependencies:<br />            <p>
+            <pre>
+# yum erase php mysql mysql-server httpd
+# yum install libxml2-devel bzip2
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only Solaris</em>) We will have to use GNU Make for all builds, so make an alias to maintain guide uniformity:<br />            <p>
+            <pre>
+# alias make=gmake
+</pre>
+</p>
+</li>
+        <li>
+ Unpack downloaded archives<br />            <p>
+            <pre>
+# tar xzvf httpd-2.4.9.tar.gz
+# tar xzvf mysql-5.6.25.tar.gz 
+# tar xjvf php-5.6.10.tar.bz2 
+# tar xzvf httpd-2.4.9-deps.tar.gz
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+<h5>Build and install MySQL from sources</h5></p>
+<p>
+    <ul>
+        <li>
+ Change current directory to one with sources:<br />            <p>
+            <pre>
+# cd mysql-5.6.25
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only CentOS7</em>) Install dependencies:<br />            <p>
+            <pre>
+# yum install cmake bison ncurses-devel gcc-c++
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only Solaris</em>) Install dependencies: <br />            <p>
+            <pre>
+# pkg install pkg:/developer/build/cmake
+# pkg install pkg:/developer/parser/bison
+</pre>
+</p>
+</li>
+        <li>
+ Build and install MySQL (it would be installed into <code>/usr/local/mysql</code>)<br />            <p>
+            <pre>
+# cmake --enable-dtrace . 
+# make -j4 
+# make install
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+<h5>Build and install Apache HTTPD from sources</h5></p>
+<p>
+    <ul>
+        <li>
+ Change current directory to one with sources:<br />            <p>
+            <pre>
+# cd ../httpd-2.4.9
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only CentOS7</em>) Install dependencies: <br />            <p>
+            <pre>
+# yum install pcre-devel autoconf flex patch
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only Solaris</em>) Install dependencies: <br />            <p>
+            <pre>
+# pkg install pkg:/developer/build/autoconf 
+# pkg install pkg:/developer/macro/gnu-m4
+# pkg install pkg:/developer/lexer/flex
+</pre>
+</p>
+</li>
+        <li>
+ Apply patch to a build system and recreate configure script:<br />            <p>
+            <pre>
+# patch -p0 < ../dtrace.patch
+# autoconf
+</pre>
+</p>
+</li>
+        <li>
+ Create file for building MPM:<br />            <p>
+            <pre>
+# (cd server/mpm/event/ && 
+    echo "$(pwd)/event.o $(pwd)/fdqueue.o" > libevent.objects)
+</pre>
+</p>
+</li>
+        <li>
+ Fix <code>server/Makefile.in</code> file:<br />            <p>
+            <pre>
+# sed -i 's/apache_probes.h/"apache_.*probes.h"/' server/Makefile.in
+</pre>
+</p>
+</li>
+        <li>
+ Build and install Apache HTTPD (it would be installed into <code>/usr/local/apache2</code>):<br />            <p>
+            <pre>
+# ./configure --with-included-apr --enable-dtrace
+# make -j4 
+# make install
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+<h5>Build and install PHP interpreter from sources</h5></p>
+<p>
+    <ul>
+        <li>
+ Change current directory to one with sources:<br />            <p>
+            <pre>
+# cd php-5.6.10
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only CentOS7</em>) Install dependencies: <br />            <p>
+            <pre>
+# yum install libjpeg-turbo-devel libpng12-devel
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only Solaris</em>) Install dependencies: <br />            <p>
+            <pre>
+# pkg install pkg:/system/library/gcc-45-runtime
+</pre>
+</p>
+</li>
+        <li>
+ Build and install PHP:<br />            <p>
+            <pre>
+# ./configure --enable-debug --enable-dtrace --with-mysql       \ 
+    --with-apxs2=/usr/local/apache2/bin/apxs --without-sqlite3  \  
+    --without-pdo-sqlite --with-iconv-dir --with-jpeg-dir       \
+    --with-gd --with-pdo-mysql
+# make -j4
+# make install
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+<h5>Setup MySQL database</h5></p>
+<p>
+    <ul>
+        <li>
+ Change directory to a MySQL root directory:<br />            <p>
+            <pre>
+# cd /usr/local/mysql
+</pre>
+</p>
+</li>
+        <li>
+ (<em>Only CentOS7</em>) Create mysql user:<br />            <p>
+            <pre>
+# groupadd -g 666 mysql
+# useradd -u 666 -g mysql -d /usr/local/mysql/home/ -m mysql
+</pre>
+</p>
+</li>
+        <li>
+ Create data files:<br />            <p>
+            <pre>
+# chown -R mysql:mysql data/
+# ./scripts/mysql_install_db
+</pre>
+</p>
+</li>
+        <li>
+ Create <code>/etc/my.cnf</code> configuration file:<br />            <p>
+            <pre>
+# cat > /etc/my.cnf << EOF
+[mysqld]
+datadir=/usr/local/mysql/data
+socket=/tmp/mysql.sock
+user=mysql
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+bind-address=0.0.0.0 
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+EOF
+</pre>
+</p>
+</li>
+        <li>
+ Create log file and directory for PID file:<br />            <p>
+            <pre>
+# touch /var/log/mysqld.log && chown mysql:mysql /var/log/mysqld.log
+# mkdir /var/run/mysqld/ && chown mysql:mysql /var/run/mysqld/
+</pre>
+</p>
+</li>
+        <li>
+ Fill system tables:<br />            <p>
+            <pre>
+# chown -R mysql:mysql data/
+# ./scripts/mysql_install_db --ldata=/usr/local/mysql/data
+</pre>
+</p>
+</li>
+        <li>
+ Start mysqld daemon:<br />            <p>
+            <pre>
+# ./support-files/mysql.server start
+</pre>
+</p>
+</li>
+        <li>
+ Set MySQL root password to <code>changeme</code>:<br />            <p>
+            <pre>
+# /usr/local/mysql/bin/mysqladmin -u root password changeme
+</pre>
+</p>
+</li>
+        <li>
+ Create drupal user in MySQL:<br />            <p>
+            <pre>
+# /usr/local/mysql/bin/mysql --user=root -p mysql -h localhost
+Enter password: changeme
+mysql> CREATE USER 'drupal'@'localhost' IDENTIFIED BY 'password';
+mysql> GRANT ALL PRIVILEGES ON * . * TO 'drupal'@'localhost';
+mysql> FLUSH PRIVILEGES;
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+<h5>Setup Apache and PHP interpreter</h5></p>
+<p>
+    <ul>
+        <li>
+ (<em>Only CentOS7</em>) Disable firewall:<br />            <p>
+            <pre>
+# systemctl disable firewalld
+# systemctl stop firewalld
+</pre>
+</p>
+</li>
+        <li>
+ Change directory to HTTPD root directory:<br />            <p>
+            <pre>
+# cd /usr/local/apache2
+</pre>
+</p>
+</li>
+        <li>
+ Make a backup copy of configuration file and add PHP 5 support to it (you will have to use <code>gsed</code> instead of <code>sed</code> in Solaris): <br />            <p>
+            <pre>
+# cp conf/httpd.conf conf/httpd.conf.orig
+# sed -re 's/^(\s*DirectoryIndex.*)/\1 index.php/' conf/httpd.conf.orig > conf/httpd.conf        
+# cat >> conf/httpd.conf <<EOF
+# Use for PHP 5.x:
+LoadModule php5_module        modules/libphp5.so
+AddHandler php5-script  .php
+EOF
+</pre>
+</p>
+</li>
+        <li>
+ Start Apache HTTPD:<br />            <p>
+            <pre>
+# ./bin/httpd
+</pre>
+</p>
+</li>
+</ul>
+</p>
+<p>
+<h5>Install Drupal 7 </h5></p>
+<p>
+    <ul>
+        <li>
+ Change to a directory with web documents:<br />            <p>
+            <pre>
+# cd /usr/local/apache2/htdocs
+</pre>
+</p>
+</li>
+        <li>
+ Download and unpack Drupal 7:<br />            <p>
+            <pre>
+# cd /tmp
+# wget http://ftp.drupal.org/files/projects/drupal-7.38.zip
+# cd /usr/local/apache2/htdocs/
+# unzip /tmp/drupal-7.38.zip
+# mv drupal-7.38/ drupal/
+# chown -R daemon:daemon .
+</pre>
+</p>
+</li>
+        <li>
+ Create <code>drupal</code> database:<br />            <p>
+            <pre>
+# /usr/local/mysql/bin/mysql --user=drupal -p -h localhost 
+Enter password: password
+mysql> CREATE DATABASE drupal;
+</pre>
+</p>
+</li>
+        <li>
+ Enter <code>http://SERVER ADDRESS/drupal/install.php</code> in web browser and follow Drupal installer instructions. Use following parameters when setting up database:<br />    </li>
+        <ul>
+            <li>
+ Database name: drupal<br />    </li>
+            <li>
+ Database username: drupal<br />    </li>
+            <li>
+ Database password: password<br /></li>
+</ul>
+</ul>
+</p>
+<p>
+<h5>Install Drupal module devel and setup test data</h5></p>
+<p>
+    <ul>
+        <li>
+ Download and install it:<br />            <p>
+            <pre>
+# wget -O /tmp/devel-7.x-1.5.tar.gz http://ftp.drupal.org/files/projects/devel-7.x-1.5.tar.gz
+# cd /usr/local/apache2/htdocs/drupal/modules 
+# tar xzvf /tmp/devel-7.x-1.5.tar.gz
+</pre>
+</p>
+</li>
+        <li>
+ Access index page of Drupal, choose <em>Modules</em> in top-level menu, and check <em>Devel</em> and <em>Devel generate</em> in the shown list, then click on <em>Save Configuration</em>.<br /> </li>
+        <li>
+ After enabling modules, choose <em>Configure</em> for <em>Devel generate</em> module, and choose <em>Generate content</em> in a menu, pick option <em>Article</em> and click <em>Generate</em>. 50 test pages should appear at index page.<br /> </li>
+</ul>
+</p>
+<span class="label label-info">Note</span><div class="well">
+To start services, use following commands:<br />    <p>
+    <pre>
+# /usr/local/mysql/support-files/mysql.server start
+# /usr/local/apache2/bin/httpd
+</pre>
+</p>
+</div>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

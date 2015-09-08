@@ -1,0 +1,155 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Module 2: Dynamic tracing languages</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="context.html"><strong>Prev</strong>(Context)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="vars.html"><strong>Next</strong>(Types and Variables)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Predicates </h3></p>
+<p>
+<em>Predicates</em> are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and logical operators <code>&&</code> for logical AND, <code>||</code> for logical OR and <code>!</code> for logical negation, alas with calling functions or actions.<br /></p>
+<p>
+In DTrace predicate is a separate language construct which is going in slashes <code>/</code> immediately after list of probe names. If it evaluated to true, probe is <strong>executed</strong>:<br /></p>
+<p>
+<pre>
+syscall::write:entry 
+/pid == $target/
+{
+    printf("Written %d bytes", args[3]);
+}
+</pre>
+</p>
+<p>
+In SystemTap, however, there is no separate predicate language construct, but it supports conditional statement and <code>next</code> statement which exits from the probe, so combining them will give similar effect:<br /></p>
+<p>
+<pre>
+probe syscall.write {
+    if(pid() != target())
+        next;
+    printf("Written %d bytes", $count);
+}
+</pre>
+</p>
+<p>
+Note that in SystemTap, probe will be <strong>omitted</strong> if condition in <code>if</code> statement is evaluated to true thus making this logic inverse to DTrace.<br /></p>
+<p>
+Starting with SystemTap 2.6, it supports mechanism similar to predicates which is called on-the-fly arming/disarming. When it is active, probes will be installed only when certain condition will become true. For example:<br /></p>
+<p>
+<pre>
+probe syscall.write if(i > 4) {
+        printf("Written %d bytes", $count);
+}
+</pre>
+</p>
+<p>
+This probe will be installed when <code>i</code> becomes more than four. <br /></p>
+<p>
+<code>$target</code> in DTrace (macro-substitution) and <code>target()</code> context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as <code>-c</code> option argument or its PID was passed as <code>-p</code>/<code>-x</code> option argument). In these examples only <code>write</code> syscalls from traced process will be printed.<br /></p>
+<span class="label label-warning">Warning</span><div class="well">
+Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with <code>stp_pid()</code> which returns PID of consumer.<br /></div>
+<p>
+Sometimes, if target process forking and you need to trace its children, like with <code>-f</code> option in <code>truss</code>/<code>strace</code>, comparing <code>pid()</code> and even <code>ppid()</code> is not enough. In this case you may use DTrace subroutine <code>progenyof()</code> which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, <code>progenyof(1)</code> will be true for all userspace processes because they are all children to the <code>init</code>.<br /></p>
+<p>
+<code>progenyof()</code> is missing in SystemTap, but it can be simulated with <code>task_*()</code> functions and the following SystemTap script (these functions are explained in <a href="../kernel/proc.html#task-funcs">Process Management</a>):<br /></p>
+<p>
+<pre>
+function progenyof(pid:long) {
+    parent = task_parent(task_current());
+    task = pid2task(pid);
+
+    while(parent && task_pid(parent) > 0) {
+        if(task == parent)
+            return 1;
+
+        parent = task_parent(parent);
+    }
+}
+
+probe syscall.open { 
+    if(progenyof(target())) 
+            printdln(" ", pid(), execname(), filename);
+}
+</pre>
+</p>
+<p>
+Assume that 2953 is a process ID of bash interactive session, where we open child <code>bash</code> and call <code>cat</code> there:<br /></p>
+<p>
+<pre>
+root@lktest:~# bash
+root@lktest:~# ps
+    PID TTY          TIME CMD
+    2953 pts/1    00:00:01 bash
+    4794 pts/1    00:00:00 bash
+    4800 pts/1    00:00:00 ps
+root@lktest:~# cat /etc/passwd
+[...]
+</pre>
+</p>
+<p>
+<code>cat</code> is shown by this script even if it is not direct ancestor of <code>bash</code> process that we are tracing:<br /></p>
+<p>
+<pre>
+# stap ./progeny.stp -x 2953 | grep passwd
+4801 cat /etc/passwd
+</pre>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="context.html"><strong>Prev</strong>(Context)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="vars.html"><strong>Next</strong>(Types and Variables)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

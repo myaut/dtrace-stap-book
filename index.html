@@ -1,0 +1,235 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	
+	<title>Dynamic Tracing with DTrace & SystemTap</title>
+	
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<h1>Dynamic Tracing with DTrace & SystemTap</h1><p>
+<em>Sergey Klyaus</em></p>
+<p>
+Copyright © 2011-2015 Sergey Klyaus<br /></p>
+<p>
+This work is licensed under the  Creative Commons Attribution-Noncommercial-ShareAlike 3.0 License. To view a copy of this license, visit <a href="http://creativecommons.org/licenses/by/3.0/">http://creativecommons.org/licenses/by/3.0/</a> or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.<br /></p>
+<p>
+<h3>Introduction</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="intro/foreword.html">Foreword</a></li>
+        <li>
+<a href="intro/tsload.html">TSLoad workload generator</a></li>
+        <li>
+<a href="intro/oskernel.html">Operating system Kernel</a></li>
+</ul>
+</p>
+<p>
+<h3>Module 1: Dynamic tracing tools. dtrace and stap tools</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="tools/tracing.html">Tracing</a></li>
+        <li>
+<a href="tools/dyntrace.html">Dynamic tracing</a></li>
+        <li>
+<a href="tools/dtrace.html">DTrace</a></li>
+        <li>
+<a href="tools/systemtap.html">SystemTap</a></li>
+        <li>
+<a href="tools/safety.html">Safety and errors</a></li>
+        <li>
+<a href="tools/stability.html">Stability</a></li>
+</ul>
+</p>
+<p>
+<h3>Module 2: Dynamic tracing languages</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="lang/intro.html">Introduction</a></li>
+        <li>
+<a href="lang/probes.html">Probes</a></li>
+        <li>
+<a href="lang/args.html">Arguments</a></li>
+        <li>
+<a href="lang/context.html">Context</a></li>
+        <li>
+<a href="lang/predicates.html">Predicates</a></li>
+        <li>
+<a href="lang/vars.html">Types and Variables</a></li>
+        <li>
+<a href="lang/pointers.html">Pointers</a></li>
+        <li>
+<a href="lang/strstr.html">Strings and Structures</a></li>
+        <ul>
+            <li>
+<a href="lang/ex1.html">Exercise 1</a></li>
+</ul>
+        <li>
+<a href="lang/assocarr.html">Associative arrays and aggregations</a></li>
+        <li>
+<a href="lang/time.html">Time</a></li>
+        <li>
+<a href="lang/print.html">Printing and speculations</a></li>
+        <li>
+<a href="lang/tapset.html">Tapsets & translators</a></li>
+        <ul>
+            <li>
+<a href="lang/ex2.html">Exercise 2</a></li>
+</ul>
+</ul>
+</p>
+<p>
+<h3>Module 3: Principles of dynamic tracing</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="principles/apply.html">Applying tracing</a></li>
+        <li>
+<a href="principles/dyncode.html">Dynamic code analysis</a></li>
+        <li>
+<a href="principles/profiling.html">Profiling</a></li>
+        <li>
+<a href="principles/perf.html">Performance analysis</a></li>
+        <li>
+<a href="principles/prepost.html">Pre- and post-processing</a></li>
+        <li>
+<a href="principles/viz.html">Vizualization</a></li>
+</ul>
+</p>
+<p>
+<h3>Module 4: Operating system kernel tracing</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="kernel/proc.html">Process management</a></li>
+        <ul>
+            <li>
+<a href="kernel/ex3.html">Exercise 3</a></li>
+</ul>
+        <li>
+<a href="kernel/sched.html">Process scheduler</a></li>
+        <li>
+<a href="kernel/virtmem.html">Virtual Memory</a></li>
+        <ul>
+            <li>
+<a href="kernel/ex4.html">Exercise 4</a></li>
+</ul>
+        <li>
+<a href="kernel/fs.html">Virtual File System</a></li>
+        <li>
+<a style="color: red" href="kernel/bio.html">Block Input-Output</a></li>
+        <li>
+<a style="color: red" href="kernel/async.html">Asynchronity in kernel</a></li>
+        <ul>
+            <li>
+<a style="color: red" href="kernel/ex5.html">Exercise 5</a></li>
+</ul>
+        <li>
+<a style="color: red" href="kernel/net.html">Network Input-Output</a></li>
+        <li>
+<a style="color: red" href="kernel/sync.html">Synchronization primitives</a></li>
+        <li>
+<a style="color: red" href="kernel/irq.html">Interrupt handling</a></li>
+</ul>
+</p>
+<p>
+<h3>Module 5: Application tracing</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="app/proc.html">Userspace process tracing</a></li>
+        <li>
+<a href="app/libc.html">Unix C library</a></li>
+        <ul>
+            <li>
+<a href="app/ex6.html">Exercise 6</a></li>
+</ul>
+        <li>
+<a href="app/java.html">Java Virtual Machine</a></li>
+        <li>
+<a href="app/web.html">Web applications</a></li>
+        <ul>
+            <li>
+<a href="app/ex7.html">Exercise 7</a></li>
+</ul>
+</ul>
+</p>
+<p>
+<h3>Appendix A. Exercise hints and solutions </h3></p>
+<p>
+    <ul>
+        <li>
+<a href="hints/ex1.html">Exercise 1</a></li>
+        <li>
+<a href="hints/ex2.html">Exercise 2</a></li>
+        <li>
+<a href="hints/ex3.html">Exercise 3</a></li>
+        <li>
+<a href="hints/ex4.html">Exercise 4</a></li>
+        <li>
+<a style="color: red" href="hints/ex5.html">Exercise 5</a></li>
+        <li>
+<a href="hints/ex6.html">Exercise 6</a></li>
+        <li>
+<a href="hints/ex7.html">Exercise 7</a></li>
+</ul>
+</p>
+<p>
+<h3>Appendix B. Lab setup</h3></p>
+<p>
+    <ul>
+        <li>
+<a href="lab/os.html">Setting up Operating Systems</a></li>
+        <li>
+<a style="color: red" href="lab/iscsi.html">iSCSI</a></li>
+        <li>
+<a href="lab/web.html">Web application stack</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
