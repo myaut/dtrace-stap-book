@@ -5,7 +5,7 @@ Process _scheduler_ is a key component of modern multitasking operating systems 
 !!!
 
 !!! DEF
-When scheduler desides that one task should leave CPU to run another one, scheduler calls a _dispatcher_ that performs a _context switch_. Context switch changes `current`/`curthread` pointer so when mode switched back to userspace, new task will be picked with appropriate address space and registers values. If context switches are rare, that can cause task _starvation_ and user can notice that system become unresponsive, of context switches are too often, TLB will be cleared too often, caches will be cold, so performance will degrade, so picking an optimal _timeslice_ allocated to a task is a hard choice.
+When scheduler decides that one task should leave CPU to run another one, scheduler calls a _dispatcher_ that performs a _context switch_. Context switch changes `current`/`curthread` pointer so when mode switched back to userspace, new task will be picked with appropriate address space and registers values. If context switches are rare, that can cause task _starvation_ and user can notice that system become unresponsive, of context switches are too often, TLB will be cleared too often, caches will be cold, so performance will degrade, so picking an optimal _timeslice_ allocated to a task is a hard choice.
 !!!
 
 In Solaris functions of the scheduler is invoked through `swtch()` function, in Linux through `schedule()` functions and set of derivatives like `cond_resched()`. 
@@ -23,7 +23,7 @@ In scheduler, context switching may be split in two steps:
  * New task is picked to be run on CPU **(2)**. When CPU resumes from kernel mode, interrupt or system call, it changes context to a new task, like in `resume()` low-level routine of Solaris. 
 Context switch may be traced in SystemTap with `scheduler.ctxswitch` probe.
 
-OS creates at least one run-queue per CPU in SMP systems. When some CPU prepares to become idle, it may check run-queues of other CPUs and _steal_ task from it, thus task _migrates_ **(5)** between CPUs. This  allows to balance tasks across CPUs, but other factors like NUMA locality of process memory, cache hotness should be taken into account. Migration may be tracked by with `scheduler.migrate` probe in SystemTap. DTrace doesn't provide special probe for that, but it may be tracked comparing CPU ids in `on-cpu` and `off-cpu` probes:
+OS creates at least one run-queue per CPU in SMP systems. When some CPU prepares to become idle, it may check run-queues of other CPUs and _steal_ task from it, thus task _migrates_ **(5)** between CPUs. This allows to balance tasks across CPUs, but other factors like NUMA locality of process memory, cache hotness should be taken into account. Migration may be tracked by with `scheduler.migrate` probe in SystemTap. DTrace doesn't provide special probe for that, but it may be tracked comparing CPU ids in `on-cpu` and `off-cpu` probes:
 
 ```
 # dtrace -n '
@@ -78,20 +78,20 @@ The following table shows scheduler classes implemented in Solaris.
 
 ---
 __Class__ | __Priority range__ | __Description__
- - | 160-169 | Interrupt threads (they are not handled by scheduler explicitly)
-RT | 100-159 | _RealTime_ processes and threads
-SYS | 60-99 | _SYStem_ -- for kernel threads which always have precedence over user processes. Also, timeslices are allocated to them, they consume as much processor time as they can
+ - | 160-169 | Interrupt threads (they are not handled by scheduler explicitly).
+RT | 100-159 | _RealTime_ processes and threads.
+SYS | 60-99 | _SYStem_ -- for kernel threads which always have precedence over user processes. Also, timeslices are allocated to them, they consume as much processor time as they can.
 SYSDC | 0-99 | _SYStem Duty Cycles_ -- for CPU-bound kernel threads like ZFS pipeline (which involves encryption and compression). This class is implemented to prevent userspace starvation under heavy I/O load.
-TS and IA | 0-59 | _Time Sharing_ and _InterActive_ -- default classes for userspace processes. TS class has dynamic priorities: if thread had consumed entire timeslice, its priority is reduced to give room to other threads. IA is a modification of TS class which also adds small "boost" (usually, 10 priorities) for processes which have focused window (useful for graphics stations)
-FX | 0-59 | _FiXed_ -- unlike TS/IA, such processes never change their priorities unless it is done by user themself
-FSS | 0-59 | _Fair Share Scheduler_ -- allows to distribute processor time proportionally between groups of processes such as zones or projects
+TS and IA | 0-59 | _Time Sharing_ and _InterActive_ -- default classes for userspace processes. TS class has dynamic priorities: if thread had consumed entire timeslice, its priority is reduced to give room to other threads. IA is a modification of TS class which also adds small "boost" (usually, 10 priorities) for processes which have focused window (useful for graphics stations).
+FX | 0-59 | _FiXed_ -- unlike TS/IA, such processes never change their priorities unless it is done by user themself.
+FSS | 0-59 | _Fair Share Scheduler_ -- allows to distribute processor time proportionally between groups of processes such as zones or projects.
 ---
 
 Solaris dispatcher control structures are shown on the following picture:
 
 ![image:sol-sched](solaris/sched.png)
 
-Each processor has corresponding `cpu_t` structure, which includes two pointers to threads: `cpu_dispthread` -- a thread chosen by scheduler to be the next process after resume, and `cpu_thread` -- process whcih is currently is on CPU. `cpu_last_swtch` contains time of last context switch in lbolts (changed into high-resolution time in nanoseconds in Solaris 11). Each `cpu_t` has dispatcher queue represented by `disp_t` structure and corresponding array of queue heads of type `dispq_t`. Each queue head has links to first and last thread in queue (`kthread_t` objects are linked through `t_link` pointer) and `dq_sruncnt` -- number of threads in this queue. 
+Each processor has corresponding `cpu_t` structure, which includes two pointers to threads: `cpu_dispthread` -- a thread chosen by scheduler to be the next process after resume, and `cpu_thread` -- process which is currently is on CPU. `cpu_last_swtch` contains time of last context switch in lbolts (changed into high-resolution time in nanoseconds in Solaris 11). Each `cpu_t` has dispatcher queue represented by `disp_t` structure and corresponding array of queue heads of type `dispq_t`. Each queue head has links to first and last thread in queue (`kthread_t` objects are linked through `t_link` pointer) and `dq_sruncnt` -- number of threads in this queue. 
 
 `disp_t` refers queues through `disp_q` pointer which refers first queue with priority 0 and `disp_q_limit` which points one entry beyound array of dispatcher queues. `disp_qactmap` contains bitmap of queues that have active processes at the moment. `disp_npri` is the number of priorities serviced by this dispatcher object -- it should be 160. `disp_maxrunpri` contains maximum priority of a thread in this dispatcher object -- it will be top-most queue which has active processes and when thread will be switched, this queue will be checked first. `disp_max_unbound_pri` also contains maximum priority of a thread, but only for a thread that is not bound to a corresponding processor and thus may be considered a candidate for task-stealing by free CPUs. Finally, `disp_nrunnable` has total number of runnable threads which is serviced by this dispatcher object. 
 
@@ -99,7 +99,7 @@ Each processor has corresponding `cpu_t` structure, which includes two pointers 
 Newer Solaris 11 versions use `hrtime_t` type for `cpu_last_swtch` (high-resolution unscaled time).
 !!!
 
-By default Solaris userspace processes use TS scheduler, so let look into it. Key parameter that used in it is `ts_timeleft` which keeps remaining thread timeslice. Initial value of `ts_timeleft` is taken from table `ts_dptbl` from field `ts_quantum`. Each row in that table matches priority level, so processes with lower priorities will have larger quantums (because they will get CPU rarely). You can check that table and override its values with dispadmin command, for example:
+By default Solaris userspace processes use TS scheduler, so let's look into it. Key parameter that used in it is `ts_timeleft` which keeps remaining thread timeslice. Initial value of `ts_timeleft` is taken from table `ts_dptbl` from field `ts_quantum`. Each row in that table matches priority level, so processes with lower priorities will have larger quantums (because they will get CPU rarely). You can check that table and override its values with `dispadmin` command, for example:
 ```
 # dispadmin -c TS -g
 ```
@@ -109,7 +109,7 @@ Tracer for TS scheduler is available in the following listing:
 
 ````` scripts/dtrace/tstrace.d
 
-Let's demonstrate some of TS features live. To do that we will conduct two TSLoad experiments: _duality_ and _concurrency_. In first experiment, _duality_ we will create two different types of threads: _workers_ which will occupy all available processor resources, and _manager_ which will rarely wakeup (i.e. to queue some work possibly and report to user), so _manager_ should be immideately dispatched. In our example manager had LWPID=7 while worker had LWPID=5. Experiment configuration is shown in the following file:
+Let's demonstrate some of TS features live. To do that we will conduct two TSLoad experiments: _duality_ and _concurrency_. In first experiment, _duality_, we will create two different types of threads: _workers_ which will occupy all available processor resources, while _manager_ will rarely wakeup (i.e. to queue some work possibly and report to user), so it should be immediately dispatched. In our example manager had LWPID=7 while worker had LWPID=5. Experiment configuration is shown in the following file:
 
 ````` experiments/duality/experiment.json
 
@@ -143,7 +143,7 @@ Here is sample output for _duality_ experiment (some output was omitted):
 
 Note that when manager wokes up, it has maximum priority: 59 but being put to the queue tail. After that worker thread is being queued because `cpu_runrun` flag is being set (note `rr` change), number of runnable processes increases up to two. After 1.8 ms manager surrenders from CPU, and worker regains control of it.
 
-In _concurrency_ experiment, on the opposite we will have two threads with equal rights: they both will occupy as much CPU as they can get thus being _worker_ processes. Experiment configuration is shown in the following file:
+In the _concurrency_ experiment, on the opposite we will have two threads with equal rights: they both will occupy as much CPU as they can get thus being _worker_ processes. Experiment configuration is shown in the following file:
 
 ````` experiments/concurrency/experiment.json
 
@@ -197,15 +197,15 @@ __Priority__ | __Class__ | __Policy__ | __Description__
 1,2 2 |1,2 rt | `SCHED_RR` |1,2 Implements cyclic scheduling using round-robin or FIFO policies
 			    `SCHED_FIFO`
 1,2 3 |1,2 fair (CFS) | `SCHED_NORMAL` (`SCHED_OTHER`) | Default policy for most kernel and user threads 
-                        `SCHED_BATCH` | Similiar to `SCHED_NORMAL`, but process which was recently waken up won't try to dispatch on CPU which is more fittful for batch tasks
+                        `SCHED_BATCH` | Similar to `SCHED_NORMAL`, but process which was recently waken up won't try to dispatch on CPU which is more fittful for batch tasks
 4 | idle | `SCHED_IDLE` | Idle threads -- picked only when other classes do not have runnbalbe threads.
 ---
 
 !!! INFO
-Consider the following situation: there are currently two users on a 8-CPU host where user dima had run `make -j8` and another user, say myaut, had run `make -j4`. To maintain fairness so users dima and myaut will get equal amount of CPU time, you will need renice processes of user dima, but calculating correct correct priority penalty will be inobvious. Instead, you can create a two CGroups and add one instance of make per CGroup. Than all tasks which are spawned by dima's `make` will be accounted in scheduler entity corresponding to dima's CGroup.
+Consider the following situation: there are currently two users on a 8-CPU host where user dima had run `make -j8` and another user, say myaut, had run `make -j4`. To maintain fairness so users dima and myaut will get equal amount of CPU time, you will need renice processes of user dima, but calculating correct priority penalty will be inobvious. Instead, you can create a two CGroups and add one instance of make per CGroup. Than all tasks which are spawned by dima's `make` will be accounted in scheduler entity corresponding to dima's CGroup.
 !!!
 
-Let's look into details of implementaion of CFS scheduler. First of all, it doesn't deal with tasks directly, but schedules _scheduler entities_ of type `struct sched_entity`. Such entity may represent a task or a queue of entities of type `struct cfs_rq` (which is referenced by field `my_q`), thus allowing to build hierarchies of entities and allocate resources to task groups which are called _CGroups_ in Linux. Processor run queue is represented by type `struct rq` contains field `cfs` which is instance of `struct cfs_rq` and contains queue of all high-level entities. Each entity has `cfs_rq` pointer which points to CFS runqueue to which that entity belongs:
+Let's look into details of implementation of CFS scheduler. First of all, it doesn't deal with tasks directly, but schedules _scheduler entities_ of type `struct sched_entity`. Such entity may represent a task or a queue of entities of type `struct cfs_rq` (which is referenced by field `my_q`), thus allowing to build hierarchies of entities and allocate resources to task groups which are called _CGroups_ in Linux. Processor run queue is represented by type `struct rq` contains field `cfs` which is instance of `struct cfs_rq` and contains queue of all high-level entities. Each entity has `cfs_rq` pointer which points to CFS runqueue to which that entity belongs:
 
 ![image:cfs-sched](linux/sched.png)
 
@@ -219,7 +219,7 @@ So, let's implement a tracer for CFS scheduler:
 
 ````` scripts/stap/cfstrace.stp
 
-Let's conduct same experiments we performed on Solaris. In "duality" experiment _manager_ task (TID=6063) didn't preempt _worker_ (TID=6061) immideately, but it was put into task_timeline tree. Since it would have minimum vruntime of all tasks there (note that CFS scheduler removes task from queue when it is dispatched onto CPU), it becomes left-most task. It picked on a next system tick:
+Let's conduct same experiments we performed on Solaris. In "duality" experiment _manager_ task (TID=6063) didn't preempt _worker_ (TID=6061) immediately, but it was put into task_timeline tree. Since it would have minimum vruntime of all tasks there (note that CFS scheduler removes task from queue when it is dispatched onto CPU), it becomes left-most task. It picked on a next system tick:
 
 ```
 => <b>check_preempt_wakeup</b>:
@@ -295,4 +295,4 @@ In _concurrency_ experiment thread receives 6ms timeslice (return value of `sche
     se:   sched tsexperiment/6305 SCHED_NORMAL
 ```
 
-You can conduct these experiment on your own.
+You can conduct these experiments on your own.

@@ -22,7 +22,7 @@ syscall.read, syscall.write {
 
 To delete entry from an associative array, it should be assigned to `0` in DTrace or deleted using `delete array[key1];` expression in SystemTap. If value is not exist, both DTrace and SystemTap will return `0` as a default value. 
 
-In DTrace you only can access value in associative array knowing its keys, in SystemTap along with that you can walk entire array with `foreach` statement:
+In DTrace you only can access value in associative array knowing its key, in SystemTap along with that you can walk entire array with `foreach` statement:
 ```
 foreach([pid+, fd] in last_fop limit 100) {
 	printf("%d\t%d\t%s\n", pid, fd, last_fop[pid, fd]);
@@ -47,7 +47,7 @@ Starting with SystemTap 2.1 it allocates `MAXMAPENTRIES` entries for associative
 [aggr]
 ### Aggregations
 
-_Aggregations_ are most useful for evaluating system performance (they are called _statistics_ in SystemTap). Aggregation will update intermediate set of parameters when new value is added, and when needed provide capability to print statistical characteristics of values sample added to it. Let's for example see how it works for mean value -- dynanamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:
+_Aggregations_ are most useful for evaluating system performance (they are called _statistics_ in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:
 
 ![image:aggrs](aggrs.png)
 
@@ -58,7 +58,7 @@ SystemTap have a statistics. They are do not support indexing like associative a
 Here are list of aggregating functions (note that in SystemTap they have to be preceded with `@`):
  * `count` -- counts number of values added
  * `sum` -- sums added value
- * `min`/`max`/`avg` -- minumum, maximum and mean value, respectively
+ * `min`/`max`/`avg` -- minimum, maximum and mean value, respectively
  * `stddev` -- standard deviation (only in DTrace)
  * `lquantize` -- prints linear histogram (`hist_linear` in SystemTap)
  * `quantize` -- prints logarithmic histogram (`hist_log` in SystemTap)
@@ -83,17 +83,17 @@ Aggregations may be sorted in DTrace using `aggsortkey`, `aggsortpos`, `aggsortk
 !!!
 
 [aggr-example]
-Aggregations are extremely useful for writing stat-like utitilies. For example, let's write utilities that count number of `write` system calls and amount of kilobytes they written. 
+Aggregations are extremely useful for writing stat-like utilities. For example, let's write utilities that count number of `write` system calls and amount of kilobytes they written. 
 
 ````` scripts/dtrace/wstat.d
 
 Note that aggregations are follow after keys in `printa` format string, and they are going in the same order they are passed as `printa` parameters. Format fields for aggregations use `@` character. Sorting will be performed according to a PID (due to `aggsortkey` tunable), not by number of operations or amount of bytes written. Option `aggsortkeypos` is redundant here, because `0` is default value if `aggsortkey` is set. 
 
-SystemTap has similiar code, but `printa` is simplemented via our own `foreach` cycle. On the other hand, we will keep only one associative array here:
+SystemTap has similar code, but `printa` is implemented via our own `foreach` cycle. On the other hand, we will keep only one associative array here:
 
 ````` scripts/stap/wstat.stp
 
-Output will be similiar for DTrace and SystemTap and will look like:
+Output will be similar for DTrace and SystemTap and will look like:
 ```
   PID     EXECNAME  FD     OPS  KBYTES
 15881         sshd   3       1       0

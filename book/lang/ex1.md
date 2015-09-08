@@ -1,7 +1,7 @@
 ### Exercise 1
 
 Write `opentrace.d` and `opentrace.stp` scripts which are tracing `open()` system calls. They should print following information in one line:
- * Call context: name of executable file, process ID, user and group IDs of user and group which are executing prcoess.
+ * Call context: name of executable file, process ID, user and group IDs of user and group which are executing process.
  * Path to file which should be opened.
  * A string containing `open()` flags `O_RDONLY`, `O_WRONLY`, `O_RDWR`, `O_APPEND`, `O_CREAT`
  * Return value of system call

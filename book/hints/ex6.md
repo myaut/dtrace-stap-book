@@ -2,7 +2,7 @@
 
 This exercise is not so different than any [latency measurement][principles/perf#latency] script where latency is measured as difference between timestamps of two probe firings and saved to an aggregation. 
 
-Note that `plockstat$` provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using `pid$` provider. As you may notice from ustack outputs in `pthread.d` example, mutex lock attempts are implemented by `mutex_lock_impl()` libc function. We will use `quantize()` aggregation which will be printed with printa:
+Note that `plockstat$` provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using `pid$` provider. As you may notice from ustack outputs in `pthread.d` example, mutex lock attempts are implemented by `mutex_lock_impl()` libc function. We will use `quantize()` aggregation which will be printed with `printa`:
 
 ````` scripts/dtrace/mtxtime.d
 

@@ -1,8 +1,8 @@
 ### Arguments
 
-When you bind a probe, you need to collect some data in it. In C, data is usually is passed as arguments to a function, or returned as _return value_. So, when you bind a function boundary tracing probe, you have to gather them. Argument extraction rely on calling conventions, and extracts data directly from registers or stack.
+When you bind a probe, you need to collect some data in it. In C, data is usually is passed as arguments to a function, or returned as _return value_. So, when you bind a function boundary tracing probe, you may need to gather them. Argument extraction rely on calling conventions, and extracts data directly from registers or stack.
 
-For example, let's look at Solaris kernel function from ZFS stack: `void spa_sync(spa_t *spa, uint64_t txg);`. First argument is ZFS representation of a pool, second is 64-bit unsigned integer which is transaction group number. So when we bind a probe to a `spa_sync`, we can print both of them:
+For example, let's look at Solaris kernel function from ZFS: `void spa_sync(spa_t *spa, uint64_t txg);`. First argument is ZFS representation of a pool, second is 64-bit unsigned integer which is transaction group number. So when we bind a probe to a `spa_sync`, we can print both of them:
 ```
 # dtrace -qn '
 	::spa_sync:entry { 
@@ -31,7 +31,7 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 }
 ```
 
-Unfortunately, variable `ret` is unaccessible at the return probe, but you can still get it from `%rax` register on x86_64 which is used for saving return values. SystemTap supplies return values in `$return` variable:
+Unfortunately, variable `ret` is inaccessible at the return probe, but you can still get it from `%rax` register on x86_64 which is used for saving return values. SystemTap supplies return values in `$return` variable:
 ```
 # stap -e '
 	probe kernel.function("vfs_read").return { 
@@ -50,12 +50,12 @@ if (@defined($var->field)) {
 
 If you want to print all arguments simultaneously, you should carefully handle each argument. However, SystemTap can do it automatically. Such strings provided in meta-variables:
  * `$$parms` contains function arguments with their names
- * `$$locals` contains local variables with theor names
+ * `$$locals` contains local variables with their names
  * `$$vars` contains both `$$parms` and `$$locals`
  * `$$return` contains return value.
 An example of `$$vars` may be found above.
 
-Finally, SystemTap allows to convert arguments to string, including pretty representation of structure pointers when all fields are read, if traling dollar sign is added to an argument:
+Finally, SystemTap allows to convert arguments to string, including pretty representation of structure pointers when all fields are read, if trailing dollar sign is added to an argument:
 ```
 # stap -e '
 	probe kernel.function("vfs_read") { 

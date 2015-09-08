@@ -1,6 +1,6 @@
 ### Types and Variables
 
-In this we will speak about typing in dynamic tracing languages and variable scopes. Details on how complex types are covered in further sections.
+In this section we will speak about typing in dynamic tracing languages and variable scopes. Details on how complex types are covered in further sections.
 
 Variable types may be split in several categories. First and simpler one, is __scalar types__ which consist of integral types: `int`, `uint32_t`, etc, floating point types are not supported. Second large group is __pointers__. Unlike C, dynamic tracing languages provide explicit __string__ type. SystemTap and DTrace support __associative arrays__ and __agreggations__ for keeping statistics data. Finally, there is a set of __complex__ types such as structures, enumerations, unions and arrays. DTrace supports complex types, their definitions and even aliasing through `typedef`, in SystemTap they are implicitly used for DWARF variables, but in scripts they explicitly available only in Embedded C.
 
@@ -9,7 +9,7 @@ You can explicitly declare variable types in DTrace, thus `long`, `uintptr_t`, `
 printf("The time is %lld\n", (unsigned long long) timestamp);
 ```
 
-There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-clause variables, but in can be supported via associative arrays.
+There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but in can be emulated via associative arrays.
 
 ![image:varscope](varscope.png)
 
@@ -35,7 +35,7 @@ In earlier versions of SystemTap they can be only read by using Embedded C capab
 			get_jiffies());			}'
 ```
 
-Recent versions, however implemented a `@var`-expression, which accept name of variable and optionally a path to a source file where it is located like in function probes: `@var("jiffies")`. 
+Recent versions adopted a `@var`-expression, which accept name of variable and optionally a path to a source file where it is located like in function probes: `@var("jiffies")`. 
 
 #### Global variables
 
@@ -59,7 +59,7 @@ Global variables in probes accessible by their names: `globalvar += 1;`.
 
 #### Local variables
 
-Local (or _clause-local_ in terms of DTrace) variables lifespan are the shorter of all which lasts only for single probe, or for a probe-epilogue followed by probe in SystemTap. There is no need to define them in SystemTap, they may be used after first assignment:
+Local (or _clause-local_ in terms of DTrace) variables lifespan are the shorter of all which lasts only for single probe, or for a probe-prologue followed by probe in SystemTap. There is no need to define them in SystemTap, they may be used after first assignment:
 ```
 probe kernel.function("vfs_write") {
 	pos = $file->f_pos;
@@ -109,7 +109,7 @@ But when you run multiple `dd` processes, local and global numbers will eventual
 [thread-local-vars]
 #### Thread-local variables
 
-Thread local variables are created in a context of a thread, and after thread will be switched, you will access new instance of variable. They are similiar to local DTrace variables, but use `self` keyword instead of `this`. They are extremely useful in passing data between distinct probes:
+Thread local variables are created in a context of a thread, and after thread will be switched, you will access new instance of variable. Their syntax is similar to local DTrace variables, but use `self` keyword instead of `this`. They are extremely useful in passing data between distinct probes:
 
 ```
 self int readfd; // Optional

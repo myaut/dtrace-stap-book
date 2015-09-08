@@ -17,7 +17,7 @@ close(3)
 ```
 Note that Linux `uselib` call may also being used for that.
 
-Even if pages are already loaded into _page cache_, they might be mapped with different addresses or with different permissions (which is less likely for shared objects), so operating system will need to create new memory segments for them. It also performs it lazily and only maps limited amount of pages. The rest are mapped on demand when _minor fault_ occur. That is why they occur often when new processes are spawned.
+Even if pages are already loaded into _page cache_, they might be mapped with different addresses or with different permissions (which is less likely for shared objects), so operating system need to create new memory segments for them. It also performs it lazily and only maps limited amount of pages. The rest are mapped on demand when _minor fault_ occur. That is why they occur often when new processes are spawned.
 
 We will use `@count` aggregation and `vm.pagefault` probe to count pagefaults in SystemTap for Linux. Path to file is represented by dentry structure `$vma->vm_file->f_path->dentry` -- we will use `d_name` function to access string representation of its name.
 
@@ -73,7 +73,7 @@ void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
     (from mm/slab.c)
 ```
 
-Note the `trace_kmem_cache_alloc` call which is actually represents invokation of the FTrace tracepoint. The same function is defined in SLUB allocator, but it uses `s` as a name of first functions argument, so we will have to use `@choose_defined` construct. Both allocators use same name for cache's structure: `struct kmem_cache`. The name is defined in that structure in files include/linux/slab_def.h and include/linux/slub_def.h:
+Note the `trace_kmem_cache_alloc` call which is actually represents invocation of the FTrace tracepoint. The same function is defined in SLUB allocator, but it uses `s` as a name of first functions argument, so we will have to use `@choose_defined` construct. Both allocators use same name for cache's structure: `struct kmem_cache`. The name is defined in that structure in files include/linux/slab_def.h and include/linux/slub_def.h:
 
 ```
 struct kmem_cache {

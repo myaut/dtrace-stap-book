@@ -1,8 +1,8 @@
 ### Java Virtual Machine
 
-DTrace and SystemTap are intendended to trace applications written in native languages like C or C++ and dependent on compiler ABIs. If application requires virtual machine (in case it is interpreted or translated on-the-fly), virtual machine has to implement USDT probes so it can be traceable by DTrace or SystemTap. For example Zend PHP keeps call arguments in a global object, so you have to access that object to get arguments values instead of using `arg0-argN` syntax. 
+DTrace and SystemTap are intended to trace applications written in native languages like C or C++ and dependent on compiler ABIs. If application requires virtual machine (in case it is interpreted or translated on-the-fly), virtual machine has to implement USDT probes so it can be traceable by DTrace or SystemTap. For example Zend PHP keeps call arguments in a global object, so you have to access that object to get arguments values instead of using `arg0-argN` syntax. 
 
-Same works for _Java Virtual Machine_. Oracle's implementation of JVM, called _Hotspot_ and _OpenJDK_, which based on Hotspot support DTrace since version 1.6. It is available through `hotspot` and `hotspot_jni` providers. Latter is intendended for tracing of Java Native Interface, so we leave it out of our scope. 
+Same works for _Java Virtual Machine_. Oracle's implementation of JVM, called _Hotspot_ and _OpenJDK_, which based on Hotspot support DTrace since version 1.6. It is available through `hotspot` and `hotspot_jni` providers. Latter is intended for tracing of Java Native Interface, so we leave it out of our scope. 
 
 By default `hotspot` provider allows to trace only rare events, such as class loading, starting and stopping threads, VM-wide and GC-wide events and JIT compiler events. That was done to reduce overheads of USDT probes. For example, to trace methods, compiler has to inject two calls into produced code:
 
@@ -14,7 +14,7 @@ To enable additional probes, use following `java` command line options:
     * `-XX:+DTraceMonitorProbes` -- enables object monitors tracing 
     * `-XX:+ExtendedDTraceProbes` -- enables all of events listed above
 
-These options can be set dynamically for running virtual machine with `jinfo` tool. 
+These options can be set dynamically for running virtual machine using `jinfo` tool. 
 
 Tracing provider is implemented in shared library `libjvm.so` which is dynamically loaded using `dlopen()` call. Due to limitations of `pid$$` provider we mentioned before, `dtrace` cannot use `hotspot$target` syntax directly:
 ```
@@ -22,7 +22,7 @@ Tracing provider is implemented in shared library `libjvm.so` which is dynamical
 dtrace: invalid probe specifier hotspot$target:::: probe description hotspot3662::: does not match any probes 
 ```
 
-To launch tracing, use helper script `dtrace_helper.d`: it stops execution of JVM (using `stop()` destructive action) when it loads `libjvm.so` through `dlopen()` and restarts execution of JVM only when tracing script is up and running. Moreover, starting with JDK7, Solaris builds of JDK will use `-xlazyload` linker flag. Due to that, JVM won't register probes automatically until `dtrace` is attached to it explicitly with `-p` options so hospot probes will be missing from `dtrace -l` outputs. `-p` option will work as expected:
+To launch tracing, use helper script `dtrace_helper.d`: it stops execution of JVM (using `stop()` destructive action) when it loads `libjvm.so` through `dlopen()` and restarts execution of JVM only when tracing script is up and running. Moreover, starting with JDK7, Solaris builds of JDK will use `-xlazyload` linker flag. Due to that, JVM won't register probes automatically until `dtrace` is attached to it explicitly with `-p` options so hotspot probes will be missing from `dtrace -l` outputs. `-p` option will work as expected:
 ```
 # dtrace -p 3682 -n 'hotspot$target:::'
 dtrace: description 'hotspot$target:::' matched 66 probes
@@ -44,7 +44,7 @@ Here are small tracer for it implemented with SystemTap:
 
 ````` scripts/stap/hotspot.stp
 
-Similiar script on DTrace will look like this and should use `dtrace_helper.d` or called with `-Z` option:
+Similar script on DTrace will look like this and should use `dtrace_helper.d` or called with `-Z` option:
 
 ````` scripts/dtrace/hotspot.d
 
@@ -60,7 +60,7 @@ class-loaded [???] GreetingThread
 ...
 thread-start [ 14] Thread-1
 method-entry [ 9] GreetingThread.run
-method-entry [ 9] Greetingt.greet
+method-entry [ 9] Greeting.greet
 ...
 monitor-contended-exit [ 8] Greeting
 method-return [ 8] Greeting.greet
@@ -168,14 +168,14 @@ Garbage collection is initiated for memory pool | \
   * arg4 — initial pool size                      \
   * arg5 — used memory                            \
   * arg6 — number of commited pages               \
-  * arg7 — maximum useable memory               | \
+  * arg7 — maximum usable memory               | \
 `hotspot.mem_pool_gc_begin`                       \
   * manager — name of manager                     \
   * pool — name of memory pool                    \
   * initial — initial pool size                   \
   * used — used memory                            \
   * committed — number of commited pages          \
-  * max — maximum useable memory
+  * max — maximum usable memory
 Garbage collection is finished in a memory pool | \
 `mem-pool-gc-end`                                 \
   Arguments are same as for `mem-pool-gc-begin` | \
@@ -224,9 +224,9 @@ Unload of compiled method                            | \
   * sig — method signature                             
 ---
 
-In addition to provided prbobe arguments, SystemTap will supply `name` which will contain probe name, and `probestr` which keeps string with pre-formatted probe arguments. There are also several probes that are not documented: such as `class-initialization-*` and thread probes: `thread-sleep-*`, `thread-yield`.
+In addition to provided probe arguments, SystemTap will supply `name` which will contain probe name, and `probestr` which keeps string with pre-formatted probe arguments. There are also several probes that are not documented: such as `class-initialization-*` and thread probes: `thread-sleep-*`, `thread-yield`.
 
-SystemTap and DTrace can also collect stacktraces of a running Java thread. DTrace provide `jstack()` function for that:
+SystemTap and DTrace can also collect backtraces of a running Java thread. DTrace provide `jstack()` function for that:
 ```
 # dtrace -n '
     syscall::write:entry 
@@ -253,6 +253,7 @@ There is a bug in JDK: [JDK-7187999: dtrace jstack action is broken](https://bug
 That attempt will fail, but it will lead DTrace to extract required helper functions from Java process.
 !!!
 
+[jsdt]
 #### JSDT
 
 You could notice that we can't extract method's arguments in method probes like we did it in other places via args array. That complicates Java application tracing. As you can remember from USDT description, in DTrace applications can register their probes within DTrace. This is also true for Java applications which can provide _Java Statically Defined Tracing_ probes (JSDT). It is supported only in DTrace and only in BSD or Solaris.

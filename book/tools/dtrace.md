@@ -41,7 +41,7 @@ ID    PROVIDER        MODULE      FUNCTION NAME
    * `quiet` -- quiet mode (same as `-q`)
    * `flowindent` -- print probes in tree mode with indentation. See more in [Dynamic code analysis][principles/dyncode].
    * `destructive` -- enables destructive mode (same as `-w`).
-   These options may be set inside script using #pragma-directive:
+   These options may be set inside script using pragma directive:
    `#pragma D option bufsize=64m`
  * `-C` -- call C preprocessor `cpp(1)` before script compilation. That allows handling C preprocessor directives such as `#include`, `#define`, `#ifdef` and so on. There are some extra preprocessor-related options:
    * `-D MACRO[=SUBSTITUTION]` -- defines preprocessor macro. `-U` undefines it.

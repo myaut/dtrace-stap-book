@@ -33,13 +33,13 @@ So this script generate predicate condition `uid == 100` for the following comma
 # python opentrace.py -D -u 100
 ```
 
-Postprocessing is intended to analyse already collected trace file, but it might be run in parallel with tracing process. However, it allows to defer trace analysis -- i.e. collect maximum data as we can, and then cut out irrelevant data, showing only useful. This can be performed using either Python, Perl, or other scripting languages or even use statical analysis languages like R. Moreover, postprocessing allows to reorder or sort tracing output which can also help to avoid data mixing caused by per-process buffers. 
+Post-processing is intended to analyse already collected trace file, but it might be run in parallel with tracing process. However, it allows to defer trace analysis -- i.e. collect maximum data as we can, and then cut out irrelevant data, showing only useful. This can be performed using either Python, Perl, or other scripting languages or even use statical analysis languages like R. Moreover, post-processing allows to reorder or sort tracing output which can also help to avoid data mixing caused by per-process buffers. 
 
-The next script will read `opentrace.py` output, merge information from entry and return probes, and convert user-ids and time intervals to a convinient form. Like in dynamic tracing languages we will use an associative array `states` which is implemented as `dict` type in Python to save data from entry probes and use process ID as a key.
+The next script will read `opentrace.py` output, merge information from entry and return probes, and convert user-ids and time intervals to a convenient form. Like in dynamic tracing languages we will use an associative array `states` which is implemented as `dict` type in Python to save data from entry probes and use process ID as a key.
 
 ````` scripts/src/openproc.py 
 
-If we pipe `opentrace.py` output to this script, we can get similiar data:
+If we pipe `opentrace.py` output to this script, we can get similar data:
 ```
 # python opentrace.py -c 'cat /tmp/not_exists' |
 			python openproc.py 

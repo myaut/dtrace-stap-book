@@ -6,9 +6,9 @@ DTrace has a _translators_ for doing that:
 
 ````` scripts/dtrace/stat.d
 
-In this example translator describes rules of converting source structure `stat64_32` to a structure with known format defined in DTrace `stat_info`. After that, `xlate` operator is called which receives pointer to `stat64_32` structure to a `stat_info`. Note that our translator also responsible for copying data from userspace to kernel. Builtin DTrace translators are located in `/usr/lib/dtrace`.
+In this example translator describes rules of converting source structure `stat64_32` to a structure with known format defined in DTrace `stat_info`. After that, `xlate` operator is called which receives pointer to `stat64_32` structure to a `stat_info`. Note that our translator also responsible for copying data from userspace to kernel. Built-in DTrace translators are located in `/usr/lib/dtrace`.
 
-SystemTap doesn't have translators, but you can create _prologue_ or _epilogue alias_ which performs neccessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called _tapsets_ and put into `/usr/share/systemtap/tapset` directory. Many probes that we will use in following modules are implemented in such tapsets. 
+SystemTap doesn't have translators, but you can create _prologue_ or _epilogue alias_ which performs necessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called _tapsets_ and put into `/usr/share/systemtap/tapset` directory. Many probes that we will use in following modules are implemented in such tapsets. 
 
 Linux has several variants for `stat` structure in `stat()` system call, some of them deprecated, some are intended to support 64-bit sizes for 32-bit callers. By using following tapset we will remove such differences and make them universally available through `filename` and `size` variables:
 
@@ -18,7 +18,7 @@ This example is unrealistic: it is easier to attach to `vfs_lstat` function whic
 ```
 probe <i>alias-name</i> {=|+=} <i>probe-name-1</i> [?] [,<i>probe-name-2</i> [?] ...] <i>probe-body</i>
 ```
-Where `=` is used for creating prologue aliases and `+=` is for epilogue aliases. Question mark `?` suffix is optional and used if some functions are not present in kernel.
+Here `=` is used for creating prologue aliases and `+=` is for epilogue aliases. Question mark `?` suffix is optional and used if some functions are not present in kernel -- it allows to choose probe from multiple possibilities.
 
 !!! WARN
 Note that this tapset only checks for 64-bit Intel architecture. You will need additional checks for PowerPC, AArch64 and S/390 architectures.

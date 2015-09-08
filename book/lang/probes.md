@@ -8,12 +8,12 @@ For example, let's see how synchronous writing to a disk is performed in Linux a
 
 ![image:probes](probes.png)
 
-When process want to start synchronous write, it issues `write()` system call and by doing that it transfers control to a kernel code, `sys_write()` function in particular. This function eventually calls a `submit_bio()` function which pushes data from user process to a queue of corresponding disk device. If we attach probes to these functions, we can gather the following information:
+When process wants to start synchronous write, it issues `write()` system call and by doing that it transfers control to a kernel code, to a `sys_write()` function in particular. This function eventually calls a `submit_bio()` function which pushes data from user process to a queue of corresponding disk device. If we attach probes to these functions, we can gather the following information:
   * Process and thread which started input/output which is accessible via global `current` pointer.
   * File descriptor number which is passed as first argument of `sys_write` and called `fd`.
   * Disk I/O parameters such as size and requested sector from `bio` structure.
 
-To satisfy this requirements, tracing languages provide mechanisms of defining probes. Definition of SystemTap probe begins with `probe` keyword followed by probe name and body of probe handler. Name is a dotted-symbol sequence, where each symbol may have optional parameters in braces. SystemTap supports wildcards in probe names or serveral probe names in `probe` clause if you need to use same handler for multiple probes. For example:
+To satisfy this requirements, tracing languages provide mechanisms of defining probes. Definition of SystemTap probe begins with `probe` keyword followed by probe name and body of probe handler. Name is a dotted-symbol sequence, where each symbol may have optional parameters in braces. SystemTap supports wildcards in probe names or several probe names in `probe` clause if you need to use same handler for multiple probes. For example:
 ```
 probe kernel.function("vfs_*") {
     // Actions
@@ -29,7 +29,7 @@ probe scheduler.cpu_on {
 ```
 
 Probe names in DTrace are four identifiers separated by colons: `Provider:Module:Function:Name[-Parameter]`.
- * _Provider_ is a hint to DTrace on how to attach a probe. Different providers usually have different mechanisms of attachement. 
+ * _Provider_ is a hint to DTrace on how to attach a probe. Different providers usually have different mechanisms of attachment. 
  * _Function_ and _Module_ are relate to a code location where probe will be installed.
  * _Name_ and optional parameters provide meaningful names to a event which will be handled in a probe.
 For example:
@@ -67,14 +67,14 @@ syscall::read:entry, syscall::write:entry {
 
 First probe body going in script executes first.
 
-If DTrace or SystemTap fail to find a probe, it will fail script translation. To overcome that, use `-Z` option supplied to DTrace or add question mark to probe name in SystemTap:
+If DTrace or SystemTap fail to find a probe, it will abort script translation. To overcome that, use `-Z` option can be supplied to `dtrace` or question mark has to be added to a probe name in SystemTap:
 ```
 probe kernel.function("unknown_function") ?
 ```
 
 #### Function boundary tracing
 
-Function boundaries tracing is the largest and most generic class of tracing. Function boundary probes attach to entry point or exit from a function. Since most function begin with saving stack and end with `retq` or similiar instruction, tracer simply patches that instruction, by simply replacing it to interrupt or call (depending on a platform). That interrupt is intercepted by probe code which after execution returns control to function, like in `submit_bio` case described above. Here are similiar example for Solaris and DTrace:
+Function boundary tracing is the largest and most generic class of tracing. Function boundary probes attach to entry point or exit (hence bounds) from a function. Since most functions begin with saving stack and end with `retq` or similar instruction, tracer simply patches that instruction, by simply replacing it to interrupt or call (depending on a platform). That interrupt is intercepted by probe code which after execution returns control to function, like in `submit_bio` case described above. Here are similar example for Solaris and DTrace:
 
 ```
 bdev_strategy:    pushq  %rbp           →  <b>int    $0x3</b>
@@ -111,7 +111,7 @@ kernel.statement(<i>address</i>).absolute
 module(<i>module-pattern</i>).statement(<i>function-pattern</i>)
 ```
 
-!!! WARN
+!!! NOTE
 When we will use following syntax for probe names:
  * `{x|y|z}` -- one of the options 
  * `[optional]` -- optional part of name which can be omitted
@@ -138,7 +138,7 @@ A simplest variant of function boundary tracing is a system call tracing. In **S
 syscall.<i>system-call-name</i>[.return]
 ```
 
-__DTrace__ uses different machanisms for attaching to a system calls: it implemented through driver `systrace` and patches system call entry point in a `sysent` table. A syntax for probes, however, is similiar to `fbt`:
+__DTrace__ uses different mechanisms for attaching to a system calls: it is implemented through driver `systrace` and patches system call entry point in a `sysent` table. A syntax for probes, however, is similar to `fbt`:
 ```
 syscall::<i>system-call-name</i>:{entry|return}
 ```
@@ -146,9 +146,9 @@ Note that if you omit provider name, some probes will match both function and sy
 
 #### Statically defined tracing
 
-Sometimes is function boundary tracing is not enough: an event may occur inside function, or may occur in different functions. In **DTrace** and Solaris, for or example, there are two implementations of scheduler functions that are responsible for stealing task from cpu: older `disp_getbest` and newer and available in newer versions of Solaris: `disp_getkpq`. But they both provide `steal` probe that fires when dispatcher moves a thread to idle CPU: `sdt:::steal` or simply `steal`. You can still distinguish these probes by explicitly setting function name: `sdt::disp_getbest:steal`.
+Sometimes is function boundary tracing is not enough: an event may occur inside function, or may be spread through different functions. In **DTrace** and Solaris, for example, there are two implementations of scheduler functions that are responsible for stealing task from cpu: older `disp_getbest` and newer and available in newer versions of Solaris: `disp_getkpq`. But they both provide `steal` probe that fires when dispatcher moves a thread to idle CPU: `sdt:::steal` or simply `steal`. You can still distinguish these probes by explicitly setting function name: `sdt::disp_getbest:steal`.
 
-Another use-case for statically defined probes is long functions that contains multiple steps, like handling TCP flags and advancing FSM of TCP-connection or handling multiple requests at once. For example, Solaris handles task queues like this:
+Another use-case for statically defined probes is long functions that contain multiple steps, like handling TCP flags and advancing FSM of TCP-connection or handling multiple requests at once. For example, Solaris handles task queues like this:
 ```
 static void taskq_thread(void *arg)
 {

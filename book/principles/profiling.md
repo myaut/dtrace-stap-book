@@ -49,7 +49,7 @@ Or in SystemTap:
 	}'
 ```
 
-If we want to go down to a function level, we need to access _program counter_ register (or _instruction pointer_ in x86 terminology) each time profiling probe fires. We will refer to program counter as PC later in this book. In DTrace these values are explicitly provided in `arg0` -- PC in kernel mode and `arg1` -- PC in userspace mode in `profiling` probes. Depending on if process was in kernel mode when profiling probe fired or not, `arg0` or `arg1` will be set to 0. Moreover, you may always get current userspace program counter using uregs array: `uregs[REG_PC]`. There is also `caller` and `ucaller` builtin variables. 
+If we want to go down to a function level, we need to access _program counter_ register (or _instruction pointer_ in x86 terminology) each time profiling probe fires. We will refer to program counter as PC later in this book. In DTrace these values are explicitly provided in `arg0` -- PC in kernel mode and `arg1` -- PC in userspace mode in `profiling` probes. Depending on if process was in kernel mode when profiling probe fired or not, `arg0` or `arg1` will be set to 0. Moreover, you may always get current userspace program counter using uregs array: `uregs[REG_PC]`. There is also `caller` and `ucaller` built-in variables. 
 
 You can use `addr()` tapset function in SystemTap which returns userspace PC or kernel PC depending on where probe were fired (some probes do not allow that, so `0` will be returned). To get userspace address explicitly, use `uaddr()` function.
 
@@ -59,7 +59,7 @@ Note that we were used `profile-997hz` probe to avoid "phasing": if we'd used `p
 
 #### CPU performance measurement
 
-Even if you collect PC, you will get what functions use CPU the most, but that doesn't mean that utilize processor resources effictively. For example, it can spend most of the time waiting for memory or cache or reset pipeline due to branch misprediction instead of utilizing ALU for actual computations. Such wasted cycles are referred as _stalled_ in Intel processor documentation. 
+Even if you collect program counter values, you will get what functions use CPU the most, but that doesn't mean that utilize processor resources effectively. For example, it can spend most of the time waiting for memory or cache or reset pipeline due to branch misprediction instead of utilizing ALU for actual computations. Such wasted cycles are referred as _stalled_ in Intel processor documentation. 
 
 Modern processors allow to measure influence of such performance penalties through CPU performance counters. Each time such event happens, CPU increments value of the counter. When counter exceeds threshold, exception is arisen which may be handled by dynamic tracing system. Or, counter may be read from userspace application, for example with `rdpmc` assembly instruction on Intel CPUs. 
 
@@ -126,7 +126,7 @@ To measure last userspace level cache misses in SystemTap, you may use following
 ```
 
 !!! WARN
-These examples were tested on Intel Xeon E5-2400 processor. Like we mentioned before, performance counters are CPU-specific.
+These examples were tested on Intel Xeon E5-2420 processor. Like we mentioned before, performance counters are CPU-specific.
 !!!
 
 SystemTap allows to create per-processor counter which can be read later:

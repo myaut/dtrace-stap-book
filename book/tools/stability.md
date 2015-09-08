@@ -1,6 +1,6 @@
 ### Stability
 
-Another problem to which dynamic tracing systems face is stability of in-kernel interfaces. While system calls never change their interface due to backwards compability (if something need to be changed, new system call is introduced<sup>†</sup>), internal kernel function often do that especially if they not a public API for a drivers. Dynamic tracing languages provide mechanisms to avoid direct use of in-kernel interface by hiding them in abstractions:
+Another problem to which dynamic tracing systems face is stability of in-kernel interfaces. While system calls never change their interface due to backwards compatibility (if something need to be changed, new system call is introduced†), internal kernel function often do that especially if they not a public API for a drivers. Dynamic tracing languages provide mechanisms to avoid direct use of in-kernel interface by hiding them in abstractions:
 
 ---
 __Stability__ |2,1 __Data access__ |2,1 __Tracepoints__
@@ -10,7 +10,7 @@ Mediocre |1,2 Global variables and raw arguments like `args[0]` or `(struct_t*) 
 Lowest  | `fbt` and `pid$$` providers | DWARF probes like `kernel.function("kfree")`
 ---
 
-So to achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provider lesser information than you could access with other approaches. These options will be described in [Translators and tapsets][lang/tapset] section of next module. 
+To achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provides fewer information than you could access with other approaches. These options will be described in [Translators and tapsets][lang/tapset] section of next module. 
 
 Linux kernel is changing faster: it has stable releases each 2-3 months, and moreover, its builds are configurable, so some features present in one kernel may be disabled in another and vice versa which makes stability is much more fragile. To overcome that, SystemTap Language has conditional compilation statements which like in C allow to disable certain paths in code. Simplest conditional compilation statements are `@defined` which evaluates to true if variable passed to it is present in debug information and `@choose_defined` which chooses from several variables. It also support ternary conditional expression:
 ```

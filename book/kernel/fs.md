@@ -1,6 +1,6 @@
 ### Virtual File System
 
-One of the key principles of Unix design was "_Everything is a file_". Files are organized into filesystems of different nature. Some like FAT are pretty simple, some like ZFS and btrfs are complex and incorporate volume manager into them. Some filesystems doesn't require locally attached storage -- networked filesystems such as NFS and CIFS keep data on remote node, while special filesystems do not keep data at all and just representation of kernel structures: for example pipes are _files_ on _pipefs_ in Linux or _fifofs_ in Solaris.
+One of the defining principles of Unix design was "_Everything is a file_". Files are organized into filesystems of different nature. Some like FAT are pretty simple, some like ZFS and btrfs are complex and incorporate volume manager into them. Some filesystems doesn't require locally attached storage -- networked filesystems such as NFS and CIFS keep data on remote node, while special filesystems do not keep data at all and just representation of kernel structures: for example pipes are files on _pipefs_ in Linux or _fifofs_ in Solaris.
 
 Despite this diversity of filesystem designs, they all share same API and conform same call semantics, so working with local or remote file is transparent for userspace application. To maintain these abstractions, Unix-like systems use __Virtual File System__ (VFS) layer. Each _filesystem driver_ exports table of supported operations to VFS and when system call is issued, VFS performs some pre-liminary actions, finds a filesystem-specific function in that table and calls it. 
 
@@ -9,7 +9,7 @@ Each filesystem object has a corresponding data structure as shown in the follow
 ---
 __Description__ | __Solaris__ | __Linux__
 Open file entry | `uf_entry_t` and `file` | `file`
-Mounted filesystem | `vfs_t` | `vfsmount` -- for the mountpoint \
+Mounted filesystem | `vfs_t` | `vfsmount` -- for the mount point \
 							   `super_block` -- for the filesystem
 Table of filesystem operations | `vfsops_t` | `super_operations`
 File or directory | `vnode_t` | `dentry` -- for entry in directory \
@@ -25,11 +25,11 @@ Linux management structures are shown on the following schematic:
 
 ![image:vfs](linux/vfs.png)
 
-Open file table is indirectly accessible through `files` field of `task_struct`. We used 256 entries as an example, actual amount of entries may differ. Each entry in this table is an `file` object which contains information individial for a specific file descriptor such as open mode `f_mode` and position in file `f_pos`. For example, single process can open same file twice (one in `O_RDONLY` mode another in `O_RDWR` mode) -- in that case `f_mode` and `f_pos` for that file will differ, but `inode` and possibly `dentry` objects will be the same. Note that last 2 bits of `file` pointer are used internally by kernel code. 
+Open file table is indirectly accessible through `files` field of `task_struct`. We used 256 entries as an example, actual amount of entries may vary. Each entry in this table is an `file` object which contains information individual for a specific file descriptor such as open mode `f_mode` and position in file `f_pos`. For example, single process can open same file twice (one in `O_RDONLY` mode another in `O_RDWR` mode) -- in that case `f_mode` and `f_pos` for that file will differ, but `inode` and possibly `dentry` objects will be the same. Note that last 2 bits of `file` pointer are used internally by kernel code. 
 
-Each file is identifiable by two objects: `inode` represents service information for file itself like owner information in fileds `i_uid` and `i_gid`, while `dentry` represents file in directory hierarchy (`dentry` is literally a directory entry). `d_parent` points to a parent dentry -- a `dentry` of directory where file is located, `d_name` is a `qstr` structure which keeps name of the file or directory (to get it use `d_name` function in SystemTap). 
+Each file is identifiable by two objects: `inode` represents service information for file itself like owner information in fields `i_uid` and `i_gid`, while `dentry` represents file in directory hierarchy (`dentry` is literally a directory entry). `d_parent` points to a parent dentry -- a `dentry` of directory where file is located, `d_name` is a `qstr` structure which keeps name of the file or directory (to get it use `d_name` function in SystemTap). 
 
-`dentry` and `inode` identify a file within filesystem, but systems have multiple filesystems mounted at different locations. That "location" is referred to as _mountpoint_ and tracked through `vfsmount` structure in Linux which has `mnt_root` field which points to a directory which acts as mountpoint. Each filesystem has corresponding `super_block` object which has `s_bdev` pointer which points to a block device where filesystem data resides, `s_blocksize` for a block size withing filesystem. Short device name is kept in `s_id` field, while unique id of filesystem is saved into `s_uuid` field of super block. 
+`dentry` and `inode` identify a file within filesystem, but systems have multiple filesystems mounted at different locations. That "location" is referred to as _mountpoint_ and tracked through `vfsmount` structure in Linux which has `mnt_root` field which points to a directory which acts as mountpoint. Each filesystem has corresponding `super_block` object which has `s_bdev` pointer which points to a block device where filesystem data resides, `s_blocksize` for a block size within filesystem. Short device name is kept in `s_id` field, while unique id of filesystem is saved into `s_uuid` field of super block. 
 
 Note the `i_mapping` and `f_mapping` fields. They point to `address_space` structures which we have been discussed in section [Virtual Memory][kernel/virtmem].
 
@@ -60,11 +60,11 @@ You may use `task_dentry_path()` function from dentry tapset instead of `d_name(
 Solaris structures organization is much more clear:
 ![image:vfs](solaris/vfs.png)
 
-Like Linux, each process keep an array of `uf_entry_t` entries while entry in this array points to an open file through `uf_file` pointer. Each file on filesystem is represented by `vnode_t` structure (literally, _node on virtual file system_).  When file is opened, Solaris creates new `file` obect and saves open file mode in flag fields `f_flag` and `f_flag2`, current file position in `f_offset` and pointer to a `vnode_t` in `f_vnode`. 
+Like Linux, each process keep an array of `uf_entry_t` entries while entry in this array points to an open file through `uf_file` pointer. Each file on filesystem is represented by `vnode_t` structure (literally, _node on virtual file system_).  When file is opened, Solaris creates new `file` object and saves open file mode in flag fields `f_flag` and `f_flag2`, current file position in `f_offset` and pointer to a `vnode_t` in `f_vnode`. 
 
 `vnode_t` caches absolute path to a file in `v_path` field. Type of vnode is saved in `v_type` field: it could be `VREG` for regular files, `VDIR` for directories or `VFIFO` for pipes. VFS will keep `v_stream` pointing to a stream corresponding to FIFO for pipes, and list of pages `v_pages` for vnodes that actually keep data. Each filesystem may save its private data in `v_data` field. For UFS, for example, it is `inode` structure (UDF also uses different `inode` structure, so we named it `inode (UFS)` to distinguish them). UFS keeps id of inode in `i_number` field, number of outstanding writes in `i_number` and `i_ic` field which is physical representation of inode on disk, including uid and gid of owner, size of file, pointers to blocks, etc. 
 
-Like in case of vnode, Solaris keeps representation of filesystem in two structures: generic filesystem information like block size `vfs_bsize` is kept in `vfs_t` structure, while filesystem-specific information is kept in filesystem structure like `ufsvfs_t` for UFS. First structure to specific structure through `vfs_data` pointer. `vfs_t` refers to its mountpoint (which is a vnode) through `vfs_vnodecovered` field, while it refers to filesystem object through `v_vfsmountedhere` field. 
+Like in case of vnode, Solaris keeps representation of filesystem in two structures: generic filesystem information like block size `vfs_bsize` is kept in `vfs_t` structure, while filesystem-specific information is kept in filesystem structure like `ufsvfs_t` for UFS. First structure to specific structure through `vfs_data` pointer. `vfs_t` refers to its mount point (which is a vnode) through `vfs_vnodecovered` field, while it refers to filesystem object through `v_vfsmountedhere` field. 
 
 DTrace provides array-translator `fds` for accessing file information through file descriptor -- it is an array of `fileinfo_t` structures:
 ```
@@ -162,7 +162,7 @@ Linux uses unified system for caching file names called _Directory Entry Cache_ 
 	}' -c 'cat /etc/passwd > /dev/null'
 ```
 
-Now, when file is opened, we can read or write its contents. All file data is located on disk (in case of disk-based file systems), but translating every file operation into block operation is expensive, so operating system maintains _page cache_. When data is read from file, it is red from disk to corresponding page and then requested chunk is copied to userspace buffer, so subsequent reads to that file won't need any disk operations -- it would be performed on _page cache_. When data is written onto file, corresponding page is updated and page is marked as dirty (red asterisk on image). 
+Now, when file is opened, we can read or write its contents. All file data is located on disk (in case of disk-based file systems), but translating every file operation into block operation is expensive, so operating system maintains _page cache_. When data is read from file, it is read from disk to corresponding page and then requested chunk is copied to userspace buffer, so subsequent reads to that file won't need any disk operations -- it would be performed on _page cache_. When data is written onto file, corresponding page is updated and page is marked as dirty (red asterisk on image). 
 
 At the unspecified moment of time, page writing daemon which is relocated in kernel scans page cache for _dirty pages_ and writes them back to disk. Note that `mmap()` operation in this case will simply map pages from page cache to process address space. Not all filesystems use page cache. ZFS, for example, uses its own caching mechanism called _Adaptive Replacement Cache_ or ARC which is built on top of kmem allocator. 
 
@@ -184,7 +184,7 @@ VFS stack creates block input-output request  | `bdev_strategy()` | `submit_bio(
 ---
 
 !!! WARN
-This table is very simplistic and doesn't cover many filesystem types like non-disk or journaling filesystems.
+This table is very simplistic and doesn't cover many filesystem types like non-disk or journalling filesystems.
 !!!
 
 We used names `v_ops` for table of vnode operations in Solaris, `f_op` for `file_operations` and `a_ops` for `address_space_operations` in Linux. Note that in Linux filesystems usually implement calls like `aio_read` or `read_iter` while read operation calls function like `new_sync_read()` which converts semantics of `read()` call to semantics of `f_op->read_iter()` call. Such "generic" functions are available in `generic` and `vfs` tapsets. 

@@ -8,7 +8,7 @@ In DTrace userspace tracing is performed through `pid` provider:
 ```
 	pid1449:libc:__read:entry
 ```
-In this example entry point of `__read()` function from standard C library is patched for process with PID=1449. You may use `return` as name for return probes, or hexademical number -- in this case it will represent an instruction offset inside that function. 
+In this example entry point of `__read()` function from standard C library is patched for process with PID=1449. You may use `return` as name for return probes, or hexadecimal number -- in this case it will represent an instruction offset inside that function. 
 
 If you need to trace binary file of application itself, you may use `a.out` as module name in probe specification. To make specifying PID of tracing process easier, DTrace provides special macro `$target` which is replaced with PID passed from `-p` option or with PID of command which was run with `-c` option:
 ```
@@ -18,7 +18,7 @@ If you need to trace binary file of application itself, you may use `a.out` as m
 	}' -c cat
 ```
 
-Userspace probes are created with `process().function()` syntax in SystemTap, where process contains path of shared library or executable binary which should be traced. This syntax is similiar to `kernel` syntax (as described in [Probes][lang/probes#stap-syntax]): it supports specifying line numbers, source file names, `.statement()` and `.return` probes:
+Userspace probes are created with `process().function()` syntax in SystemTap, where process contains path of shared library or executable binary which should be traced. This syntax is similar to `kernel` syntax (as described in [Probes][lang/probes#stap-syntax]): it supports specifying line numbers, source file names, `.statement()` and `.return` probes:
 ```
 # stap -e '
 	probe process("/lib64/libc.so.6").function("*readdir*") {
@@ -35,17 +35,17 @@ Unlike DTrace, in SystemTap any process which invokes `readdir()` call from stan
 
 SystemTap uses _uprobes_ subsystem to trace userspace processes, so `CONFIG_UPROBES` should be turned on. It was introduced in Linux 3.5. Before that, some kernels (mostly RedHat derivatives) were shipped with _utrace_ which wasn't supported by vanilla kernels. It is also worth mentioning that like with kernel tracing, you will need debug information for processes you want to trace that is shipped in `-debuginfo` or `-dbg` packages.
 
-Like with kernel probes, you may access probe arguments using `arg0`-`argN` syntax in DTrace and `$arg_name` syntax in SystemTap. Probe context is also available. Accessing data through pointers however, would requre using `copyin()` functions in DTrace and `user_<type>()` functions in SystemTap as described in [Pointers][lang/pointers] section. 
+Like with kernel probes, you may access probe arguments using `arg0`-`argN` syntax in DTrace and `$arg_name` syntax in SystemTap. Probe context is also available. Accessing data through pointers however, would require using `copyin()` functions in DTrace and `user_<type>()` functions in SystemTap as described in [Pointers][lang/pointers] section. 
 
 !!! WARN
-Tracing multiple processes in DTrace is hard -- there is no `-f` option like in `truss`. It is also may fail if dynamic library is loaded through `dlopen()`. This limitations, however, may be bypassed by using destructive DTrace actions. Just track requred processes through process creation probes or `dlopen()` probes, use `stop()` to pause process execution and start required DTrace script. `dtrace_helper.d` from JDK uses such approach.
+Tracing multiple processes in DTrace is hard -- there is no `-f` option like in `truss`. It is also may fail if dynamic library is loaded through `dlopen()`. This limitations, however, may be bypassed by using destructive DTrace actions. Just track required processes through process creation probes or `dlopen()` probes, use `stop()` to pause process execution and start required DTrace script. `dtrace_helper.d` from JDK uses such approach.
 !!!
 
 #### User Statically Defined Tracing
 
 Like in Kernel mode, DTrace and SystemTap allow to add statically defined probes to a user space program. It is usually referred to as _User Statically Defined Tracing_ or _USDT_. As we discovered for other userspace probes, DTrace is not capable of tracking userspace processes and automatically register probes (as you need explicitly specify PID for `pid$$` provider). Same works for USDT -- program code needs special post-processing that will add code which will register USDT probes inside DTrace. 
 
-SystemTap, on contrary, like in case of ordinary userspace probes, uses its _task finder_ subsystem to find any process that provides a userspace probe. Probes, however are kept in separat ELF section, so it also requires altering build process. Build process involves `dtrace` tool which is wrapped in SystemTap as Python script, so you can use same build process for DTrace and SystemTap. Building simple program with USDT requires six steps:
+SystemTap, on contrary, like in case of ordinary userspace probes, uses its _task finder_ subsystem to find any process that provides a userspace probe. Probes, however are kept in separate ELF section, so it also requires altering build process. Build process involves `dtrace` tool which is wrapped in SystemTap as Python script, so you can use same build process for DTrace and SystemTap. Building simple program with USDT requires six steps:
 
 	* You will need to create a definition of tracing provider (and use `.d` suffix to savei it). For example:
 ```

@@ -2,7 +2,7 @@
 
 #### Part 1
 
-Modify `dumptask.stp` and `dumptask.d` so it will print information on successfull binary load by `execve()` and before process exit. Write a simple program `lab3.c`:
+Modify `dumptask.stp` and `dumptask.d` so it will print information on successful binary load by `execve()` and before process exit. Write a simple program `lab3.c`:
 
 ````` scripts/src/lab3.c
 
@@ -31,7 +31,7 @@ Run changed scripts and run your program in different ways:
 # chroot /tmp/chroot/ /bin/lab3
 ```
 
-What data output has been changed? Try to explain these changes.
+__Q__: What data output has been changed? Try to explain these changes.
 
 #### Part 2
 
@@ -40,8 +40,8 @@ Shell scripts have overhead caused by need to spawn new processes for basic oper
  * time, spent for child process initialization in userspace: closing files and resetting signals -- it is time interval between finish of `fork()` call in child context and calling of `execve()`;
  * own program time after it was loaded with `execve()` and before it was exited.
  
-To be more correct, we should also measure time spent by `ld.so` loader and substract it from _own program time_, but it involves complex tracing of userspace, so it is out of scope of this exercise. 
+To be more correct, we should also measure time spent by `ld.so` loader and subtract it from _own program time_, but it involves complex tracing of userspace, so we leave it out of the scope of this exercise. 
 
 Measure all time periods in microseconds and save them to an aggregations using process executable name and its program arguments.
 
-Use `proc_starter` default experiment to demonstrate written script. This module starts `sh` shell (which can be overridden with `shell` parameter), uses `PS1` environment variable to reset prompt, and simulates real user entering commands by passing them through pseudo-terminal. Commands are represented as probability map `command`.
+Use `proc_starter` experiment to demonstrate written script. This module starts `sh` shell (which can be overridden with `shell` parameter), uses `PS1` environment variable to reset prompt, and simulates real user entering commands by passing them through pseudo-terminal. Commands are represented as probability map `command`.

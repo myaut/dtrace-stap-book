@@ -17,7 +17,7 @@ Processes and threads are implemented through universal `task_struct` structure 
 
 ![image:linux-task](linux/task.png)
 
-Task which is currently executed on CPU is accessible through `current` macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use `task_current()`. You can also get pointer to a `task_struct` using `pid2task()` function which accepts PID as its first argument. Task tapset provides several functions similiar for functions used as [Probe Context][lang/context]. [task-funcs] They all get pointer to a `task_struct` as their argument:
+Task which is currently executed on CPU is accessible through `current` macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use `task_current()`. You can also get pointer to a `task_struct` using `pid2task()` function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as [Probe Context][lang/context]. [task-funcs] They all get pointer to a `task_struct` as their argument:
 	* `task_pid()` and `task_tid()` -- ID of the process ID (stored in `tgid` field) and thread (stored in `pid` field) respectively. Note that kernel most of the kernel code doesn't check cached `pid` and `tgid` but use namespace wrappers.
 	* `task_parent()` -- returns pointer to a parent process, stored in `parent`/`real_parent` fields
 	* `task_state()` -- returns state bitmask stored in `state`, such as `TASK_RUNNING` (0), `TASK_INTERRUPTIBLE` (1), `TASK_UNINTTERRUPTIBLE` (2). Last 2 values are for sleeping or waiting tasks -- the difference that only interruptible tasks may receive signals. 
@@ -67,14 +67,14 @@ For current process -- `fds` pseudo-array | `p_user.u_finfo` | Open file table
 | `t_mstate` | micro-state of thread (see also `prstat -m`)
 ---
 
-Parent process has `p_child` pointer that refers to its first child, while list of children is doubly-linked list with `p_sibling` pointer (next) and `p_psibling` (previous) pointers. Each child contains `p_parent` pointer and `p_ppid` process ID which refers his parent. Threads of the process is also a doubly-linked list with `t_forw` (next) and `t_prev` pointers. Thread references corresponding LWP with `t_lwp` pointer and its process with `t_procp` pointer. LWP refers to a thread through `lwp_thread` pointer, and to a process through `lwp_procp` pointer. 
+Parent process has `p_child` pointer that refers its first child, while list of children is doubly-linked list with `p_sibling` pointer (next) and `p_psibling` (previous) pointers. Each child contains `p_parent` pointer and `p_ppid` process ID which refers his parent. Threads of the process is also a doubly-linked list with `t_forw` (next) and `t_prev` pointers. Thread references corresponding LWP with `t_lwp` pointer and its process with `t_procp` pointer. LWP refers to a thread through `lwp_thread` pointer, and to a process through `lwp_procp` pointer. 
 
 The following script dumps information about current thread and process. Because DTrace doesn't support loops and conditions, it can read only first 9 files and 9 arguments and does that by generating multiple probes with preprocessor. 
 
 ````` scripts/dtrace/dumptask.d
 
 !!! WARN
-`psinfo_t` provider features `pr_psargs` field that contains first 80 characters of process arguments. This script uses direct extraction of arguments only for demonstrational purposes and to be conformatnt with dumptask.stp. Like in SystemTap case, this approach doesn't allow to read non-current process arguments. 
+`psinfo_t` provider features `pr_psargs` field that contains first 80 characters of process arguments. This script uses direct extraction of arguments only for demonstration purposes and to be conformant with dumptask.stp. Like in SystemTap case, this approach doesn't allow to read non-current process arguments. 
 !!!
 
 #### Lifetime of a process
@@ -84,14 +84,14 @@ Lifetime of a process and corresponding probes are shown in the following image:
 ![image:forkproc](forkproc.png)
 
 Unlike Windows, in Unix process is spawned in two stages:
- * Parent process calls `fork()` system call. Kernel create exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If `fork()` was successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. 
+ * Parent process calls `fork()` system call. Kernel creates exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If `fork()` was successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. 
  * Child process calls `execve()` system call, which replaces address space of a process with a new one based on binary which is passed to `execve()` call. 
  
 !!! WARN
-There is a simpler call, `vfork()`, which will not cause copying of an address space, which will make it a bit more effecient. Linux features universal `clone()` call which allow to choose which features of a process should be cloned, but in the end, all these calls are wrappers for `do_fork()` function.
+There is a simpler call, `vfork()`, which will not cause copying of an address space, which will make it a bit more efficient. Linux features universal `clone()` call which allow to choose which features of a process should be cloned, but in the end, all these calls are wrappers for `do_fork()` function.
 !!!
  
-When child process finishes its job, it will call `exit()` system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call `wait()` system call (or `waitid()` and similiar calls), which will stop parent from executing until child exits.
+When child process finishes its job, it will call `exit()` system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call `wait()` system call (or `waitid()` and similar calls), which will stop parent from executing until child exits.
 `wait()` call also receive process exit code, so only after that corresponding `task_struct` will be destroyed. If no process waited on a child, and child is exited, it will be treated as _zombie_ process. Parent process may be also notified by kernel with `SIGCHLD` signal.
 
 Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:
@@ -157,7 +157,7 @@ Running this script for `uname` program called in foreground of `bash` shell giv
 
 ````` scripts/dtrace/proc.d
 
-DTrace will give similiar outputs, but also will reveal LWP creation/destruction:
+DTrace will give similar outputs, but also will reveal LWP creation/destruction:
 
 ```
  16729[    bash]/ 16728[    sshd] syscall::forksys:entry

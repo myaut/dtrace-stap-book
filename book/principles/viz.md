@@ -1,12 +1,12 @@
 ### Visualization
 
-Reading trace files is exhausting, so the most popular scenario for post-processing is visualization. There are multiple standard ways to do that:
+Reading trace files is exhausting, so the most popular scenario for the post-processing is visualization. There are multiple standard ways to do that:
   * Use GNU Plot as shown here: [System utilization graphing with Gnuplot](https://sourceware.org/systemtap/wiki/WSUtilGraphWithGnuplot). Tracing script directly generates commands which are passed to GNU Plot. 
   * [DTrace Chime](http://wiki.netbeans.org/NetBeans_DTrace_GUI_Plugin_1_0 ) plugin for the NetBeans
   * [SystemTap GUI](http://stapgui.sourceforge.net/)
   * Writing you own visualization script. For example, following examples were generated using Python library `matplotlib`.
   
-Which diagrams are mostly useful? Let's find out.
+Which types diagrams are mostly useful? Let's find out.
 
 #### Linear diagram
 
@@ -53,14 +53,14 @@ __CEO salary__ | __Senior staff salary__ | __Junior staff salary__
 2 million roubles | 23k roubles | 7k roubles
 ---
 
-Would you want to work there if salary is distributed according row? Doubtful. Like with employement, you cannot rely on average readings in performance analysis: average latency 10ms doesn't mean that all users are satisfied -- some of them may had to wait seconds for web-page to render.
+Would you want to work there if salary is distributed according row? Doubtful. Like with employment, you cannot rely on average readings in performance analysis: average latency 10ms doesn't mean that all users are satisfied -- some of them may had to wait seconds for web-page to render.
 !!!
 
-If we calculate per-process difference between scheduler timestamps and build a logarithmical histogram plot, we'll see several requests which lasts for seconds:
+If we calculate per-process difference between scheduler timestamps and build a logarithmic histogram plot, we'll see several requests which lasts for seconds:
 
 ![image:density](density.png)
 
-Y axis is logarithmical and represents a number of observed intervals when CPU was busy for time period shown on X axis. If we normalize this characteristic, we will get probability density function. 
+Y axis is logarithmic and represents a number of observed intervals when CPU was busy for time period shown on X axis. If we normalize this characteristic, we will get probability density function. 
 
 !!! WARN
 Aggregations `quantize()`/`hist_linear()` and `lquantize()`/`hist_log()` might do the same, but in text terminal.
@@ -68,7 +68,7 @@ Aggregations `quantize()`/`hist_linear()` and `lquantize()`/`hist_log()` might d
 
 #### Heat maps
 
-When two axes is not enough for your graph, you may also use a color intensity of each pixel too. Let's see, how CPU usage is distributed across CPUs. To do so we need pick a step for the observation interval, say `T=100ms`, accumulate all intervals when non-idle thread were on that CPU, say `t`, than pixel's intensity will be `1.0 - t/T` so `1.0` (white) will say that CPU was idle all the time, while `0.0` (black) will be evidence that CPU is very busy. For our example, we will see, that CPU 4 is periodically runs CPU-bound tasks:
+When two axes is not enough for your graph, you may also use a colour intensity of each pixel too. Let's see, how CPU usage is distributed across CPUs. To do so we need pick a step for the observation interval, say `T=100ms`, accumulate all intervals when non-idle thread were on that CPU, say `t`, than pixel's intensity will be `1.0 - t/T` so `1.0` (white) will say that CPU was idle all the time, while `0.0` (black) will be evidence that CPU is very busy. For our example, we will see, that CPU 4 is periodically runs CPU-bound tasks:
 
 ![image:heatmap](heatmap.png)
 
@@ -79,4 +79,4 @@ Generally speaking, gantt charts help to understand state of the system across t
 
 ![image:oncpu](oncpu.png)
 
-We added process name to the longest bars, and it seems that `bash` process causing throuble. We could discover it before, adding tags on histogram.
+We added process name to the longest bars, and it seems that `bash` process causing trouble. We could discover it before, adding tags on histogram.

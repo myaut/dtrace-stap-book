@@ -3,9 +3,9 @@
 Consider the following C program which will be translated into assembler:
 ```
 char msg[] = "Hallo, world";	// mov %edi, $224cc
-msg[1]++;						// add (%edi), $4
+msg[1] += 4;					// add (%edi), $4
 ```
-When single instance of that program is running, it will work as expected, message will become "Hello, world". But what will happen if two instances of program will run simultaneously? Since compiler have used absolute addressing, second program may have been overwritten data of first instance of a program, making it "Hillo, world!" (actually, before that, program loader should load original message "Hallo, world" back). So multiprocessing creates two problems: same addresses of different processes shouldn't point to same physical memory cell and processes should be disallowed to write to memory that doesn't belong to them. _Virtual memory_ is an answer to that problem 
+When single instance of that program is running, it will work as expected, message will become "Hello, world". But what will happen if two instances of program will be run simultaneously? Since compiler have used absolute addressing, second program may have been overwritten data of first instance of a program, making it "Hillo, world!" (actually, before that, program loader should load original message "Hallo, world" back). So multiprocessing creates two problems: same addresses of different processes shouldn't point to same physical memory cell and processes should be disallowed to write to memory that doesn't belong to them. _Virtual memory_ is an answer to that problems.
 
 Modern virtual memory mechanisms are based on _page addressing_: all physical memory is divided to a pages of a small size (4 kb in x86). Processes are exist in a virtual address space where each subset of addresses, say `[BASE;BASE+PAGESIZE)`, maps to a single page. List of such mappings is maintained as _page table_. Modern CPUs also provide support for _huge pages_ (Linux) or _large pages_ (Solaris) which may be megabytes or even gigabyte in size. Speaking of our previous example, kernel _binary format loader_ will set up a virtual address space for our program, copying all data to a new locations in physical memory:
 
@@ -23,7 +23,7 @@ When you try to allocate memory using `malloc()`, standard C library may increas
 
 You can check address space of a process with `pmap` program or by viewing `/proc/PID/mapping` file on Linux. 
 
-Let's for example see, how memory is dynamically allocated by calling `malloc()` with relatively large value. I used Python 2 `range(10000)` builtin which creates list with 10000 numbers.
+Let's for example see, how memory is dynamically allocated by calling `malloc()` with relatively large value. I used Python 2 `range(10000)` built-in which creates list with 10000 numbers.
 
 SystemTap provides corresponding syscalls via tapset `vm`:
 ```
@@ -52,11 +52,11 @@ Process address space is kept in `mm_struct` in Linux and in `as_t` structure in
 
 ![image:mm](linux/mm.png)
 
-Each memory segment is represented by instance of `vm_area_struct` structure which has two addresses: `vm_start` which points to the beginning of a segment and `vm_end` which points to the end of the segment. Kernel maintains two lists of segements: linear double-linked list of segments (sorted by their addresses) starting with `mmap` pointer in `mm_struct` with `vm_next` and `vm_prev` pointers, another list is a red-black tree built with `mm_rb` as root and `vm_rb` as node. 
+Each memory segment is represented by instance of `vm_area_struct` structure which has two addresses: `vm_start` which points to the beginning of a segment and `vm_end` which points to the end of the segment. Kernel maintains two lists of segments: linear double-linked list of segments (sorted by their addresses) starting with `mmap` pointer in `mm_struct` with `vm_next` and `vm_prev` pointers, another list is a red-black tree built with `mm_rb` as root and `vm_rb` as node. 
 
-Segment may be mapped files, so they have non-NULL value of `vm_file` pointing to a `file`. Each `file` has an `address_space` which contains all pages of a file in a `page_tree` in a `address_space` object. This object also references `host` inode of a file and all mappings corresponding to that file through linear and non-linear lists, thus making all mappings of a file shared. Another option for mapping is anonymous memory -- its data is kept in `anon_vma` structure. Every segment has a `vm_mm` pointer which refers `mm_struct` to which it belongs. 
+Segments may be mapped files, so they have non-NULL value of `vm_file` pointing to a `file`. Each `file` has an `address_space` which contains all pages of a file in a `page_tree` in a `address_space` object. This object also references `host` inode of a file and all mappings corresponding to that file through linear and non-linear lists, thus making all mappings of a file shared. Another option for mapping is anonymous memory -- its data is kept in `anon_vma` structure. Every segment has a `vm_mm` pointer which refers `mm_struct` to which it belongs. 
 
-`mm_struct` alone contains many other useful information, such as base addresses of entire address space `mmap_base`, addresses of a stack, heap, data and text segments, etc. Linux also caches memory statistics for a process in `rss_stat` field of `mm_struct` which can be pretty-printed with `proc_mem*` functions in SystemTap:
+`mm_struct` alone contains other useful information, such as base addresses of entire address space `mmap_base`, addresses of a stack, heap, data and text segments, etc. Linux also caches memory statistics for a process in `rss_stat` field of `mm_struct` which can be pretty-printed with `proc_mem*` functions in SystemTap:
 ```
 # stap -e '
 	probe vm.brk, vm.mmap { 
@@ -75,9 +75,9 @@ Some memory will be consumed by a process indirectly. For example, when applicat
 #### Page fault
 
 As we mentioned before, when program accesses memory, memory management unit takes address, finds an entry in a page table and gets physical address. That entry, however, may not exist -- in that case CPU will raise an exception called a _page fault_. There are three types of page faults that may happen:
- * _Minor_ page fault occur when page table entry should exist, but corresponding page wasn't allocated or page table entry wasn't created. For example, Linux and Solaris do not allocate mmapped pages immidiately, but wait until first page access which causes minor page faults.
+ * _Minor_ page fault occurs when page table entry should exist, but corresponding page wasn't allocated or page table entry wasn't created. For example, Linux and Solaris do not allocate mmapped pages immediately, but wait until first page access which causes minor page faults.
  * _Major_ page fault requires reading from disk. It may be caused by accessing memory-mapped file or when process memory was paged-out onto disk swap.
- * _Invalid_ page fault occur when application access memory at invalid address or when segment permissions forbid such access (for example writing into text segment, which is usually disallowed). In this case operating system may raise `SIGSEGV` signal. A special case of invalid page faults is _copy-on-write_ fault which happens when forked process tries to write to a parent's memory. In this case, OS copies page and setups a new mapping for forked process.
+ * _Invalid_ page fault occur when application access memory at invalid address or when segment permissions forbid such access (for example writing into text segment, which is usually disallowed). In this case operating system may raise `SIGSEGV` signal. A special case of invalid page faults is _copy-on-write_ fault which happens when forked process tries to write to a parent's memory. In this case, OS copies page and sets up a new mapping for forked process.
 
 Page faults are considered harmful because they interrupt normal process execution, so there are various system calls such as `mlock()`, `madvise()` which allow to flag memory areas to reduce memory faults. I.e. `mlock()` should guarantee page allocation, so minor fault won't occur for that memory area. If page faults occurs in a kernel address space, it will lead to kernel oops or panic.
 
@@ -133,7 +133,7 @@ Here is an example of a page fault traced by this script:
 ```
 It was most likely a data segment of a `/usr/bin/bash` binary (because it has rights `rwxu`), while type of the fault is `F_PROT` which means invalid access right which makes it copy-on-write fault. 
 
-If you run a script for a process which allocates and initializes large amount of memory, you'll see a lot of minor fault (identifiable by `F_INVAL`) with addresses which are go sequentally:
+If you run a script for a process which allocates and initializes large amount of memory, you'll see lots of minor faults (identifiable by `F_INVAL`) with addresses which are go sequentially:
 ```
 <b>as_fault</b> pid: 987 as: ffffc10008fc6110
 	addr: 81f8000 size: 1 flags: F_INVAL|S_WRITE 
@@ -176,7 +176,7 @@ Here is an example of its output:
 
 Virtual memory is distributed between applications and kernel by a subsystem which called _kernel allocator_. It may be used both for applications and for internal kernel buffers such as ethernet packets, block input-output buffers, etc. 
 
-Lower layer of the kernel allocator is a _page allocator_. It maintains lists of _free pages_ which are immidiately available to consumers, _cache pages_ which are cached filesystem data and may be easily evicted and _used pages_ that has to be reclaimed thus being writing on disk swap device. Page allocation is performed by `page_create_va()` function in Solaris which provides `page-get` and `page-get-page` static probes:
+Lower layer of the kernel allocator is a _page allocator_. It maintains lists of _free pages_ which are immediately available to consumers, _cache pages_ which are cached filesystem data and may be easily evicted and _used pages_ that has to be reclaimed thus being writing on disk swap device. Page allocation is performed by `page_create_va()` function in Solaris which provides `page-get` and `page-get-page` static probes:
 ```
 # dtrace -qn '
 	page-get* { 

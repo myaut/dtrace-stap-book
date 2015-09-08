@@ -36,10 +36,10 @@ Here are some useful `stap(1)` options:
  * `-l PROBESPEC` accepts probe specifier without `probe` keyword (but with wildcards) and prints all matching probe names (more on wildcards in [Probes][lang/probes]). `-L` will also print probe arguments and their types. For example:
    `# stap -l 'scsi.*'`
  * `-v` -- increases verbosity of SystemTap. The more letters you passed, the more diagnostic information will be printed. If only one `-v` was passed, `stap` will report only finishing of each stage.
- * `-p STAGE` -- ends stao process after _STAGE_, represented with a number starting with 1 (_parse_). 
- * `-k` -- won't delete SystemTap temporary files created during compilation (sources and kernel modules kept in `/tmp/stapXXXX` directory),
+ * `-p STAGE` -- ends stap process after _STAGE_, represented with a number starting with 1 (_parse_). 
+ * `-k` -- stap tool won't delete SystemTap temporary files created during compilation (sources and kernel modules kept in `/tmp/stapXXXX` directory),
  * `-g` -- enables Guru-mode, that allows to bind to blacklisted probes and write into kernel memory along with using Embedded C in your scripts. Generally speaking, it allows dangerous actions.
- * `-c COMMAND` and `-x PID` -- like those in DTrace allow to bind tracing to a specific process
+ * `-c COMMAND` and `-x PID` -- like those in DTrace, they allow to bind SystemTap to a specific process
  * `-o FILE` -- redirects output to a file. If it already exists, SystemTap __rewrites__ it.
  * `-m NAME` -- when compiling a module, give it meaningful name instead of `stap_<gibberish>`.
  

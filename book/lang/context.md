@@ -1,13 +1,15 @@
 ### Context
 
+!!! DEF
 _Probe context_ contains system state related to a fired probe, including:
  * Register values
  * Thread and process, which caused probe firing, including CPU where thread is running
  * Currently executing probe
+!!!
  
 Context is provided as built-in variables in DTrace such as `execname` or as tapset functions in SystemTap such as `execname()`. 
 
-Userspace register values are available in DTrace through builtin variable `uregs`. In SystemTap, they avaiable through Embedded C and kernel function `task_pt_regs`, or a special Embedded C variable `CONTEXT`, see for example implementation of `uaddr()` and `print_regs()` tapset functions. 
+Userspace register values are available in DTrace through built-in variable `uregs`. In SystemTap, they available through Embedded C and kernel function `task_pt_regs`, or a special Embedded C variable `CONTEXT`, see for example implementation of `uaddr()` and `print_regs()` tapset functions. 
 
 Here are some useful context information:
 

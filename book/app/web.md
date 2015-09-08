@@ -227,7 +227,7 @@ Here are simple tracer for PHP web application which is written on SystemTap:
 
 ````` scripts/stap/web.stp
 
-If you run it and try to access index page of Drupal CMS with your web-browser, you will see similiar traces:
+If you run it and try to access index page of Drupal CMS with your web-browser, you will see similar traces:
 ```
 [httpd] read-request
 [httpd] read-request    GET ??? /drupal/modules/contextual/images/gear-select.png  [status: 200]                                                                            
@@ -254,6 +254,6 @@ As you can see from this trace, there is a request of a static image `gear-selec
 You will need to restart Apache HTTP server after you start web.stp script.
 !!!
 
-Due to high amounts of script outputs, you will need to increase buffers in DTrace. The rest of script will look similiar to `web.stp`:
+Due to high amounts of script outputs, you will need to increase buffers in DTrace. The rest of script will look similar to `web.stp`:
 
 ````` scripts/dtrace/web.d

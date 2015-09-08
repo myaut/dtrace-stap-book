@@ -1,6 +1,6 @@
 ### Predicates 
 
-_Predicates_ are usually go in the beginning of the probe and allow to exclude unneccessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as `==`, `!=`, `>`, `>=`, `<`, `<=` and logical operators `&&` for logical AND, `||` for logical OR and `!` for logical negation, alas with calling functions or actions.
+_Predicates_ are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as `==`, `!=`, `>`, `>=`, `<`, `<=` and logical operators `&&` for logical AND, `||` for logical OR and `!` for logical negation, alas with calling functions or actions.
 
 In DTrace predicate is a separate language construct which is going in slashes `/` immediately after list of probe names. If it evaluated to true, probe is __executed__:
 ```
@@ -11,7 +11,7 @@ syscall::write:entry
 }
 ```
 
-In SystemTap, however, there is no separate predicate language construct, but it supports conditional statement and `next` statement which exits from the probe, so combining them will give similiar effect:
+In SystemTap, however, there is no separate predicate language construct, but it supports conditional statement and `next` statement which exits from the probe, so combining them will give similar effect:
 ```
 probe syscall.write {
 	if(pid() != target())
@@ -21,7 +21,7 @@ probe syscall.write {
 ```
 Note that in SystemTap, probe will be __omitted__ if condition in `if` statement is evaluated to true thus making this logic inverse to DTrace.
 
-Starting with SystemTap 2.6, it supports mechanism similiar to predicates which is called on-the-fly arming/disarming. When it is active, probes will be installed only when certain condition will become true. For example:
+Starting with SystemTap 2.6, it supports mechanism similar to predicates which is called on-the-fly arming/disarming. When it is active, probes will be installed only when certain condition will become true. For example:
 ```
 probe syscall.write if(i > 4) {
 		printf("Written %d bytes", $count);
@@ -35,7 +35,7 @@ This probe will be installed when `i` becomes more than four.
 Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with `stp_pid()` which returns PID of consumer.
 !!!
 
-Sometimes, if target process forking and you need to trace its children, like with `-f` option in `truss`/`strace`, compaing `pid()` and even `ppid()` is not enough. In this case you may use DTrace subroutine `progenyof()` which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, `progenyof(1)` will be true for all userspace processes because they are all children to the `init`.
+Sometimes, if target process forking and you need to trace its children, like with `-f` option in `truss`/`strace`, comparing `pid()` and even `ppid()` is not enough. In this case you may use DTrace subroutine `progenyof()` which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, `progenyof(1)` will be true for all userspace processes because they are all children to the `init`.
 
 `progenyof()` is missing in SystemTap, but it can be simulated with `task_*()` functions and the following SystemTap script (these functions are explained in [Process Management][kernel/proc#task-funcs]):
 ```
