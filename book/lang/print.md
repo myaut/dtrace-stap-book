@@ -25,6 +25,7 @@ This makes interpretation of output is extremely complicated especially in case 
 * ![image:dtraceicon](icons/dtrace.png) [Output Formatting](http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html)
 * ![image:staplang](icons/staplang.png) [Formatted output](https://sourceware.org/systemtap/langref/Formatted_output.html)
 
+[speculations]
 ### Speculations
 
 Predicates is one form to get rid to useless event, but they only allow to decide when probe is firing. What if there are several probes and decision can be made only in the last one? To answer that problem, dynamic tracing languages support _speculations_. For example you may want to trace only requests which are finished with an error code. 

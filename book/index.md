@@ -59,7 +59,7 @@ This work is licensed under the  Creative Commons Attribution-Noncommercial-Shar
     * [Exercise 4][kernel/ex4]
  * [Virtual File System][kernel/fs]
  * [Block Input-Output][kernel/bio]
- * [Asynchronity in kernel][kernel/async]
+ * [Asynchronicity in kernel][kernel/async]
     * [Exercise 5][kernel/ex5]
  * [Network Input-Output][kernel/net]
  * [Synchronization primitives][kernel/sync]

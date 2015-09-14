@@ -40,6 +40,9 @@ uint64_t timestamps[uint64_t];
             pkt->pkt_flags, pkt->pkt_state);                     \
             sym((uintptr_t) pkt->pkt_comp); printf("\n")
 
+#define SCSI_PRINT_PATH(un)                                      \
+    printf("\tDEV %s\n", ddi_pathname(((struct sd_lun*) un)->un_sd->sd_dev, 0))
+
 io:::start {
     specs[BUF_SPEC_INDEX(arg0)] = speculation();
     timestamps[BUF_SPEC_INDEX(arg0)] = timestamp;
@@ -79,6 +82,7 @@ io:::start {
 *sd_add_buf_to_waitq:entry {
     BUF_SPECULATE(arg1);
     PROBE_PRINT(probefunc, arg1);
+    SCSI_PRINT_PATH(arg0);
 }
 
 scsi-transport-dispatch {
