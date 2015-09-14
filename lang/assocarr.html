@@ -186,8 +186,8 @@ Aggregations may be sorted in DTrace using <code>aggsortkey</code>, <code>aggsor
 <a name="aggr-example"></a><br />Aggregations are extremely useful for writing stat-like utilities. For example, let's write utilities that count number of <code>write</code> system calls and amount of kilobytes they written. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696541584')">+</button>&nbsp; Script file wstat.d <br/><p>
-<pre id="code140000696541584" class="hide">
+<button class="btn" onclick="toggleCode('code140460524171728')">+</button>&nbsp; Script file wstat.d <br/><p>
+<pre id="code140460524171728" class="hide">
 #pragma D option aggsortkey
 #pragma D option aggsortkeypos=0 
 
@@ -215,8 +215,8 @@ Note that aggregations are follow after keys in <code>printa</code> format strin
 SystemTap has similar code, but <code>printa</code> is implemented via our own <code>foreach</code> cycle. On the other hand, we will keep only one associative array here:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696542416')">+</button>&nbsp; Script file wstat.stp <br/><p>
-<pre id="code140000696542416" class="hide">
+<button class="btn" onclick="toggleCode('code140460524172560')">+</button>&nbsp; Script file wstat.stp <br/><p>
+<pre id="code140460524172560" class="hide">
 global wstat;
 
 probe syscall.write {

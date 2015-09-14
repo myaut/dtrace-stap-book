@@ -48,8 +48,8 @@ We already discussed problem with probe stability. Some issues may be related to
 DTrace has a <em>translators</em> for doing that:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696488272')">+</button>&nbsp; Script file stat.d <br/><p>
-<pre id="code140000696488272" class="hide">
+<button class="btn" onclick="toggleCode('code140460524114384')">+</button>&nbsp; Script file stat.d <br/><p>
+<pre id="code140460524114384" class="hide">
 struct stat_info {
     long long st_size;
 };
@@ -83,8 +83,8 @@ SystemTap doesn't have translators, but you can create <em>prologue</em> or <em>
 Linux has several variants for <code>stat</code> structure in <code>stat()</code> system call, some of them deprecated, some are intended to support 64-bit sizes for 32-bit callers. By using following tapset we will remove such differences and make them universally available through <code>filename</code> and <code>size</code> variables:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696489488')">+</button>&nbsp; Script file lstat.stp <br/><p>
-<pre id="code140000696489488" class="hide">
+<button class="btn" onclick="toggleCode('code140460524115600')">+</button>&nbsp; Script file lstat.stp <br/><p>
+<pre id="code140460524115600" class="hide">
 probe lstat = kernel.function("sys_lstat64").return ? ,
               kernel.function("sys32_lstat64").return ? {
     filename = user_string($filename);
@@ -116,8 +116,8 @@ Note that this tapset only checks for 64-bit Intel architecture. You will need a
 After we created this tapset, it can be used very easy:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696490192')">+</button>&nbsp; Script file lstat.stp <br/><p>
-<pre id="code140000696490192" class="hide">
+<button class="btn" onclick="toggleCode('code140460524116304')">+</button>&nbsp; Script file lstat.stp <br/><p>
+<pre id="code140460524116304" class="hide">
 probe lstat {
     printf("%s %d\n", filename, size);
 }

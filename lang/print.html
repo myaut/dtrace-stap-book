@@ -77,7 +77,7 @@ This makes interpretation of output is extremely complicated especially in case 
 </ul>
 </p>
 <p>
-<h3>Speculations</h3></p>
+<a name="speculations"></a><h3>Speculations</h3></p>
 <p>
 Predicates is one form to get rid to useless event, but they only allow to decide when probe is firing. What if there are several probes and decision can be made only in the last one? To answer that problem, dynamic tracing languages support <em>speculations</em>. For example you may want to trace only requests which are finished with an error code. <br /></p>
 <p>
@@ -85,7 +85,7 @@ Speculations allow to create independent output buffer for each request using <c
 <p>
 To add an output to a speculation in DTrace, call <code>speculate()</code> function which accepts single argument -- speculation id. After that call, all subsequent print statements in current probe body will be redirected to a speculation buffer. In SystemTap <code>speculate()</code> accepts two parameters: one for speculation id and second for string to be put into speculation, so you should use <code>sprintf()</code> instead of <code>printf()</code> to print to a buffer.<br /></p>
 <p>
-Speculations are used in <a style="color: red" href="../kernel/bio.html">Block Input-Output</a> scripts. <br /></p>
+Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scripts. <br /></p>
 <p>
 <h4>References</h4></p>
 <p>

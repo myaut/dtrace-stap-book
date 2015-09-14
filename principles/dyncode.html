@@ -238,8 +238,8 @@ For example, let's see how this approach helps find a source of fault in system 
 In SystemTap call tree indentation is performed through <code>indent()</code> and <code>thread_indent()</code> which are maintaining internal buffer, and increase or decrease number of space characters in it according to a number passed as argument to that functions. It is used in following script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696162832')">+</button>&nbsp; Script file callgraph.stp <br/><p>
-<pre id="code140000696162832" class="hide">
+<button class="btn" onclick="toggleCode('code140460523793040')">+</button>&nbsp; Script file callgraph.stp <br/><p>
+<pre id="code140460523793040" class="hide">
 #!/usr/bin/stap
 
 global traceme;
@@ -316,8 +316,8 @@ So, now we can say that problem is in <code>__link_path_walk</code> function. Th
 DTrace consumer supports automatic indentation of output if <code>flowindent</code> tunable is set:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000696163664')">+</button>&nbsp; Script file callgraph.d <br/><p>
-<pre id="code140000696163664" class="hide">
+<button class="btn" onclick="toggleCode('code140460523793872')">+</button>&nbsp; Script file callgraph.d <br/><p>
+<pre id="code140460523793872" class="hide">
 #!/usr/sbin/dtrace -s
 
 #pragma D option flowindent

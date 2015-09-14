@@ -45,7 +45,7 @@
 <p>
 <em>libc</em> is a C library shipped with Unix which provides access to most of its facilities like system calls in a portable manner. Linux <em>glibc</em> (one of the implementations of <em>libc</em> which is most popular) and <em>libc</em> shipped with Solaris contain some USDT probes. We will discuss them in this section. <br /></p>
 <p>
-On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as <code>plockstat</code> provider (similar to <a style="color: red" href="../kernel/async.html#lockstat">lockstat</a> provider we discussed earlier). <em>glibc</em>, however implements wider set of probes: along with various <em>pthread</em> operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of <code>setjmp</code>/<code>longjmp</code> and dynamic linker <code>ld.so</code>.<br /></p>
+On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as <code>plockstat</code> provider (similar to <a href="../kernel/async.html#lockstat">lockstat</a> provider we discussed earlier). <em>glibc</em>, however implements wider set of probes: along with various <em>pthread</em> operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of <code>setjmp</code>/<code>longjmp</code> and dynamic linker <code>ld.so</code>.<br /></p>
 <p>
 Lets see how mutexes are traced in Solaris and Linux (in this section we will assume glibc by saying "Linux"). Solaris provides them through <code>plockstat</code> provider:<br /></p>
 <p>
@@ -134,8 +134,8 @@ Acquired mutex          </td>
 Here are an example of pthread tracer in SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695211920')">+</button>&nbsp; Script file pthread.stp <br/><p>
-<pre id="code140000695211920" class="hide">
+<button class="btn" onclick="toggleCode('code140460522426128')">+</button>&nbsp; Script file pthread.stp <br/><p>
+<pre id="code140460522426128" class="hide">
 #!/usr/bin/env stap
 
 @define libpthread %( "/lib64/libpthread.so.0" %)
@@ -219,8 +219,8 @@ Note that thread with TID=8972 will acquire mutex in <code>tpd_wqueue_put</code>
 <code>plockstat</code> doesn't support many probes that glibc do, put we can easily replace them with <code>pid</code> provider and function boundary tracing:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695212496')">+</button>&nbsp; Script file pthread.d <br/><p>
-<pre id="code140000695212496" class="hide">
+<button class="btn" onclick="toggleCode('code140460522443152')">+</button>&nbsp; Script file pthread.d <br/><p>
+<pre id="code140460522443152" class="hide">
 #!/usr/bin/dtrace
 #pragma D option bufsize=8m
 #pragma D option switchrate=100hz

@@ -45,8 +45,8 @@ This exercise is not so different than any <a href="../principles/perf.html#late
 Note that <code>plockstat$</code> provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using <code>pid$</code> provider. As you may notice from ustack outputs in <code>pthread.d</code> example, mutex lock attempts are implemented by <code>mutex_lock_impl()</code> libc function. We will use <code>quantize()</code> aggregation which will be printed with <code>printa</code>:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000694522320')">+</button>&nbsp; Script file mtxtime.d <br/><p>
-<pre id="code140000694522320" class="hide">
+<button class="btn" onclick="toggleCode('code140460522252624')">+</button>&nbsp; Script file mtxtime.d <br/><p>
+<pre id="code140460522252624" class="hide">
 pid$target::mutex_lock_impl:entry
 { 
     self->mtxtime = timestamp; 
@@ -76,8 +76,8 @@ Mutexes are also often used in TSLoad which can cause excessive overheads when w
 Here are our script for SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000694523536')">+</button>&nbsp; Script file mtxtime.stp <br/><p>
-<pre id="code140000694523536" class="hide">
+<button class="btn" onclick="toggleCode('code140460522253840')">+</button>&nbsp; Script file mtxtime.stp <br/><p>
+<pre id="code140460522253840" class="hide">
 global mtxtime[128], mtxlockt;
 
 @define libpthread %( "/lib64/libpthread.so.0" %)

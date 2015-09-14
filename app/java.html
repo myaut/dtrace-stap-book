@@ -93,8 +93,8 @@ JDK shipped in <code>openjdk</code> packages in RHEL-like operating systems supp
 Let's write small program, called <em>Greeter</em> which will write "Hello, DTrace" from four threads. Its implementation is based on <em>Greeter</em> from <a href="http://www.solarisinternals.com/wiki/index.php/DTrace_Topics_Java">Solaris Internals wiki</a> with small difference: <code>Greeting.greet()</code> method uses <code>synchronized</code> keyword so it will use monitor. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695030992')">+</button>&nbsp; Script file Greeting.java <br/><p>
-<pre id="code140000695030992" class="hide">
+<button class="btn" onclick="toggleCode('code140460522773584')">+</button>&nbsp; Script file Greeting.java <br/><p>
+<pre id="code140460522773584" class="hide">
 public class Greeting {
         public synchronized void greet() {
                 System.out.println("Hello, DTrace!");
@@ -106,8 +106,8 @@ public class Greeting {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695031056')">+</button>&nbsp; Script file GreetingThread.java <br/><p>
-<pre id="code140000695031056" class="hide">
+<button class="btn" onclick="toggleCode('code140460522773648')">+</button>&nbsp; Script file GreetingThread.java <br/><p>
+<pre id="code140460522773648" class="hide">
 class GreetingThread extends Thread {
          Greeting greeting;
 
@@ -133,8 +133,8 @@ class GreetingThread extends Thread {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695031120')">+</button>&nbsp; Script file Greeter.java <br/><p>
-<pre id="code140000695031120" class="hide">
+<button class="btn" onclick="toggleCode('code140460522773712')">+</button>&nbsp; Script file Greeter.java <br/><p>
+<pre id="code140460522773712" class="hide">
 public class Greeter {
         public static void main(String[] args) {
                 Greeting greeting = new Greeting();
@@ -163,8 +163,8 @@ public class Greeter {
 Here are small tracer for it implemented with SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695031184')">+</button>&nbsp; Script file hotspot.stp <br/><p>
-<pre id="code140000695031184" class="hide">
+<button class="btn" onclick="toggleCode('code140460522773776')">+</button>&nbsp; Script file hotspot.stp <br/><p>
+<pre id="code140460522773776" class="hide">
 #!/usr/bin/stap
 
 probe hotspot.class_loaded
@@ -195,8 +195,8 @@ probe hotspot.monitor_contended_enter, hotspot.monitor_contended_exit
 Similar script on DTrace will look like this and should use <code>dtrace_helper.d</code> or called with <code>-Z</code> option:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695031504')">+</button>&nbsp; Script file hotspot.d <br/><p>
-<pre id="code140000695031504" class="hide">
+<button class="btn" onclick="toggleCode('code140460522774096')">+</button>&nbsp; Script file hotspot.d <br/><p>
+<pre id="code140460522774096" class="hide">
 #!/usr/sbin/dtrace -qs
 
 #pragma D option switchrate=10hz
@@ -617,8 +617,8 @@ You could notice that we can't extract method's arguments in method probes like 
 JSDT is implemented in packages <code>com.sun.tracing</code> and <code>sun.tracing</code>. Each provider should be a class which implements <code>com.sun.tracing.Provider</code> interface, while each method of this class will be a probe. Reimplement our greeting example with JSDT support:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695151568')">+</button>&nbsp; Script file Greeting.java <br/><p>
-<pre id="code140000695151568" class="hide">
+<button class="btn" onclick="toggleCode('code140460522394512')">+</button>&nbsp; Script file Greeting.java <br/><p>
+<pre id="code140460522394512" class="hide">
 public class Greeting {
         GreetingProvider provider;
 
@@ -639,8 +639,8 @@ public class Greeting {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695151760')">+</button>&nbsp; Script file GreetingProvider.java <br/><p>
-<pre id="code140000695151760" class="hide">
+<button class="btn" onclick="toggleCode('code140460522394704')">+</button>&nbsp; Script file GreetingProvider.java <br/><p>
+<pre id="code140460522394704" class="hide">
 import com.sun.tracing.Provider;
 
 public interface GreetingProvider extends Provider {
@@ -654,8 +654,8 @@ public interface GreetingProvider extends Provider {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140000695151696')">+</button>&nbsp; Script file JSDT.java <br/><p>
-<pre id="code140000695151696" class="hide">
+<button class="btn" onclick="toggleCode('code140460522394640')">+</button>&nbsp; Script file JSDT.java <br/><p>
+<pre id="code140460522394640" class="hide">
 import com.sun.tracing.*;
 
 public class JSDT {
