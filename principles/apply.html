@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 3: Principles of dynamic tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -42,7 +43,7 @@
 <p>
 As we mentioned in <a href="../tools/tracing.html">Tracing</a>, it is used for statistics collection and performance analysis, dynamic kernel or application debug, system audit. Imagine the situation in which various processes running by two different users are opening files:<br /></p>
 <p>
-<img src="../images/catfiles.png" alt="" /></p>
+<img src="../images/catfiles.png" alt="" class="img-rounded"/></p>
 <p>
 What problems can occur and how they are solved by dynamic tracing? Users can complain to very slow opening of a file, so we need to do <em>performance analysis</em>. First of all, we have confirm user complaints by measuring time spent in <code>open()</code>, <code>read()</code> and <code>write()</code> system calls. We can also try to cross-reference slow calls and filesystems on which they occur (by gathering mount paths), if problems are caused by bad NAS or disk. If the problem still exists, than you will need to go down VFS stack, i.e. by measuring time spent in block I/O or in lookup operations. <br /></p>
 <p>
@@ -95,7 +96,7 @@ We will discuss how trace data may be analysed and what conclusion can be made f
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-center">
@@ -108,5 +109,14 @@ We will discuss how trace data may be analysed and what conclusion can be made f
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

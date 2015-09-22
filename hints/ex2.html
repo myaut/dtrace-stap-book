@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Appendix A. Exercise hints and solutions </title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -52,8 +53,8 @@ Finally, we need to determine if open operation requests creation of file or not
 Here are resulting scripts:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046020688')">+</button>&nbsp; Script file openaggr.d <br/><p>
-<pre id="code140367046020688" class="hide">
+<button class="btn" onclick="toggleCode('code140085534195216')">+</button>&nbsp; Script file openaggr.d <br/><p>
+<pre id="code140085534195216" class="hide">
 syscall::openat*:entry
 /(arg2 & O_CREAT) == O_CREAT/ {
     @create[execname, pid] = count();
@@ -81,8 +82,8 @@ tick-$1s {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046020816')">+</button>&nbsp; Script file openaggr.stp <br/><p>
-<pre id="code140367046020816" class="hide">
+<button class="btn" onclick="toggleCode('code140085534195344')">+</button>&nbsp; Script file openaggr.stp <br/><p>
+<pre id="code140085534195344" class="hide">
 global open, creat, success
 global O_CREAT = 64;
 
@@ -120,7 +121,7 @@ probe timer.s($1) {
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -136,5 +137,14 @@ probe timer.s($1) {
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Appendix A. Exercise hints and solutions </title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -49,8 +50,8 @@ As you could remember from a <a href="../principles/profiling.html">profiling</a
 Here are resulting implementations of scripts for SystemTap and DTrace:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367045648784')">+</button>&nbsp; Script file topphp.stp <br/><p>
-<pre id="code140367045648784" class="hide">
+<button class="btn" onclick="toggleCode('code140085533819216')">+</button>&nbsp; Script file topphp.stp <br/><p>
+<pre id="code140085533819216" class="hide">
 @define httpd %( "/usr/local/apache2/bin/httpd" %)
 @define libphp5 %( "/usr/local/apache2/modules/libphp5.so" %)
 
@@ -82,8 +83,8 @@ probe end {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367045648912')">+</button>&nbsp; Script file topphp.d <br/><p>
-<pre id="code140367045648912" class="hide">
+<button class="btn" onclick="toggleCode('code140085533819344')">+</button>&nbsp; Script file topphp.d <br/><p>
+<pre id="code140085533819344" class="hide">
 ap*:::process-request-entry {
     self->uri = copyinstr(arg1);
 }
@@ -111,7 +112,7 @@ END {
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -124,5 +125,14 @@ END {
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Appendix A. Exercise hints and solutions </title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -48,8 +49,8 @@ This exercise is not so different than any <a href="../principles/perf.html#late
 Note that <code>plockstat$</code> provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using <code>pid$</code> provider. As you may notice from ustack outputs in <code>pthread.d</code> example, mutex lock attempts are implemented by <code>mutex_lock_impl()</code> libc function. We will use <code>quantize()</code> aggregation which will be printed with <code>printa</code>:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046145872')">+</button>&nbsp; Script file mtxtime.d <br/><p>
-<pre id="code140367046145872" class="hide">
+<button class="btn" onclick="toggleCode('code140085534312208')">+</button>&nbsp; Script file mtxtime.d <br/><p>
+<pre id="code140085534312208" class="hide">
 pid$target::mutex_lock_impl:entry
 { 
     self->mtxtime = timestamp; 
@@ -79,8 +80,8 @@ Mutexes are also often used in TSLoad which can cause excessive overheads when w
 Here are our script for SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046147088')">+</button>&nbsp; Script file mtxtime.stp <br/><p>
-<pre id="code140367046147088" class="hide">
+<button class="btn" onclick="toggleCode('code140085534313424')">+</button>&nbsp; Script file mtxtime.stp <br/><p>
+<pre id="code140085534313424" class="hide">
 global mtxtime[128], mtxlockt;
 
 @define libpthread %( "/lib64/libpthread.so.0" %)
@@ -121,7 +122,7 @@ probe process(@tsexperiment).function("experiment_unconfigure") {
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -137,5 +138,14 @@ probe process(@tsexperiment).function("experiment_unconfigure") {
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

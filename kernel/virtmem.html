@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 4: Operating system kernel tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -55,13 +56,13 @@ When single instance of that program is running, it will work as expected, messa
 <p>
 Modern virtual memory mechanisms are based on <em>page addressing</em>: all physical memory is divided to a pages of a small size (4 kb in x86). Processes are exist in a virtual address space where each subset of addresses, say <code>[BASE;BASE+PAGESIZE)</code>, maps to a single page. List of such mappings is maintained as <em>page table</em>. Modern CPUs also provide support for <em>huge pages</em> (Linux) or <em>large pages</em> (Solaris) which may be megabytes or even gigabyte in size. Speaking of our previous example, kernel <em>binary format loader</em> will set up a virtual address space for our program, copying all data to a new locations in physical memory:<br /></p>
 <p>
-<img src="../images/pagetable.png" alt="" /></p>
+<img src="../images/pagetable.png" alt="" class="img-rounded"/></p>
 <p>
 When second instance of a program will start, new process with separate address space will be created, thus making independent copy of process data, including "Hallo, world" message, but with same addresses. When process (actually its thread or task) is dispatched onto CPU, address of its page table is written to a special register (like CR3 on x86), so only it may access its data. All address translations are performed by <em>Memory Management Unit</em> in CPU and are transparent for it.<br /></p>
 <p>
 From the process point of view, pages are grouped into <em>segments</em> which constitute <em>address space</em>:<br /></p>
 <p>
-<img src="../images/pas.png" alt="" /></p>
+<img src="../images/pas.png" alt="" class="img-rounded"/></p>
 <p>
 New address spaces are created as a result of <code>execve()</code> system call. When it is finished, new address space constitutes from four segments: <em>text</em> segment contains program code, <em>data</em> segment contains program data. Binary loader also creates two special segments: <em>heap</em> for dynamically allocated memory and <em>stack</em> for program stack. Process arguments and environment are also initially put onto stack. Than, kernel runs process interpreter <code>ld.so</code>, which actually a dynamic linker. That linker searches for libraries for a process such as standard C library <code>libc.so</code> and calls <code>mmap()</code> to load text and data sections of that libraries. <br /></p>
 <p>
@@ -100,7 +101,7 @@ After running both of these scripts, you will see, that lot's of <code>brk()</co
 <p>
 Process address space is kept in <code>mm_struct</code> in Linux and in <code>as_t</code> structure in Solaris:<br /></p>
 <p>
-<img src="../images/linux/mm.png" alt="" /></p>
+<img src="../images/linux/mm.png" alt="" class="img-rounded"/></p>
 <p>
 Each memory segment is represented by instance of <code>vm_area_struct</code> structure which has two addresses: <code>vm_start</code> which points to the beginning of a segment and <code>vm_end</code> which points to the end of the segment. Kernel maintains two lists of segments: linear double-linked list of segments (sorted by their addresses) starting with <code>mmap</code> pointer in <code>mm_struct</code> with <code>vm_next</code> and <code>vm_prev</code> pointers, another list is a red-black tree built with <code>mm_rb</code> as root and <code>vm_rb</code> as node. <br /></p>
 <p>
@@ -118,7 +119,7 @@ Segments may be mapped files, so they have non-NULL value of <code>vm_file</code
 <p>
 In Solaris <code>as_t</code> structure accessible through <code>p_as</code> field of process and keeps all segments in AVL tree where <code>a_segtree</code> is a root node and <code>s_tree</code> is a nodes embedded to a segment:<br /></p>
 <p>
-<img src="../images/solaris/as.png" alt="" /></p>
+<img src="../images/solaris/as.png" alt="" class="img-rounded"/></p>
 <p>
 Each segment has backward link to address space <code>s_as</code>, <code>s_base</code> as base address of a segment and <code>s_size</code> as its size. Solaris uses so-called <em>segment drivers</em> to distinguish one type of a segment to another, so it provides table of operations through <code>s_ops</code> field and private data through <code>s_data</code> field. One of the segment drivers is <em>segvn</em> driver which handles mmapped segments of memory both from files and anonymous, which keep their data in <code>segvn_data</code> structure which holds two pointers: <code>vp</code> to file's vnode and <code>amp</code> for a map of anonymous memory. <br /></p>
 <p>
@@ -220,8 +221,8 @@ This function calls <code>as_segat</code> to determine segment to which fault ad
 Let's write simple tracer for these two functions. It also prints <code>amp</code> address and path of vnode for segvn driver:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046518160')">+</button>&nbsp; Script file pagefault.d <br/><p>
-<pre id="code140367046518160" class="hide">
+<button class="btn" onclick="toggleCode('code140085534684496')">+</button>&nbsp; Script file pagefault.d <br/><p>
+<pre id="code140085534684496" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -355,8 +356,8 @@ int handle_mm_fault(struct mm_struct *mm,
 SystemTap provides a wrapper for it: <code>vm.pagefault</code> which we will use to write pagefault tracer script for Linux:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046519248')">+</button>&nbsp; Script file pagefault.stp <br/><p>
-<pre id="code140367046519248" class="hide">
+<button class="btn" onclick="toggleCode('code140085534685584')">+</button>&nbsp; Script file pagefault.stp <br/><p>
+<pre id="code140085534685584" class="hide">
 #!/usr/bin/stap
 
 /**
@@ -508,7 +509,7 @@ Linux page allocator interface consists of <code>alloc_pages*()</code> family of
 <p>
 For most kernel objects granularity of a single page (4 or 8 kilobytes usually) is too high, because most structures have varying size. On the other hand, implementing a classical heap allocator is not very effective considering the fact, that kernel performs many allocations for an object of same size. To solve that problem, a <em>SLAB allocator</em> (which we sometimes will refer to as <em>kmem allocator</em>) was implemented in Solaris. SLAB allocator takes one or more pages, splits it into a buffers of a smaller sizes as shown on picture:<br /></p>
 <p>
-<img src="../images/kmem.png" alt="" /></p>
+<img src="../images/kmem.png" alt="" class="img-rounded"/></p>
 <p>
 Modern SLAB allocators may have various enhancements like per-cpu slabs, SLUB allocator in Linux. Moreover, cache object is not necessarily created in SLAB allocators -- objects of generic sizes may be allocated through function like <code>kmalloc()</code> in Linux or <code>kmem_alloc</code> in Solaris which will pick cache based on a size, such as <code>size-32</code> cache in Linux or <code>kmem_magazine_32</code> in Solaris. You can check overall SLAB statistics with <code>/proc/slabinfo</code> file in Linux, <code>::kmastat</code> mdb command in Solaris or by using KStat: <code>kstat -m unix -c kmem_cache</code>. <br /></p>
 <p>
@@ -623,7 +624,7 @@ On the other hand, when kernel needs to perform large allocations which are perf
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -639,5 +640,14 @@ On the other hand, when kernel needs to perform large allocations which are perf
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

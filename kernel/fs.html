@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 4: Operating system kernel tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -109,7 +110,7 @@ Each process keeps table of opened files as an array of corresponding structures
 <p>
 Linux management structures are shown on the following schematic:<br /></p>
 <p>
-<img src="../images/linux/vfs.png" alt="" /></p>
+<img src="../images/linux/vfs.png" alt="" class="img-rounded"/></p>
 <p>
 Open file table is indirectly accessible through <code>files</code> field of <code>task_struct</code>. We used 256 entries as an example, actual amount of entries may vary. Each entry in this table is an <code>file</code> object which contains information individual for a specific file descriptor such as open mode <code>f_mode</code> and position in file <code>f_pos</code>. For example, single process can open same file twice (one in <code>O_RDONLY</code> mode another in <code>O_RDWR</code> mode) -- in that case <code>f_mode</code> and <code>f_pos</code> for that file will differ, but <code>inode</code> and possibly <code>dentry</code> objects will be the same. Note that last 2 bits of <code>file</code> pointer are used internally by kernel code. <br /></p>
 <p>
@@ -142,7 +143,7 @@ You may use <code>task_dentry_path()</code> function from dentry tapset instead 
 <span class="label label-warning">Warning</span><div class="well">
 <code>fdt</code> array is protected through special RCU lock, so we should lock it before accessing it like <a href="https://sourceware.org/systemtap/examples/#process/pfiles.stp">pfiles.stp</a> authors do. We have omitted that part in purpose of simplicity. <br /></div>
 <p>
-Solaris structures organization is much more clear:<br /><img src="../images/solaris/vfs.png" alt="Solaris structures organization is much more clear:<br />" /></p>
+Solaris structures organization is much more clear:<br /><img src="../images/solaris/vfs.png" alt="Solaris structures organization is much more clear:<br />" class="img-rounded"/></p>
 <p>
 Like Linux, each process keep an array of <code>uf_entry_t</code> entries while entry in this array points to an open file through <code>uf_file</code> pointer. Each file on filesystem is represented by <code>vnode_t</code> structure (literally, <em>node on virtual file system</em>).  When file is opened, Solaris creates new <code>file</code> object and saves open file mode in flag fields <code>f_flag</code> and <code>f_flag2</code>, current file position in <code>f_offset</code> and pointer to a <code>vnode_t</code> in <code>f_vnode</code>. <br /></p>
 <p>
@@ -232,7 +233,7 @@ In this example <code>0x40000100</code> bitmask consists of flags <code>FS_CREAT
 <p>
 Now let's see how VFS operations performed on files:<br /></p>
 <p>
-<img src="../images/vfsops.png" alt="" /></p>
+<img src="../images/vfsops.png" alt="" class="img-rounded"/></p>
 <p>
 Application uses <code>open()</code> system call to open file. At this moment, new <code>file</code> object is created and free entry in open files table is filled with a pointer to that object. Kernel, however needs to find corresponding vnode/dentry object -- it will also need to check some preliminary checks here. I.e. if uid of opening process is not equal to <code>i_uid</code> provided by operating system and file mode is 0600, access should be forbidden. <br /></p>
 <p>
@@ -352,7 +353,7 @@ We used names <code>v_ops</code> for table of vnode operations in Solaris, <code
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -368,5 +369,14 @@ We used names <code>v_ops</code> for table of vnode operations in Solaris, <code
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

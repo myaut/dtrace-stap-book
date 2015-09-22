@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 4: Operating system kernel tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -50,7 +51,7 @@ Each process has its own address space -- in modern processors it is implemented
 <p>
 Processes and threads are implemented through universal <code>task_struct</code> structure (defined in <code>include/linux/sched.h</code>), so we will refer in our book as <em>tasks</em>. First thread in process is called <em>task group leader</em> and all other threads are linked through list node <code>thread_node</code> list head and contain pointer <code>group_leader</code> which references <code>task_struct</code> of their process. Children processes refer to parent process through <code>parent</code> pointer and linked through <code>sibling</code> list node. Parent process linked with its children using <code>children</code> list head. <br /></p>
 <p>
-<img src="../images/linux/task.png" alt="" /></p>
+<img src="../images/linux/task.png" alt="" class="img-rounded"/></p>
 <p>
 Task which is currently executed on CPU is accessible through <code>current</code> macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use <code>task_current()</code>. You can also get pointer to a <code>task_struct</code> using <code>pid2task()</code> function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as <a href="../lang/context.html">Probe Context</a>. <a name="task-funcs"></a> They all get pointer to a <code>task_struct</code> as their argument:<br />        <ul>
         <li>
@@ -83,8 +84,8 @@ There are several other useful fields in <code>task_struct</code>:<br />        
 Script <code>dumptask.stp</code> demonstrates how these fields may be useful to get information about current process.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047160848')">+</button>&nbsp; Script file dumptask.stp <br/><p>
-<pre id="code140367047160848" class="hide">
+<button class="btn" onclick="toggleCode('code140085535327184')">+</button>&nbsp; Script file dumptask.stp <br/><p>
+<pre id="code140085535327184" class="hide">
 /**
  * taskdump.stp
  * 
@@ -264,7 +265,7 @@ probe timer.s(1) {
 <p>
 Solaris Kernel distinguishes threads and processes: on low level all threads represented by <code>kthread_t</code>, which are presented to userspace as <em>Light-Weight Processes</em> (or <em>LWPs</em>) defined as <code>klwp_t</code>. One or multiple LWPs constitute a process <code>proc_t</code>. They all have references to each other, as shown on the following picture:<br /></p>
 <p>
-<img src="../images/solaris/proc.png" alt="" /></p>
+<img src="../images/solaris/proc.png" alt="" class="img-rounded"/></p>
 <p>
 Current thread is passed as <code>curthread</code> built-in variable to probes. Solaris <code>proc</code> provider has <code>lwpsinfo_t</code> and <code>psinfo_t</code> providers that extract useful information from corresponding thread, process and LWP structures.<br /></p>
 <p>
@@ -425,8 +426,8 @@ Parent process has <code>p_child</code> pointer that refers its first child, whi
 The following script dumps information about current thread and process. Because DTrace doesn't support loops and conditions, it can read only first 9 files and 9 arguments and does that by generating multiple probes with preprocessor. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047212752')">+</button>&nbsp; Script file dumptask.d <br/><p>
-<pre id="code140367047212752" class="hide">
+<button class="btn" onclick="toggleCode('code140085535379088')">+</button>&nbsp; Script file dumptask.d <br/><p>
+<pre id="code140085535379088" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -580,7 +581,7 @@ DUMP_FILE_PROBE(tick-1s)
 <p>
 Lifetime of a process and corresponding probes are shown in the following image:<br /></p>
 <p>
-<img src="../images/forkproc.png" alt="" /></p>
+<img src="../images/forkproc.png" alt="" class="img-rounded"/></p>
 <p>
 Unlike Windows, in Unix process is spawned in two stages:<br />     <ul>
         <li>
@@ -719,8 +720,8 @@ LWP management </td>
 These probes are demonstrated in the following scripts. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046758864')">+</button>&nbsp; Script file proc.stp <br/><p>
-<pre id="code140367046758864" class="hide">
+<button class="btn" onclick="toggleCode('code140085534929296')">+</button>&nbsp; Script file proc.stp <br/><p>
+<pre id="code140085534929296" class="hide">
 #!/usr/bin/stap
 
 probe scheduler.process*, scheduler.wakeup_new, syscall.fork, 
@@ -769,8 +770,8 @@ Running this script for <code>uname</code> program called in foreground of <code
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046759312')">+</button>&nbsp; Script file proc.d <br/><p>
-<pre id="code140367046759312" class="hide">
+<button class="btn" onclick="toggleCode('code140085534929744')">+</button>&nbsp; Script file proc.d <br/><p>
+<pre id="code140085534929744" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define PARENT_EXECNAME(thread) \
@@ -827,15 +828,15 @@ DTrace will give similar outputs, but also will reveal LWP creation/destruction:
 <p>
     <ul>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/context_stp.html">Context Functions</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/context_stp.html">Context Functions</a></li>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/task_time_stp.html">Task Time Tapset</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/task_time_stp.html">Task Time Tapset</a></li>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/kprocess.stp.html">Kernel Process Tapset</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/kprocess.stp.html">Kernel Process Tapset</a></li>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/sched.stp.html">Scheduler Tapset</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/sched.stp.html">Scheduler Tapset</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-proc/index.html">proc Provider</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-proc/index.html">proc Provider</a></li>
 </ul>
 </p>
 
@@ -844,7 +845,7 @@ DTrace will give similar outputs, but also will reveal LWP creation/destruction:
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-center">
@@ -857,5 +858,14 @@ DTrace will give similar outputs, but also will reveal LWP creation/destruction:
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

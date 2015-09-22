@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 3: Principles of dynamic tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -212,7 +213,7 @@ In DTrace symbols are resolved by consumer, not by DIF interpreter -- that is wh
 <p>
 SystemTap and DTrace have different formats when printing backtrace symbol names:<br /></p>
 <p>
-<img src="../images/stackfmt.png" alt="" /></p>
+<img src="../images/stackfmt.png" alt="" class="img-rounded"/></p>
 <p>
 <h4>Call trees</h4></p>
 <p>
@@ -238,8 +239,8 @@ For example, let's see how this approach helps find a source of fault in system 
 In SystemTap call tree indentation is performed through <code>indent()</code> and <code>thread_indent()</code> which are maintaining internal buffer, and increase or decrease number of space characters in it according to a number passed as argument to that functions. It is used in following script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047621264')">+</button>&nbsp; Script file callgraph.stp <br/><p>
-<pre id="code140367047621264" class="hide">
+<button class="btn" onclick="toggleCode('code140085535791696')">+</button>&nbsp; Script file callgraph.stp <br/><p>
+<pre id="code140085535791696" class="hide">
 #!/usr/bin/stap
 
 global traceme;
@@ -316,8 +317,8 @@ So, now we can say that problem is in <code>__link_path_walk</code> function. Th
 DTrace consumer supports automatic indentation of output if <code>flowindent</code> tunable is set:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047622096')">+</button>&nbsp; Script file callgraph.d <br/><p>
-<pre id="code140367047622096" class="hide">
+<button class="btn" onclick="toggleCode('code140085535792528')">+</button>&nbsp; Script file callgraph.d <br/><p>
+<pre id="code140085535792528" class="hide">
 #!/usr/sbin/dtrace -s
 
 #pragma D option flowindent
@@ -443,7 +444,7 @@ In Solaris, however, this function is called only once -- for symbolical link:<b
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -459,5 +460,14 @@ In Solaris, however, this function is called only once -- for symbolical link:<b
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

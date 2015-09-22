@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Appendix A. Exercise hints and solutions </title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -71,8 +72,8 @@ Finally, stringifying flags will require usage of ternary operator <code>?:</cod
 Here are resulting DTrace script which implements required functionality:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046018128')">+</button>&nbsp; Script file opentrace.d <br/><p>
-<pre id="code140367046018128" class="hide">
+<button class="btn" onclick="toggleCode('code140085534192656')">+</button>&nbsp; Script file opentrace.d <br/><p>
+<pre id="code140085534192656" class="hide">
 /* These constants are already defined in /usr/lib/dtrace/io.d
 inline int O_WRONLY = 1;
 inline int O_RDWR = 2;
@@ -110,8 +111,8 @@ syscall::openat*:return
 I have used <code>sprintf()</code> to concatenate strings in SystemTap version of a script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046018320')">+</button>&nbsp; Script file opentrace.stp <br/><p>
-<pre id="code140367046018320" class="hide">
+<button class="btn" onclick="toggleCode('code140085534192848')">+</button>&nbsp; Script file opentrace.stp <br/><p>
+<pre id="code140085534192848" class="hide">
 global O_WRONLY = 1;
 global O_RDWR = 2;
 global O_APPEND = 1024;
@@ -158,7 +159,7 @@ Finally, you will need to add predicates to compare paths with <code>/etc</code>
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-center">
@@ -171,5 +172,14 @@ Finally, you will need to add predicates to compare paths with <code>/etc</code>
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

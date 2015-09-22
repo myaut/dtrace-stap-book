@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -47,7 +48,7 @@ DTrace is shipped with Solaris from version 10, no additional actions needed to 
 <p>
 The heart of DTrace is <code>libdtrace.so.1</code> library which contains compiler that translates script in D language to a <em>DTrace Intermediate Format</em> (DIF). That format is machine codes of simplified RISC which are interpreted by <code>drv/dtrace</code> driver:<br /></p>
 <p>
-<img src="../images/dtrace.png" alt="" /></p>
+<img src="../images/dtrace.png" alt="" class="img-rounded"/></p>
 <p>
 DTrace primary front-end tool is <code>dtrace(1M)</code> which act both as compiler and consumer and uses <code>libdtrace.so.1</code> facilities to do that. There are other front-ends: <code>trapstat(1M)</code> and <code>lockstat(1M)</code>, but <code>libdtrace.so.1</code> APIs are open, so you can create your own front end for that (i.e. for Java using JNI). We will refer to <code>dtrace(1M)</code> as DTrace further in a book. <br /></p>
 <p>
@@ -149,11 +150,11 @@ root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"
 <p>
     <ul>
         <li>
-<img src="../images/icons/manpage.png" alt="" /><a href="http://docs.oracle.com/cd/E26502_01/html/E29031/dtrace-1m.html">dtrace(1M)</a></li>
+<img src="../images/icons/manpage.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E26502_01/html/E29031/dtrace-1m.html">dtrace(1M)</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
 </ul>
 </p>
 
@@ -162,7 +163,7 @@ root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -178,5 +179,14 @@ root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

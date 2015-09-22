@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 3: Principles of dynamic tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -45,7 +46,7 @@
 <p>
 Computer users, system administrators and developers are interested in improving of performance of computer systems and dynamic tracing languages are very handful in analysing soft spots of computer systems. We will use two characteristics of computer system to evaluate its performance most of the time: <em>throughput</em> and time spent for servicing request (usually referred as <em>latency</em>). These two characteristics depend on each other as following picture shows:<br /></p>
 <p>
-<img src="../images/perf.png" alt="" /></p>
+<img src="../images/perf.png" alt="" class="img-rounded"/></p>
 <span class="label label-info">Information</span><div class="well">
 For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its <em>arrival rate</em>. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to <em>queue length</em>. Growing queues is a sign of the system's <em>saturation</em>. <em>Throughput</em> of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line -- they are treated as <em>errors</em>. When kiosk reaches its saturation point or the <em>knee</em>, <em>throughput</em> of the kiosk will fall, and number of errors will increase, because clerk will be tired. <br /><em>Latency</em> consists of <em>service time</em> which depends on many factors: i.e. if customer need change or clerk can't find copy of newspaper it will grow,  and <em>waiting time</em> -- time spent by a customer waiting in queue. <em>Utilization</em> is defined by a fraction time that clerk spends servicing their customers. I.e. if clerk spends 15 minutes to sell a magazines or newspapers per hour, utilization is 25%. <br />These definitions are part of <em>queueing theory</em> which was applied to telephone exchange, but it is also applicable to computer systems. Either network packet or block input-output operations may be considered as <em>request</em>, while corresponding driver and device are considered as <em>servers</em>. In our kiosk example, customer were the requests while clerk at the kiosk was the server.<br /></div>
 <p>
@@ -132,7 +133,7 @@ Utilization may be measured similar to a profiling: high-resolution timer determ
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -148,5 +149,14 @@ Utilization may be measured similar to a profiling: high-resolution timer determ
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

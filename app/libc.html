@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 5: Application tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -134,8 +135,8 @@ Acquired mutex          </td>
 Here are an example of pthread tracer in SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046277584')">+</button>&nbsp; Script file pthread.stp <br/><p>
-<pre id="code140367046277584" class="hide">
+<button class="btn" onclick="toggleCode('code140085534448016')">+</button>&nbsp; Script file pthread.stp <br/><p>
+<pre id="code140085534448016" class="hide">
 #!/usr/bin/env stap
 
 @define libpthread %( "/lib64/libpthread.so.0" %)
@@ -219,8 +220,8 @@ Note that thread with TID=8972 will acquire mutex in <code>tpd_wqueue_put</code>
 <code>plockstat</code> doesn't support many probes that glibc do, put we can easily replace them with <code>pid</code> provider and function boundary tracing:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046278160')">+</button>&nbsp; Script file pthread.d <br/><p>
-<pre id="code140367046278160" class="hide">
+<button class="btn" onclick="toggleCode('code140085534448592')">+</button>&nbsp; Script file pthread.d <br/><p>
+<pre id="code140085534448592" class="hide">
 #!/usr/bin/dtrace
 #pragma D option bufsize=8m
 #pragma D option switchrate=100hz
@@ -278,7 +279,7 @@ That script yields similar results on Solaris:<br /></p>
         <li>
 <a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/DESIGN-systemtap-probes.txt">glibc documentation on SystemTap probes</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-plockstat/index.html">plockstat Provider</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-plockstat/index.html">plockstat Provider</a></li>
 </ul>
 </p>
 
@@ -287,7 +288,7 @@ That script yields similar results on Solaris:<br /></p>
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -303,5 +304,14 @@ That script yields similar results on Solaris:<br /></p>
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

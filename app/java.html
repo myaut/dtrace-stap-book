@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 5: Application tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -49,7 +50,7 @@ Same works for <em>Java Virtual Machine</em>. Oracle's implementation of JVM, ca
 <p>
 By default <code>hotspot</code> provider allows to trace only rare events, such as class loading, starting and stopping threads, VM-wide and GC-wide events and JIT compiler events. That was done to reduce overheads of USDT probes. For example, to trace methods, compiler has to inject two calls into produced code:<br /></p>
 <p>
-<img src="../images/java.png" alt="" /></p>
+<img src="../images/java.png" alt="" class="img-rounded"/></p>
 <p>
 To enable additional probes, use following <code>java</code> command line options:<br />        <ul>
         <li>
@@ -93,8 +94,8 @@ JDK shipped in <code>openjdk</code> packages in RHEL-like operating systems supp
 Let's write small program, called <em>Greeter</em> which will write "Hello, DTrace" from four threads. Its implementation is based on <em>Greeter</em> from <a href="http://www.solarisinternals.com/wiki/index.php/DTrace_Topics_Java">Solaris Internals wiki</a> with small difference: <code>Greeting.greet()</code> method uses <code>synchronized</code> keyword so it will use monitor. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046625040')">+</button>&nbsp; Script file Greeting.java <br/><p>
-<pre id="code140367046625040" class="hide">
+<button class="btn" onclick="toggleCode('code140085534791376')">+</button>&nbsp; Script file Greeting.java <br/><p>
+<pre id="code140085534791376" class="hide">
 public class Greeting {
         public synchronized void greet() {
                 System.out.println("Hello, DTrace!");
@@ -106,8 +107,8 @@ public class Greeting {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046625104')">+</button>&nbsp; Script file GreetingThread.java <br/><p>
-<pre id="code140367046625104" class="hide">
+<button class="btn" onclick="toggleCode('code140085534791440')">+</button>&nbsp; Script file GreetingThread.java <br/><p>
+<pre id="code140085534791440" class="hide">
 class GreetingThread extends Thread {
          Greeting greeting;
 
@@ -133,8 +134,8 @@ class GreetingThread extends Thread {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046625168')">+</button>&nbsp; Script file Greeter.java <br/><p>
-<pre id="code140367046625168" class="hide">
+<button class="btn" onclick="toggleCode('code140085534791504')">+</button>&nbsp; Script file Greeter.java <br/><p>
+<pre id="code140085534791504" class="hide">
 public class Greeter {
         public static void main(String[] args) {
                 Greeting greeting = new Greeting();
@@ -163,8 +164,8 @@ public class Greeter {
 Here are small tracer for it implemented with SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046625232')">+</button>&nbsp; Script file hotspot.stp <br/><p>
-<pre id="code140367046625232" class="hide">
+<button class="btn" onclick="toggleCode('code140085534791568')">+</button>&nbsp; Script file hotspot.stp <br/><p>
+<pre id="code140085534791568" class="hide">
 #!/usr/bin/stap
 
 probe hotspot.class_loaded
@@ -195,8 +196,8 @@ probe hotspot.monitor_contended_enter, hotspot.monitor_contended_exit
 Similar script on DTrace will look like this and should use <code>dtrace_helper.d</code> or called with <code>-Z</code> option:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046625552')">+</button>&nbsp; Script file hotspot.d <br/><p>
-<pre id="code140367046625552" class="hide">
+<button class="btn" onclick="toggleCode('code140085534791888')">+</button>&nbsp; Script file hotspot.d <br/><p>
+<pre id="code140085534791888" class="hide">
 #!/usr/sbin/dtrace -qs
 
 #pragma D option switchrate=10hz
@@ -617,8 +618,8 @@ You could notice that we can't extract method's arguments in method probes like 
 JSDT is implemented in packages <code>com.sun.tracing</code> and <code>sun.tracing</code>. Each provider should be a class which implements <code>com.sun.tracing.Provider</code> interface, while each method of this class will be a probe. Reimplement our greeting example with JSDT support:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046221328')">+</button>&nbsp; Script file Greeting.java <br/><p>
-<pre id="code140367046221328" class="hide">
+<button class="btn" onclick="toggleCode('code140085534387664')">+</button>&nbsp; Script file Greeting.java <br/><p>
+<pre id="code140085534387664" class="hide">
 public class Greeting {
         GreetingProvider provider;
 
@@ -639,8 +640,8 @@ public class Greeting {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046221520')">+</button>&nbsp; Script file GreetingProvider.java <br/><p>
-<pre id="code140367046221520" class="hide">
+<button class="btn" onclick="toggleCode('code140085534387856')">+</button>&nbsp; Script file GreetingProvider.java <br/><p>
+<pre id="code140085534387856" class="hide">
 import com.sun.tracing.Provider;
 
 public interface GreetingProvider extends Provider {
@@ -654,8 +655,8 @@ public interface GreetingProvider extends Provider {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046221456')">+</button>&nbsp; Script file JSDT.java <br/><p>
-<pre id="code140367046221456" class="hide">
+<button class="btn" onclick="toggleCode('code140085534387792')">+</button>&nbsp; Script file JSDT.java <br/><p>
+<pre id="code140085534387792" class="hide">
 import com.sun.tracing.*;
 
 public class JSDT {
@@ -710,7 +711,7 @@ P.S.: Of course, DTrace and SystemTap are not the only option to trace Java. It 
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -726,5 +727,14 @@ P.S.: Of course, DTrace and SystemTap are not the only option to trace Java. It 
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

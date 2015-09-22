@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 2: Dynamic tracing languages</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -91,9 +92,9 @@ Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for 
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
 </ul>
 </p>
 <p>
@@ -101,7 +102,7 @@ Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for 
 <p>
 <em>Aggregations</em> are most useful for evaluating system performance (they are called <em>statistics</em> in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:<br /></p>
 <p>
-<img src="../images/aggrs.png" alt="" /></p>
+<img src="../images/aggrs.png" alt="" class="img-rounded"/></p>
 <p>
 Aggregations in DTrace reside in separate namespace: each name of aggregation begins with at-symbol <code>@</code>. Single at-symbol <code>@</code> is an alias to <code>@_</code> and is a shorter possible aggregation name which is useful for one-liners. Moreover, if it was not printed in the END probe, or timer probe, DTrace will automatically print it for you. There is no need to declare aggregation, and it support key access same way associative array does. When value is added to a aggregation, it is "assigned" to a return value of aggregating function, i.e. <code>@fds = avg(arg0);</code> will create an aggregation which calculates mean value of <code>arg0</code>.<br /></p>
 <p>
@@ -186,8 +187,8 @@ Aggregations may be sorted in DTrace using <code>aggsortkey</code>, <code>aggsor
 <a name="aggr-example"></a><br />Aggregations are extremely useful for writing stat-like utilities. For example, let's write utilities that count number of <code>write</code> system calls and amount of kilobytes they written. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047999952')">+</button>&nbsp; Script file wstat.d <br/><p>
-<pre id="code140367047999952" class="hide">
+<button class="btn" onclick="toggleCode('code140085536166288')">+</button>&nbsp; Script file wstat.d <br/><p>
+<pre id="code140085536166288" class="hide">
 #pragma D option aggsortkey
 #pragma D option aggsortkeypos=0 
 
@@ -215,8 +216,8 @@ Note that aggregations are follow after keys in <code>printa</code> format strin
 SystemTap has similar code, but <code>printa</code> is implemented via our own <code>foreach</code> cycle. On the other hand, we will keep only one associative array here:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367048000784')">+</button>&nbsp; Script file wstat.stp <br/><p>
-<pre id="code140367048000784" class="hide">
+<button class="btn" onclick="toggleCode('code140085536167120')">+</button>&nbsp; Script file wstat.stp <br/><p>
+<pre id="code140085536167120" class="hide">
 global wstat;
 
 probe syscall.write {
@@ -257,9 +258,9 @@ Output will be similar for DTrace and SystemTap and will look like:<br /></p>
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a></li>
 </ul>
 </p>
 
@@ -268,7 +269,7 @@ Output will be similar for DTrace and SystemTap and will look like:<br /></p>
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -284,5 +285,14 @@ Output will be similar for DTrace and SystemTap and will look like:<br /></p>
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

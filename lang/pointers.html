@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 2: Dynamic tracing languages</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -47,7 +48,7 @@
 <p>
 Things in kernel get complicated because some pointers are point to a <em>user address space</em> which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues <code>open()</code> system call, it keeps <code>pathname</code> argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, <code>badp</code> is bad pointer, which points nowhere, <code>kstr</code> points to a data in <em>kernel address space</em>, while <code>ustr</code> references string in <em>user address space</em>:<br /></p>
 <p>
-<img src="../images/pointers.png" alt="" /></p>
+<img src="../images/pointers.png" alt="" class="img-rounded"/></p>
 <p>
 Accessing a data in kernel address space in DTrace is performed by simple dereferencing it in C-style. For example, <code>fop_open()</code> function accepts pointer to pointer to <code>vnode_t</code>, so to get actual address of <code>vnode_t</code>, you need to dereference it:<br /></p>
 <p>
@@ -184,13 +185,13 @@ Sometimes even correct addresses cause faults if data they point to is not in me
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-pointers/index.html">Pointers and arrays</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-pointers/index.html">Pointers and arrays</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a></li>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/conversions.stp.html">String and data retrieving functions Tapset</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/conversions.stp.html">String and data retrieving functions Tapset</a></li>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/conversions-guru.stp.html">String and data writing functions Tapset</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/conversions-guru.stp.html">String and data writing functions Tapset</a></li>
 </ul>
 </p>
 
@@ -199,7 +200,7 @@ Sometimes even correct addresses cause faults if data they point to is not in me
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -215,5 +216,14 @@ Sometimes even correct addresses cause faults if data they point to is not in me
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

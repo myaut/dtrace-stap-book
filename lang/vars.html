@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 2: Dynamic tracing languages</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -56,7 +57,7 @@ printf("The time is %lld\n", (unsigned long long) timestamp);
 <p>
 There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but in can be emulated via associative arrays.<br /></p>
 <p>
-<img src="../images/varscope.png" alt="" /></p>
+<img src="../images/varscope.png" alt="" class="img-rounded"/></p>
 <p>
 In this image variable lifetimes are shown as arrows on the right of the drawing. <br /></p>
 <p>
@@ -157,7 +158,7 @@ local: 26765 global: 26765
 [...]
 </pre>
 </p>
-But when you run multiple <code>dd</code> processes, local and global numbers will eventually differ, because in case of race condition, new space will be allocated:<br /><img src="../images/localglobal.png" alt=" processes, local and global numbers will eventually differ, because in case of race condition, new space will be allocated:<br />" /></div>
+But when you run multiple <code>dd</code> processes, local and global numbers will eventually differ, because in case of race condition, new space will be allocated:<br /><img src="../images/localglobal.png" alt=" processes, local and global numbers will eventually differ, because in case of race condition, new space will be allocated:<br />" class="img-rounded"/></div>
 <p>
 <a name="thread-local-vars"></a><h4>Thread-local variables</h4></p>
 <p>
@@ -194,11 +195,11 @@ Other use-case for thread-local variables is when you want to trace only process
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html">Variables</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html">Variables</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062000000000000000">Data types</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062000000000000000">Data types</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00043000000000000000">Variables</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00043000000000000000">Variables</a></li>
 </ul>
 </p>
 
@@ -207,7 +208,7 @@ Other use-case for thread-local variables is when you want to trace only process
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -223,5 +224,14 @@ Other use-case for thread-local variables is when you want to trace only process
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

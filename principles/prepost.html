@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 3: Principles of dynamic tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -47,13 +48,13 @@ Despite the flexibility of the dynamic tracing languages, it lacks of common too
 <p>
 In such cases we can use general purpose scripting language such as Python, Perl or even shell-script to generate dynamic tracing on-the fly, run it, read its output in some form and than print it in human-readable form:<br /></p>
 <p>
-<img src="../images/prepost.png" alt="" /></p>
+<img src="../images/prepost.png" alt="" class="img-rounded"/></p>
 <p>
 For example, let's add the following capabilities to our <code>open()</code> system call tracer: customizable per-pid and per-user filters, and also make it universal -- capable running in DTrace and SystemTap.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047692368')">+</button>&nbsp; Script file opentrace.py <br/><p>
-<pre id="code140367047692368" class="hide">
+<button class="btn" onclick="toggleCode('code140085535825872')">+</button>&nbsp; Script file opentrace.py <br/><p>
+<pre id="code140085535825872" class="hide">
 #!/usr/bin/env python
 
 import sys, os, subprocess, platform
@@ -305,8 +306,8 @@ Post-processing is intended to analyse already collected trace file, but it migh
 The next script will read <code>opentrace.py</code> output, merge information from entry and return probes, and convert user-ids and time intervals to a convenient form. Like in dynamic tracing languages we will use an associative array <code>states</code> which is implemented as <code>dict</code> type in Python to save data from entry probes and use process ID as a key.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047720464')">+</button>&nbsp; Script file openproc.py <br/><p>
-<pre id="code140367047720464" class="hide">
+<button class="btn" onclick="toggleCode('code140085535886800')">+</button>&nbsp; Script file openproc.py <br/><p>
+<pre id="code140085535886800" class="hide">
 #!/usr/bin/env python
 
 import re
@@ -393,7 +394,7 @@ This is only a demonstration script, and many of their features may be implement
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -409,5 +410,14 @@ This is only a demonstration script, and many of their features may be implement
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

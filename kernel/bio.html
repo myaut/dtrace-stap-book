@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 4: Operating system kernel tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -161,7 +162,7 @@ When <em>BIO request</em> is created it is passed to scheduler which re-orders r
 <p>
 After scheduling BIO layer passes request to a device level:<br /></p>
 <p>
-<img src="../images/bio.png" alt="" /></p>
+<img src="../images/bio.png" alt="" class="img-rounded"/></p>
 <p>
 Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with <em>device mapper</em> in Linux or <em>MPxIO</em> in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called <em>SCSI stack</em>. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:<br /></p>
 <p>
@@ -217,15 +218,15 @@ Probe <code>scsi.ioexecute</code> can be not fired for all SCSI packets: usually
 <span class="label label-info">Note</span><div class="well">
 We have used Solaris functions starting from <code>sd</code> prefix in this example. They are from <code>sd</code> driver which represents SCSI disk. There is also <code>ssd</code> driver which is used for FC disks -- it is based on <code>sd</code> driver, but all functions in it are using <code>ssd</code> prefix, i.e. <code>ssd_return_command</code>.<br /></div>
 <p>
-<img src="../images/solaris/bio.png" alt="" /></p>
+<img src="../images/solaris/bio.png" alt="" class="img-rounded"/></p>
 <p>
 In Solaris each SCSI <em>LUN</em> has a corresponding <code>sd_lun</code> structure which keeps queue of buffers in doubly-linked list referenced by <code>un_waitq_headp</code> and <code>un_waitq_tailp</code> pointers. When new command is passed to SCSI stack, <code>un_ncmds_in_driver</code> is increased and when packet is dispatched to transport, <code>un_ncmds_in_transport</code> is increased. They are decreased when SCSI packet is discarded or when it was successfully processed and interrupt is fired to notify OS about that. SCSI stack uses <code>b_private</code> field to keep <code>sd_xbuf</code> structure that keeps reference to SCSI packet through <code>xb_pktp</code> pointer.<br /></p>
 <p>
 Following script traces block I/O layer and SCSI stack (<code>sd</code> driver in particular) in Solaris:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047422160')">+</button>&nbsp; Script file sdtrace.d <br/><p>
-<pre id="code140367047422160" class="hide">
+<button class="btn" onclick="toggleCode('code140085535588496')">+</button>&nbsp; Script file sdtrace.d <br/><p>
+<pre id="code140085535588496" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #pragma D option nspec=1024
@@ -376,15 +377,15 @@ SCSI stack also uses callback mechanism to notify request initiators when it is 
 <p>
 Like we said before, Linux has intermediate layer called a scheduler which can re-order requests. Due to that, BIO layer maintains generic layer of block device queues which are represented by <code>struct request_queue</code> which holds requests as <code>struct request</code> instances:<br /></p>
 <p>
-<img src="../images/linux/bio.png" alt="" /></p>
+<img src="../images/linux/bio.png" alt="" class="img-rounded"/></p>
 <p>
 Each request may have multiple <code>bio</code> requests which are kept as linked list. New requests are submitted through <code>blk_queue_bio()</code> kernel function which will either create a new <code>request</code> using <code>get_request()</code> function for it or merge it with already existing <code>request</code>.<br /></p>
 <p>
 Here are example script for Linux which traces BIO layer and SCSI stack:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047424016')">+</button>&nbsp; Script file scsitrace.stp <br/><p>
-<pre id="code140367047424016" class="hide">
+<button class="btn" onclick="toggleCode('code140085535590352')">+</button>&nbsp; Script file scsitrace.stp <br/><p>
+<pre id="code140085535590352" class="hide">
 #!/usr/bin/stap
 
 global rqs, bio2rq, specs, times;
@@ -524,7 +525,7 @@ Linux 3.13 introduced a new mechanism for block device queues called <em>blk-mq<
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -540,5 +541,14 @@ Linux 3.13 introduced a new mechanism for block device queues called <em>blk-mq<
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

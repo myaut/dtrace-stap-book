@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 5: Application tracing</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -42,7 +43,7 @@
 <p>
 We had covered kernel organization in detail in previous chapter, but it would be useless without userspace application that services end-user requests. It can be either simple <code>cat</code> program which we used in many previous examples to complex web application which uses web server and relational database. Like with the kernel, DTrace and SystemTap allow to set a probe to any instruction in it, however it will require additional switch to kernel space to execute the code. For example, let's install probe on a <code>read()</code> call on the side of standard C library:<br /></p>
 <p>
-<img src="../images/appprobes.png" alt="" /></p>
+<img src="../images/appprobes.png" alt="" class="img-rounded"/></p>
 <p>
 In DTrace userspace tracing is performed through <code>pid</code> provider:<br /></p>
 <p>
@@ -248,7 +249,7 @@ Because of the nature of DTrace probes which are registered dynamically, they co
         <li>
  SystemTap Wiki: <a href="https://sourceware.org/systemtap/wiki/AddingUserSpaceProbingToApps">Adding User Space Probing to an Application</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
 </ul>
 </p>
 
@@ -257,7 +258,7 @@ Because of the nature of DTrace probes which are registered dynamically, they co
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-center">
@@ -270,5 +271,14 @@ Because of the nature of DTrace probes which are registered dynamically, they co
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

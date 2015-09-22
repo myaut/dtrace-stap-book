@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 2: Dynamic tracing languages</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -48,8 +49,8 @@ We already discussed problem with probe stability. Some issues may be related to
 DTrace has a <em>translators</em> for doing that:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047942608')">+</button>&nbsp; Script file stat.d <br/><p>
-<pre id="code140367047942608" class="hide">
+<button class="btn" onclick="toggleCode('code140085536108944')">+</button>&nbsp; Script file stat.d <br/><p>
+<pre id="code140085536108944" class="hide">
 struct stat_info {
     long long st_size;
 };
@@ -83,8 +84,8 @@ SystemTap doesn't have translators, but you can create <em>prologue</em> or <em>
 Linux has several variants for <code>stat</code> structure in <code>stat()</code> system call, some of them deprecated, some are intended to support 64-bit sizes for 32-bit callers. By using following tapset we will remove such differences and make them universally available through <code>filename</code> and <code>size</code> variables:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047943824')">+</button>&nbsp; Script file lstat.stp <br/><p>
-<pre id="code140367047943824" class="hide">
+<button class="btn" onclick="toggleCode('code140085536110160')">+</button>&nbsp; Script file lstat.stp <br/><p>
+<pre id="code140085536110160" class="hide">
 probe lstat = kernel.function("sys_lstat64").return ? ,
               kernel.function("sys32_lstat64").return ? {
     filename = user_string($filename);
@@ -116,8 +117,8 @@ Note that this tapset only checks for 64-bit Intel architecture. You will need a
 After we created this tapset, it can be used very easy:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367047944528')">+</button>&nbsp; Script file lstat.stp <br/><p>
-<pre id="code140367047944528" class="hide">
+<button class="btn" onclick="toggleCode('code140085536110864')">+</button>&nbsp; Script file lstat.stp <br/><p>
+<pre id="code140085536110864" class="hide">
 probe lstat {
     printf("%s %d\n", filename, size);
 }
@@ -147,9 +148,9 @@ If you have enabled preprocessor with <code>-C</code> option, you may use <code>
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
 </ul>
 </p>
 
@@ -158,7 +159,7 @@ If you have enabled preprocessor with <code>-C</code> option, you may use <code>
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -174,5 +175,14 @@ If you have enabled preprocessor with <code>-C</code> option, you may use <code>
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 2: Dynamic tracing languages</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -47,7 +48,7 @@
 <p>
 For example, let's see how synchronous writing to a disk is performed in Linux and what can be traced:<br /></p>
 <p>
-<img src="../images/probes.png" alt="" /></p>
+<img src="../images/probes.png" alt="" class="img-rounded"/></p>
 <p>
 When process wants to start synchronous write, it issues <code>write()</code> system call and by doing that it transfers control to a kernel code, to a <code>sys_write()</code> function in particular. This function eventually calls a <code>submit_bio()</code> function which pushes data from user process to a queue of corresponding disk device. If we attach probes to these functions, we can gather the following information:<br />      <ul>
         <li>
@@ -294,7 +295,7 @@ These probes are not related to a kernel events, but to execution of tracing scr
 <p>
 Take for example profiler probe which records task name from <code>current</code> pointer (it always points to task executing on CPU now):<br /></p>
 <p>
-<img src="../images/timer-probe.png" alt="" /></p>
+<img src="../images/timer-probe.png" alt="" class="img-rounded"/></p>
 <p>
 So if we count that timer probe has fired two times, once in context of left process and once in context of right process, we can conclude that they both consume 50% of CPU time, like <code>prstat</code> and <code>top</code> utilities do. Profiling will be covered in <a href="../principles/profiling.html">Profiling</a> section of Module 3.<br /></p>
 <p>
@@ -498,13 +499,13 @@ Lets take following C code as an example (assuming it is located in kernel-space
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
 </ul>
 </p>
 <p>
@@ -512,9 +513,9 @@ Lets take following C code as an example (assuming it is located in kernel-space
 <p>
     <ul>
         <li>
-<img src="../images/icons/manpage.png" alt="" /><a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a></li>
+<img src="../images/icons/manpage.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
 </ul>
 </p>
 
@@ -523,7 +524,7 @@ Lets take following C code as an example (assuming it is located in kernel-space
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -539,5 +540,14 @@ Lets take following C code as an example (assuming it is located in kernel-space
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

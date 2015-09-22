@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Appendix A. Exercise hints and solutions </title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -52,8 +53,8 @@ BIO level can be traced with <code>ioblock</code> tapset. We will do so by using
 Here is resulting <code>deblock.stp</code> script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046117456')">+</button>&nbsp; Script file deblock.stp <br/><p>
-<pre id="code140367046117456" class="hide">
+<button class="btn" onclick="toggleCode('code140085534283792')">+</button>&nbsp; Script file deblock.stp <br/><p>
+<pre id="code140085534283792" class="hide">
 global vfstp, biotp;
 
 probe kernel.function("vfs_write") {
@@ -95,8 +96,8 @@ We can use <code>scsi.ioentry</code> probe to trace SCSI operations. We can actu
 We will get <code>readahead.stp</code> script after applying all these modifications:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046118672')">+</button>&nbsp; Script file readahead.stp <br/><p>
-<pre id="code140367046118672" class="hide">
+<button class="btn" onclick="toggleCode('code140085534285008')">+</button>&nbsp; Script file readahead.stp <br/><p>
+<pre id="code140085534285008" class="hide">
 global vfsops, bioops, scsiops;
 
 probe kernel.function("vfs_read") {
@@ -146,8 +147,8 @@ Getting device name on VFS layer, however is harder: <code>vfs_t</code> structur
 Using all this we can get our <code>deblock.d</code> script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046144464')">+</button>&nbsp; Script file deblock.d <br/><p>
-<pre id="code140367046144464" class="hide">
+<button class="btn" onclick="toggleCode('code140085534310800')">+</button>&nbsp; Script file deblock.d <br/><p>
+<pre id="code140085534310800" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define VFSMNTPT(vfs)   ((vfs)->vfs_vnodecovered            \
@@ -188,8 +189,8 @@ We will trace SCSI stack by attaching to <code>scsi-transport-dispatch</code> pr
 Other changes in <code>readahead.d</code> are similar to those that was done for SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140367046144976')">+</button>&nbsp; Script file readahead.d <br/><p>
-<pre id="code140367046144976" class="hide">
+<button class="btn" onclick="toggleCode('code140085534311312')">+</button>&nbsp; Script file readahead.d <br/><p>
+<pre id="code140085534311312" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define VFSMNTPT(vfs)   ((vfs)->vfs_vnodecovered            \
@@ -236,7 +237,7 @@ tick-1s {
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -252,5 +253,14 @@ tick-1s {
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>

@@ -3,11 +3,12 @@
 	<meta charset="utf-8" /> 
 	<meta http-equiv="Content-Type" content="text/html">
 	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<title>Module 2: Dynamic tracing languages</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
-	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
 	
 	<script type="text/javascript">
 	function toggleCode(id) {
@@ -51,7 +52,7 @@ DTrace allows to print a memory dump using <code>tracemem()</code> action which 
 <p>
 To reduce competition for output buffers in multicore systems, SystemTap and DTrace allocate buffers on per-cpu basis. Then they need to extract data from them, they switch buffers and walk over it. Consider following example: process A starts on CPU 0 while process B starts on CPU 1, than context switch occurs and both processes migrating on opposite CPU (this is unrealistic situation for scheduler, so it is only an example) as shown on picture:<br /></p>
 <p>
-<img src="../images/cpubufs.png" alt="" /></p>
+<img src="../images/cpubufs.png" alt="" class="img-rounded"/></p>
 <p>
 In this example you will get the following output:<br /></p>
 <p>
@@ -69,11 +70,11 @@ This makes interpretation of output is extremely complicated especially in case 
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a></li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html">Output Formatting</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html">Output Formatting</a></li>
         <li>
-<img src="../images/icons/staplang.png" alt="" /><a href="https://sourceware.org/systemtap/langref/Formatted_output.html">Formatted output</a></li>
+<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Formatted_output.html">Formatted output</a></li>
 </ul>
 </p>
 <p>
@@ -91,9 +92,9 @@ Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scr
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" /><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-spec/index.html">Speculative Tracing</a></li>
+<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-spec/index.html">Speculative Tracing</a></li>
         <li>
-<img src="../images/icons/stapset.png" alt="" /><a href="https://sourceware.org/systemtap/tapsets/speculation.stp.html">Speculation</a></li>
+<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/speculation.stp.html">Speculation</a></li>
 </ul>
 </p>
 
@@ -102,7 +103,7 @@ Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scr
 
 <!-- TAIL -->
 
-<div class="navbar">
+<div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
@@ -118,5 +119,14 @@ Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scr
     </div>
 </div>
 
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
 </body>
 </html>
