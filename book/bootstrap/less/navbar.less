@@ -22,10 +22,10 @@
   min-height: @navbarHeight;
   padding-left:  20px;
   padding-right: 20px;
-  #gradient > .vertical(@navbarBackgroundHighlight, @navbarBackground);
+  // #gradient > .vertical(@navbarBackgroundHighlight, @navbarBackground);
+  background-color: @navbarBackground;
   border: 1px solid @navbarBorder;
-  .border-radius(@baseBorderRadius);
-  .box-shadow(0 1px 4px rgba(0,0,0,.065));
+  .box-shadow(0 1px 4px @navbarBackgroundHighlight);
 
   // Prevent floats from breaking the navbar
   .clearfix();
@@ -53,9 +53,9 @@
   padding: ((@navbarHeight - @baseLineHeight) / 2) 20px ((@navbarHeight - @baseLineHeight) / 2);
   margin-left: -20px; // negative indent to left-align the text down the page
   font-size: 20px;
-  font-weight: 200;
+  font-weight: 240;
   color: @navbarBrandColor;
-  text-shadow: 0 1px 0 @navbarBackgroundHighlight;
+  // text-shadow: 0 1px 0 @navbarBackgroundHighlight;
   &:hover,
   &:focus {
     text-decoration: none;
@@ -245,7 +245,7 @@
   padding: ((@navbarHeight - @baseLineHeight) / 2) 15px ((@navbarHeight - @baseLineHeight) / 2);
   color: @navbarLinkColor;
   text-decoration: none;
-  text-shadow: 0 1px 0 @navbarBackgroundHighlight;
+  // text-shadow: 0 1px 0 @navbarBackgroundHighlight;
 }
 .navbar .nav .dropdown-toggle .caret {
   margin-top: 8px;
@@ -480,7 +480,7 @@
       &.focused {
         padding: 5px 15px;
         color: @grayDark;
-        text-shadow: 0 1px 0 @white;
+        // text-shadow: 0 1px 0 @white;
         background-color: @navbarInverseSearchBackgroundFocus;
         border: 0;
         .box-shadow(0 0 3px rgba(0,0,0,.15));

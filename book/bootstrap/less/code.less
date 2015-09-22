@@ -10,14 +10,14 @@ pre {
   #font > #family > .monospace;
   font-size: @baseFontSize - 2;
   color: @grayDark;
-  .border-radius(3px);
+  // .border-radius(3px);
 }
 
 // Inline code
 code {
   padding: 2px 4px;
-  color: @black;
-  background-color: #ececf6;
+  color: #0B0B61;
+  background-color: #EFEFFB;
   white-space: nowrap;
 }
 
@@ -28,14 +28,15 @@ pre {
   margin: 0 0 @baseLineHeight / 2;
   font-size: @baseFontSize - 1; // 14px to 13px
   line-height: @baseLineHeight;
-  word-break: break-all;
-  word-wrap: break-word;
-  white-space: pre;
-  white-space: pre-wrap;
-  background-color: #f5f5f5;
+  // word-break: break-all;
+  // word-wrap: break-word;
+  // white-space: pre;
+  // white-space: pre-wrap;
+  background-color: #EFFBFB;
   border: 1px solid #ccc; // fallback for IE7-8
   border: 1px solid rgba(0,0,0,.15);
-  .border-radius(@baseBorderRadius);
+  border-right: 3px solid #8181F7;
+  border-bottom: 3px solid #8181F7;
 
   // Make prettyprint styles more spaced out for readability
   &.prettyprint {

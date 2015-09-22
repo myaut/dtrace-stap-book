@@ -177,7 +177,7 @@ class HTMLPrinter(Printer):
                     part.text = ''
                 elif isinstance(part, Image):
                     # XXX: very dependent on book's directory structure
-                    tag = '<img src="{}" alt="{}" />'.format(
+                    tag = '<img src="{}" alt="{}" class="img-rounded"/>'.format(
                                 '../images/' + part.where, text)
                     self.stream.write(tag)
                     continue
