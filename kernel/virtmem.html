@@ -220,8 +220,8 @@ This function calls <code>as_segat</code> to determine segment to which fault ad
 Let's write simple tracer for these two functions. It also prints <code>amp</code> address and path of vnode for segvn driver:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522662608')">+</button>&nbsp; Script file pagefault.d <br/><p>
-<pre id="code140460522662608" class="hide">
+<button class="btn" onclick="toggleCode('code140367046518160')">+</button>&nbsp; Script file pagefault.d <br/><p>
+<pre id="code140367046518160" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -355,8 +355,8 @@ int handle_mm_fault(struct mm_struct *mm,
 SystemTap provides a wrapper for it: <code>vm.pagefault</code> which we will use to write pagefault tracer script for Linux:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522663696')">+</button>&nbsp; Script file pagefault.stp <br/><p>
-<pre id="code140460522663696" class="hide">
+<button class="btn" onclick="toggleCode('code140367046519248')">+</button>&nbsp; Script file pagefault.stp <br/><p>
+<pre id="code140367046519248" class="hide">
 #!/usr/bin/stap
 
 /**

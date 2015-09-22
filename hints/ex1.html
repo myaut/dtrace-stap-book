@@ -71,8 +71,8 @@ Finally, stringifying flags will require usage of ternary operator <code>?:</cod
 Here are resulting DTrace script which implements required functionality:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522170768')">+</button>&nbsp; Script file opentrace.d <br/><p>
-<pre id="code140460522170768" class="hide">
+<button class="btn" onclick="toggleCode('code140367046018128')">+</button>&nbsp; Script file opentrace.d <br/><p>
+<pre id="code140367046018128" class="hide">
 /* These constants are already defined in /usr/lib/dtrace/io.d
 inline int O_WRONLY = 1;
 inline int O_RDWR = 2;
@@ -110,8 +110,8 @@ syscall::openat*:return
 I have used <code>sprintf()</code> to concatenate strings in SystemTap version of a script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522170960')">+</button>&nbsp; Script file opentrace.stp <br/><p>
-<pre id="code140460522170960" class="hide">
+<button class="btn" onclick="toggleCode('code140367046018320')">+</button>&nbsp; Script file opentrace.stp <br/><p>
+<pre id="code140367046018320" class="hide">
 global O_WRONLY = 1;
 global O_RDWR = 2;
 global O_APPEND = 1024;

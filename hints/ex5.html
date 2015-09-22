@@ -28,15 +28,208 @@
 <div class="navbar">
     <div class="navbar-inner">
 	    <div class="container">
-			
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="ex4.html"><strong>Prev</strong>(Exercise 4)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex6.html"><strong>Next</strong>(Exercise 6)</a></li>
+</ul>
 		</div>
     </div>
 </div>
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<span class="label label-warning">Warning</span><div class="well">
-This page is not yet written. Sorry. <a href="../index.html">Return to index.</a></div>
+		<p>
+<h3>Exercise 5</h3></p>
+<p>
+We will need to access pointer to <code>block_device</code> pointer in Linux to collect block device name and group data by it. As we know, main filesystem structure is called <code>super_block</code> which contains <code>s_bdev</code> pointer which has <code>struct block_device*</code>. SystemTap has two tapset functions, <code>MINOR()</code> and <code>MAJOR()</code> which allow to extract device number from <code>bd_dev</code> field of that structure. There is also an undocumented <code>bdevname()</code> function which is more convenient as it returns string, so we will use it. <br /></p>
+<p>
+We will attach probes to <code>vfs_write()</code> and <code>vfs_read()</code> functions to trace filesystem operations. First argument of that functions is pointer to file of type <code>struct file*</code>. Amount of data being written or read is passed through argument <code>$count</code>. <br /></p>
+<p>
+BIO level can be traced with <code>ioblock</code> tapset. We will do so by using its <code>ioblock.request</code> probe. It has following arguments: <code>bdev</code> -- <code>block_device</code> pointer, <code>size</code> -- amount of data in request, <code>rw</code> -- read or write flag which can be tested for equality with <code>BIO_READ</code> or <code>BIO_WRITE</code> constants.<br /></p>
+<p>
+Here is resulting <code>deblock.stp</code> script:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140367046117456')">+</button>&nbsp; Script file deblock.stp <br/><p>
+<pre id="code140367046117456" class="hide">
+global vfstp, biotp;
+
+probe kernel.function("vfs_write") {
+    file = $file;
+    if(!file) next;
+        
+    sb = @cast(file, "file")->f_path->mnt->mnt_sb;
+    if(!sb) next;
+    
+    bdev = @cast(sb, "super_block")->s_bdev;
+    if(bdev)
+        vfstp[bdev] <<< $count;
+}
+
+probe ioblock.request {    
+    if(bio_rw_num(rw) != BIO_WRITE)
+        next;
+    
+    biotp[bdev] <<< size;
+}
+
+probe timer.s(1) {
+    printf("%12s %8s BDEV KB/s\n", "BDEV", "VFS KB/s");
+    foreach([bdev] in vfstp) {
+        printf("%12s %8d %d\n", bdevname(bdev),
+                @sum(vfstp[bdev]) / 1024,
+                @sum(biotp[bdev]) / 1024);
+    }
+    delete vfstp; delete biotp;
+}</pre>
+</p>
+</div>
+</p>
+<p>
+To trace readahead from part 2 we will need to replace <code>vfs_write</code> to <code>vfs_read</code>, <code>BIO_WRITE</code> to <code>BIO_READ</code> and get rid from amount of data in request saving into aggregation by replacing it with number of requests (which will be constant <code>1</code>).<br /></p>
+<p>
+We can use <code>scsi.ioentry</code> probe to trace SCSI operations. We can actually detect which command was used by parsing CDB buffer, but we will omit that and will trace all SCSI operations. Getting device name, however is not that easy: <code>request</code> structure which is used in SCSI stack refers to <code>gendisk</code> and <code>hd_struct</code> structures, but they won't refer to <code>block_device</code> (on contrary, <code>block_device</code> itself refers them). So we will make a small trick: there is a linked list of structures <code>bio</code> ... <code>biotail</code> which refer block device structure the same way they do in BIO probes, so we will simply copy approach from <code>ioblock.request</code> probe.<br /></p>
+<p>
+We will get <code>readahead.stp</code> script after applying all these modifications:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140367046118672')">+</button>&nbsp; Script file readahead.stp <br/><p>
+<pre id="code140367046118672" class="hide">
+global vfsops, bioops, scsiops;
+
+probe kernel.function("vfs_read") {
+    file = $file;
+    if(!file) next;
+        
+    sb = @cast(file, "file")->f_path->mnt->mnt_sb;
+    if(!sb) next;
+    
+    bdev = @cast(sb, "super_block")->s_bdev;
+    if(bdev)
+        vfsops[bdev] <<< 1;
+}
+
+probe ioblock.request {    
+    if(bio_rw_num(rw) != BIO_READ)
+        next;
+    
+    bioops[bdev] <<< 1;
+}
+
+probe scsi.ioentry {
+    bio = @cast(req_addr, "struct request")->bio;
+    if(!bio) next;
+    
+    bdev = @cast(bio, "bio")->bi_bdev;
+    if(bdev)
+        scsiops[bdev] <<< 1;
+}
+
+probe timer.s(1) {
+    printf("%12s %8s %8s SCSI OP/s\n", "BDEV", "VFS OP/s", "BDEV OP/s");
+    foreach([bdev] in vfsops) {
+        printf("%12s %8d %8d %d\n", bdevname(bdev), @count(vfsops[bdev]), 
+               @count(bioops[bdev]), @count(scsiops[bdev]));
+    }
+    delete vfsops; delete bioops; delete scsiops;
+}</pre>
+</p>
+</div>
+</p>
+<p>
+One can get device name with <code>ddi_pathname()</code> action or <code>devinfo_t</code> translator (which uses it indirectly) which is applied to <code>buf</code> structure. Probes from <code>io</code> provider will do it automatically by passing resulting pseudo-structure as <code>args[1]</code> argument. Aside from name, it contains minor and major device names. <br /></p>
+<p>
+Getting device name on VFS layer, however is harder: <code>vfs_t</code> structure which describes filesystem has only device number <code>vfs_dev</code>. ZFS makes things even harder: there is intermediate layer called pool which hides block devices from filesystem layer. So we will use mountpoints as an aggregation key. We will trace filesystem operations by attaching to <code>fop_read()</code> and <code>fop_write()</code> which accept pointers to <code>vnode_t</code> of file as their first argument and pointer to <code>uio</code> structure as their second argument (it describes user request and thus contains amount of data).<br /></p>
+<p>
+Using all this we can get our <code>deblock.d</code> script:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140367046144464')">+</button>&nbsp; Script file deblock.d <br/><p>
+<pre id="code140367046144464" class="hide">
+#!/usr/sbin/dtrace -qCs
+
+#define VFSMNTPT(vfs)   ((vfs)->vfs_vnodecovered            \
+             ? stringof((vfs)->vfs_vnodecovered->v_path)    \
+             : "???")
+#define NBITSMINOR      32
+#define MAXMIN          0xFFFFFFFF
+
+fbt::fop_write:entry 
+/args[1]->uio_resid != 0/ {
+    this->dev = args[0]->v_vfsp->vfs_dev;
+    @vfs[getmajor(this->dev), 
+         getminor(this->dev),
+         VFSMNTPT(args[0]->v_vfsp)] = sum(args[1]->uio_resid);
+}
+
+io:::start
+/args[0]->b_bcount != 0 && args[0]->b_flags & B_WRITE/ {
+    @bio[args[1]->dev_major,
+         args[1]->dev_minor,
+         args[1]->dev_statname] = sum(args[0]->b_bcount);
+}
+
+tick-1s {
+    normalize(@vfs, 1024);  normalize(@bio, 1024);
+    
+    printf("%9s %16s %8s BDEV KB/s\n", "DEV_T", "NAME", "VFS KB/s");
+    printa("%3d,%-5d %16s %8@u %@u\n", @vfs, @bio);
+    
+    trunc(@vfs); trunc(@bio);
+}</pre>
+</p>
+</div>
+</p>
+<p>
+We will trace SCSI stack by attaching to <code>scsi-transport-dispatch</code> probe which will receive pointer to <code>buf</code> as first argument. That is very similar to probes from <code>io</code> provider except that probe doesn't apply translators on buffer. <br /></p>
+<p>
+Other changes in <code>readahead.d</code> are similar to those that was done for SystemTap:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code140367046144976')">+</button>&nbsp; Script file readahead.d <br/><p>
+<pre id="code140367046144976" class="hide">
+#!/usr/sbin/dtrace -qCs
+
+#define VFSMNTPT(vfs)   ((vfs)->vfs_vnodecovered            \
+             ? stringof((vfs)->vfs_vnodecovered->v_path)    \
+             : "???")
+#define HASDI(bp)       (((struct buf*) bp)->b_dip != 0)
+#define DEVINFO(bp)     xlate<devinfo_t*>((struct buf*) bp)
+
+fbt::fop_read:entry 
+/args[1]->uio_resid != 0/ {
+    this->dev = args[0]->v_vfsp->vfs_dev;
+    @vfs[getmajor(this->dev), 
+         getminor(this->dev),
+         VFSMNTPT(args[0]->v_vfsp)] = count();
+}
+
+io:::start
+/args[0]->b_bcount != 0 && args[0]->b_flags & B_READ/ {
+    @bio[args[1]->dev_major,
+         args[1]->dev_minor,
+         args[1]->dev_statname] = count();
+}
+
+scsi-transport-dispatch 
+/arg0 != 0 && HASDI(arg0)/ {
+    @scsi[DEVINFO(arg0)->dev_major,
+          DEVINFO(arg0)->dev_minor,
+          DEVINFO(arg0)->dev_statname] = count();
+}
+
+tick-1s {
+    printf("%9s %16s %8s %8s SCSI OP/s\n", "DEV_T", "NAME", "VFS OP/s", "BDEV OP/s");
+    printa("%3d,%-5d %16s %8@u %@8u %@u\n", @vfs, @bio, @scsi);
+    
+    trunc(@vfs); trunc(@bio); trunc(@scsi);
+}
+</pre>
+</p>
+</div>
+</p>
 
 	</div>
 </div>
@@ -46,7 +239,15 @@ This page is not yet written. Sorry. <a href="../index.html">Return to index.</a
 <div class="navbar">
     <div class="navbar-inner">
         <div class="container">
-            
+            <ul class="nav pull-left">
+<li><a href="ex4.html"><strong>Prev</strong>(Exercise 4)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="ex6.html"><strong>Next</strong>(Exercise 6)</a></li>
+</ul>
         </div>
     </div>
 </div>

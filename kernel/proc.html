@@ -83,8 +83,8 @@ There are several other useful fields in <code>task_struct</code>:<br />        
 Script <code>dumptask.stp</code> demonstrates how these fields may be useful to get information about current process.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460523305296')">+</button>&nbsp; Script file dumptask.stp <br/><p>
-<pre id="code140460523305296" class="hide">
+<button class="btn" onclick="toggleCode('code140367047160848')">+</button>&nbsp; Script file dumptask.stp <br/><p>
+<pre id="code140367047160848" class="hide">
 /**
  * taskdump.stp
  * 
@@ -425,8 +425,8 @@ Parent process has <code>p_child</code> pointer that refers its first child, whi
 The following script dumps information about current thread and process. Because DTrace doesn't support loops and conditions, it can read only first 9 files and 9 arguments and does that by generating multiple probes with preprocessor. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460523381840')">+</button>&nbsp; Script file dumptask.d <br/><p>
-<pre id="code140460523381840" class="hide">
+<button class="btn" onclick="toggleCode('code140367047212752')">+</button>&nbsp; Script file dumptask.d <br/><p>
+<pre id="code140367047212752" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -719,8 +719,8 @@ LWP management </td>
 These probes are demonstrated in the following scripts. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522903312')">+</button>&nbsp; Script file proc.stp <br/><p>
-<pre id="code140460522903312" class="hide">
+<button class="btn" onclick="toggleCode('code140367046758864')">+</button>&nbsp; Script file proc.stp <br/><p>
+<pre id="code140367046758864" class="hide">
 #!/usr/bin/stap
 
 probe scheduler.process*, scheduler.wakeup_new, syscall.fork, 
@@ -769,8 +769,8 @@ Running this script for <code>uname</code> program called in foreground of <code
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522903760')">+</button>&nbsp; Script file proc.d <br/><p>
-<pre id="code140460522903760" class="hide">
+<button class="btn" onclick="toggleCode('code140367046759312')">+</button>&nbsp; Script file proc.d <br/><p>
+<pre id="code140367046759312" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define PARENT_EXECNAME(thread) \

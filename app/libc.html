@@ -134,8 +134,8 @@ Acquired mutex          </td>
 Here are an example of pthread tracer in SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522426128')">+</button>&nbsp; Script file pthread.stp <br/><p>
-<pre id="code140460522426128" class="hide">
+<button class="btn" onclick="toggleCode('code140367046277584')">+</button>&nbsp; Script file pthread.stp <br/><p>
+<pre id="code140367046277584" class="hide">
 #!/usr/bin/env stap
 
 @define libpthread %( "/lib64/libpthread.so.0" %)
@@ -219,8 +219,8 @@ Note that thread with TID=8972 will acquire mutex in <code>tpd_wqueue_put</code>
 <code>plockstat</code> doesn't support many probes that glibc do, put we can easily replace them with <code>pid</code> provider and function boundary tracing:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140460522443152')">+</button>&nbsp; Script file pthread.d <br/><p>
-<pre id="code140460522443152" class="hide">
+<button class="btn" onclick="toggleCode('code140367046278160')">+</button>&nbsp; Script file pthread.d <br/><p>
+<pre id="code140367046278160" class="hide">
 #!/usr/bin/dtrace
 #pragma D option bufsize=8m
 #pragma D option switchrate=100hz
