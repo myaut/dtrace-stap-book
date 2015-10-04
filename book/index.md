@@ -61,7 +61,7 @@ This work is licensed under the  Creative Commons Attribution-Noncommercial-Shar
  * [Block Input-Output][kernel/bio]
  * [Asynchronicity in kernel][kernel/async]
     * [Exercise 5][kernel/ex5]
- * [Network Input-Output][kernel/net]
+ * [Network Stack][kernel/net]
  * [Synchronization primitives][kernel/sync]
  * [Interrupt handling][kernel/irq]
 
