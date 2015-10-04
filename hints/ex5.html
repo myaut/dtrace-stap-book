@@ -53,8 +53,8 @@ BIO level can be traced with <code>ioblock</code> tapset. We will do so by using
 Here is resulting <code>deblock.stp</code> script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534283792')">+</button>&nbsp; Script file deblock.stp <br/><p>
-<pre id="code140085534283792" class="hide">
+<button class="btn" onclick="toggleCode('code140111027912400')">+</button>&nbsp; Script file deblock.stp <br/><p>
+<pre id="code140111027912400" class="hide">
 global vfstp, biotp;
 
 probe kernel.function("vfs_write") {
@@ -96,8 +96,8 @@ We can use <code>scsi.ioentry</code> probe to trace SCSI operations. We can actu
 We will get <code>readahead.stp</code> script after applying all these modifications:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534285008')">+</button>&nbsp; Script file readahead.stp <br/><p>
-<pre id="code140085534285008" class="hide">
+<button class="btn" onclick="toggleCode('code140111027934160')">+</button>&nbsp; Script file readahead.stp <br/><p>
+<pre id="code140111027934160" class="hide">
 global vfsops, bioops, scsiops;
 
 probe kernel.function("vfs_read") {
@@ -147,8 +147,8 @@ Getting device name on VFS layer, however is harder: <code>vfs_t</code> structur
 Using all this we can get our <code>deblock.d</code> script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534310800')">+</button>&nbsp; Script file deblock.d <br/><p>
-<pre id="code140085534310800" class="hide">
+<button class="btn" onclick="toggleCode('code140111027935312')">+</button>&nbsp; Script file deblock.d <br/><p>
+<pre id="code140111027935312" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define VFSMNTPT(vfs)   ((vfs)->vfs_vnodecovered            \
@@ -189,8 +189,8 @@ We will trace SCSI stack by attaching to <code>scsi-transport-dispatch</code> pr
 Other changes in <code>readahead.d</code> are similar to those that was done for SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534311312')">+</button>&nbsp; Script file readahead.d <br/><p>
-<pre id="code140085534311312" class="hide">
+<button class="btn" onclick="toggleCode('code140111027935824')">+</button>&nbsp; Script file readahead.d <br/><p>
+<pre id="code140111027935824" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define VFSMNTPT(vfs)   ((vfs)->vfs_vnodecovered            \

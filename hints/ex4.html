@@ -69,8 +69,8 @@ Even if pages are already loaded into <em>page cache</em>, they might be mapped 
 We will use <code>@count</code> aggregation and <code>vm.pagefault</code> probe to count pagefaults in SystemTap for Linux. Path to file is represented by dentry structure <code>$vma-&gt;vm_file-&gt;f_path-&gt;dentry</code> -- we will use <code>d_name</code> function to access string representation of its name.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534249808')">+</button>&nbsp; Script file pfstat.stp <br/><p>
-<pre id="code140085534249808" class="hide">
+<button class="btn" onclick="toggleCode('code140111027874320')">+</button>&nbsp; Script file pfstat.stp <br/><p>
+<pre id="code140111027874320" class="hide">
 #!/usr/bin/stap
 
 global pfs;
@@ -99,8 +99,8 @@ probe timer.s(1) {
 Speaking of Solaris, we will need to intercept <code>as_segat()</code> calls. Segments that are related to files are handled by <code>segvn</code> segment driver, so we have to compare pointer to operations table to determine if segment is corresponding to that driver.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534250064')">+</button>&nbsp; Script file pfstat.d <br/><p>
-<pre id="code140085534250064" class="hide">
+<button class="btn" onclick="toggleCode('code140111027874576')">+</button>&nbsp; Script file pfstat.d <br/><p>
+<pre id="code140111027874576" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define VNODE_NAME(vp)                                 \
@@ -174,8 +174,8 @@ Of course that is not the only way to find that field. If you know how to check 
 Considering our findings, we may define <code>CACHE_NAME</code> macro and use it in a DTrace script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534251664')">+</button>&nbsp; Script file kmemstat.d <br/><p>
-<pre id="code140085534251664" class="hide">
+<button class="btn" onclick="toggleCode('code140111027909008')">+</button>&nbsp; Script file kmemstat.d <br/><p>
+<pre id="code140111027909008" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define CACHE_NAME(arg)     ((kmem_cache_t*) arg)->cache_name
@@ -231,8 +231,8 @@ Like in Solaris, Linux shows cache statistics in <code>/proc/slabinfo</code> fil
 Considering all this, here are an implementation of SystemTap script:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140085534281808')">+</button>&nbsp; Script file kmemstat.stp <br/><p>
-<pre id="code140085534281808" class="hide">
+<button class="btn" onclick="toggleCode('code140111027910416')">+</button>&nbsp; Script file kmemstat.stp <br/><p>
+<pre id="code140111027910416" class="hide">
 #!/usr/bin/stap
 
 global allocs, frees;
