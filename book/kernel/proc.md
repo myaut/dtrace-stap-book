@@ -13,7 +13,7 @@ Each process has its own address space -- in modern processors it is implemented
 
 #### Process tree in Linux
 
-Processes and threads are implemented through universal `task_struct` structure (defined in `include/linux/sched.h`), so we will refer in our book as _tasks_. First thread in process is called _task group leader_ and all other threads are linked through list node `thread_node` list head and contain pointer `group_leader` which references `task_struct` of their process. Children processes refer to parent process through `parent` pointer and linked through `sibling` list node. Parent process linked with its children using `children` list head. 
+Processes and threads are implemented through universal `task_struct` structure (defined in `include/linux/sched.h`), so we will refer in our book as _tasks_. The first thread in process is called _task group leader_ and all other threads are linked through list node `thread_node` and contain pointer `group_leader` which references `task_struct` of their process, that is , the `task_struct` of _task group leader_. Children processes refer to parent process through `parent` pointer and link through `sibling` list node. Parent process is linked with its children using `children` list head. 
 
 ![image:linux-task](linux/task.png)
 
