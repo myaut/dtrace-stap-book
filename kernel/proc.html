@@ -49,7 +49,7 @@ Each process has its own address space -- in modern processors it is implemented
 <p>
 <h4>Process tree in Linux</h4></p>
 <p>
-Processes and threads are implemented through universal <code>task_struct</code> structure (defined in <code>include/linux/sched.h</code>), so we will refer in our book as <em>tasks</em>. First thread in process is called <em>task group leader</em> and all other threads are linked through list node <code>thread_node</code> list head and contain pointer <code>group_leader</code> which references <code>task_struct</code> of their process. Children processes refer to parent process through <code>parent</code> pointer and linked through <code>sibling</code> list node. Parent process linked with its children using <code>children</code> list head. <br /></p>
+Processes and threads are implemented through universal <code>task_struct</code> structure (defined in <code>include/linux/sched.h</code>), so we will refer in our book as <em>tasks</em>. The first thread in process is called <em>task group leader</em> and all other threads are linked through list node <code>thread_node</code> and contain pointer <code>group_leader</code> which references <code>task_struct</code> of their process, that is , the <code>task_struct</code> of <em>task group leader</em>. Children processes refer to parent process through <code>parent</code> pointer and link through <code>sibling</code> list node. Parent process is linked with its children using <code>children</code> list head. <br /></p>
 <p>
 <img src="../images/linux/task.png" alt="" class="img-rounded"/></p>
 <p>
@@ -84,8 +84,8 @@ There are several other useful fields in <code>task_struct</code>:<br />        
 Script <code>dumptask.stp</code> demonstrates how these fields may be useful to get information about current process.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111028947600')">+</button>&nbsp; Script file dumptask.stp <br/><p>
-<pre id="code140111028947600" class="hide">
+<button class="btn" onclick="toggleCode('code139829679241232')">+</button>&nbsp; Script file dumptask.stp <br/><p>
+<pre id="code139829679241232" class="hide">
 /**
  * taskdump.stp
  * 
@@ -426,8 +426,8 @@ Parent process has <code>p_child</code> pointer that refers its first child, whi
 The following script dumps information about current thread and process. Because DTrace doesn't support loops and conditions, it can read only first 9 files and 9 arguments and does that by generating multiple probes with preprocessor. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111029032336')">+</button>&nbsp; Script file dumptask.d <br/><p>
-<pre id="code140111029032336" class="hide">
+<button class="btn" onclick="toggleCode('code139829679313680')">+</button>&nbsp; Script file dumptask.d <br/><p>
+<pre id="code139829679313680" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -720,8 +720,8 @@ LWP management </td>
 These probes are demonstrated in the following scripts. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111029090384')">+</button>&nbsp; Script file proc.stp <br/><p>
-<pre id="code140111029090384" class="hide">
+<button class="btn" onclick="toggleCode('code139829679367632')">+</button>&nbsp; Script file proc.stp <br/><p>
+<pre id="code139829679367632" class="hide">
 #!/usr/bin/stap
 
 probe scheduler.process*, scheduler.wakeup_new, syscall.fork, 
@@ -770,8 +770,8 @@ Running this script for <code>uname</code> program called in foreground of <code
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111029090832')">+</button>&nbsp; Script file proc.d <br/><p>
-<pre id="code140111029090832" class="hide">
+<button class="btn" onclick="toggleCode('code139829679368080')">+</button>&nbsp; Script file proc.d <br/><p>
+<pre id="code139829679368080" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define PARENT_EXECNAME(thread) \

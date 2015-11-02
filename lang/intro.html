@@ -41,7 +41,7 @@
 		<p>
 <h2>Module 2: Dynamic tracing languages </h2></p>
 <p>
-Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have predicate which acts as a filter unnecessary probes, i.e. if you want to trace specific process or specific kind of query. <br /></p>
+Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have a predicate which acts as a filter of unnecessary probes, i.e. if you want to trace specific process or specific kind of query. <br /></p>
 <p>
 Each script consists of global variables declarations followed by probes, and possibly function declarations. In SystemTap each declaration is preceded by <code>global</code>, <code>function</code> or <code>probe</code> keyword:<br /></p>
 <p>
@@ -140,7 +140,7 @@ function task_valid_file_handle:long (task:long, fd:long) %{ /* pure */
 <p>
 This example is taken from <em>pfiles.stp</em> sample. It has to grab RCU lock to access file pointer safely, which is done by direct call to <code>rcu_read_lock()</code> and <code>rcu_read_unlock()</code> functions. Note that to access arguments and return value it has to use names prefixed with <code>STAP</code> (in early versions of SystemTap there were magic pointers <code>THIS</code> and <code>CONTEXT</code> for this). To read pointer safely it uses <code>kread()</code> function. <br /></p>
 <p>
-Embedded C part starts with <code>%{</code> and ends with <code>%}</code> and may be used as function body, and in global scope if you need extra includes.</p>
+Embedded C part starts with <code>%{</code> and ends with <code>%}</code> and may be used as function body, and in global scope if you need extra includes.<br /></p>
 
 	</div>
 </div>

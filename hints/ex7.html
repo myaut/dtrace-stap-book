@@ -50,8 +50,8 @@ As you could remember from a <a href="../principles/profiling.html">profiling</a
 Here are resulting implementations of scripts for SystemTap and DTrace:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111027959824')">+</button>&nbsp; Script file topphp.stp <br/><p>
-<pre id="code140111027959824" class="hide">
+<button class="btn" onclick="toggleCode('code139829664892304')">+</button>&nbsp; Script file topphp.stp <br/><p>
+<pre id="code139829664892304" class="hide">
 @define httpd %( "/usr/local/apache2/bin/httpd" %)
 @define libphp5 %( "/usr/local/apache2/modules/libphp5.so" %)
 
@@ -83,8 +83,8 @@ probe end {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111027959952')">+</button>&nbsp; Script file topphp.d <br/><p>
-<pre id="code140111027959952" class="hide">
+<button class="btn" onclick="toggleCode('code139829664892432')">+</button>&nbsp; Script file topphp.d <br/><p>
+<pre id="code139829664892432" class="hide">
 ap*:::process-request-entry {
     self->uri = copyinstr(arg1);
 }

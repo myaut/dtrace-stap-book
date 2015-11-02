@@ -225,8 +225,8 @@ In Solaris each SCSI <em>LUN</em> has a corresponding <code>sd_lun</code> struct
 Following script traces block I/O layer and SCSI stack (<code>sd</code> driver in particular) in Solaris:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111029653648')">+</button>&nbsp; Script file sdtrace.d <br/><p>
-<pre id="code140111029653648" class="hide">
+<button class="btn" onclick="toggleCode('code139829679914192')">+</button>&nbsp; Script file sdtrace.d <br/><p>
+<pre id="code139829679914192" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #pragma D option nspec=1024
@@ -384,8 +384,8 @@ Each request may have multiple <code>bio</code> requests which are kept as linke
 Here are example script for Linux which traces BIO layer and SCSI stack:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111029655504')">+</button>&nbsp; Script file scsitrace.stp <br/><p>
-<pre id="code140111029655504" class="hide">
+<button class="btn" onclick="toggleCode('code139829679416400')">+</button>&nbsp; Script file scsitrace.stp <br/><p>
+<pre id="code139829679416400" class="hide">
 #!/usr/bin/stap
 
 global rqs, bio2rq, specs, times;

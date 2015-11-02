@@ -63,8 +63,8 @@ Here list of expected observations during this exercise:<br /></p>
 Here are resulting scripts (they are not much different from original):<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111028362640')">+</button>&nbsp; Script file dumptask-lab3.stp <br/><p>
-<pre id="code140111028362640" class="hide">
+<button class="btn" onclick="toggleCode('code139829664758544')">+</button>&nbsp; Script file dumptask-lab3.stp <br/><p>
+<pre id="code139829664758544" class="hide">
 /**
  * taskdump.stp
  * 
@@ -242,8 +242,8 @@ probe kprocess.exec_complete, kprocess.exit {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111028362704')">+</button>&nbsp; Script file dumptask-lab3.d <br/><p>
-<pre id="code140111028362704" class="hide">
+<button class="btn" onclick="toggleCode('code139829664758608')">+</button>&nbsp; Script file dumptask-lab3.d <br/><p>
+<pre id="code139829664758608" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -405,8 +405,8 @@ We wrote an ugly function <code>task_args()</code> to collect process arguments 
 Finally, to reduce memory footprint in SystemTap, we will reduce associative arrays sizes. Here are resulting scripts:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111027872912')">+</button>&nbsp; Script file forktime.stp <br/><p>
-<pre id="code140111027872912" class="hide">
+<button class="btn" onclick="toggleCode('code139829664780816')">+</button>&nbsp; Script file forktime.stp <br/><p>
+<pre id="code139829664780816" class="hide">
 global tm_fork_start_par[128], tm_fork_start[128], tm_fork_end[128], 
        tm_exec_start[128], tm_exec_end[128], p_argstr[128];
 global fork[128], postfork[128], exec[128], proc[128];
@@ -460,8 +460,8 @@ probe timer.s(1) {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111027873040')">+</button>&nbsp; Script file forktime.d <br/><p>
-<pre id="code140111027873040" class="hide">
+<button class="btn" onclick="toggleCode('code139829664780944')">+</button>&nbsp; Script file forktime.d <br/><p>
+<pre id="code139829664780944" class="hide">
 uint64_t tm_fork_start[int];
 uint64_t tm_fork_end[int];
 uint64_t tm_exec_start[int];

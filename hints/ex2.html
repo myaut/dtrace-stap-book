@@ -53,8 +53,8 @@ Finally, we need to determine if open operation requests creation of file or not
 Here are resulting scripts:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111028360464')">+</button>&nbsp; Script file openaggr.d <br/><p>
-<pre id="code140111028360464" class="hide">
+<button class="btn" onclick="toggleCode('code139829664756368')">+</button>&nbsp; Script file openaggr.d <br/><p>
+<pre id="code139829664756368" class="hide">
 syscall::openat*:entry
 /(arg2 & O_CREAT) == O_CREAT/ {
     @create[execname, pid] = count();
@@ -82,8 +82,8 @@ tick-$1s {
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code140111028360592')">+</button>&nbsp; Script file openaggr.stp <br/><p>
-<pre id="code140111028360592" class="hide">
+<button class="btn" onclick="toggleCode('code139829664756496')">+</button>&nbsp; Script file openaggr.stp <br/><p>
+<pre id="code139829664756496" class="hide">
 global open, creat, success
 global O_CREAT = 64;
 
