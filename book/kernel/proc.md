@@ -84,15 +84,15 @@ Lifetime of a process and corresponding probes are shown in the following image:
 ![image:forkproc](forkproc.png)
 
 Unlike Windows, in Unix process is spawned in two stages:
- * Parent process calls `fork()` system call. Kernel creates exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If `fork()` was successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. 
+ * Parent process calls `fork()` system call. Kernel creates exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If `fork()` is successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. 
  * Child process calls `execve()` system call, which replaces address space of a process with a new one based on binary which is passed to `execve()` call. 
  
 !!! WARN
-There is a simpler call, `vfork()`, which will not cause copying of an address space, which will make it a bit more efficient. Linux features universal `clone()` call which allow to choose which features of a process should be cloned, but in the end, all these calls are wrappers for `do_fork()` function.
+There is a simpler call, `vfork()`, which will not cause copying of an address space and make it a bit more efficient. Linux features universal `clone()` call which allows to choose which features of a process should be cloned, but in the end, all these calls are wrappers for `do_fork()` function.
 !!!
  
 When child process finishes its job, it will call `exit()` system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call `wait()` system call (or `waitid()` and similar calls), which will stop parent from executing until child exits.
-`wait()` call also receive process exit code, so only after that corresponding `task_struct` will be destroyed. If no process waited on a child, and child is exited, it will be treated as _zombie_ process. Parent process may be also notified by kernel with `SIGCHLD` signal.
+`wait()` call also receives process exit code, so only after that corresponding `task_struct` will be destroyed. If no process waits on a child, and child is exited, it will be treated as _zombie_ process. Parent process may be also notified by kernel with `SIGCHLD` signal.
 
 Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:
 
