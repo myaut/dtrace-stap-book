@@ -1,15 +1,15 @@
 ### Types and Variables
 
-In this section we will speak about typing in dynamic tracing languages and variable scopes. Details on how complex types are covered in further sections.
+In this section we will speak about typing in dynamic tracing languages and variable scopes. Details on complex types are covered in further sections.
 
-Variable types may be split in several categories. First and simpler one, is __scalar types__ which consist of integral types: `int`, `uint32_t`, etc, floating point types are not supported. Second large group is __pointers__. Unlike C, dynamic tracing languages provide explicit __string__ type. SystemTap and DTrace support __associative arrays__ and __agreggations__ for keeping statistics data. Finally, there is a set of __complex__ types such as structures, enumerations, unions and arrays. DTrace supports complex types, their definitions and even aliasing through `typedef`, in SystemTap they are implicitly used for DWARF variables, but in scripts they explicitly available only in Embedded C.
+Variable types may be split in several categories. First and simpler one, is __scalar types__ which consist of integral types: `int`, `uint32_t`, etc, floating point types are not supported. Second large group is __pointers__. Unlike C, dynamic tracing languages provide explicit __string__ type. SystemTap and DTrace support __associative arrays__ and __agreggations__ for keeping statistics data. Finally, there is a set of __complex__ types such as structures, enumerations, unions and arrays. DTrace supports complex types, their definitions and even aliasing through `typedef`, while in SystemTap they are implicitly used for DWARF variables, but in scripts they are explicitly available only in Embedded C.
 
-You can explicitly declare variable types in DTrace, thus `long`, `uintptr_t`, `string`, etc. are valid identifiers in it, but it is optional for non-global variables. In SystemTap, there are only two primitive types: `long` for keeping any scalar integral type or pointer or `string` for strings. Types explicitly specified only as return values of functions or function arguments. If types are not specified, than they are deduced from first assignment, but dynamic typing is disallowed: in case of type incompatibility error `operands have incompatible types` or `type mismatch` will be printed. DTrace also supports C-style type casting:
+You can explicitly declare variable types in DTrace, thus `long`, `uintptr_t`, `string`, etc. are valid identifiers in it, but it is optional for non-global variables. In SystemTap, there are only two primitive types: `long` for keeping any scalar integral type or pointer, and `string` for strings. Types are explicitly specified only as return values of functions or function arguments. If types are not specified, then they are deduced from first assignment, but dynamic typing is disallowed: in case of type incompatibility error `operands have incompatible types` or `type mismatch` will be printed. DTrace also supports C-style type casting:
 ```
 printf("The time is %lld\n", (unsigned long long) timestamp);
 ```
 
-There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but in can be emulated via associative arrays.
+There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but it can be emulated via associative arrays.
 
 ![image:varscope](varscope.png)
 
