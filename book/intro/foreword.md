@@ -43,3 +43,11 @@ Two specialists in the area of Solaris internals and DTrace: Jim Mauro and Brend
 Book goals changed while it was written too that lead to inconsistencies. Originally it was just with comments, I put everything looking like documentation as a links, but modules 4 and 5 have tables with probe names and its arguments. While book was written, SystemTap was rapidly growing, Linux kernel is changing fast and Solaris became proprietary so it is hard to maintain example compatibilities for several versions simultaneously. I've updated examples for CentOS 7 and Solaris 11.2, but it'll probably broken compatibility with older versions.
 
 Send me your feedback to `myautneko+dtrace_stap@gmail.com`.
+
+#### Acknowledgements 
+
+I want to thank my advisor, Boris Timchenko, who gave me direction in the world of Computer Science and whose influence was probably highest motivation to write this book. He is probably first man who said word _trace_ in my life. Thanks to Sergey Klimenkov and Dmitry Sheshukov, my former supervisors at [Tune-IT](http://www.tune-it.ru/en) who were very supportive during preparation of that book. It will also won't happen without Tune-IT demo equipment which were used to try examples and lab assignments. Sergey is also an expert in Solaris architecture, he is teaching Solaris Internals at Tune-IT education centre, and I was one of his students there.
+
+Thanks DTrace & SystemTap community for creating such great instruments, especially Brendan Gregg, who is first man who tamed power of these tools. Nan Xiao is a great person who edited this book. 
+
+And finally, this book won't happen without my parents, who inspired my to always learn new. 

@@ -1,3 +1,4 @@
+import sys
 import string
 import os
 
@@ -28,6 +29,7 @@ class HTMLPrinter(Printer):
     
     def do_print(self, stream, header, page):
         self.real_stream = stream
+        self.block_idx_gen = iter(xrange(sys.maxint))
         self.stream = StringIO()
         
         for block in page:
@@ -141,9 +143,10 @@ class HTMLPrinter(Printer):
         if not codeid and isinstance(block, CodeListing):
             # Embedded codelisting
             fname = os.path.basename(block.fname)
-            self.stream.write('<button class="btn" onclick="toggleCode(\'code%s\')">+</button>' % (id(block)))
+            blockid = next(self.block_idx_gen) + 1
+            self.stream.write('<button class="btn" onclick="toggleCode(\'code%s\')">+</button>' % (blockid))
             self.stream.write('&nbsp; Script file %s <br/>' % (fname))
-            self._print_block(block, codeid = id(block))
+            self._print_block(block, codeid = blockid)
         else:
             self._print_parts(block, indent)
         
