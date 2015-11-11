@@ -84,8 +84,8 @@ There are several other useful fields in <code>task_struct</code>:<br />        
 Script <code>dumptask.stp</code> demonstrates how these fields may be useful to get information about current process.<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829679241232')">+</button>&nbsp; Script file dumptask.stp <br/><p>
-<pre id="code139829679241232" class="hide">
+<button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file dumptask.stp <br/><p>
+<pre id="code1" class="hide">
 /**
  * taskdump.stp
  * 
@@ -426,8 +426,8 @@ Parent process has <code>p_child</code> pointer that refers its first child, whi
 The following script dumps information about current thread and process. Because DTrace doesn't support loops and conditions, it can read only first 9 files and 9 arguments and does that by generating multiple probes with preprocessor. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829679313680')">+</button>&nbsp; Script file dumptask.d <br/><p>
-<pre id="code139829679313680" class="hide">
+<button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file dumptask.d <br/><p>
+<pre id="code2" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 /**
@@ -585,15 +585,15 @@ Lifetime of a process and corresponding probes are shown in the following image:
 <p>
 Unlike Windows, in Unix process is spawned in two stages:<br />     <ul>
         <li>
- Parent process calls <code>fork()</code> system call. Kernel creates exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If <code>fork()</code> was successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. <br /> </li>
+ Parent process calls <code>fork()</code> system call. Kernel creates exact copy of a parent process including address space (which is available in copy-on-write mode) and open files, and gives it a new PID. If <code>fork()</code> is successful, it will return in the context of two processes (parent and child), with the same instruction pointer. Following code usually closes files in child, resets signals, etc. <br /> </li>
         <li>
  Child process calls <code>execve()</code> system call, which replaces address space of a process with a new one based on binary which is passed to <code>execve()</code> call. <br /> </li>
 </ul>
 </p>
 <span class="label label-warning">Warning</span><div class="well">
-There is a simpler call, <code>vfork()</code>, which will not cause copying of an address space, which will make it a bit more efficient. Linux features universal <code>clone()</code> call which allow to choose which features of a process should be cloned, but in the end, all these calls are wrappers for <code>do_fork()</code> function.<br /></div>
+There is a simpler call, <code>vfork()</code>, which will not cause copying of an address space and make it a bit more efficient. Linux features universal <code>clone()</code> call which allows to choose which features of a process should be cloned, but in the end, all these calls are wrappers for <code>do_fork()</code> function.<br /></div>
 <p>
-When child process finishes its job, it will call <code>exit()</code> system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call <code>wait()</code> system call (or <code>waitid()</code> and similar calls), which will stop parent from executing until child exits.<br /><code>wait()</code> call also receive process exit code, so only after that corresponding <code>task_struct</code> will be destroyed. If no process waited on a child, and child is exited, it will be treated as <em>zombie</em> process. Parent process may be also notified by kernel with <code>SIGCHLD</code> signal.<br /></p>
+When child process finishes its job, it will call <code>exit()</code> system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call <code>wait()</code> system call (or <code>waitid()</code> and similar calls), which will stop parent from executing until child exits.<br /><code>wait()</code> call also receives process exit code, so only after that corresponding <code>task_struct</code> will be destroyed. If no process waits on a child, and child is exited, it will be treated as <em>zombie</em> process. Parent process may be also notified by kernel with <code>SIGCHLD</code> signal.<br /></p>
 <p>
 Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:<br /></p>
 <p>
@@ -720,8 +720,8 @@ LWP management </td>
 These probes are demonstrated in the following scripts. <br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829679367632')">+</button>&nbsp; Script file proc.stp <br/><p>
-<pre id="code139829679367632" class="hide">
+<button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file proc.stp <br/><p>
+<pre id="code3" class="hide">
 #!/usr/bin/stap
 
 probe scheduler.process*, scheduler.wakeup_new, syscall.fork, 
@@ -770,8 +770,8 @@ Running this script for <code>uname</code> program called in foreground of <code
 </p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829679368080')">+</button>&nbsp; Script file proc.d <br/><p>
-<pre id="code139829679368080" class="hide">
+<button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file proc.d <br/><p>
+<pre id="code4" class="hide">
 #!/usr/sbin/dtrace -qCs
 
 #define PARENT_EXECNAME(thread) \

@@ -44,18 +44,18 @@
 		<p>
 <h3>Types and Variables</h3></p>
 <p>
-In this section we will speak about typing in dynamic tracing languages and variable scopes. Details on how complex types are covered in further sections.<br /></p>
+In this section we will speak about typing in dynamic tracing languages and variable scopes. Details on complex types are covered in further sections.<br /></p>
 <p>
-Variable types may be split in several categories. First and simpler one, is <strong>scalar types</strong> which consist of integral types: <code>int</code>, <code>uint32_t</code>, etc, floating point types are not supported. Second large group is <strong>pointers</strong>. Unlike C, dynamic tracing languages provide explicit <strong>string</strong> type. SystemTap and DTrace support <strong>associative arrays</strong> and <strong>agreggations</strong> for keeping statistics data. Finally, there is a set of <strong>complex</strong> types such as structures, enumerations, unions and arrays. DTrace supports complex types, their definitions and even aliasing through <code>typedef</code>, in SystemTap they are implicitly used for DWARF variables, but in scripts they explicitly available only in Embedded C.<br /></p>
+Variable types may be split in several categories. First and simpler one, is <strong>scalar types</strong> which consist of integral types: <code>int</code>, <code>uint32_t</code>, etc, floating point types are not supported. Second large group is <strong>pointers</strong>. Unlike C, dynamic tracing languages provide explicit <strong>string</strong> type. SystemTap and DTrace support <strong>associative arrays</strong> and <strong>agreggations</strong> for keeping statistics data. Finally, there is a set of <strong>complex</strong> types such as structures, enumerations, unions and arrays. DTrace supports complex types, their definitions and even aliasing through <code>typedef</code>, while in SystemTap they are implicitly used for DWARF variables, but in scripts they are explicitly available only in Embedded C.<br /></p>
 <p>
-You can explicitly declare variable types in DTrace, thus <code>long</code>, <code>uintptr_t</code>, <code>string</code>, etc. are valid identifiers in it, but it is optional for non-global variables. In SystemTap, there are only two primitive types: <code>long</code> for keeping any scalar integral type or pointer or <code>string</code> for strings. Types explicitly specified only as return values of functions or function arguments. If types are not specified, than they are deduced from first assignment, but dynamic typing is disallowed: in case of type incompatibility error <code>operands have incompatible types</code> or <code>type mismatch</code> will be printed. DTrace also supports C-style type casting:<br /></p>
+You can explicitly declare variable types in DTrace, thus <code>long</code>, <code>uintptr_t</code>, <code>string</code>, etc. are valid identifiers in it, but it is optional for non-global variables. In SystemTap, there are only two primitive types: <code>long</code> for keeping any scalar integral type or pointer, and <code>string</code> for strings. Types are explicitly specified only as return values of functions or function arguments. If types are not specified, then they are deduced from first assignment, but dynamic typing is disallowed: in case of type incompatibility error <code>operands have incompatible types</code> or <code>type mismatch</code> will be printed. DTrace also supports C-style type casting:<br /></p>
 <p>
 <pre>
 printf("The time is %lld\n", (unsigned long long) timestamp);
 </pre>
 </p>
 <p>
-There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but in can be emulated via associative arrays.<br /></p>
+There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but it can be emulated via associative arrays.<br /></p>
 <p>
 <img src="../images/varscope.png" alt="" class="img-rounded"/></p>
 <p>
@@ -112,11 +112,11 @@ uint32_t globalvar;
 <p>
 Aggregations in DTrace are implicitly global.<br /></p>
 <p>
-Global variables in probes accessible by their names: <code>globalvar += 1;</code>.<br /></p>
+Global variables in probes are accessible by their names: <code>globalvar += 1;</code>.<br /></p>
 <p>
 <h4>Local variables</h4></p>
 <p>
-Local (or <em>clause-local</em> in terms of DTrace) variables lifespan are the shorter of all which lasts only for single probe, or for a probe-prologue followed by probe in SystemTap. There is no need to define them in SystemTap, they may be used after first assignment:<br /></p>
+Local (or <em>clause-local</em> in terms of DTrace) variables lifespan are the shortest of all which last only for single probe, or for a probe-prologue followed by probe in SystemTap. There is no need to define them in SystemTap, they may be used after first assignment:<br /></p>
 <p>
 <pre>
 probe kernel.function("vfs_write") {
@@ -136,7 +136,7 @@ this uint32_t localvar;
 </pre>
 </p>
 <span class="label label-warning">Warning</span><div class="well">
-DTrace doesn't check scopes for local variables and doesn't initialize it with zero, thus allowing racing conditions. Take for example this script which counts number of <code>read()</code> system calls:<br />    <p>
+DTrace doesn't check scopes for local variables nor initialize it with zero, thus allowing racing conditions. Take the following script as an example, which counts the number of <code>read()</code> system calls:<br />    <p>
     <pre>
 int global;
 this int local;
@@ -162,7 +162,7 @@ But when you run multiple <code>dd</code> processes, local and global numbers wi
 <p>
 <a name="thread-local-vars"></a><h4>Thread-local variables</h4></p>
 <p>
-Thread local variables are created in a context of a thread, and after thread will be switched, you will access new instance of variable. Their syntax is similar to local DTrace variables, but use <code>self</code> keyword instead of <code>this</code>. They are extremely useful in passing data between distinct probes:<br /></p>
+Thread local variables are created in a context of a thread, and after thread is switched, you will access a new instance of variable. Their syntax is similar to local DTrace variables, but use <code>self</code> keyword instead of <code>this</code>. They are extremely useful in passing data between distinct probes:<br /></p>
 <p>
 <pre>
 self int readfd; // Optional
@@ -176,7 +176,7 @@ syscall::read:return {
 </pre>
 </p>
 <p>
-Thread-local variables are not supported by SystemTap but may be easily simulated with associative array which key is a thread ID:<br /></p>
+Thread-local variables are not supported by SystemTap but may be easily simulated with associative array whose key is a thread ID:<br /></p>
 <p>
 <pre>
 global readfd;
@@ -189,7 +189,7 @@ syscall.read.return {
 </pre>
 </p>
 <p>
-Other use-case for thread-local variables is when you want to trace only processes that did certain actions, and filter others. In this cases, you will introduce a kind of thread-local <code>do_trace</code> flag, which will be set to 1 if action was done (and probably, reset later), and later check this flag in predicate. If value is not set in associative array in SystemTap or as thread-local variable in DTrace, it defaults to 0, which by default disables probes. This approach is idiomatic, and for example used in <a href="../principles/dyncode.html">Dynamic code analysis</a> for building code graphs. <br /></p>
+Other use-case for thread-local variables is when you want to trace only processes that did certain actions, and filter others. In this case, you will introduce a kind of thread-local <code>do_trace</code> flag, which will be set to 1 if action was done (and probably, reset later), and later check this flag in predicate. If value is not set in associative array in SystemTap or as thread-local variable in DTrace, it defaults to 0, which by default disables probes. This approach is idiomatic, and for example used in <a href="../principles/dyncode.html">Dynamic code analysis</a> for building code graphs. <br /></p>
 <p>
 <h4>References</h4></p>
 <p>

@@ -226,8 +226,8 @@ Priority is also set dynamically in TS scheduler: if thread will exhaust its tim
 Tracer for TS scheduler is available in the following listing:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829667983568')">+</button>&nbsp; Script file tstrace.d <br/><p>
-<pre id="code139829667983568" class="hide">
+<button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file tstrace.d <br/><p>
+<pre id="code1" class="hide">
 #!/usr/sbin/dtrace -qCs
 /**
     tstrace.d -  traces Solaris dispatcher (and prints some TS information)
@@ -422,8 +422,8 @@ sched:::wakeup
 Let's demonstrate some of TS features live. To do that we will conduct two TSLoad experiments: <em>duality</em> and <em>concurrency</em>. In first experiment, <em>duality</em>, we will create two different types of threads: <em>workers</em> which will occupy all available processor resources, while <em>manager</em> will rarely wakeup (i.e. to queue some work possibly and report to user), so it should be immediately dispatched. In our example manager had LWPID=7 while worker had LWPID=5. Experiment configuration is shown in the following file:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829667984080')">+</button>&nbsp; Script file experiment.json <br/><p>
-<pre id="code139829667984080" class="hide">
+<button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file experiment.json <br/><p>
+<pre id="code2" class="hide">
 {
     "name": "duality",
     "steps": {
@@ -516,8 +516,8 @@ Note that when manager wokes up, it has maximum priority: 59 but being put to th
 In the <em>concurrency</em> experiment, on the opposite we will have two threads with equal rights: they both will occupy as much CPU as they can get thus being <em>worker</em> processes. Experiment configuration is shown in the following file:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829667984848')">+</button>&nbsp; Script file experiment.json <br/><p>
-<pre id="code139829667984848" class="hide">
+<button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file experiment.json <br/><p>
+<pre id="code3" class="hide">
 {
     "name": "concurrency",
     "steps": {        
@@ -680,8 +680,8 @@ CFS has special case for tasks that have been woken up. Because they can be slee
 So, let's implement a tracer for CFS scheduler:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829668041040')">+</button>&nbsp; Script file cfstrace.stp <br/><p>
-<pre id="code139829668041040" class="hide">
+<button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file cfstrace.stp <br/><p>
+<pre id="code4" class="hide">
 #!/usr/bin/env stap
 /**
  * cfstrace.stp

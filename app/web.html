@@ -584,8 +584,8 @@ MySQL has wide set of probes. They are described in MySQL documentation: <a href
 Here are simple tracer for PHP web application which is written on SystemTap:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829665233616')">+</button>&nbsp; Script file web.stp <br/><p>
-<pre id="code139829665233616" class="hide">
+<button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file web.stp <br/><p>
+<pre id="code1" class="hide">
 @define httpd %( "/usr/local/apache2/bin/httpd" %)
 @define libphp5 %( "/usr/local/apache2/modules/libphp5.so" %)
 @define mysqld %( "/usr/local/mysql/bin/mysqld" %)
@@ -697,8 +697,8 @@ You will need to restart Apache HTTP server after you start web.stp script.<br /
 Due to high amounts of script outputs, you will need to increase buffers in DTrace. The rest of script will look similar to <code>web.stp</code>:<br /></p>
 <p>
 <div class="well">
-<button class="btn" onclick="toggleCode('code139829665234192')">+</button>&nbsp; Script file web.d <br/><p>
-<pre id="code139829665234192" class="hide">
+<button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file web.d <br/><p>
+<pre id="code2" class="hide">
 #pragma D option strsize=2048
 #pragma D option bufsize=128M
 #pragma D option switchrate=20hz
