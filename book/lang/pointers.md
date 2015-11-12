@@ -1,8 +1,8 @@
 ### Pointers
 
-_Pointer_ is a special variable in C language that points (references) to a some data in memory, thus pointer usually contains address of that data. It is common way to keep complex data structures in dynamically allocated memory, and pass a pointer between functions or share data among them by using same pointers at all consumers. SystemTap supports pointers in DWARF variables, but for locals it treats them as `long`. DTrace simulates full support of pointers, arrays and even dynamic allocation of them. To create a pointer you can use `&` operator like you do in C.
+_Pointer_ is a special variable in C language that points (references) to a some data in memory, thus pointer usually contains address of that data. It is a common way to keep complex data structures in dynamically allocated memory, and pass a pointer between functions or share data among them by using same pointers at all consumers. SystemTap supports pointers in DWARF variables, but for locals it treats them as `long`. DTrace simulates full support of pointers, arrays and even dynamic allocation of them. To create a pointer you can use `&` operator like you do in C.
 
-Things in kernel get complicated because some pointers are point to a _user address space_ which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues `open()` system call, it keeps `pathname` argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, `badp` is bad pointer, which points nowhere, `kstr` points to a data in _kernel address space_, while `ustr` references string in _user address space_:
+Things in kernel get complicated because some pointers point to a _user address space_ which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues `open()` system call, it keeps `pathname` argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, `badp` is bad pointer, which points nowhere, `kstr` points to a data in _kernel address space_, while `ustr` references string in _user address space_:
 
 ![image:pointers](pointers.png)
 
@@ -25,7 +25,7 @@ User address space may be read in DTrace by using `copyin`, `copyinstr` or `copy
 		printf("%s: poll %d\n", execname, this->fd0->fd);  }'
 ```
 
-SystemTap allow to access kernel and user memory through set of functions which are implemented in tapsets `conversions.stp` and `conversions-guru.stp`. They also allow to specify different types such as `ulong` or `int16`, but they silently convert their result to `long` or `string`
+SystemTap allows to access kernel and user memory through set of functions which are implemented in tapsets `conversions.stp` and `conversions-guru.stp`. They also allow to specify different types such as `ulong` or `int16`, but they silently convert their result to `long` or `string`
  * `kernel_<type>` reads kernel memory. For example, `vfs_write` call changes file position, thus it gets position as pointer to a `struct file` member or a stack variable. To trace it, we have to dereference it:
 ```
 # stap -e '
@@ -55,12 +55,12 @@ copyout(this->c, arg0, 1);```
  
 #### Safety notes
 
-To avoid system panicking, before actually access memory through raw pointer, DTrace and SystemTap have to:
+To avoid system panicking, before actually accessing memory through raw pointer, DTrace and SystemTap have to:
  * Check correctness of userspace pointer by comparing it with base address
  * Check correctness of address by comparing it to a forbidden segments  (such as OpenFirmware locations in SPARC).
  * Add extra checks to page fault interrupt handlers (in case of DTrace) or temporarily disable pagefaults (SystemTap)
 
-If you access to inorrect address, DTrace will warn you, but continue execution:
+If you access to incorrect address, DTrace will warn you, but continue execution:
 `dtrace: error on enabled probe ID 1 (ID 1: dtrace:::BEGIN): invalid address (0x4) 
  in action #1 at DIF offset 16`
 SystemTap prints similiar message and then fail:
