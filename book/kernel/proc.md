@@ -28,7 +28,7 @@ There are several other useful fields in `task_struct`:
 	* `mm` (pointer to `struct mm_struct`) refers to a address space of a process. For example, `exe_file` (pointer to `struct file`) refers to executable file, while `arg_start` and `arg_end` are addresses of first and last byte of argv passed to a process respectively
 	* `fs` (pointer to `struct fs_struct`) contains filesystem information: `path` contains working directory of a task, `root` contains root directory (alterable using `chroot` system call)
 	* `start_time` and `real_start_time` (represented as `struct timespec` until 3.17, replaced with `u64` nanosecond timestamps) -- _monotonic_ and _real_ start time of a process.
-	* `files` (pointer to `struct fs_struct`) contains table of files opened by process
+	* `files` (pointer to `struct files_struct`) contains table of files opened by process
 	* `utime` and `stime` (`cputime_t`) contain amount of time spent by CPU in userspace and kernel respectively. They can be accessed through Task Time tapset.
 
 Script `dumptask.stp` demonstrates how these fields may be useful to get information about current process.
