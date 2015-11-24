@@ -44,9 +44,9 @@
 		<p>
 <h3>Pointers</h3></p>
 <p>
-<em>Pointer</em> is a special variable in C language that points (references) to a some data in memory, thus pointer usually contains address of that data. It is common way to keep complex data structures in dynamically allocated memory, and pass a pointer between functions or share data among them by using same pointers at all consumers. SystemTap supports pointers in DWARF variables, but for locals it treats them as <code>long</code>. DTrace simulates full support of pointers, arrays and even dynamic allocation of them. To create a pointer you can use <code>&</code> operator like you do in C.<br /></p>
+<em>Pointer</em> is a special variable in C language that points (references) to a some data in memory, thus pointer usually contains address of that data. It is a common way to keep complex data structures in dynamically allocated memory, and pass a pointer between functions or share data among them by using same pointers at all consumers. SystemTap supports pointers in DWARF variables, but for locals it treats them as <code>long</code>. DTrace simulates full support of pointers, arrays and even dynamic allocation of them. To create a pointer you can use <code>&</code> operator like you do in C.<br /></p>
 <p>
-Things in kernel get complicated because some pointers are point to a <em>user address space</em> which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues <code>open()</code> system call, it keeps <code>pathname</code> argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, <code>badp</code> is bad pointer, which points nowhere, <code>kstr</code> points to a data in <em>kernel address space</em>, while <code>ustr</code> references string in <em>user address space</em>:<br /></p>
+Things in kernel get complicated because some pointers point to a <em>user address space</em> which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues <code>open()</code> system call, it keeps <code>pathname</code> argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, <code>badp</code> is bad pointer, which points nowhere, <code>kstr</code> points to a data in <em>kernel address space</em>, while <code>ustr</code> references string in <em>user address space</em>:<br /></p>
 <p>
 <img src="../images/pointers.png" alt="" class="img-rounded"/></p>
 <p>
@@ -73,7 +73,7 @@ User address space may be read in DTrace by using <code>copyin</code>, <code>cop
 </pre>
 </p>
 <p>
-SystemTap allow to access kernel and user memory through set of functions which are implemented in tapsets <code>conversions.stp</code> and <code>conversions-guru.stp</code>. They also allow to specify different types such as <code>ulong</code> or <code>int16</code>, but they silently convert their result to <code>long</code> or <code>string</code>    <ul>
+SystemTap allows to access kernel and user memory through set of functions which are implemented in tapsets <code>conversions.stp</code> and <code>conversions-guru.stp</code>. They also allow to specify different types such as <code>ulong</code> or <code>int16</code>, but they silently convert their result to <code>long</code> or <code>string</code>    <ul>
         <li>
 <code>kernel_&lt;type&gt;</code> reads kernel memory. For example, <code>vfs_write</code> call changes file position, thus it gets position as pointer to a <code>struct file</code> member or a stack variable. To trace it, we have to dereference it:<br />            <p>
             <pre>
@@ -167,7 +167,7 @@ copyout(this->c, arg0, 1);</pre>
 <p>
 <h4>Safety notes</h4></p>
 <p>
-To avoid system panicking, before actually access memory through raw pointer, DTrace and SystemTap have to:<br />     <ul>
+To avoid system panicking, before actually accessing memory through raw pointer, DTrace and SystemTap have to:<br />     <ul>
         <li>
  Check correctness of userspace pointer by comparing it with base address<br /> </li>
         <li>
@@ -177,7 +177,7 @@ To avoid system panicking, before actually access memory through raw pointer, DT
 </ul>
 </p>
 <p>
-If you access to inorrect address, DTrace will warn you, but continue execution:<br /><code>dtrace: error on enabled probe ID 1 (ID 1: dtrace:::BEGIN): invalid address (0x4) <br /> in action #1 at DIF offset 16</code><br />SystemTap prints similiar message and then fail:<br /><code>ERROR: kernel string copy fault at 0x0000000000000001 near identifier <br /> 'kernel_string' at /usr/share/systemtap/tapset/conversions.stp:18:10</code></p>
+If you access to incorrect address, DTrace will warn you, but continue execution:<br /><code>dtrace: error on enabled probe ID 1 (ID 1: dtrace:::BEGIN): invalid address (0x4) <br /> in action #1 at DIF offset 16</code><br />SystemTap prints similiar message and then fail:<br /><code>ERROR: kernel string copy fault at 0x0000000000000001 near identifier <br /> 'kernel_string' at /usr/share/systemtap/tapset/conversions.stp:18:10</code></p>
 <span class="label label-warning">Warning</span><div class="well">
 Sometimes even correct addresses cause faults if data they point to is not in memory. <br /></div>
 <p>
