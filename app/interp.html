@@ -1,0 +1,381 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>Module 5: Application tracing</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="java.html"><strong>Prev</strong>(Java Virtual Machine)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="web.html"><strong>Next</strong>(Web applications)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<p>
+<h3>Non-native languages</h3></p>
+<p>
+As DTrace became popular, many language interpreters got USDT probes. Some of them adopted them in upstream, some probes are provided by the binaries custom packages shipped with operating system. The basic pair of probes provided by most language interpreters are function entry and exit probes which provide name of the function, line number and file name. For example, Perl can be traced that way:<br /></p>
+<p>
+<pre>
+# echo 'use Data::Dumper; 
+      map { Dumper($_, ", ") }  ("Hello", "world");' | 
+    dtrace -n '
+        perl$target:::sub-entry {
+            trace(copyinstr(arg0));  trace(copyinstr(arg1)); trace(arg2);
+        }  ' -c 'perl -- -'
+</pre>
+</p>
+<p>
+<pre>
+# stap -e '
+        probe process("/usr/lib64/perl5/CORE/libperl.so").mark("sub__entry") {
+            printdln(" : ", user_string($arg1), user_string($arg2), $arg3);
+        }
+    ' -c $'perl -e \'use Data::Dumper; 
+                     map { Dumper($_, ", ") }  ("Hello", "world");\''
+</pre>
+</p>
+<p>
+Note that we had to use stdin as a script in DTrace example. That happened because DTrace cannot parse <code>-c</code> option value in shell-like manner.<br /></p>
+<p>
+Here are list of availability of that probes in various interpreters shipped as binary packages. If you lack them, you may want to rebuild interpreters with some configure option like <code>--enable-dtrace</code>.<br /></p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Interpreter</em></td>
+            <td>
+<em>CentOS</em></td>
+            <td>
+<em>Solaris</em></td>
+</tr>
+        <tr>
+            <td>
+<em>Python 2</em></td>
+            <td  colspan="2">
+ Python has never accepted DTrace patches into upstream. <br />                  However, it was implemented by Solaris developers for Python 2.4, <br />                  and being ported to Fedora's and CentOS python. Only function-related <br />                  probes are supplied: <code>function-entry</code> and <code>function-return</code>.</td>
+</tr>
+        <tr>
+            <td>
+<em>Python 3</em></td>
+            <td>
+ Like Python 2, Python 3 in CentOS (if installed from EPEL) supports <code>function__entry</code> <br />             and <code>function__return</code> probes. In addition to that, SystemTap supplies example python3 tapset. </td>
+            <td>
+ <br />             Python 3 is supplied as FOSS (unsupported) package in Solaris 11 and has <code>line</code> probe, <br />             instance creation and garbage-collector related probes.</td>
+</tr>
+        <tr>
+            <td>
+<em>PHP5</em></td>
+            <td>
+ Doesn't support USDT tracing but can it be enabled via <code>--enable-dtrace</code> switch when it is built from source. </td>
+            <td>
+ <br />    PHP supports tracing functions, exceptions and errors, VM opcodes execution and file compiling from <br />    scratch. Its probes will be discussed in the following section, <a href="web.html">Web applications</a>.</td>
+</tr>
+        <tr>
+            <td>
+<em>Ruby 2</em></td>
+            <td  colspan="2">
+ Supports multiple probes including object creation, method entry and exit points and garbage   <br />           collector probes in Ruby 2.0 in CentOS or Ruby 2.1 as FOSS package in Solaris 11.</td>
+</tr>
+        <tr>
+            <td>
+<em>Perl 5</em></td>
+            <td  colspan="2">
+ Supports subroutine probes <code>sub-entry</code> and <code>sub-return</code> (see examples above).</td>
+</tr>
+        <tr>
+            <td>
+<em>Go</em></td>
+            <td>
+ Go is pretty close to native languages in Linux, so you can attach probes directly to its functions while <br />       backtraces show correct function names. Differences in type system between C-based languages and Go, however <br />       prevents SystemTap from accessing arguments. </td>
+            <td>
+ <br />       Go has experimental support for Solaris so it is not considered as a target for DTrace.</td>
+</tr>
+        <tr>
+            <td>
+<em>Erlang</em></td>
+            <td  colspan="2">
+ Neither EPEL nor Solaris package feature USDT probes in BEAM virtual machine, but they are supported in <br />              sources, so building with <code>--with-dynamic-trace</code> option enables various probes including function-boundary probes.</td>
+</tr>
+        <tr>
+            <td>
+<em>Node.JS</em></td>
+            <td  colspan="2">
+ Node.JS is not supplied as OS packages, while binaries from official site doesn't have USDT enabled in Linux <br />               or simply not working in Oracle Solaris (only in Illumos derivatives). Building from sources, however <br />               adds global network-related probes like <code>http-server-request</code>. Function boundary tracing is not supported.</td>
+</tr>
+        <tr>
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Most interpreted language virtual machines still rely on libc to access basic OS facilities like memory allocation, but some may use their own: i.e. PyMalloc in Python, Go runtime is OS-independent in Go language. For example let's see how malloc calls may be cross-referenced with Python code in <code>yum</code> and or <code>pkg</code> package managers using SystemTap or DTrace. We will need to attach to function entry and exit points to track "virtual" python backtrace and malloc call to track amount of allocated bytes. This approach is implemented in the following couple of scripts:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file pymalloc.d <br/><p>
+<pre id="code1" class="hide">
+#!/usr/sbin/dtrace -qCZs
+
+BEGIN {
+    self->depth = 0;
+}
+
+foo$target::: {
+    /* This probe is just a workaround for -xlazyload */
+}
+
+python$target:::function-entry {
+    func_stack[self->depth] = arg1;
+    file_stack[self->depth] = arg0;
+    
+    self->depth++;
+}
+python$target:::function-return {
+    self->depth--;
+}
+
+pid$target::malloc:entry 
+/ func_stack[self->depth] != 0 / {
+    @mallocs[copyinstr(func_stack[self->depth]),
+             copyinstr(file_stack[self->depth])] = sum(arg0);
+}</pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file pymalloc.stp <br/><p>
+<pre id="code2" class="hide">
+#!/usr/bin/env stap
+
+@define libc %( "/lib64/libc.so.6" %)
+
+global file_stack, func_stack, mallocs, thread_depth
+
+probe python.function.entry {
+    thread_depth[tid()]++;
+    
+    depth = thread_depth[tid()];
+    file_stack[tid(), depth] = filename;
+    func_stack[tid(), depth] = funcname;
+}
+
+probe python.function.return {
+    thread_depth[tid()]--;
+}
+
+probe process(@libc).function("_int_malloc") {
+    depth = thread_depth[tid()];
+    mallocs[file_stack[tid(), depth],
+            func_stack[tid(), depth]] <<< $bytes;
+}</pre>
+</p>
+</div>
+</p>
+<span class="label label-info">Note</span><div class="well">
+We have used non-existent <code>foo</code> provider in DTrace example because like JVM, Python is linked with <code>-xlazyload</code> linker flag, so we apply same workaround to find probes that we used in <a href="java.html">Java Virtual Machine</a> section. <br /></div>
+<p>
+Arguments and local variables are also inaccessible directly by SystemTap or DTrace when program in non-native language is traced. That happens because they are executed within virtual machine which has its own representation of function frame which is different from CPU representation: languages with dynamic typing are more likely to keep local variables in a dict-like object than in a stack. These frame and dict-like objects, however, are usually implemented in C and available for dynamic tracing. All that you have to do is to provide their layout. <br /></p>
+<p>
+Let's see how this can be done for Python 3 in Solaris and Linux. If you try to get backtrace of program interpreted by Python 3, you will probably see function named <code>PyEval_EvalCodeEx</code> which is responsible for evaluation of code object. Code object itself has type <code>PyCodeObject</code> and passed as first argument of that function. That structure has fields like <code>co_firstlineno</code>, <code>co_name</code> and <code>co_filename</code>. Last two fields not just C-style strings but kind of <code>PyUnicodeObject</code> -- an object which represents strings in Python 3. It have multiple layouts, but we rely on the simplest one: compacted ASCII strings. That may not be true for all string objects in the program, but that works fine for objects produced by the interpreter itself like code objects.<br /></p>
+<p>
+DTrace cannot recognize type information from Python libraries, but it supports <code>struct</code> definitions in the code. We will use it to provide <code>PyCodeObject</code> and <code>PyUnicodeObject</code> layouts in a separate file <code>pycode.h</code>. DTrace syntax is pretty much like C syntax, so these definitions are almost copy-and-paste from Python sources. Here is an example of DTrace scripts which trace python program execution:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file pycode.h <br/><p>
+<pre id="code3" class="hide">
+#ifndef PY_CODE_H
+#define PY_CODE_H
+
+/**
+ * This is forward definitions taken from Include/object.h and Include/code.h 
+ * to support extraction of Python 3.4 interpreter state
+ */
+
+typedef long        ssize_t;
+
+typedef struct _object {
+    /* _PyObject_HEAD_EXTRA */
+    ssize_t ob_refcnt;
+    struct PyObject *ob_type;
+} PyObject;
+
+/* Bytecode object */
+typedef struct _code {
+    PyObject base;
+    int co_argcount;        /* #arguments, except *args */
+    int co_kwonlyargcount;  /* #keyword only arguments */
+    int co_nlocals;         /* #local variables */
+    int co_stacksize;       /* #entries needed for evaluation stack */
+    int co_flags;           /* CO_..., see below */
+    PyObject *co_code;      /* instruction opcodes */
+    PyObject *co_consts;    /* list (constants used) */
+    PyObject *co_names;     /* list of strings (names used) */
+    PyObject *co_varnames;  /* tuple of strings (local variable names) */
+    PyObject *co_freevars;  /* tuple of strings (free variable names) */
+    PyObject *co_cellvars;      /* tuple of strings (cell variable names) */
+    /* The rest doesn't count for hash or comparisons */
+    unsigned char *co_cell2arg; /* Maps cell vars which are arguments. */
+    PyObject *co_filename;  /* unicode (where it was loaded from) */
+    PyObject *co_name;      /* unicode (name, for reference) */
+    int co_firstlineno;     /* first source line number */
+    PyObject *co_lnotab;    /* string (encoding addr<->lineno mapping) See
+                   Objects/lnotab_notes.txt for details. */
+    void *co_zombieframe;     /* for optimization only (see frameobject.c) */
+    PyObject *co_weakreflist;   /* to support weakrefs to code objects */
+} PyCodeObject;
+
+/**
+ * Compact ASCII object from Python3 -- data starts after PyUnicodeObject -- only if compact, ascii
+ * and ready flags are set
+ */
+typedef struct _unicode {
+    PyObject  base;
+    ssize_t   length;
+    ssize_t   hash;
+    char      flags[4];
+    void*     wstr;
+} PyUnicodeObject;
+
+#endif </pre>
+</p>
+</div>
+</p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file pycode.d <br/><p>
+<pre id="code4" class="hide">
+#!/usr/sbin/dtrace -Cs
+
+#include "pycode.h"
+
+#define GET_Py3_STRING(obj) (((PyUnicodeObject*) copyin((uintptr_t) obj,                     \
+                                           sizeof(PyUnicodeObject)))->flags[0] & 0xE0)       \
+            ? copyinstr(((uintptr_t) obj) + sizeof(PyUnicodeObject)) : "<???>"   
+
+foo$target::: {}
+
+pid$target::PyEval_EvalCodeEx:entry {
+    self->co = (PyCodeObject*) copyin(arg0, sizeof(PyCodeObject));
+
+    trace(GET_Py3_STRING(self->co->co_filename));
+    trace(GET_Py3_STRING(self->co->co_name));
+    trace(self->co->co_firstlineno);
+}</pre>
+</p>
+</div>
+</p>
+<span class="label label-info">Note</span><div class="well">
+Similar mechanism is used in so-called <em>ustack helpers</em> in DTrace. That allows to build actual backtraces of Python or Node.JS programs when you use <code>jstack()</code> action.<br /></div>
+<p>
+SystemTap can extract type information directly from DWARF section of shared libraries so all we need to do to achieve same effect in it is to use <code>@cast</code> expression:<br /></p>
+<p>
+<div class="well">
+<button class="btn" onclick="toggleCode('code5')">+</button>&nbsp; Script file pycode.stp <br/><p>
+<pre id="code5" class="hide">
+#!/usr/bin/env stap
+
+@define PYTHON3_LIBRARY %( "/usr/lib64/libpython3.4m.so.1.0" %)
+
+function get_py3_string:string(uo: long) {
+    flags = user_uint32(&@cast(uo, "PyASCIIObject", @PYTHON3_LIBRARY)->state);
+    if(flags & 0xE0) {
+        size = &@cast(0, "PyASCIIObject", @PYTHON3_LIBRARY)[1]
+        return user_string(uo + size);
+    }
+    
+    return "???";
+}
+
+probe process(@PYTHON3_LIBRARY).function("PyEval_EvalCodeEx") {
+    code = $_co;
+    if(code) {
+        printf("%s %s:%d\n",
+               get_py3_string(@cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_name),
+               get_py3_string(@cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_filename),
+               @cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_firstlineno);
+    }
+} </pre>
+</p>
+</div>
+</p>
+<p>
+<h4>References</h4></p>
+<p>
+    <ul>
+        <li>
+<em>Python</em>: Bugs <a href="https://bugs.python.org/issue4111">#4111</a>, <a href="https://bugs.python.org/issue13405">#13405</a> and <a href="https://bugs.python.org/issue21590">#21590</a></li>
+        <li>
+<em>Perl</em>: <a href="http://perldoc.perl.org/perldtrace.html">perldtrace</a></li>
+        <li>
+<em>PHP</em>: <a href="http://www.php.net/manual/en/features.dtrace.dtrace.php">Using PHP and DTrace</a></li>
+        <li>
+<em>Ruby</em>: <a href="http://ruby-doc.org/core-2.1.0/doc/dtrace_probes_rdoc.html">DTrace Probes</a></li>
+        <li>
+<em>Erlang</em>: <a href="http://erlang.org/doc/apps/runtime_tools/DTRACE.html">DTrace and Erlang/OTP</a></li>
+</ul>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar navbar-bottom">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="java.html"><strong>Prev</strong>(Java Virtual Machine)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="web.html"><strong>Next</strong>(Web applications)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
+</body>
+</html>

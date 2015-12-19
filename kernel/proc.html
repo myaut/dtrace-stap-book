@@ -75,7 +75,7 @@ There are several other useful fields in <code>task_struct</code>:<br />        
         <li>
 <code>start_time</code> and <code>real_start_time</code> (represented as <code>struct timespec</code> until 3.17, replaced with <code>u64</code> nanosecond timestamps) -- <em>monotonic</em> and <em>real</em> start time of a process.<br />    </li>
         <li>
-<code>files</code> (pointer to <code>struct fs_struct</code>) contains table of files opened by process<br />    </li>
+<code>files</code> (pointer to <code>struct files_struct</code>) contains table of files opened by process<br />    </li>
         <li>
 <code>utime</code> and <code>stime</code> (<code>cputime_t</code>) contain amount of time spent by CPU in userspace and kernel respectively. They can be accessed through Task Time tapset.<br /></li>
 </ul>
