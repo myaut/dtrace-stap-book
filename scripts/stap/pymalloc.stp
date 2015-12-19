@@ -1,0 +1,23 @@
+#!/usr/bin/env stap
+
+@define libc %( "/lib64/libc.so.6" %)
+
+global file_stack, func_stack, mallocs, thread_depth
+
+probe python.function.entry {
+    thread_depth[tid()]++;
+    
+    depth = thread_depth[tid()];
+    file_stack[tid(), depth] = filename;
+    func_stack[tid(), depth] = funcname;
+}
+
+probe python.function.return {
+    thread_depth[tid()]--;
+}
+
+probe process(@libc).function("_int_malloc") {
+    depth = thread_depth[tid()];
+    mallocs[file_stack[tid(), depth],
+            func_stack[tid(), depth]] <<< $bytes;
+}

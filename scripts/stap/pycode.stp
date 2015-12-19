@@ -1,0 +1,23 @@
+#!/usr/bin/env stap
+
+@define PYTHON3_LIBRARY %( "/usr/lib64/libpython3.4m.so.1.0" %)
+
+function get_py3_string:string(uo: long) {
+    flags = user_uint32(&@cast(uo, "PyASCIIObject", @PYTHON3_LIBRARY)->state);
+    if(flags & 0xE0) {
+        size = &@cast(0, "PyASCIIObject", @PYTHON3_LIBRARY)[1]
+        return user_string(uo + size);
+    }
+    
+    return "???";
+}
+
+probe process(@PYTHON3_LIBRARY).function("PyEval_EvalCodeEx") {
+    code = $_co;
+    if(code) {
+        printf("%s %s:%d\n",
+               get_py3_string(@cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_name),
+               get_py3_string(@cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_filename),
+               @cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_firstlineno);
+    }
+} 

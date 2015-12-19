@@ -72,6 +72,7 @@ This work is licensed under the  Creative Commons Attribution-Noncommercial-Shar
  * [Unix C library][app/libc]
     * [Exercise 6][app/ex6]
  * [Java Virtual Machine][app/java]
+ * [Non-native languages][app/interp]
  * [Web applications][app/web]
     * [Exercise 7][app/ex7]
  
