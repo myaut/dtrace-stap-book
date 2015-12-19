@@ -20,7 +20,7 @@ syscall.read, syscall.write {
 }
 ```
 
-To delete entry from an associative array, it should be assigned to `0` in DTrace or deleted using `delete array[key1];` expression in SystemTap. If value is not exist, both DTrace and SystemTap will return `0` as a default value. 
+To delete entry from an associative array, it should be assigned to `0` in DTrace or deleted using `delete array[key1];` expression in SystemTap. If value does not exist, both DTrace and SystemTap will return `0` as a default value. 
 
 In DTrace you only can access value in associative array knowing its key, in SystemTap along with that you can walk entire array with `foreach` statement:
 ```
