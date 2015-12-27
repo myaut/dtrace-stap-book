@@ -93,7 +93,6 @@ class HTMLPrinter(Printer):
             s = s.replace('<', '&lt;')
             s = s.replace('>', '&gt;')
         
-            s = s.replace('\n', '<br />')
         
         return s
     
@@ -103,6 +102,8 @@ class HTMLPrinter(Printer):
         
         if isinstance(block, Paragraph):
             block_tags.append(('p', None))
+        elif isinstance(block, Header):
+            block_tags.append(('h%d' % block.size, None))
         if not codeid and isinstance(block, CodeListing):
             block_tags.append(('div', 'class="well"'))
         elif isinstance(block, Code):
@@ -163,9 +164,7 @@ class HTMLPrinter(Printer):
                 tag = None
                 tag_attrs = {}
                 
-                if isinstance(part, Header):
-                    tag = 'h%d' % part.size
-                elif isinstance(part, ItalicText):
+                if isinstance(part, ItalicText):
                     tag = 'em'
                 elif isinstance(part, BoldText):
                     tag = 'strong'

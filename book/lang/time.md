@@ -4,7 +4,7 @@ A man used to live with a calendar and 24-hour representation of time. Coordinat
 
 ---
 __Time source__ | __DTrace__ | __SystemTap__
-_System timer_ is responsible for handling periodical events in kernel such as context switch. System timer usually ticks at constant frequency (but ticks may be omitted in _tickless kernels_). Interval between firing timer is usually referred as special unit of time: _tick_, _lbolt_ in Solaris or _jiffy_ in Linux. Timer frequency in Linux can be get using `HZ()` function. | `` `lbolt`` or `` `lbolt64`` | `jiffies()`
+_System timer_ is responsible for handling periodical events in kernel such as context switch. System timer usually ticks at constant frequency (but ticks may be omitted in _tickless kernels_). Interval between firing timer is usually referred as special unit of time: _tick_, _lbolt_ in Solaris or _jiffy_ in Linux. Timer frequency in Linux can be get using `HZ()` function. | `\`lbolt` or `\`lbolt64` | `jiffies()`
 _Processor cycles counter_ is a special CPU register which act as a counter which increases on each cycle, such as `TSC` in x86 or `%tick` in SPARC. It may not be monotonic. | | `get_cycles()`
 _Monotonic time_. Starts at unspecified moment of time (usually at system boot), but ticks with constant intervals. May use high-resolution time source such as HPET on x86, but may impose some jitter between CPU cores or CPUs. | `timestamp` | `local_clock_<unit>()` or `cpu_clock_<unit>(<cpu>)`
 _Virtual monotonic time of thread_. Similar to previous time source, but only accounts when thread is on CPU, which is useful to calculate CPU usage of a thread | `vtimestamp` |

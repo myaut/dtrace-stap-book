@@ -7,7 +7,7 @@ from collections import defaultdict, OrderedDict
 
 from tsdoc import *
 from tsdoc.blocks import *
-from tsdoc.mdparser import MarkdownParser, MiniMarkdownParser
+from tsdoc.mdparser2 import MarkdownParser
 
 VERBOSE = os.getenv('TSDOC_VERBOSE', None) is not None
 _TRACE_DOCS = []
@@ -47,7 +47,7 @@ class DocPage(object):
     
     def prep_print(self):
         if self.header:
-            hobj = Header(self.header, DocPage.HEADER_HSIZE)
+            hobj = Header(DocPage.HEADER_HSIZE, [self.header])
             self.blocks.insert(0, Block([hobj]))
     
     def set_format(self, doc_format):
@@ -153,7 +153,7 @@ class IndexPage(MarkdownPage):
                     sorted_refs[first_letter][name] = (ref_link, ref_part)
             
             for letter in sorted(sorted_refs.keys()):
-                hobj = Header(letter, IndexPage.REF_LETTER_HSIZE)                
+                hobj = Header(IndexPage.REF_LETTER_HSIZE, [letter])
                 block = Paragraph([hobj])
                 
                 refs = sorted_refs[letter]
@@ -381,7 +381,7 @@ class IndexPage(MarkdownPage):
             self.links.extend(reference.links)
             
             # Generate index entry for reference
-            hobj = Header(IndexPage.REFERENCE_HEADER, IndexPage.CHAPTER_HSIZE)
+            hobj = Header(IndexPage.CHAPTER_HSIZE, [IndexPage.REFERENCE_HEADER])
             list = ListBlock()
             
             ds_ref_link = '%s/%s' % (self.docspace, 'reference')
@@ -469,17 +469,16 @@ class IndexPage(MarkdownPage):
                     if docspace_index is not None:
                         self.docspaces.append(docspace_index)
                     
-                    header = part.text
+                    header = ''.join(map(str, part.parts))
                     docspace_index = None
                     blocks = [block]
                     docspace = None
-                    tags = []
+                    tags = [part.text
+                            for part in part.parts 
+                            if isinstance(part, Reference)]
                     
                     is_external = False
                     gen_reference = False
-                elif isinstance(part, Reference):
-                    tags.append(part.text)
-                    block.parts.remove(part)
             
             if docspace_index is None and header is not None:
                 # Process tag directives

@@ -17,7 +17,7 @@ In this image variable lifetimes are shown as arrows on the right of the drawing
 
 #### External variables
 
-External variables are exported by kernel or application, for example tunable module parameters, thus they have longest lifespan that goes beyond running tracing scripts. In DTrace external variables are kept in separate namespace, and accessible with backtick (`` ` ``) prefix:
+External variables are exported by kernel or application, for example tunable module parameters, thus they have longest lifespan that goes beyond running tracing scripts. In DTrace external variables are kept in separate namespace, and accessible with backtick (`\``) prefix:
 ```
 # dtrace -qn '
 	BEGIN { 

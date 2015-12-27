@@ -46,7 +46,7 @@ class Text(object):
                            repr(self.text))
 
 class BreakLine(Text):
-    def __init__(self):
+    def __init__(self, text):
         Text.__init__(self, '')
 
 class BoldText(Text):
@@ -55,11 +55,15 @@ class BoldText(Text):
 class ItalicText(Text):
     pass
 
+class BoldItalicText(Text):
+    pass
+
 class InlineCode(Text):
     pass
 
 class Reference(Text):
-    pass
+    def __str__(self):
+        return ''
 
 class CodeReference(Reference):
     def __init__(self, text, ref_name, ref_class):
@@ -76,15 +80,6 @@ class Label(Text):
     def __repr__(self):
         return 'Label(%s, %s)' % (repr(self.style), 
                                   repr(self.text)) 
-
-class Header(Text):
-    def __init__(self, text, size):
-        Text.__init__(self, text)
-        self.size = size
-        
-    def __repr__(self):
-        return 'Header(%d, %s)' % (self.size,
-                                   repr(self.text))
 
 class Link(Text):
     INTERNAL = 0
@@ -119,15 +114,16 @@ class Block(object):
         
     def __iter__(self):
         return iter(self.parts)
-    
+
+class Header(Block):
+    def __init__(self, size, parts = []):
+        self.size = size
+        Block.__init__(self, parts)
+
 class ListEntry(Block):
     def __init__(self, level, parts = []):
         self.level = level
         Block.__init__(self, parts)
-    
-    def __repr__(self):
-        return 'ListEntry(%d, %s)' % (self.level, 
-                                      self.parts)
 
 class ListBlock(Block):
     pass
@@ -145,27 +141,27 @@ class TableRow(Block):
     pass
 
 class TableCell(Block):
-    def __init__(self, colspan = 1, rowspan = 1):
-        Block.__init__(self, [])
+    def __init__(self, colspan = 1, rowspan = 1, parts = []):
+        Block.__init__(self, parts)
         
         self.colspan = colspan
         self.rowspan = rowspan
 
-class BlockQuote(Block):
+class BlockQuote(Paragraph):
     pass
 
 class CodeListing(Code):
-    def __init__(self, fname = ''):
-        Code.__init__(self)
+    def __init__(self, fname = '', parts = []):
+        Code.__init__(self, parts)
         
         self.fname = fname
 
 class Incut(Block):
-    def __init__(self, style):
-        Block.__init__(self, [])
+    def __init__(self, style, parts = []):
+        Block.__init__(self, parts)
         
         self.style = style
-
+    
 class NavLink(object):
     PREV = 0
     NEXT = 1
@@ -182,10 +178,15 @@ def pprint_block(block, stream = sys.stdout, indent = 0):
     def do_print(s):
         print >> stream, ' ' * indent, s,
         
-    prefix = '%s(\n' % block.__class__.__name__
+    prefix = '%s(%s\n' % (block.__class__.__name__,
+                          ', '.join('%s=%s' % (attr, repr(getattr(block, attr)))
+                                    for attr in dir(block)
+                                    if (attr[0] != '_' and 
+                                        attr not in ['parts', 'text'] and 
+                                        not callable(getattr(block, attr))) ))
     do_print(prefix)
     
-    indent += len(prefix)
+    indent += len(block.__class__.__name__) + 1
     
     for part in block:
         if isinstance(part, Block):
