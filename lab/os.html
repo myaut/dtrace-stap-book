@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix B. Lab setup</title>
+	<title> Appendix B. Lab setup
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,173 +49,203 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Setting up Operating Systems</h3></p>
+		<h3>
+ Setting up Operating Systems</h3>
 <p>
-Originally we used Virtual Machines for Oracle VirtualBox with Solaris 11.0 and CentOS 6.4. Unfortunately, these versions become stale, while VirtualBox is a second-level hypervisor which complicates performance analysis experiments. <br /></p>
+Originally we used Virtual Machines for Oracle VirtualBox with Solaris 11.0 and CentOS 6.4. Unfortunately, these versions become stale, while VirtualBox is a second-level hypervisor which complicates performance analysis experiments. </p>
 <p>
-Actual version of this book was modified to support Solaris 11.2 and CentOS 7.0. They were installed in a Xen 4.4 environment in HVM machines. I assume that you were installed these operating systems and already performed basic setup like setting IP address or root password. <br /></p>
+Actual version of this book was modified to support Solaris 11.2 and CentOS 7.0. They were installed in a Xen 4.4 environment in HVM machines. I assume that you were installed these operating systems and already performed basic setup like setting IP address or root password. </p>
 <p>
-<h4>Setting up CentOS 7</h4></p>
+    <h4>
+ Setting up CentOS 7</h4>
+</p>
 <p>
-    <ul>
+     <ul>
         <li>
- You will need debuginfo packages to access debug information. They are located in separate CentOS repository which you will need to turn on:<br />            <p>
+ You will need debuginfo packages to access debug information. They are located in separate CentOS repository which you will need to turn on:
+            <p>
             <pre>
-# sed -i 's/^enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Debuginfo.repo
-</pre>
+# sed -i 's/^enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Debuginfo.repo</pre>
 </p>
 </li>
 </ul>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-CentOS 7.0 contains incorrect GPG key for debuginfo repository like described in <a href="https://bugs.centos.org/view.php?id=7516">bug 7516</a>, so you will also need to update <code>centos-release</code> package:<br />    <p>
-    <pre>
-# yum install centos-release
-</pre>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+CentOS 7.0 contains incorrect GPG key for debuginfo repository like described in <a href="https://bugs.centos.org/view.php?id=7516">bug 7516</a>, so you will also need to update <code>centos-release</code> package:
+            <p>
+            <pre>
+# yum install centos-release</pre>
+</p>
+
 </p>
 </div>
-<p>
-    <ul>
-        <li>
- Install SystemTap<br />            <p>
-            <pre>
-# yum install systemtap systemtap-sdt-devel systemtap-client
-</pre>
 </p>
-</li>
+<p>
+     <ul>
         <li>
- Run <code>stap-prep</code> script. That script will install packages that are needed for building kernel modules and debuginfo packages:<br />            <p>
+ Install SystemTap
+            <p>
             <pre>
-# stap-prep
-</pre>
+# yum install systemtap systemtap-sdt-devel systemtap-client</pre>
+</p>
+
+ </li>
+        <li>
+ Run <code>stap-prep</code> script. That script will install packages that are needed for building kernel modules and debuginfo packages:
+            <p>
+            <pre>
+# stap-prep</pre>
 </p>
 </li>
 </ul>
 </p>
-<span class="label label-info">Note</span><div class="well">
-<code>kernel-debuginfo</code> may be installed manually using YUM package manager. In that case, however, you should add precise version of kernel to a package name. Otherwise YUM will install newest version that probably wouldn't match kernel you running. <br /></div>
 <p>
-    <ul>
-        <li>
- Install <code>debuginfo-install</code> utility:<br />            <p>
-            <pre>
-# yum install yum-utils
-</pre>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+<code>kernel-debuginfo</code> may be installed manually using YUM package manager. In that case, however, you should add precise version of kernel to a package name. Otherwise YUM will install newest version that probably wouldn't match kernel you running. 
 </p>
-</li>
-        <li>
- Install debug information for userspace programs:<br />            <p>
-            <pre>
-# debuginfo-install cat python
-</pre>
+</div>
 </p>
-</li>
+<p>
+     <ul>
         <li>
- Change <code>/tmp</code> mount point to tmpfs. To do that, add following line to <code>/etc/fstab</code> file:<br />            <p>
+ Install <code>debuginfo-install</code> utility:
+            <p>
             <pre>
-tmpfs        /tmp       tmpfs     defaults          0 0
-</pre>
+# yum install yum-utils</pre>
 </p>
-   After that clean up /tmp and run <code>mount -a</code> command.<br /> </li>
+
+ </li>
         <li>
- Building TSLoad workload generator and its modules<br />   </li>
-        <ul>
-            <li>
- Install SCons<br />                <p>
-                <pre>
+ Install debug information for userspace programs:
+            <p>
+            <pre>
+# debuginfo-install cat python</pre>
+</p>
+
+ </li>
+        <li>
+ Change <code>/tmp</code> mount point to tmpfs. To do that, add following line to <code>/etc/fstab</code> file:
+            <p>
+            <pre>
+tmpfs        /tmp       tmpfs     defaults          0 0</pre>
+</p>
+
+   After that clean up /tmp and run <code>mount -a</code> command.
+ </li>
+        <li>
+ Building TSLoad workload generator and its modules
+               <ul>
+                <li>
+ Install SCons
+                    <p>
+                    <pre>
 # yum install wget
 # cd /tmp
 # wget 'http://prdownloads.sourceforge.net/scons/scons-2.3.4-1.noarch.rpm'
-# rpm -i scons-2.3.4-1.noarch.rpm
-</pre>
+# rpm -i scons-2.3.4-1.noarch.rpm</pre>
 </p>
-</li>
-            <li>
- Install development files:<br />                <p>
-                <pre>
-# yum install libuuid-devel libcurl-devel
-</pre>
+
+   </li>
+                <li>
+ Install development files:
+                    <p>
+                    <pre>
+# yum install libuuid-devel libcurl-devel</pre>
 </p>
-</li>
-            <li>
- Build a workload generator:<br />                <p>
-                <pre>
+
+   </li>
+                <li>
+ Build a workload generator:
+                    <p>
+                    <pre>
 # git clone https://github.com/myaut/tsload
 # cd tsload/agent
-# scons --prefix=/opt/tsload install
-</pre>
+# scons --prefix=/opt/tsload install</pre>
 </p>
-</li>
-            <li>
- Build loadable modules:<br />                <p>
-                <pre>
+
+   </li>
+                <li>
+ Build loadable modules:
+                    <p>
+                    <pre>
 # git clone https://bitbucket.org/sergey_klyaus/dtrace-stap-book.git
 # cd dtrace-stap-book/tsload
-# scons --with-tsload=/opt/tsload/share/tsload/devel install
-</pre>
+# scons --with-tsload=/opt/tsload/share/tsload/devel install</pre>
 </p>
-</li>
+
+ </li>
 </ul>
+</li>
         <li>
-  Install OpenJDK7:<br />            <p>
+  Install OpenJDK7:
+            <p>
             <pre>
-# yum install java-1.7.0-openjdk-devel.x86_64
-</pre>
+# yum install java-1.7.0-openjdk-devel.x86_64</pre>
 </p>
 </li>
 </ul>
 </p>
 <p>
-<h4>Setting up Solaris 11.2</h4></p>
+    <h4>
+ Setting up Solaris 11.2</h4>
+</p>
 <p>
-    <ul>
+     <ul>
         <li>
- Building TSLoad workload generator and its modules<br />   </li>
-        <ul>
-            <li>
- Install SCons<br />                <p>
-                <pre>
+ Building TSLoad workload generator and its modules
+               <ul>
+                <li>
+ Install SCons
+                    <p>
+                    <pre>
 # wget 'http://prdownloads.sourceforge.net/scons/scons-2.3.4.tar.gz'
 # tar xzvf scons-2.3.4.tar.gz
 # cd scons-2.3.4/
-# python setup.py install
-</pre>
+# python setup.py install</pre>
 </p>
-</li>
-            <li>
- Install development files:<br />                <p>
-                <pre>
+
+   </li>
+                <li>
+ Install development files:
+                    <p>
+                    <pre>
 # pkg install pkg:/developer/gcc-45
-# pkg install pkg:/developer/build/onbld
-</pre>
+# pkg install pkg:/developer/build/onbld</pre>
 </p>
-</li>
-            <li>
- Build a workload generator:<br />                <p>
-                <pre>
+
+   </li>
+                <li>
+ Build a workload generator:
+                    <p>
+                    <pre>
 # git clone https://github.com/myaut/tsload
 # cd tsload/agent
-# scons --prefix=/opt/tsload install
-</pre>
+# scons --prefix=/opt/tsload install</pre>
 </p>
-</li>
-            <li>
- Build loadable modules:<br />                <p>
-                <pre>
+
+   </li>
+                <li>
+ Build loadable modules:
+                    <p>
+                    <pre>
 # git clone https://bitbucket.org/sergey_klyaus/dtrace-stap-book.git
 # cd dtrace-stap-book/tsload
-# scons --with-tsload=/opt/tsload/share/tsload/devel install
-</pre>
+# scons --with-tsload=/opt/tsload/share/tsload/devel install</pre>
 </p>
-</li>
+
+ </li>
 </ul>
+</li>
         <li>
- Install JDK7:<br />            <p>
+ Install JDK7:
+            <p>
             <pre>
-# pkg install --accept pkg:/developer/java/jdk-7
-</pre>
+# pkg install --accept pkg:/developer/java/jdk-7</pre>
 </p>
+
 </li>
 </ul>
 </p>

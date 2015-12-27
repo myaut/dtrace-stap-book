@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix A. Exercise hints and solutions </title>
+	<title> Appendix A. Exercise hints and solutions 
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,14 +52,16 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 4</h3></p>
+		<h3>
+ Exercise 4</h3>
 <p>
-<h4>Part 1</h4></p>
+    <h4>
+ Part 1</h4>
+</p>
 <p>
-If you ever traced system calls with <code>strace</code> in Linux or <code>truss</code> in Solaris, you'll probably noticed that dynamic linker <code>ld.so</code> maps shared objects into memory before program is actually run:<br /></p>
-<p>
-<pre>
+If you ever traced system calls with <code>strace</code> in Linux or <code>truss</code> in Solaris, you'll probably noticed that dynamic linker <code>ld.so</code> maps shared objects into memory before program is actually run:
+    <p>
+    <pre>
 # strace /bin/ls
 ...
 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
@@ -68,17 +71,17 @@ mmap(NULL, 3932736, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f
 mprotect(0x7f28fc6b6000, 2097152, PROT_NONE) = 0
 mmap(0x7f28fc8b6000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1b6000) = 0x7f28fc8b6000
 mmap(0x7f28fc8bc000, 16960, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f28fc8bc000
-close(3)
-</pre>
+close(3)</pre>
 </p>
+
+Note that Linux <code>uselib</code> call may also being used for that.</p>
 <p>
-Note that Linux <code>uselib</code> call may also being used for that.<br /></p>
+Even if pages are already loaded into <em>page cache</em>, they might be mapped with different addresses or with different permissions (which is less likely for shared objects), so operating system need to create new memory segments for them. It also performs it lazily and only maps limited amount of pages. The rest are mapped on demand when <em>minor fault</em> occur. That is why they occur often when new processes are spawned.</p>
 <p>
-Even if pages are already loaded into <em>page cache</em>, they might be mapped with different addresses or with different permissions (which is less likely for shared objects), so operating system need to create new memory segments for them. It also performs it lazily and only maps limited amount of pages. The rest are mapped on demand when <em>minor fault</em> occur. That is why they occur often when new processes are spawned.<br /></p>
+We will use <code>@count</code> aggregation and <code>vm.pagefault</code> probe to count pagefaults in SystemTap for Linux. Path to file is represented by dentry structure <code>$vma-&gt;vm_file-&gt;f_path-&gt;dentry</code> -- we will use <code>d_name</code> function to access string representation of its name.</p>
 <p>
-We will use <code>@count</code> aggregation and <code>vm.pagefault</code> probe to count pagefaults in SystemTap for Linux. Path to file is represented by dentry structure <code>$vma-&gt;vm_file-&gt;f_path-&gt;dentry</code> -- we will use <code>d_name</code> function to access string representation of its name.<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file pfstat.stp <br/><p>
 <pre id="code1" class="hide">
 #!/usr/bin/stap
@@ -100,15 +103,15 @@ probe timer.s(1) {
     }
 
     delete pfs;
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
+
+Speaking of Solaris, we will need to intercept <code>as_segat()</code> calls. Segments that are related to files are handled by <code>segvn</code> segment driver, so we have to compare pointer to operations table to determine if segment is corresponding to that driver.</p>
 <p>
-Speaking of Solaris, we will need to intercept <code>as_segat()</code> calls. Segments that are related to files are handled by <code>segvn</code> segment driver, so we have to compare pointer to operations table to determine if segment is corresponding to that driver.<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file pfstat.d <br/><p>
 <pre id="code2" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -147,43 +150,45 @@ tick-1s {
 </p>
 </div>
 </p>
+
+When you run these scripts, you may see that most of faults are corresponding to <code>libc</code> library.</p>
 <p>
-When you run these scripts, you may see that most of faults are corresponding to <code>libc</code> library.<br /></p>
-<p>
-<h4>Part 2</h4></p>
-<p>
-As you can see from exercise text, you'll need to get allocator cache names, but they are not described in documentation to SLAB probes. To find them we will need to dive into Solaris and Linux kernel source. We seek for a name (which would be represented as a string), so we have to find allocator cache structure and fields of type <code>char[]</code> or <code>char*</code> in it. <br /></p>
-<p>
-Let's check prototype of <code>kmem_cache_alloc()</code> function which is mentioned in probe description. First argument of it is a cache structure which we seek for. As you can see from source, it is called <code>kmem_cache_t</code>:<br /></p>
-<p>
-<pre>
-void *
-kmem_cache_alloc(kmem_cache_t *cp, int kmflag)
-    (from usr/src/uts/common/os/kmem.c)
-</pre>
+    <h4>
+ Part 2</h4>
 </p>
 <p>
-This type is a typedefed alias for a <code>struct kmem_cache</code> which is defined in usr/src/uts/common/sys/kmem_impl.h. When you check its definition, you may find <code>cache_name</code> field -- it is obvious that this field contains name of cache.<br /></p>
+As you can see from exercise text, you'll need to get allocator cache names, but they are not described in documentation to SLAB probes. To find them we will need to dive into Solaris and Linux kernel source. We seek for a name (which would be represented as a string), so we have to find allocator cache structure and fields of type <code>char[]</code> or <code>char*</code> in it. </p>
 <p>
-<pre>
+Let's check prototype of <code>kmem_cache_alloc()</code> function which is mentioned in probe description. First argument of it is a cache structure which we seek for. As you can see from source, it is called <code>kmem_cache_t</code>:
+    <p>
+    <pre>
+void *
+kmem_cache_alloc(kmem_cache_t *cp, int kmflag)
+    (from usr/src/uts/common/os/kmem.c)</pre>
+</p>
+
+This type is a typedefed alias for a <code>struct kmem_cache</code> which is defined in usr/src/uts/common/sys/kmem_impl.h. When you check its definition, you may find <code>cache_name</code> field -- it is obvious that this field contains name of cache.
+    <p>
+    <pre>
 struct kmem_cache {
     [...]
     char        cache_name[KMEM_CACHE_NAMELEN + 1];
-    [...]
-</pre>
+    [...]</pre>
+</p>
 </p>
 <p>
-Of course that is not the only way to find that field. If you know how to check cache statistics statically, you should know that is is done with <code>::kmastat</code> command in <code>mdb</code> debugger. Looking at its source will reveal <code>kmastat_cache()</code> helper which prints statistics for a cache. Looking at its source may reveal accesses to <code>cache_name</code> field:<br /></p>
-<p>
-<pre>
-    mdb_printf((dfp++)->fmt, cp->cache_name);
-        (from usr/src/cmd/mdb/common/modules/genunix/genunix.c).
-</pre>
+Of course that is not the only way to find that field. If you know how to check cache statistics statically, you should know that is is done with <code>::kmastat</code> command in <code>mdb</code> debugger. Looking at its source will reveal <code>kmastat_cache()</code> helper which prints statistics for a cache. Looking at its source may reveal accesses to <code>cache_name</code> field:
+    <p>
+    <pre>
+mdb_printf((dfp++)->fmt, cp->cache_name);
+        (from usr/src/cmd/mdb/common/modules/genunix/genunix.c).</pre>
+</p>
 </p>
 <p>
-Considering our findings, we may define <code>CACHE_NAME</code> macro and use it in a DTrace script:<br /></p>
+Considering our findings, we may define <code>CACHE_NAME</code> macro and use it in a DTrace script:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file kmemstat.d <br/><p>
 <pre id="code3" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -207,12 +212,12 @@ tick-1s {
 </p>
 </div>
 </p>
+
+Seeking for a cache name in Linux is not that straightforward. First of all, we deal not with function boundary probes for SLAB caches, but with tapset aliases which do not provide pointers to a cache structures. Moreover, Linux has three implementations for kernel memory allocators: original SLAB, its improved version SLUB and a SLOB, compact allocator for embedded systems. SLOB is not generally used, so we will omit it.</p>
 <p>
-Seeking for a cache name in Linux is not that straightforward. First of all, we deal not with function boundary probes for SLAB caches, but with tapset aliases which do not provide pointers to a cache structures. Moreover, Linux has three implementations for kernel memory allocators: original SLAB, its improved version SLUB and a SLOB, compact allocator for embedded systems. SLOB is not generally used, so we will omit it.<br /></p>
-<p>
-<code>vm.kmem_cache_alloc</code> probe is defined in a <code>vm</code> tapset, so we will need to look into tapset directory <code>/usr/share/systemtap/tapset/linux/</code> to find its definition. As you can see from it, it refers either tracepoint <code>kmem_cache_alloc</code> or <code>kmem_cache_alloc()</code> kernel function. Here are source code of it:<br /></p>
-<p>
-<pre>
+<code>vm.kmem_cache_alloc</code> probe is defined in a <code>vm</code> tapset, so we will need to look into tapset directory <code>/usr/share/systemtap/tapset/linux/</code> to find its definition. As you can see from it, it refers either tracepoint <code>kmem_cache_alloc</code> or <code>kmem_cache_alloc()</code> kernel function. Here are source code of it:
+    <p>
+    <pre>
 void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
 {
     void *ret = slab_alloc(cachep, flags, _RET_IP_);
@@ -222,25 +227,27 @@ void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
 
     return ret;
 }
-    (from mm/slab.c)
-</pre>
+    (from mm/slab.c)</pre>
+</p>
 </p>
 <p>
-Note the <code>trace_kmem_cache_alloc</code> call which is actually represents invocation of the FTrace tracepoint. The same function is defined in SLUB allocator, but it uses <code>s</code> as a name of first functions argument, so we will have to use <code>@choose_defined</code> construct. Both allocators use same name for cache's structure: <code>struct kmem_cache</code>. The name is defined in that structure in files include/linux/slab_def.h and include/linux/slub_def.h:<br /></p>
+Note the <code>trace_kmem_cache_alloc</code> call which is actually represents invocation of the FTrace tracepoint. The same function is defined in SLUB allocator, but it uses <code>s</code> as a name of first functions argument, so we will have to use <code>@choose_defined</code> construct. Both allocators use same name for cache's structure: <code>struct kmem_cache</code>. The name is defined in that structure in files include/linux/slab_def.h and include/linux/slub_def.h:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 struct kmem_cache {
     [...]
     const char *name;
-    [...]
-</pre>
+    [...]</pre>
+</p>
 </p>
 <p>
-Like in Solaris, Linux shows cache statistics in <code>/proc/slabinfo</code> file. Diving into Kernel sources will reveal that <code>cache_name</code> functions is used to get cache's name and it accesses <code>name</code> field. <br /></p>
+Like in Solaris, Linux shows cache statistics in <code>/proc/slabinfo</code> file. Diving into Kernel sources will reveal that <code>cache_name</code> functions is used to get cache's name and it accesses <code>name</code> field. </p>
 <p>
-Considering all this, here are an implementation of SystemTap script:<br /></p>
+Considering all this, here are an implementation of SystemTap script:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file kmemstat.stp <br/><p>
 <pre id="code4" class="hide">
 #!/usr/bin/stap
@@ -271,10 +278,10 @@ probe timer.s(1) {
     
     delete allocs;
     delete frees;
-}
-</pre>
+}</pre>
 </p>
 </div>
+</p>
 </p>
 
 	</div>

@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Introduction</title>
+	<title> Introduction
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,61 +49,70 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Foreword</h3></p>
+		<h3>
+ Foreword</h3>
 <p>
-While I was working on my bachelor thesis, I discovered that code analysis task is a key step on the path towards solving software problems: aborts and coredumps, excessive (or unreasonably small) resource consumptions, etc. It was devoted to microkernel architecture, and when I found it inadequately documented, I had to dive deep down to their sources.<br /></p>
+While I was working on my bachelor thesis, I discovered that code analysis task is a key step on the path towards solving software problems: aborts and coredumps, excessive (or unreasonably small) resource consumptions, etc. It was devoted to microkernel architecture, and when I found it inadequately documented, I had to dive deep down to their sources.</p>
 <p>
-After that, I started to apply code reading on my work, because sources always have most actual and full information than user documentation. Sources better explain origin of an error than documentation. For example, take a look at <a href="http://docs.oracle.com/cd/E23823_01/html/816-5166/newfs-1m.html">UFS documentation for Solaris 10</a>:<br /></p>
-<blockquote>
-<em>-b bsize</em><br />    The logical block size of the file system in bytes, either 4096 or 8192. The default is 8192.     The sun4u architecture does not support the 4096 block size.<br /></blockquote>
+After that, I started to apply code reading on my work, because sources always have most actual and full information than user documentation. Sources better explain origin of an error than documentation. For example, take a look at <a href="http://docs.oracle.com/cd/E23823_01/html/816-5166/newfs-1m.html">UFS documentation for Solaris 10</a>:</p>
 <p>
-Real condition that describes block size limits in UFS is a bit more complex:<br /></p>
-<p>
-<pre>
-    928    if (fsp->fs_bsize > MAXBSIZE || fsp->fs_frag > MAXFRAG ||
+    <p>
+    <blockquote>
+ <em>-b bsize</em>
+    The logical block size of the file system in bytes, either 4096 or 8192. The default is 8192.     The sun4u architecture does not support the 4096 block size.</blockquote>
+</p>
+    <p>
+Real condition that describes block size limits in UFS is a bit more complex:</p>
+    <p>
+        <p>
+        <pre>
+928    if (fsp->fs_bsize > MAXBSIZE || fsp->fs_frag > MAXFRAG ||
     929        fsp->fs_bsize < sizeof (struct fs) || 
                         fsp->fs_bsize < PAGESIZE) {
     930           error = EINVAL; /* also needs translation */
     931           goto out;
-    932    }
-</pre>
+    932    }</pre>
 </p>
-<p>
+</p>
+    <p>
 <a href="http://fxr.watson.org/fxr/source/common/fs/ufs/ufs_vfsops.c?v=OPENSOLARIS#L928"></a></p>
-<p>
-So, more accurate condition that applies to all architectures may be described as: block size should be greater or equal page size, but not exceed 8192 bytes (<code>MAXBSIZE</code> macro) and also be larger than superblock. I have to admit, that sometimes I was too hasty to look into code and ignored clues that documentation provides, but in most cases source code analysis approach paid off, especially in hard ones. <br /></p>
-<p>
-Information extraction from source code alone is called <em>static code analysis</em>. This method is not sufficient, because you cannot look into source of highly-universal system like Linux Kernel without having in mind what requests it will process. Otherwise, we would have to process all code branches, but that dramatically increases complexity of code analysis. Because of that, you have to run experiments sometimes and perform <em>dynamic code analysis</em>. Through dynamic analysis you will cut out unused code paths and improve your understanding of a program.<br /></p>
-<p>
-While I was working on my thesis, I used Bochs simulator which can generated giant traces: one line per assembly instructions. Fortunately, modern operating systems have much more flexible tools: <em>dynamic instrumentation tools</em>, and that is the topic of this book. <br /></p>
-<p>
-I wrote first useful DTrace script for the request in which customer encountered the following panic:<br /></p>
-<p>
-<pre>
-    unix: [ID 428783 kern.notice] vn_rele: vnode ref count 0
-</pre>
+    <p>
+So, more accurate condition that applies to all architectures may be described as: block size should be greater or equal page size, but not exceed 8192 bytes (<code>MAXBSIZE</code> macro) and also be larger than superblock. I have to admit, that sometimes I was too hasty to look into code and ignored clues that documentation provides, but in most cases source code analysis approach paid off, especially in hard ones. </p>
+    <p>
+Information extraction from source code alone is called <em>static code analysis</em>. This method is not sufficient, because you cannot look into source of highly-universal system like Linux Kernel without having in mind what requests it will process. Otherwise, we would have to process all code branches, but that dramatically increases complexity of code analysis. Because of that, you have to run experiments sometimes and perform <em>dynamic code analysis</em>. Through dynamic analysis you will cut out unused code paths and improve your understanding of a program.</p>
+    <p>
+While I was working on my thesis, I used Bochs simulator which can generated giant traces: one line per assembly instructions. Fortunately, modern operating systems have much more flexible tools: <em>dynamic instrumentation tools</em>, and that is the topic of this book. </p>
+    <p>
+I wrote first useful DTrace script for the request in which customer encountered the following panic:</p>
+    <p>
+        <p>
+        <pre>
+unix: [ID 428783 kern.notice] vn_rele: vnode ref count 0</pre>
 </p>
-<p>
-As you can see from the message, <em>reference counter</em> decreases one more time (for example, if you closed file twice). Of course, if you call <code>close()</code> twice, that won't cause system panic, so we have to deal with more specific <em>race condition</em> or a simple bug when <code>vn_rele()</code> is called twice. To unveil that issue, I had to write DTrace script, that traced <code>close()</code> and <code>vn_rele()</code> calls (and also some socket stuff).<br /></p>
-<p>
-While I was getting familiar with Linux Kernel, I used DTrace competitor from Linux World -- SystemTap. I begun preparation of small workshop about DTrace and SystemTap in 2011, but I decided to add comments to each slide for my workshop. The amount of comments was growing: I prepared introduction, chapter about script languages in DTrace and SystemTap and description of process management in Linux and Solaris with <em>dumptask</em> scripts. But amount of time that I spend to prepare "process management" topic had scared me, and I decided that I couldn't write all topics about OS kernel architecture that I planned in the beginning, so I stopped writing this book.<br /></p>
-<p>
-I returned to it in 2013. At the time, I was actively deconstructing CFS scheduler in Linux, so it made easier to write next architecture topic: "process scheduler". I had some experience with ZFS internals, so writing topics about block input-output was easy too. Eventually, I got interest in web application performance -- that gave ground to fifth chapter of this book. In the end of 2013 draft of this book was prepared. Unfortunately, editing took more than year, and another year -- translation. <br /></p>
-<p>
-Two specialists in the area of Solaris internals and DTrace: Jim Mauro and Brendan Gregg, had published a book "DTrace Dynamic Tracing in Oracle® Solaris, Mac OS X, and FreeBSD" in 2011. It has huge volume (more than thousand pages), and excellent description of basic performance and computer architecture principles and how they reflected in DTrace tracing capabilities. That book has a lot of one-liners that can be copied to the terminal and start collecting data immediately. In our book we will concentrate our efforts in diving into applications and kernel code and how it can be traced.<br /></p>
-<p>
-Book goals changed while it was written too that lead to inconsistencies. Originally it was just with comments, I put everything looking like documentation as a links, but modules 4 and 5 have tables with probe names and its arguments. While book was written, SystemTap was rapidly growing, Linux kernel is changing fast and Solaris became proprietary so it is hard to maintain example compatibilities for several versions simultaneously. I've updated examples for CentOS 7 and Solaris 11.2, but it'll probably broken compatibility with older versions.<br /></p>
-<p>
-Send me your feedback to <code>myautneko+dtrace_stap@gmail.com</code>.<br /></p>
-<p>
-<h4>Acknowledgements </h4></p>
-<p>
-I want to thank my advisor, Boris Timchenko, who gave me direction in the world of Computer Science and whose influence was probably highest motivation to write this book. He is probably first man who said word <em>trace</em> in my life. Thanks to Sergey Klimenkov and Dmitry Sheshukov, my former supervisors at <a href="http://www.tune-it.ru/en">Tune-IT</a> who were very supportive during preparation of that book. It will also won't happen without Tune-IT demo equipment which were used to try examples and lab assignments. Sergey is also an expert in Solaris architecture, he is teaching Solaris Internals at Tune-IT education centre, and I was one of his students there.<br /></p>
-<p>
-Thanks DTrace & SystemTap community for creating such great instruments, especially Brendan Gregg, who is first man who tamed power of these tools. Nan Xiao is a great person who edited this book. <br /></p>
-<p>
+</p>
+    <p>
+As you can see from the message, <em>reference counter</em> decreases one more time (for example, if you closed file twice). Of course, if you call <code>close()</code> twice, that won't cause system panic, so we have to deal with more specific <em>race condition</em> or a simple bug when <code>vn_rele()</code> is called twice. To unveil that issue, I had to write DTrace script, that traced <code>close()</code> and <code>vn_rele()</code> calls (and also some socket stuff).</p>
+    <p>
+While I was getting familiar with Linux Kernel, I used DTrace competitor from Linux World -- SystemTap. I begun preparation of small workshop about DTrace and SystemTap in 2011, but I decided to add comments to each slide for my workshop. The amount of comments was growing: I prepared introduction, chapter about script languages in DTrace and SystemTap and description of process management in Linux and Solaris with <em>dumptask</em> scripts. But amount of time that I spend to prepare "process management" topic had scared me, and I decided that I couldn't write all topics about OS kernel architecture that I planned in the beginning, so I stopped writing this book.</p>
+    <p>
+I returned to it in 2013. At the time, I was actively deconstructing CFS scheduler in Linux, so it made easier to write next architecture topic: "process scheduler". I had some experience with ZFS internals, so writing topics about block input-output was easy too. Eventually, I got interest in web application performance -- that gave ground to fifth chapter of this book. In the end of 2013 draft of this book was prepared. Unfortunately, editing took more than year, and another year -- translation. </p>
+    <p>
+Two specialists in the area of Solaris internals and DTrace: Jim Mauro and Brendan Gregg, had published a book "DTrace Dynamic Tracing in Oracle® Solaris, Mac OS X, and FreeBSD" in 2011. It has huge volume (more than thousand pages), and excellent description of basic performance and computer architecture principles and how they reflected in DTrace tracing capabilities. That book has a lot of one-liners that can be copied to the terminal and start collecting data immediately. In our book we will concentrate our efforts in diving into applications and kernel code and how it can be traced.</p>
+    <p>
+Book goals changed while it was written too that lead to inconsistencies. Originally it was just with comments, I put everything looking like documentation as a links, but modules 4 and 5 have tables with probe names and its arguments. While book was written, SystemTap was rapidly growing, Linux kernel is changing fast and Solaris became proprietary so it is hard to maintain example compatibilities for several versions simultaneously. I've updated examples for CentOS 7 and Solaris 11.2, but it'll probably broken compatibility with older versions.</p>
+    <p>
+Send me your feedback to <code>myautneko+dtrace_stap@gmail.com</code>.</p>
+    <p>
+        <h4>
+ Acknowledgements </h4>
+</p>
+    <p>
+I want to thank my advisor, Boris Timchenko, who gave me direction in the world of Computer Science and whose influence was probably highest motivation to write this book. He is probably first man who said word <em>trace</em> in my life. Thanks to Sergey Klimenkov and Dmitry Sheshukov, my former supervisors at <a href="http://www.tune-it.ru/en">Tune-IT</a> who were very supportive during preparation of that book. It will also won't happen without Tune-IT demo equipment which were used to try examples and lab assignments. Sergey is also an expert in Solaris architecture, he is teaching Solaris Internals at Tune-IT education centre, and I was one of his students there.</p>
+    <p>
+Thanks DTrace & SystemTap community for creating such great instruments, especially Brendan Gregg, who is first man who tamed power of these tools. Nan Xiao is a great person who edited this book. </p>
+    <p>
 And finally, this book won't happen without my parents, who inspired my to always learn new. </p>
+</p>
 
 	</div>
 </div>

@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix A. Exercise hints and solutions </title>
+	<title> Appendix A. Exercise hints and solutions 
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,18 +52,19 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 5</h3></p>
+		<h3>
+ Exercise 5</h3>
 <p>
-We will need to access pointer to <code>block_device</code> pointer in Linux to collect block device name and group data by it. As we know, main filesystem structure is called <code>super_block</code> which contains <code>s_bdev</code> pointer which has <code>struct block_device*</code>. SystemTap has two tapset functions, <code>MINOR()</code> and <code>MAJOR()</code> which allow to extract device number from <code>bd_dev</code> field of that structure. There is also an undocumented <code>bdevname()</code> function which is more convenient as it returns string, so we will use it. <br /></p>
+We will need to access pointer to <code>block_device</code> pointer in Linux to collect block device name and group data by it. As we know, main filesystem structure is called <code>super_block</code> which contains <code>s_bdev</code> pointer which has <code>struct block_device*</code>. SystemTap has two tapset functions, <code>MINOR()</code> and <code>MAJOR()</code> which allow to extract device number from <code>bd_dev</code> field of that structure. There is also an undocumented <code>bdevname()</code> function which is more convenient as it returns string, so we will use it. </p>
 <p>
-We will attach probes to <code>vfs_write()</code> and <code>vfs_read()</code> functions to trace filesystem operations. First argument of that functions is pointer to file of type <code>struct file*</code>. Amount of data being written or read is passed through argument <code>$count</code>. <br /></p>
+We will attach probes to <code>vfs_write()</code> and <code>vfs_read()</code> functions to trace filesystem operations. First argument of that functions is pointer to file of type <code>struct file*</code>. Amount of data being written or read is passed through argument <code>$count</code>. </p>
 <p>
-BIO level can be traced with <code>ioblock</code> tapset. We will do so by using its <code>ioblock.request</code> probe. It has following arguments: <code>bdev</code> -- <code>block_device</code> pointer, <code>size</code> -- amount of data in request, <code>rw</code> -- read or write flag which can be tested for equality with <code>BIO_READ</code> or <code>BIO_WRITE</code> constants.<br /></p>
+BIO level can be traced with <code>ioblock</code> tapset. We will do so by using its <code>ioblock.request</code> probe. It has following arguments: <code>bdev</code> -- <code>block_device</code> pointer, <code>size</code> -- amount of data in request, <code>rw</code> -- read or write flag which can be tested for equality with <code>BIO_READ</code> or <code>BIO_WRITE</code> constants.</p>
 <p>
-Here is resulting <code>deblock.stp</code> script:<br /></p>
+Here is resulting <code>deblock.stp</code> script:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file deblock.stp <br/><p>
 <pre id="code1" class="hide">
 global vfstp, biotp;
@@ -98,14 +100,15 @@ probe timer.s(1) {
 </p>
 </div>
 </p>
+
+To trace readahead from part 2 we will need to replace <code>vfs_write</code> to <code>vfs_read</code>, <code>BIO_WRITE</code> to <code>BIO_READ</code> and get rid from amount of data in request saving into aggregation by replacing it with number of requests (which will be constant <code>1</code>).</p>
 <p>
-To trace readahead from part 2 we will need to replace <code>vfs_write</code> to <code>vfs_read</code>, <code>BIO_WRITE</code> to <code>BIO_READ</code> and get rid from amount of data in request saving into aggregation by replacing it with number of requests (which will be constant <code>1</code>).<br /></p>
+We can use <code>scsi.ioentry</code> probe to trace SCSI operations. We can actually detect which command was used by parsing CDB buffer, but we will omit that and will trace all SCSI operations. Getting device name, however is not that easy: <code>request</code> structure which is used in SCSI stack refers to <code>gendisk</code> and <code>hd_struct</code> structures, but they won't refer to <code>block_device</code> (on contrary, <code>block_device</code> itself refers them). So we will make a small trick: there is a linked list of structures <code>bio</code> ... <code>biotail</code> which refer block device structure the same way they do in BIO probes, so we will simply copy approach from <code>ioblock.request</code> probe.</p>
 <p>
-We can use <code>scsi.ioentry</code> probe to trace SCSI operations. We can actually detect which command was used by parsing CDB buffer, but we will omit that and will trace all SCSI operations. Getting device name, however is not that easy: <code>request</code> structure which is used in SCSI stack refers to <code>gendisk</code> and <code>hd_struct</code> structures, but they won't refer to <code>block_device</code> (on contrary, <code>block_device</code> itself refers them). So we will make a small trick: there is a linked list of structures <code>bio</code> ... <code>biotail</code> which refer block device structure the same way they do in BIO probes, so we will simply copy approach from <code>ioblock.request</code> probe.<br /></p>
+We will get <code>readahead.stp</code> script after applying all these modifications:</p>
 <p>
-We will get <code>readahead.stp</code> script after applying all these modifications:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file readahead.stp <br/><p>
 <pre id="code2" class="hide">
 global vfsops, bioops, scsiops;
@@ -149,14 +152,15 @@ probe timer.s(1) {
 </p>
 </div>
 </p>
+
+One can get device name with <code>ddi_pathname()</code> action or <code>devinfo_t</code> translator (which uses it indirectly) which is applied to <code>buf</code> structure. Probes from <code>io</code> provider will do it automatically by passing resulting pseudo-structure as <code>args[1]</code> argument. Aside from name, it contains minor and major device names. </p>
 <p>
-One can get device name with <code>ddi_pathname()</code> action or <code>devinfo_t</code> translator (which uses it indirectly) which is applied to <code>buf</code> structure. Probes from <code>io</code> provider will do it automatically by passing resulting pseudo-structure as <code>args[1]</code> argument. Aside from name, it contains minor and major device names. <br /></p>
+Getting device name on VFS layer, however is harder: <code>vfs_t</code> structure which describes filesystem has only device number <code>vfs_dev</code>. ZFS makes things even harder: there is intermediate layer called pool which hides block devices from filesystem layer. So we will use mountpoints as an aggregation key. We will trace filesystem operations by attaching to <code>fop_read()</code> and <code>fop_write()</code> which accept pointers to <code>vnode_t</code> of file as their first argument and pointer to <code>uio</code> structure as their second argument (it describes user request and thus contains amount of data).</p>
 <p>
-Getting device name on VFS layer, however is harder: <code>vfs_t</code> structure which describes filesystem has only device number <code>vfs_dev</code>. ZFS makes things even harder: there is intermediate layer called pool which hides block devices from filesystem layer. So we will use mountpoints as an aggregation key. We will trace filesystem operations by attaching to <code>fop_read()</code> and <code>fop_write()</code> which accept pointers to <code>vnode_t</code> of file as their first argument and pointer to <code>uio</code> structure as their second argument (it describes user request and thus contains amount of data).<br /></p>
+Using all this we can get our <code>deblock.d</code> script:</p>
 <p>
-Using all this we can get our <code>deblock.d</code> script:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file deblock.d <br/><p>
 <pre id="code3" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -193,12 +197,13 @@ tick-1s {
 </p>
 </div>
 </p>
+
+We will trace SCSI stack by attaching to <code>scsi-transport-dispatch</code> probe which will receive pointer to <code>buf</code> as first argument. That is very similar to probes from <code>io</code> provider except that probe doesn't apply translators on buffer. </p>
 <p>
-We will trace SCSI stack by attaching to <code>scsi-transport-dispatch</code> probe which will receive pointer to <code>buf</code> as first argument. That is very similar to probes from <code>io</code> provider except that probe doesn't apply translators on buffer. <br /></p>
+Other changes in <code>readahead.d</code> are similar to those that was done for SystemTap:</p>
 <p>
-Other changes in <code>readahead.d</code> are similar to those that was done for SystemTap:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file readahead.d <br/><p>
 <pre id="code4" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -236,10 +241,10 @@ tick-1s {
     printa("%3d,%-5d %16s %8@u %@8u %@u\n", @vfs, @bio, @scsi);
     
     trunc(@vfs); trunc(@bio); trunc(@scsi);
-}
-</pre>
+}</pre>
 </p>
 </div>
+</p>
 </p>
 
 	</div>

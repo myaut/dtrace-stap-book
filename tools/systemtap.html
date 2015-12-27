@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
+	<title> Module 1: Dynamic tracing tools. dtrace and stap tools
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,118 +52,158 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>SystemTap</h3></p>
+		<h3>
+ SystemTap</h3>
 <p>
-SystemTap is not part of Linux Kernel, so it have to adapt to kernel changes: i.e. sometimes runtime and code-generator have to adapt to new kernel releases. Also, Linux kernels in most distributions are stripped which means that debug information in DWARF format or symbol tables are removed. SystemTap supports <em>DWARF-less</em> tracing, but it has very limited capabilities, so we need to provide DWARF information to it.<br /></p>
+SystemTap is not part of Linux Kernel, so it have to adapt to kernel changes: i.e. sometimes runtime and code-generator have to adapt to new kernel releases. Also, Linux kernels in most distributions are stripped which means that debug information in DWARF format or symbol tables are removed. SystemTap supports <em>DWARF-less</em> tracing, but it has very limited capabilities, so we need to provide DWARF information to it.</p>
 <p>
-Many distributions have separate packages with debug information: packages with <code>-debuginfo</code> suffix on RPM-based distributions, packages with <code>-dbg</code> on Debian-based distributions. They have files that originate from same build the binary came from (it is crucial for SystemTap because it verifies buildid of kernel), but instead of text and data sections they contain debug sections. For example, RHEL need <code>kernel-devel</code>, <code>kernel-debuginfo</code> and <code>kernel-debuginfo-common</code> packages to make SystemTap working. Recent SystemTap versions have <code>stap-prep</code> tool that automatically install kernel debuginfo from appropriate repositories with correct versions.<br /></p>
+Many distributions have separate packages with debug information: packages with <code>-debuginfo</code> suffix on RPM-based distributions, packages with <code>-dbg</code> on Debian-based distributions. They have files that originate from same build the binary came from (it is crucial for SystemTap because it verifies buildid of kernel), but instead of text and data sections they contain debug sections. For example, RHEL need <code>kernel-devel</code>, <code>kernel-debuginfo</code> and <code>kernel-debuginfo-common</code> packages to make SystemTap working. Recent SystemTap versions have <code>stap-prep</code> tool that automatically install kernel debuginfo from appropriate repositories with correct versions.</p>
 <p>
-For vanilla kernels you will need to configure <code>CONFIG_DEBUG_INFO</code> option so debug information will be linked with kernel. You will also need to set <code>CONFIG_KPROBES</code> to allow SystemTap patching kernel code, <code>CONFIG_RELAY</code> and <code>CONFIG_DEBUG_FS</code> to allow transfer information between buffers and consumer and <code>CONFIG_MODULES</code> with <code>CONFIG_MODULE_UNLOAD</code> to provide module facilities. You will also need uncompressed <code>vmlinux</code> file and kernel sources located in <code>/lib/modules/$(uname -r)/build/</code>.<br /></p>
+For vanilla kernels you will need to configure <code>CONFIG_DEBUG_INFO</code> option so debug information will be linked with kernel. You will also need to set <code>CONFIG_KPROBES</code> to allow SystemTap patching kernel code, <code>CONFIG_RELAY</code> and <code>CONFIG_DEBUG_FS</code> to allow transfer information between buffers and consumer and <code>CONFIG_MODULES</code> with <code>CONFIG_MODULE_UNLOAD</code> to provide module facilities. You will also need uncompressed <code>vmlinux</code> file and kernel sources located in <code>/lib/modules/$(uname -r)/build/</code>.</p>
 <p>
-SystemTap doesn't have VM in-kernel (unlike DTrace and KTap), instead it generates kernel module source written in C than builds it, so you will also need a compiler toolchain (<code>make</code>, <code>gcc</code> and <code>ld</code>). Compilation takes five phases: <em>parse</em>, <em>elaborate</em> in which tapsets and debuginfo is linked with script, <em>translate</em> in which C code is generated, <em>compile</em> and <em>run</em>:<br /></p>
+SystemTap doesn't have VM in-kernel (unlike DTrace and KTap), instead it generates kernel module source written in C than builds it, so you will also need a compiler toolchain (<code>make</code>, <code>gcc</code> and <code>ld</code>). Compilation takes five phases: <em>parse</em>, <em>elaborate</em> in which tapsets and debuginfo is linked with script, <em>translate</em> in which C code is generated, <em>compile</em> and <em>run</em>:</p>
 <p>
 <img src="../images/stapprocess.png" alt="" class="img-rounded"/></p>
 <p>
-SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. <em>Tapsets</em> are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during <em>elaborate</em> stage. <em>Runtime</em> is written in C and used during <em>compile</em> stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. <br /></p>
+SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. <em>Tapsets</em> are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during <em>elaborate</em> stage. <em>Runtime</em> is written in C and used during <em>compile</em> stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. </p>
 <p>
-Unlike DTrace, SystemTap has several front-end tools with different capabilities:<br />     <ul>
+Unlike DTrace, SystemTap has several front-end tools with different capabilities:
+     <ul>
         <li>
-<code>stapio</code> is a consumer which runs module and prints information from its buffer to a file or stdout. It is never used directly, but called by <code>stap</code> and <code>staprun</code> tools.<br /> </li>
+ <code>stapio</code> is a consumer which runs module and prints information from its buffer to a file or stdout. It is never used directly, but called by <code>stap</code> and <code>staprun</code> tools.
+ </li>
         <li>
-<code>stap(1)</code> includes all five stages and allow to stop at any of them. I.e. combining options <code>-k</code> and <code>-p 4</code> allow you to create pre-compiled <code>.ko</code> kernel module. Note that SystemTap is very strict about version of kernel it was compiled for.<br /> </li>
+ <code>stap(1)</code> includes all five stages and allow to stop at any of them. I.e. combining options <code>-k</code> and <code>-p 4</code> allow you to create pre-compiled <code>.ko</code> kernel module. Note that SystemTap is very strict about version of kernel it was compiled for.
+ </li>
         <li>
-<code>staprun(1)</code> allows you to reuse precompiled module, instead of start compilation from scratch.<br /> </li>
+ <code>staprun(1)</code> allows you to reuse precompiled module, instead of start compilation from scratch.</li>
 </ul>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-If <code>stap</code> parent is exited, than <code>killall -9 stap</code> won't finish <code>stapio</code> daemon. You have to signal it with SIGTERM: <code>killall -15 stap</code></div>
+<p>
+
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+If <code>stap</code> parent is exited, than <code>killall -9 stap</code> won't finish <code>stapio</code> daemon. You have to signal it with SIGTERM: <code>killall -15 stap</code>
+</p>
+</div>
+</p>
 <p>
 <a name="stap"></a></p>
 <p>
-<h4>stap </h4></p>
+    <h4>
+ stap </h4>
+</p>
 <p>
-Like many other scripting tools, SystemTap accepts script as command line option or external file, for example:<br />     <ul>
+Like many other scripting tools, SystemTap accepts script as command line option or external file, for example:
+     <ul>
         <li>
- Command-line script is passed with <code>-e</code> option<br />   <code># stap -e 'probe syscall.write { printf("%d\n", $fd); }' [arguments]</code></li>
+ Command-line script is passed with <code>-e</code> option
+   <code># stap -e 'probe syscall.write { printf("%dn", $fd); }' [arguments]</code>
+ </li>
         <li>
- External file as first argument:<br />   <code># stap syscalls. [arguments]</code><br />SystemTap command line arguments may be passed to a script, but it distingushes their types: numerical arguments are accessible with <code>$</code> prefix: <code>$1</code>, <code>$2</code> ... <code>$n</code> while string arguments have <code>@</code> prefix: <code>@1</code>, <code>@2</code> ... <code>@n</code></li>
+ External file as first argument:
+   <code># stap syscalls. [arguments]</code>
+SystemTap command line arguments may be passed to a script, but it distingushes their types: numerical arguments are accessible with <code>$</code> prefix: <code>$1</code>, <code>$2</code> ... <code>$n</code> while string arguments have <code>@</code> prefix: <code>@1</code>, <code>@2</code> ... <code>@n</code></li>
 </ul>
 </p>
 <p>
-Here are some useful <code>stap(1)</code> options:<br />     <ul>
+Here are some useful <code>stap(1)</code> options:
+     <ul>
         <li>
-<code>-l PROBESPEC</code> accepts probe specifier without <code>probe</code> keyword (but with wildcards) and prints all matching probe names (more on wildcards in <a href="../lang/probes.html">Probes</a>). <code>-L</code> will also print probe arguments and their types. For example:<br />   <code># stap -l 'scsi.*'</code></li>
+ <code>-l PROBESPEC</code> accepts probe specifier without <code>probe</code> keyword (but with wildcards) and prints all matching probe names (more on wildcards in <a href="../lang/probes.html">Probes</a>). <code>-L</code> will also print probe arguments and their types. For example:
+   <code># stap -l 'scsi.*'</code>
+ </li>
         <li>
-<code>-v</code> -- increases verbosity of SystemTap. The more letters you passed, the more diagnostic information will be printed. If only one <code>-v</code> was passed, <code>stap</code> will report only finishing of each stage.<br /> </li>
+ <code>-v</code> -- increases verbosity of SystemTap. The more letters you passed, the more diagnostic information will be printed. If only one <code>-v</code> was passed, <code>stap</code> will report only finishing of each stage.
+ </li>
         <li>
-<code>-p STAGE</code> -- ends stap process after <em>STAGE</em>, represented with a number starting with 1 (<em>parse</em>). <br /> </li>
+ <code>-p STAGE</code> -- ends stap process after <em>STAGE</em>, represented with a number starting with 1 (<em>parse</em>). 
+ </li>
         <li>
-<code>-k</code> -- stap tool won't delete SystemTap temporary files created during compilation (sources and kernel modules kept in <code>/tmp/stapXXXX</code> directory),<br /> </li>
+ <code>-k</code> -- stap tool won't delete SystemTap temporary files created during compilation (sources and kernel modules kept in <code>/tmp/stapXXXX</code> directory),
+ </li>
         <li>
-<code>-g</code> -- enables Guru-mode, that allows to bind to blacklisted probes and write into kernel memory along with using Embedded C in your scripts. Generally speaking, it allows dangerous actions.<br /> </li>
+ <code>-g</code> -- enables Guru-mode, that allows to bind to blacklisted probes and write into kernel memory along with using Embedded C in your scripts. Generally speaking, it allows dangerous actions.
+ </li>
         <li>
-<code>-c COMMAND</code> and <code>-x PID</code> -- like those in DTrace, they allow to bind SystemTap to a specific process<br /> </li>
+ <code>-c COMMAND</code> and <code>-x PID</code> -- like those in DTrace, they allow to bind SystemTap to a specific process
+ </li>
         <li>
-<code>-o FILE</code> -- redirects output to a file. If it already exists, SystemTap <strong>rewrites</strong> it.<br /> </li>
+ <code>-o FILE</code> -- redirects output to a file. If it already exists, SystemTap <strong>rewrites</strong> it.
+ </li>
         <li>
-<code>-m NAME</code> -- when compiling a module, give it meaningful name instead of <code>stap_&lt;gibberish&gt;</code>.<br /> </li>
+ <code>-m NAME</code> -- when compiling a module, give it meaningful name instead of <code>stap_&lt;gibberish&gt;</code>.</li>
 </ul>
 </p>
 <p>
-When SystemTap needs to resolve address into a symbol (for example, instruction pointer to a corresponding function name), it doesn't look into libraries or kernel modules. Here are some useful command-line options that enable that:<br />     <ul>
+
+When SystemTap needs to resolve address into a symbol (for example, instruction pointer to a corresponding function name), it doesn't look into libraries or kernel modules. Here are some useful command-line options that enable that:
+     <ul>
         <li>
-<code>-d MODULEPATH</code> -- enables symbol resolving for a specific library or kernel module. Note that in case it is not provided, <code>stap</code> will print a warning with corresponding <code>-d</code> option. <br /> </li>
+ <code>-d MODULEPATH</code> -- enables symbol resolving for a specific library or kernel module. Note that in case it is not provided, <code>stap</code> will print a warning with corresponding <code>-d</code> option. 
+ </li>
         <li>
-<code>--ldd</code> -- for tracing process -- use <code>ldd</code> to add all linked libraries for a resolving.<br /> </li>
+ <code>--ldd</code> -- for tracing process -- use <code>ldd</code> to add all linked libraries for a resolving.
+ </li>
         <li>
-<code>--all-modules</code> -- enable resolving for all kernel modules<br /> </li>
+ <code>--all-modules</code> -- enable resolving for all kernel modules</li>
 </ul>
 </p>
 <p>
-<h4>SystemTap example</h4></p>
+
+    <h4>
+ SystemTap example</h4>
+</p>
 <p>
-Here is sample SystemTap script:<br /></p>
+Here is sample SystemTap script:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 #!/usr/sbin/stap 
 
 probe syscall.write
 {
     if(pid() == target())
       printf("Written %d bytes", $count);
-}
-</pre>
+}</pre>
+</p>
 </p>
 <p>
-Save it to <code>test.stp</code> and run like this:<br /></p>
+Save it to <code>test.stp</code> and run like this:</p>
 <p>
-<pre>
-root@host# stap /root/test.stp -c "dd if=/dev/zero of=/dev/null count=1"
-</pre>
+    <p>
+    <pre>
+root@host# stap /root/test.stp -c "dd if=/dev/zero of=/dev/null count=1"</pre>
+</p>
 </p>
 <p>
-<strong>Q</strong>: Run SystemTap with following options: <code># stap -vv -k -p4 /root/test.stp </code>, find generated directory in <code>/tmp</code> and look into created C source.<br /></p>
+<strong>Q</strong>: Run SystemTap with following options: <code># stap -vv -k -p4 /root/test.stp </code>, find generated directory in <code>/tmp</code> and look into created C source.</p>
 <p>
-<strong>Q</strong>: Calculate number of probes in a <code>syscall</code> provider and number of variables provided by <code>syscall.write</code> probe:<br /></p>
+<strong>Q</strong>: Calculate number of probes in a <code>syscall</code> provider and number of variables provided by <code>syscall.write</code> probe:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 # stap -l 'syscall.*' | wc -l
-# stap -L 'syscall.write'
-</pre>
+# stap -L 'syscall.write'</pre>
+</p>
 </p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
-    <ul>
+     <ul>
         <li>
-<img src="../images/icons/manpage.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/man/stap.1.html">STAP</a></li>
+ <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stap.1.html">STAP</a>
+ </li>
         <li>
-<img src="../images/icons/manpage.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/man/staprun.8.html">STAPRUN</a></li>
+ <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/staprun.8.html">STAPRUN</a>
+ </li>
         <li>
-<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00025000000000000000">The stap command</a></li>
+ <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00025000000000000000">The stap command</a>
+ </li>
         <li>
-<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00067000000000000000">Literals passed in from the stap command line</a></li>
+ <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00067000000000000000">Literals passed in from the stap command line</a></li>
 </ul>
 </p>
 

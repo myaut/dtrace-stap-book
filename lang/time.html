@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 2: Dynamic tracing languages</title>
+	<title> Module 2: Dynamic tracing languages
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,78 +52,87 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Time</h3></p>
+		<h3>
+ Time</h3>
 <p>
-A man used to live with a calendar and 24-hour representation of time. Coordinated Universal Time (UTC) is used for that now. These details are not needed for most kernel or application processes, so there is multiple time sources available for tracing tools:<br /></p>
+A man used to live with a calendar and 24-hour representation of time. Coordinated Universal Time (UTC) is used for that now. These details are not needed for most kernel or application processes, so there is multiple time sources available for tracing tools:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Time source</strong></td>
+<strong>Time source</strong> </td>
             <td>
-<strong>DTrace</strong></td>
+ <strong>DTrace</strong> </td>
             <td>
-<strong>SystemTap</strong></td>
+ <strong>SystemTap</strong></td>
 </tr>
         <tr>
+
             <td>
 <em>System timer</em> is responsible for handling periodical events in kernel such as context switch. System timer usually ticks at constant frequency (but ticks may be omitted in <em>tickless kernels</em>). Interval between firing timer is usually referred as special unit of time: <em>tick</em>, <em>lbolt</em> in Solaris or <em>jiffy</em> in Linux. Timer frequency in Linux can be get using <code>HZ()</code> function. </td>
             <td>
-<code> `lbolt</code> or <code> `lbolt64</code></td>
+ <code>`lbolt</code> or <code>`lbolt64</code> </td>
             <td>
-<code>jiffies()</code></td>
+ <code>jiffies()</code></td>
 </tr>
         <tr>
+
             <td>
 <em>Processor cycles counter</em> is a special CPU register which act as a counter which increases on each cycle, such as <code>TSC</code> in x86 or <code>%tick</code> in SPARC. It may not be monotonic. </td>
             <td>
-</td>
+ </td>
             <td>
-<code>get_cycles()</code></td>
+ <code>get_cycles()</code></td>
 </tr>
         <tr>
+
             <td>
 <em>Monotonic time</em>. Starts at unspecified moment of time (usually at system boot), but ticks with constant intervals. May use high-resolution time source such as HPET on x86, but may impose some jitter between CPU cores or CPUs. </td>
             <td>
-<code>timestamp</code></td>
+ <code>timestamp</code> </td>
             <td>
-<code>local_clock_&lt;unit&gt;()</code> or <code>cpu_clock_&lt;unit&gt;(&lt;cpu&gt;)</code></td>
+ <code>local_clock_&lt;unit&gt;()</code> or <code>cpu_clock_&lt;unit&gt;(&lt;cpu&gt;)</code></td>
 </tr>
         <tr>
+
             <td>
 <em>Virtual monotonic time of thread</em>. Similar to previous time source, but only accounts when thread is on CPU, which is useful to calculate CPU usage of a thread </td>
             <td>
-<code>vtimestamp</code></td>
+ <code>vtimestamp</code> </td>
             <td>
 </td>
 </tr>
         <tr>
+
             <td>
 <em>Real time</em>. Monotonic time source which starting point is an UNIX Epoch (00:00:00 UTC, Thursday, 1 January 1970). May use extra locks, access RTC, so it generally slower than previous time sources </td>
             <td>
-<code>walltimestamp</code></td>
+ <code>walltimestamp</code> </td>
             <td>
-<code>gettimeofday_&lt;unit&gt;()</code></td>
+ <code>gettimeofday_&lt;unit&gt;()</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-In this examples <code>&lt;unit&gt;</code> is one of (<code>s</code> -- seconds, <code>ms</code> -- milliseconds, <code>us</code> -- microseconds and <code>ns</code> -- nanoseconds). DTrace time sources always have nanosecond resolution.<br /></p>
+In this examples <code>&lt;unit&gt;</code> is one of (<code>s</code> -- seconds, <code>ms</code> -- milliseconds, <code>us</code> -- microseconds and <code>ns</code> -- nanoseconds). DTrace time sources always have nanosecond resolution.</p>
 <p>
-Generally speaking, monotonic time sources are better for measurement relative time intervals, while real time is used if you need precise timestamp of an event (i.e. for cross-referencing with logs). To print a real timestamp, use <code>ctime()</code> function in SystemTap which converts time to string, or use <code>%Y</code> format specifier in DTrace print functions. <br /></p>
+Generally speaking, monotonic time sources are better for measurement relative time intervals, while real time is used if you need precise timestamp of an event (i.e. for cross-referencing with logs). To print a real timestamp, use <code>ctime()</code> function in SystemTap which converts time to string, or use <code>%Y</code> format specifier in DTrace print functions. </p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfu">Built-in Variables</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfu">Built-in Variables</a>
+</li>
         <li>
-<img src="../images/icons/stapset.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/tapsets/timestamp_stp.html">Timestamp Functions</a></li>
+ <img src="../images/icons/stapset.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/timestamp_stp.html">Timestamp Functions</a></li>
 </ul>
 </p>
 

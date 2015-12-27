@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,44 +49,48 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Network stack</h3></p>
+		<h3>
+ Network stack</h3>
 <p>
-One of the largest kernel subsystem is a network stack. It is called a <em>stack</em> because it consists from multiple protocols where each of them works on top of the more primitive protocol. That hierarchy is defined by different models such as <em>OSI model</em> or TCP/IP stack. When user data is passed through network, it is encapsulated into packets of that protocols: when data is passed to a protocol driver it puts some service data to the packet header and tail so operating system on receiver host can recognize them and build original message even when some data was lost or order of packets had changed during transmission. <br /></p>
+One of the largest kernel subsystem is a network stack. It is called a <em>stack</em> because it consists from multiple protocols where each of them works on top of the more primitive protocol. That hierarchy is defined by different models such as <em>OSI model</em> or TCP/IP stack. When user data is passed through network, it is encapsulated into packets of that protocols: when data is passed to a protocol driver it puts some service data to the packet header and tail so operating system on receiver host can recognize them and build original message even when some data was lost or order of packets had changed during transmission. </p>
 <p>
-Each layer of network stack has its responsibilities so they are not of concern of higher-layer protocols. For example, IP allows to send datagrams through multiple routers and networks, can reassemble packets but doesn't guarantee reliability when some data is lost -- it is implemented in TCP protocol. Both of them can only transmit raw data, encoding or compression is implemented on higher layer like HTTP. <br /></p>
+Each layer of network stack has its responsibilities so they are not of concern of higher-layer protocols. For example, IP allows to send datagrams through multiple routers and networks, can reassemble packets but doesn't guarantee reliability when some data is lost -- it is implemented in TCP protocol. Both of them can only transmit raw data, encoding or compression is implemented on higher layer like HTTP. </p>
 <p>
-Network subsystem (which transmits data between hosts) has a major difference over block input-output (which stores data): it is very sensible to <em>latency</em>, so writing or reading data cannot be deferred. Due to that, sending and receiving is usually performed in the same thread context.<br /></p>
+Network subsystem (which transmits data between hosts) has a major difference over block input-output (which stores data): it is very sensible to <em>latency</em>, so writing or reading data cannot be deferred. Due to that, sending and receiving is usually performed in the same thread context.</p>
 <p>
-Network stack in Unix systems can be split into three generic layers:<br />       <ul>
+Network stack in Unix systems can be split into three generic layers:
+       <ul>
         <li>
-<em>Socket layer</em> which implements BSD sockets through series of system calls.<br />   </li>
+ <em>Socket layer</em> which implements BSD sockets through series of system calls.
+   </li>
         <li>
- Intermediate protocol drivers such as <em>ip</em>, <em>udp</em> and <em>tcp</em> and packet filters.<br />   </li>
+ Intermediate protocol drivers such as <em>ip</em>, <em>udp</em> and <em>tcp</em> and packet filters.
+   </li>
         <li>
- Media Access Control (<em>MAC</em>) layer on the bottom which providing access to network interface cards (NICs) and <em>NIC API</em> itself. It is called <em>GLD</em> in Solaris.<br /></li>
+ Media Access Control (<em>MAC</em>) layer on the bottom which providing access to network interface cards (NICs) and <em>NIC API</em> itself. It is called <em>GLD</em> in Solaris.</li>
 </ul>
 </p>
 <p>
 <img src="../images/net.png" alt="" class="img-rounded"/></p>
 <p>
-Network input-output can require transferring huge amounts of data, so it may be ineffective to explicitly send write commands for each packet. Instead of handling each packet individually, NIC and its driver maintain shared <em>ring buffer</em> where driver puts data while card uses <em>DMA</em> (direct memory access) mechanisms to read data and send it over network. Ring buffers are defined by two pointers: <em>head</em> and <em>tail</em>:<br /></p>
+  
+Network input-output can require transferring huge amounts of data, so it may be ineffective to explicitly send write commands for each packet. Instead of handling each packet individually, NIC and its driver maintain shared <em>ring buffer</em> where driver puts data while card uses <em>DMA</em> (direct memory access) mechanisms to read data and send it over network. Ring buffers are defined by two pointers: <em>head</em> and <em>tail</em>:</p>
 <p>
 <img src="../images/ringbuf.png" alt="" class="img-rounded"/></p>
 <p>
-When driver wants to queue packet for transmission it puts it into memory area of designated ring buffer and updates <em>tail</em> pointer appropriately. When NIC transfers data over a network it will update <em>head</em> pointer.<br /></p>
+When driver wants to queue packet for transmission it puts it into memory area of designated ring buffer and updates <em>tail</em> pointer appropriately. When NIC transfers data over a network it will update <em>head</em> pointer.</p>
 <p>
-Data structures are usually shared between stack layers. In Linux packets are represented by a generic <code>sk_buff</code> structure:<br /></p>
+Data structures are usually shared between stack layers. In Linux packets are represented by a generic <code>sk_buff</code> structure:</p>
 <p>
 <img src="../images/linux/net.png" alt="" class="img-rounded"/></p>
 <p>
-That structure keeps two pointers: <code>head</code> and <code>data</code> and includes offsets for protocol headers. Data length is kept in <code>len</code> field, time stamp of packet in <code>tstamp</code> field. <code>sk_buff</code> structures form a doubly-linked list through <code>next</code> and <code>prev</code> structures. They refer network device descriptor which is represented by <code>net_device</code> structure and a socket which is represented by pair of structures: <code>socket</code> which holds generic socket data including file pointer which points to VFS node (sockets in Linux and Solaris are managed by special filesystems) and <code>sock</code> which keeps more network-related data including local address which is kept in <code>skc_rcv_saddr</code> and <code>skc_num</code> and peer address in <code>skc_daddr</code> and <code>skc_dport</code> correspondingly. <br /></p>
+That structure keeps two pointers: <code>head</code> and <code>data</code> and includes offsets for protocol headers. Data length is kept in <code>len</code> field, time stamp of packet in <code>tstamp</code> field. <code>sk_buff</code> structures form a doubly-linked list through <code>next</code> and <code>prev</code> structures. They refer network device descriptor which is represented by <code>net_device</code> structure and a socket which is represented by pair of structures: <code>socket</code> which holds generic socket data including file pointer which points to VFS node (sockets in Linux and Solaris are managed by special filesystems) and <code>sock</code> which keeps more network-related data including local address which is kept in <code>skc_rcv_saddr</code> and <code>skc_num</code> and peer address in <code>skc_daddr</code> and <code>skc_dport</code> correspondingly. </p>
 <p>
-Note that CPU byte order may differ from network byte order, so you should use conversion functions to work with addresses such as <code>ntohs</code>, <code>ntohl</code> or <code>ntohll</code> to convert to host byte order and <code>htons</code>, <code>htonl</code> and <code>htonll</code> for reverse conversions. They are provided both by SystemTap and DTrace and have same behaviour as their C ancestors.<br /></p>
+Note that CPU byte order may differ from network byte order, so you should use conversion functions to work with addresses such as <code>ntohs</code>, <code>ntohl</code> or <code>ntohll</code> to convert to host byte order and <code>htons</code>, <code>htonl</code> and <code>htonll</code> for reverse conversions. They are provided both by SystemTap and DTrace and have same behaviour as their C ancestors.</p>
 <p>
-Here are sample script for tracing message receiving in Linux 3.9:<br /></p>
-<p>
-<pre>
+Here are sample script for tracing message receiving in Linux 3.9:
+    <p>
+    <pre>
 # stap -e '
     probe kernel.function("tcp_v4_rcv") {
         printf("[%4s] %11s:%-5d -> %11s:%-5d len: %d\n",
@@ -98,13 +103,13 @@ Here are sample script for tracing message receiving in Linux 3.9:<br /></p>
             $skb->sk->__sk_common->skc_num,
                     
             $skb->len);
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-Earlier versions of Linux (2.6.32 in this example) use different structure called <code>inet_sock</code>:<br /></p>
-<p>
-<pre>
+Earlier versions of Linux (2.6.32 in this example) use different structure called <code>inet_sock</code>:
+    <p>
+    <pre>
 # stap -e '
     probe kernel.function("tcp_v4_do_rcv") {
         printf("%11s:%-5d -> %11s:%-5d len: %d\n",
@@ -115,25 +120,25 @@ Earlier versions of Linux (2.6.32 in this example) use different structure calle
                 ntohs(@cast($sk, "inet_sock")->sport),
                     
                 $skb->len);
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-Solaris has derived <em>STREAMS</em> subsystem from System V which is intended to provide API for passing messages between multiple architectural layers which is perfectly fits to how network stack look like. Each message is represented by an <code>mblk_t</code> structure:<br /></p>
+Solaris has derived <em>STREAMS</em> subsystem from System V which is intended to provide API for passing messages between multiple architectural layers which is perfectly fits to how network stack look like. Each message is represented by an <code>mblk_t</code> structure:</p>
 <p>
 <img src="../images/solaris/streams.png" alt="" class="img-rounded"/></p>
 <p>
-Consumer reads data referred by <code>b_rptr</code> pointer while producer puts it under <code>b_wptr</code> pointer if there is enough space in allocated buffer (it is referred by <code>b_datap</code>) or allocates a new message and sets up forward and backward pointers <code>b_next</code> and <code>b_prev</code> so these messages form a doubly-linked list.<br /></p>
+Consumer reads data referred by <code>b_rptr</code> pointer while producer puts it under <code>b_wptr</code> pointer if there is enough space in allocated buffer (it is referred by <code>b_datap</code>) or allocates a new message and sets up forward and backward pointers <code>b_next</code> and <code>b_prev</code> so these messages form a doubly-linked list.</p>
 <p>
-Note that unlike <code>sk_buff</code> from Linux, these messages do not contain pointers to the management structure. Instead of doing that,  functions pass pointer to them as a separate argument which is usually first argument of the function (<code>arg0</code> in DTrace): <code>mac_impl_t</code> for MAC layer, <code>ill_t</code> for IP layer and <code>conn_t</code> for TCP/UDP protocols:<br /></p>
+Note that unlike <code>sk_buff</code> from Linux, these messages do not contain pointers to the management structure. Instead of doing that,  functions pass pointer to them as a separate argument which is usually first argument of the function (<code>arg0</code> in DTrace): <code>mac_impl_t</code> for MAC layer, <code>ill_t</code> for IP layer and <code>conn_t</code> for TCP/UDP protocols:</p>
 <p>
 <img src="../images/solaris/net.png" alt="" class="img-rounded"/></p>
 <p>
-Solaris wraps sockets into <code>sonode</code> structure which are handled by virtual file system called <em>sockfs</em>. <code>so_vnode</code> field in that structure points to VFS node. Like we mentioned before, TCP and UDP connection are managed by <code>conn_t</code> structure. It keeps addresses in <code>connua_laddr</code> and <code>connu_lport</code> fields for local address and uses <code>connua_faddr</code> and <code>connu_lport</code> for remote ports. Note that these names are different in Solaris 10. <br /></p>
+Solaris wraps sockets into <code>sonode</code> structure which are handled by virtual file system called <em>sockfs</em>. <code>so_vnode</code> field in that structure points to VFS node. Like we mentioned before, TCP and UDP connection are managed by <code>conn_t</code> structure. It keeps addresses in <code>connua_laddr</code> and <code>connu_lport</code> fields for local address and uses <code>connua_faddr</code> and <code>connu_lport</code> for remote ports. Note that these names are different in Solaris 10. </p>
 <p>
-Here are example DTrace script for tracing message receiving in Solaris 11:<br /></p>
-<p>
-<pre>
+Here are example DTrace script for tracing message receiving in Solaris 11:
+    <p>
+    <pre>
 # dtrace -n '
     tcp_input_data:entry {
         this->conn = (conn_t*) arg0;
@@ -149,123 +154,163 @@ Here are example DTrace script for tracing message receiving in Solaris 11:<br /
                 ntohs(this->conn->u_port.connu_ports.connu_lport),
                 
                 (this->mp->b_wptr - this->mp->b_rptr));
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-Solaris 11 introduced new providers for tracing network: <code>tcp</code>, <code>udp</code> and <code>ip</code>. Here are probes that are provided by them and their siblings from Linux and SystemTap:<br /></p>
+Solaris 11 introduced new providers for tracing network: <code>tcp</code>, <code>udp</code> and <code>ip</code>. Here are probes that are provided by them and their siblings from Linux and SystemTap:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<em>Action</em></td>
+<em>Action</em> </td>
             <td>
-<em>DTrace</em></td>
+ <em>DTrace</em> </td>
             <td>
-<em>SystemTap</em></td>
+ <em>SystemTap</em></td>
 </tr>
         <tr>
+
             <td  colspan="3">
-<strong>TCP</strong></td>
+ <strong>TCP</strong></td>
 </tr>
         <tr>
+
             <td>
 Connection to remote node </td>
             <td>
-<code>tcp:::connect-request</code><br /><code>tcp:::connect-established</code><br /><code>tcp:::connect-refused</code></td>
+ 
+    <code>tcp:::connect-request</code>     <br /> 
+    <code>tcp:::connect-established</code> <br /> 
+    <code>tcp:::connect-refused</code>       </td>
             <td>
-<code>kernel.function("tcp_v4_connect")</code></td>
+ 
+    <code>kernel.function("tcp_v4_connect")</code></td>
 </tr>
         <tr>
+
             <td>
 Accepting remote connection </td>
             <td>
-<code>tcp:::accept-established</code><br /><code>tcp:::accept-refused</code></td>
+ 
+    <code>tcp:::accept-established</code> <br /> 
+    <code>tcp:::accept-refused</code>      </td>
             <td>
-<code>kernel.function("tcp_v4_hnd_req")</code></td>
+ 
+    <code>kernel.function("tcp_v4_hnd_req")</code></td>
 </tr>
         <tr>
+
             <td>
 Disconnecting               </td>
             <td>
-<code>fbt:::tcp_disconnect</code></td>
+ 
+    <code>fbt:::tcp_disconnect</code>      </td>
             <td>
-<code>tcp.disconnect</code></td>
+ 
+    <code>tcp.disconnect</code></td>
 </tr>
         <tr>
+
             <td>
 State change                </td>
             <td>
-<code>tcp::state-change</code></td>
+ 
+    <code>tcp::state-change</code>         </td>
             <td>
- <br />    -</td>
+ 
+    -</td>
 </tr>
         <tr>
+
             <td>
 Transmission                </td>
             <td>
-<code>tcp:::send</code></td>
+ 
+    <code>tcp:::send</code>                </td>
             <td>
-<code>tcp.sendmsg</code></td>
+ 
+    <code>tcp.sendmsg</code></td>
 </tr>
         <tr>
+
             <td>
 Receiving                   </td>
             <td>
-<code>tcp:::receive</code></td>
+ 
+    <code>tcp:::receive</code>             </td>
             <td>
-<code>tcp.receive</code><br /><code>tcp.recvmsg</code></td>
+ 
+    <code>tcp.receive</code>              <br />
+    <code>tcp.recvmsg</code></td>
 </tr>
         <tr>
+
             <td  colspan="3">
-<strong>IP</strong></td>
+ <strong>IP</strong></td>
 </tr>
         <tr>
+
             <td>
 Transmission                </td>
             <td>
-<code>ip:::send</code></td>
+ 
+    <code>ip:::send</code>                 </td>
             <td>
-<code>kernel.function("ip_output")</code></td>
+ 
+    <code>kernel.function("ip_output")</code></td>
 </tr>
         <tr>
+
             <td>
 Receiving                   </td>
             <td>
-<code>ip:::receive</code></td>
+ 
+    <code>ip:::receive</code>              </td>
             <td>
-<code>kernel.function("ip_rcv")</code></td>
+ 
+    <code>kernel.function("ip_rcv")</code></td>
 </tr>
         <tr>
+
             <td  colspan="3">
-<strong>Network device</strong></td>
+ <strong>Network device</strong></td>
 </tr>
         <tr>
+
             <td>
 Transmission                </td>
             <td>
-<code>mac_tx:entry</code>, or function from NIC driver like <code>e1000g_send:entry</code></td>
+ 
+    <code>mac_tx:entry</code>, or function from NIC driver like <code>e1000g_send:entry</code>  </td>
             <td>
-<code>netdev.transmit</code><br /><code>netdev.hard_transmit</code></td>
+ 
+    <code>netdev.transmit</code>          <br />
+    <code>netdev.hard_transmit</code></td>
 </tr>
         <tr>
+
             <td>
 Receiving                   </td>
             <td>
-<code>mac_rx_common:entry</code>, or function from NIC driver like <code>e1000g_receive:entry</code></td>
+ 
+    <code>mac_rx_common:entry</code>, or function from NIC driver like <code>e1000g_receive:entry</code>  </td>
             <td>
-<code>netdev.rx</code></td>
+ 
+    <code>netdev.rx</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-Sockets can be traced using syscall tracing. SystemTap provides special tapset <code>socket</code> for that.<br /></p>
+Sockets can be traced using syscall tracing. SystemTap provides special tapset <code>socket</code> for that.</p>
 <p>
-Both Linux and Solaris provide various network statistics which are provided by SNMP and accessible through <code>netstat -s</code> command. Many events registered by these counters are implemented using <code>mib</code> provider from DTrace or <code>tcpmib</code>, <code>ipmib</code> and <code>linuxmib</code> tapsets in SystemTap, but they do not have connection-specific data.<br /></p>
+Both Linux and Solaris provide various network statistics which are provided by SNMP and accessible through <code>netstat -s</code> command. Many events registered by these counters are implemented using <code>mib</code> provider from DTrace or <code>tcpmib</code>, <code>ipmib</code> and <code>linuxmib</code> tapsets in SystemTap, but they do not have connection-specific data.
+</p>
 
 	</div>
 </div>

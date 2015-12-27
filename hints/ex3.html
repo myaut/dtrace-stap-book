@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix A. Exercise hints and solutions </title>
+	<title> Appendix A. Exercise hints and solutions 
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,28 +52,34 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 3</h3></p>
+		<h3>
+ Exercise 3</h3>
 <p>
-<h4>Part 1</h4></p>
+    <h4>
+ Part 1</h4>
+</p>
 <p>
-In the first part of this exercise we will need to check which fields of <code>struct task_struct</code> in Linux or <code>proc_t</code> are responsible for which aspects of process functioning. You will need to apply following changes to dump task scripts: timer probe has to be replaced to a pair of probes: <code>proc:::exec-*</code> and <code>proc:::exit</code> in DTrace or <code>kprocess.exec_complete</code>  and <code>kprocess.exit</code> in SystemTap. We have used exit probes for <code>execve()</code> system call to collect command line arguments: they are not filled in unless <code>execve()</code> call finishes. <br /></p>
+In the first part of this exercise we will need to check which fields of <code>struct task_struct</code> in Linux or <code>proc_t</code> are responsible for which aspects of process functioning. You will need to apply following changes to dump task scripts: timer probe has to be replaced to a pair of probes: <code>proc:::exec-*</code> and <code>proc:::exit</code> in DTrace or <code>kprocess.exec_complete</code>  and <code>kprocess.exit</code> in SystemTap. We have used exit probes for <code>execve()</code> system call to collect command line arguments: they are not filled in unless <code>execve()</code> call finishes. </p>
 <p>
-Here list of expected observations during this exercise:<br /></p>
+Here list of expected observations during this exercise:</p>
 <p>
-    <ul>
+       <ul>
         <li>
- When you run program with extra argument, it will be cleared in <code>main()</code> function, so you will see original argument in exec-probe, but only 'X' letters when program exits.<br />   </li>
+ When you run program with extra argument, it will be cleared in <code>main()</code> function, so you will see original argument in exec-probe, but only 'X' letters when program exits.
+   </li>
         <li>
- When you run program through symbolic link <code>lab3-1</code>, VFS node which refer to a binary file will point to a regular file <code>lab3</code>. That node is represented by <code>p_exec</code> field of <code>proc_t</code> in Solaris or <code>exe_file</code> of <code>task_struct</code> in Linux. <code>execname</code>, however, will behave differently in Solaris and Linux. <br />   </li>
+ When you run program through symbolic link <code>lab3-1</code>, VFS node which refer to a binary file will point to a regular file <code>lab3</code>. That node is represented by <code>p_exec</code> field of <code>proc_t</code> in Solaris or <code>exe_file</code> of <code>task_struct</code> in Linux. <code>execname</code>, however, will behave differently in Solaris and Linux. 
+   </li>
         <li>
- When you run program in chroot environment, root process directory will change from <code>/</code> to <code>/tmp/chroot</code>.<br />   </li>
+ When you run program in chroot environment, root process directory will change from <code>/</code> to <code>/tmp/chroot</code>.</li>
 </ul>
 </p>
 <p>
-Here are resulting scripts (they are not much different from original):<br /></p>
+  
+Here are resulting scripts (they are not much different from original):</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file dumptask-lab3.stp <br/><p>
 <pre id="code1" class="hide">
 /**
@@ -245,13 +252,12 @@ function dump_task(task:long) {
 
 probe kprocess.exec_complete, kprocess.exit {
     dump_task(task_current());
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file dumptask-lab3.d <br/><p>
 <pre id="code2" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -394,27 +400,29 @@ proc:::exec-*, proc:::exit {
 }
 
 DUMP_ARG_PROBE(proc:::exec-*)   DUMP_ARG_PROBE(proc:::exit)
-DUMP_FILE_PROBE(proc:::exec-*)  DUMP_FILE_PROBE(proc:::exit)
-</pre>
+DUMP_FILE_PROBE(proc:::exec-*)  DUMP_FILE_PROBE(proc:::exit)</pre>
 </p>
 </div>
 </p>
+
+    <h4>
+ Part 2</h4>
+</p>
 <p>
-<h4>Part 2</h4></p>
+First of all we have to create several associative arrays which will use PID as a key (we can't use thread-local variables here because <code>exit()</code> can be called from any of process threads), and timestamp as a value. Final data will be kept in aggregations which we already learned in exercise 2. </p>
 <p>
-First of all we have to create several associative arrays which will use PID as a key (we can't use thread-local variables here because <code>exit()</code> can be called from any of process threads), and timestamp as a value. Final data will be kept in aggregations which we already learned in exercise 2. <br /></p>
-<p>
-We will use probes from the section <em>Lifetime of a process</em>. They are shown in the following picture:<br /></p>
+We will use probes from the section <em>Lifetime of a process</em>. They are shown in the following picture:</p>
 <p>
 <img src="../images/forkproc.png" alt="" class="img-rounded"/></p>
 <p>
-However, we do not know PID at the time <code>fork()</code> is called so we will use thread-local variable for that. We can check return value of <code>fork()</code> in return probe and re-use timestamp saved previously if everything went fine and <code>fork()</code> has returned value greater than 1 or throw it away.<br /></p>
+However, we do not know PID at the time <code>fork()</code> is called so we will use thread-local variable for that. We can check return value of <code>fork()</code> in return probe and re-use timestamp saved previously if everything went fine and <code>fork()</code> has returned value greater than 1 or throw it away.</p>
 <p>
-We wrote an ugly function <code>task_args()</code> to collect process arguments in <code>dumptask.stp</code> script. This data is available since SystemTap 2.5: <code>kprocess.exec</code> probe provides program's arguments in <code>argstr</code> argument. We will use <code>curpsinfo-&gt;pr_psargs</code> on Solaris as it keeps first 80 characters of command line to get rid of copying userspace arguments too. We will use <code>timestamp</code> variable in DTrace as a source of timestamps (again, a tautology). We will use <code>local_clock_us()</code> function as we do not care about CPU time skew. <br /></p>
+We wrote an ugly function <code>task_args()</code> to collect process arguments in <code>dumptask.stp</code> script. This data is available since SystemTap 2.5: <code>kprocess.exec</code> probe provides program's arguments in <code>argstr</code> argument. We will use <code>curpsinfo-&gt;pr_psargs</code> on Solaris as it keeps first 80 characters of command line to get rid of copying userspace arguments too. We will use <code>timestamp</code> variable in DTrace as a source of timestamps (again, a tautology). We will use <code>local_clock_us()</code> function as we do not care about CPU time skew. </p>
 <p>
-Finally, to reduce memory footprint in SystemTap, we will reduce associative arrays sizes. Here are resulting scripts:<br /></p>
+Finally, to reduce memory footprint in SystemTap, we will reduce associative arrays sizes. Here are resulting scripts:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file forktime.stp <br/><p>
 <pre id="code3" class="hide">
 global tm_fork_start_par[128], tm_fork_start[128], tm_fork_end[128], 
@@ -468,8 +476,8 @@ probe timer.s(1) {
 </p>
 </div>
 </p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file forktime.d <br/><p>
 <pre id="code4" class="hide">
 uint64_t tm_fork_start[int];
@@ -523,13 +531,11 @@ tick-1s {
                  @fork, @exec, @postfork, @proc);
 
     clear(@fork); clear(@postfork); clear(@exec); clear(@proc);
-}
-
-
-
-</pre>
+}</pre>
 </p>
 </div>
+</p>
+
 </p>
 
 	</div>

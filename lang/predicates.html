@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 2: Dynamic tracing languages</title>
+	<title> Module 2: Dynamic tracing languages
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,55 +52,58 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Predicates </h3></p>
+		<h3>
+ Predicates </h3>
 <p>
-<em>Predicates</em> are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and logical operators <code>&&</code> for logical AND, <code>||</code> for logical OR and <code>!</code> for logical negation, alas with calling functions or actions.<br /></p>
+<em>Predicates</em> are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and logical operators <code>&&</code> for logical AND, <code>||</code> for logical OR and <code>!</code> for logical negation, alas with calling functions or actions.</p>
 <p>
-In DTrace predicate is a separate language construct which is going in slashes <code>/</code> immediately after list of probe names. If it evaluated to true, probe is <strong>executed</strong>:<br /></p>
-<p>
-<pre>
+In DTrace predicate is a separate language construct which is going in slashes <code>/</code> immediately after list of probe names. If it evaluated to true, probe is <strong>executed</strong>:
+    <p>
+    <pre>
 syscall::write:entry 
 /pid == $target/
 {
     printf("Written %d bytes", args[3]);
-}
-</pre>
+}</pre>
+</p>
 </p>
 <p>
-In SystemTap, however, there is no separate predicate language construct, but it supports conditional statement and <code>next</code> statement which exits from the probe, so combining them will give similar effect:<br /></p>
-<p>
-<pre>
+In SystemTap, however, there is no separate predicate language construct, but it supports conditional statement and <code>next</code> statement which exits from the probe, so combining them will give similar effect:
+    <p>
+    <pre>
 probe syscall.write {
     if(pid() != target())
         next;
     printf("Written %d bytes", $count);
-}
-</pre>
+}</pre>
 </p>
+
+Note that in SystemTap, probe will be <strong>omitted</strong> if condition in <code>if</code> statement is evaluated to true thus making this logic inverse to DTrace.</p>
 <p>
-Note that in SystemTap, probe will be <strong>omitted</strong> if condition in <code>if</code> statement is evaluated to true thus making this logic inverse to DTrace.<br /></p>
-<p>
-Starting with SystemTap 2.6, it supports mechanism similar to predicates which is called on-the-fly arming/disarming. When it is active, probes will be installed only when certain condition will become true. For example:<br /></p>
-<p>
-<pre>
+Starting with SystemTap 2.6, it supports mechanism similar to predicates which is called on-the-fly arming/disarming. When it is active, probes will be installed only when certain condition will become true. For example:
+    <p>
+    <pre>
 probe syscall.write if(i > 4) {
         printf("Written %d bytes", $count);
-}
-</pre>
+}</pre>
+</p>
+
+This probe will be installed when <code>i</code> becomes more than four. </p>
+<p>
+<code>$target</code> in DTrace (macro-substitution) and <code>target()</code> context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as <code>-c</code> option argument or its PID was passed as <code>-p</code>/<code>-x</code> option argument). In these examples only <code>write</code> syscalls from traced process will be printed.</p>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with <code>stp_pid()</code> which returns PID of consumer.
+</p>
+</div>
 </p>
 <p>
-This probe will be installed when <code>i</code> becomes more than four. <br /></p>
+Sometimes, if target process forking and you need to trace its children, like with <code>-f</code> option in <code>truss</code>/<code>strace</code>, comparing <code>pid()</code> and even <code>ppid()</code> is not enough. In this case you may use DTrace subroutine <code>progenyof()</code> which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, <code>progenyof(1)</code> will be true for all userspace processes because they are all children to the <code>init</code>.</p>
 <p>
-<code>$target</code> in DTrace (macro-substitution) and <code>target()</code> context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as <code>-c</code> option argument or its PID was passed as <code>-p</code>/<code>-x</code> option argument). In these examples only <code>write</code> syscalls from traced process will be printed.<br /></p>
-<span class="label label-warning">Warning</span><div class="well">
-Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with <code>stp_pid()</code> which returns PID of consumer.<br /></div>
-<p>
-Sometimes, if target process forking and you need to trace its children, like with <code>-f</code> option in <code>truss</code>/<code>strace</code>, comparing <code>pid()</code> and even <code>ppid()</code> is not enough. In this case you may use DTrace subroutine <code>progenyof()</code> which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, <code>progenyof(1)</code> will be true for all userspace processes because they are all children to the <code>init</code>.<br /></p>
-<p>
-<code>progenyof()</code> is missing in SystemTap, but it can be simulated with <code>task_*()</code> functions and the following SystemTap script (these functions are explained in <a href="../kernel/proc.html#task-funcs">Process Management</a>):<br /></p>
-<p>
-<pre>
+<code>progenyof()</code> is missing in SystemTap, but it can be simulated with <code>task_*()</code> functions and the following SystemTap script (these functions are explained in <a href="../kernel/proc.html#task-funcs">Process Management</a>):
+    <p>
+    <pre>
 function progenyof(pid:long) {
     parent = task_parent(task_current());
     task = pid2task(pid);
@@ -115,13 +119,13 @@ function progenyof(pid:long) {
 probe syscall.open { 
     if(progenyof(target())) 
             printdln(" ", pid(), execname(), filename);
-}
-</pre>
+}</pre>
+</p>
 </p>
 <p>
-Assume that 2953 is a process ID of bash interactive session, where we open child <code>bash</code> and call <code>cat</code> there:<br /></p>
-<p>
-<pre>
+Assume that 2953 is a process ID of bash interactive session, where we open child <code>bash</code> and call <code>cat</code> there:
+    <p>
+    <pre>
 root@lktest:~# bash
 root@lktest:~# ps
     PID TTY          TIME CMD
@@ -129,16 +133,18 @@ root@lktest:~# ps
     4794 pts/1    00:00:00 bash
     4800 pts/1    00:00:00 ps
 root@lktest:~# cat /etc/passwd
-[...]
-</pre>
+[...]</pre>
+</p>
 </p>
 <p>
-<code>cat</code> is shown by this script even if it is not direct ancestor of <code>bash</code> process that we are tracing:<br /></p>
-<p>
-<pre>
+<code>cat</code> is shown by this script even if it is not direct ancestor of <code>bash</code> process that we are tracing:
+    <p>
+    <pre>
 # stap ./progeny.stp -x 2953 | grep passwd
-4801 cat /etc/passwd
-</pre>
+4801 cat /etc/passwd</pre>
+</p>
+</p>
+<p>
 </p>
 
 	</div>

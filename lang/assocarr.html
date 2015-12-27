@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 2: Dynamic tracing languages</title>
+	<title> Module 2: Dynamic tracing languages
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,152 +52,191 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Associative arrays</h3></p>
-<span class="label label-inverse">Definition</span><div class="well">
-<em>Associative array</em> is a sequence of values which are accessible through one or more keys. Any types may be used for hashing, but they have to be comparable, and in some cases hashable.<br /></div>
+		<h3>
+ Associative arrays</h3>
 <p>
-Associative arrays are useful for saving last observable state related to a some object, so it can be reused in subsequent probes. For example, let's save last read or write operation performed on file. You will need to define keys and value types in DTrace:<br /></p>
+<span class="label label-inverse">Definition</span>    <div class="well">
+        <p>
+<em>Associative array</em> is a sequence of values which are accessible through one or more keys. Any types may be used for hashing, but they have to be comparable, and in some cases hashable.
+</p>
+</div>
+</p>
 <p>
-<pre>
+Associative arrays are useful for saving last observable state related to a some object, so it can be reused in subsequent probes. For example, let's save last read or write operation performed on file. You will need to define keys and value types in DTrace:
+    <p>
+    <pre>
 string last_fop[int, int];
 syscall::read:entry, syscall::write:entry { 
     last_fop[pid, (int) arg0] = probefunc; 
-}
-</pre>
+}</pre>
+</p>
 </p>
 <p>
-In SystemTap, however, they are deduced from the assignment:<br /></p>
-<p>
-<pre>
+In SystemTap, however, they are deduced from the assignment:
+    <p>
+    <pre>
 global last_fop;
 syscall.read, syscall.write { 
     last_fop[pid(), $fd] = pn(); 
-}
-</pre>
+}</pre>
+</p>
 </p>
 <p>
-To delete entry from an associative array, it should be assigned to <code>0</code> in DTrace or deleted using <code>delete array[key1];</code> expression in SystemTap. If value does not exist, both DTrace and SystemTap will return <code>0</code> as a default value. <br /></p>
+To delete entry from an associative array, it should be assigned to <code>0</code> in DTrace or deleted using <code>delete array[key1];</code> expression in SystemTap. If value does not exist, both DTrace and SystemTap will return <code>0</code> as a default value. </p>
 <p>
-In DTrace you only can access value in associative array knowing its key, in SystemTap along with that you can walk entire array with <code>foreach</code> statement:<br /></p>
-<p>
-<pre>
+In DTrace you only can access value in associative array knowing its key, in SystemTap along with that you can walk entire array with <code>foreach</code> statement:
+    <p>
+    <pre>
 foreach([pid+, fd] in last_fop limit 100) {
     printf("%d\t%d\t%s\n", pid, fd, last_fop[pid, fd]);
-}
-</pre>
+}</pre>
+</p>
+
+Variables for keys are listed in square braces. If variable name ends with <code>+</code> or <code>-</code>, than keys will be sorted in ascend or descend order correspondingly (only one key may be used for sorting). Optional <code>limit N</code> part allows to limit amount of entries.</p>
+<p>
+Maximum amount of entries that associative array can keep is limited by <code>dynvarsize</code> tunable in DTrace or <code>MAXMAPENTRIES</code> in SystemTap. Additionally, you may explicitly specify maximum number of entries in array:
+    <p>
+    <pre>
+global array[SIZE];</pre>
+</p>
 </p>
 <p>
-Variables for keys are listed in square braces. If variable name ends with <code>+</code> or <code>-</code>, than keys will be sorted in ascend or descend order correspondingly (only one key may be used for sorting). Optional <code>limit N</code> part allows to limit amount of entries.<br /></p>
-<p>
-Maximum amount of entries that associative array can keep is limited by <code>dynvarsize</code> tunable in DTrace or <code>MAXMAPENTRIES</code> in SystemTap. Additionally, you may explicitly specify maximum number of entries in array:<br /></p>
-<p>
-<pre>
-global array[SIZE];
-</pre>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for associative array on per-cpu basis (using not only online, but possible CPUs too) at start (to avoid further allocation faults). Also, it allocates memory for strings statically too. So to keep associative array with string key you will need at least <code>NR_CPUS * MAXMAPENTRIES * MAP_STRING_LENGTH</code> which gives 128 megabytes of memory on CentOS 7.0 x86_64.
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for associative array on per-cpu basis (using not only online, but possible CPUs too) at start (to avoid further allocation faults). Also, it allocates memory for strings statically too. So to keep associative array with string key you will need at least <code>NR_CPUS * MAXMAPENTRIES * MAP_STRING_LENGTH</code> which gives 128 megabytes of memory on CentOS 7.0 x86_64.<br /></div>
+</div>
+</p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a>
+</li>
         <li>
-<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
+ <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
 </ul>
 </p>
 <p>
-<a name="aggr"></a><h3>Aggregations</h3></p>
+<a name="aggr"></a>
+    <h3>
+ Aggregations</h3>
+</p>
 <p>
-<em>Aggregations</em> are most useful for evaluating system performance (they are called <em>statistics</em> in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:<br /></p>
+<em>Aggregations</em> are most useful for evaluating system performance (they are called <em>statistics</em> in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:</p>
 <p>
 <img src="../images/aggrs.png" alt="" class="img-rounded"/></p>
 <p>
-Aggregations in DTrace reside in separate namespace: each name of aggregation begins with at-symbol <code>@</code>. Single at-symbol <code>@</code> is an alias to <code>@_</code> and is a shorter possible aggregation name which is useful for one-liners. Moreover, if it was not printed in the END probe, or timer probe, DTrace will automatically print it for you. There is no need to declare aggregation, and it support key access same way associative array does. When value is added to a aggregation, it is "assigned" to a return value of aggregating function, i.e. <code>@fds = avg(arg0);</code> will create an aggregation which calculates mean value of <code>arg0</code>.<br /></p>
+Aggregations in DTrace reside in separate namespace: each name of aggregation begins with at-symbol <code>@</code>. Single at-symbol <code>@</code> is an alias to <code>@_</code> and is a shorter possible aggregation name which is useful for one-liners. Moreover, if it was not printed in the END probe, or timer probe, DTrace will automatically print it for you. There is no need to declare aggregation, and it support key access same way associative array does. When value is added to a aggregation, it is "assigned" to a return value of aggregating function, i.e. <code>@fds = avg(arg0);</code> will create an aggregation which calculates mean value of <code>arg0</code>.</p>
 <p>
-SystemTap have a statistics. They are do not support indexing like associative arrays (but they may be a values in associative arrays), thus they are special kind a variable. To create a statistic you need to use <em>aggregate operator</em><code>&lt;&lt;&lt;</code> instead of assignment operator <code>=</code>, for example: <code>fds &lt;&lt;&lt; $fd</code>. Aggregating function is used when result is printed, and begins with <code>@</code>, i.e. <code>@avg(fds)</code> will return mean value of statistic <code>fds</code>. This allows to use single statistic for multiple functions wherever possible.<br /></p>
+SystemTap have a statistics. They are do not support indexing like associative arrays (but they may be a values in associative arrays), thus they are special kind a variable. To create a statistic you need to use <em>aggregate operator</em> <code>&lt;&lt;&lt;</code> instead of assignment operator <code>=</code>, for example: <code>fds &lt;&lt;&lt; $fd</code>. Aggregating function is used when result is printed, and begins with <code>@</code>, i.e. <code>@avg(fds)</code> will return mean value of statistic <code>fds</code>. This allows to use single statistic for multiple functions wherever possible.</p>
 <p>
-Here are list of aggregating functions (note that in SystemTap they have to be preceded with <code>@</code>):<br />     <ul>
+Here are list of aggregating functions (note that in SystemTap they have to be preceded with <code>@</code>):
+     <ul>
         <li>
-<code>count</code> -- counts number of values added<br /> </li>
+ <code>count</code> -- counts number of values added
+ </li>
         <li>
-<code>sum</code> -- sums added value<br /> </li>
+ <code>sum</code> -- sums added value
+ </li>
         <li>
-<code>min</code>/<code>max</code>/<code>avg</code> -- minimum, maximum and mean value, respectively<br /> </li>
+ <code>min</code>/<code>max</code>/<code>avg</code> -- minimum, maximum and mean value, respectively
+ </li>
         <li>
-<code>stddev</code> -- standard deviation (only in DTrace)<br /> </li>
+ <code>stddev</code> -- standard deviation (only in DTrace)
+ </li>
         <li>
-<code>lquantize</code> -- prints linear histogram (<code>hist_linear</code> in SystemTap)<br /> </li>
+ <code>lquantize</code> -- prints linear histogram (<code>hist_linear</code> in SystemTap)
+ </li>
         <li>
-<code>quantize</code> -- prints logarithmic histogram (<code>hist_log</code> in SystemTap)<br /> </li>
+ <code>quantize</code> -- prints logarithmic histogram (<code>hist_log</code> in SystemTap)</li>
 </ul>
 </p>
 <p>
-The following actions may be performed on aggregations:<br /></p>
+
+The following actions may be performed on aggregations:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Action</strong></td>
+<strong>Action</strong> </td>
             <td>
-<strong>DTrace</strong></td>
+ <strong>DTrace</strong> </td>
             <td>
-<strong>SystemTap</strong></td>
+ <strong>SystemTap</strong></td>
 </tr>
         <tr>
+
             <td>
 Add a value </td>
             <td>
-<code>@aggr[keys] = func(value);</code></td>
+ <code>@aggr[keys] = func(value);</code> </td>
             <td>
-<code>aggr[keys] &lt;&lt;&lt; value;</code></td>
+ <code>aggr[keys] &lt;&lt;&lt; value;</code></td>
 </tr>
         <tr>
+
             <td>
 Print </td>
             <td>
-<code>printa(@aggr)</code> or <br />        <code>printa("format string", @aggr1, @aggr2, ...)</code></td>
+ <code>printa(@aggr)</code> or 
+        <code>printa("format string", @aggr1, @aggr2, ...)</code> </td>
             <td>
-<code>println(@func(aggr))</code> <br />                                                         (use <code>foreach</code> in case of associative arrays).</td>
+ <code>println(@func(aggr))</code> 
+                                                         (use <code>foreach</code> in case of associative arrays).</td>
 </tr>
         <tr>
+
             <td>
 Flush values and keys </td>
             <td>
-<code>clear(@aggr)</code> (only values) or <br />                        <code>trunc(@aggr)</code> (both keys and values) </td>
+ <code>clear(@aggr)</code> (only values) or 
+                        <code>trunc(@aggr)</code> (both keys and values) </td>
             <td>
-<code>delete aggr</code> or <code>delete aggr[keys]</code></td>
+ <code>delete aggr</code> or <code>delete aggr[keys]</code></td>
 </tr>
         <tr>
+
             <td>
 Normalize </td>
             <td>
-<code>normalize(@aggr, value);</code> and <br />            <code>denormalize(@aggr);</code></td>
+ <code>normalize(@aggr, value);</code> and 
+            <code>denormalize(@aggr);</code> </td>
             <td>
  Use division <code>/</code> and multiplication <code>*</code> on results of aggregating functions</td>
 </tr>
         <tr>
+
             <td>
 Limit number of values </td>
             <td>
-<code>trunc(@aggr, num)</code></td>
+ <code>trunc(@aggr, num)</code> </td>
             <td>
  Use <code>limit</code> clause in <code>foreach</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-Aggregations may be sorted in DTrace using <code>aggsortkey</code>, <code>aggsortpos</code>, <code>aggsortkeypos</code> and <code>aggsortrev</code> tunables.<br /></div>
 <p>
-<a name="aggr-example"></a><br />Aggregations are extremely useful for writing stat-like utilities. For example, let's write utilities that count number of <code>write</code> system calls and amount of kilobytes they written. <br /></p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Aggregations may be sorted in DTrace using <code>aggsortkey</code>, <code>aggsortpos</code>, <code>aggsortkeypos</code> and <code>aggsortrev</code> tunables.
+</p>
+</div>
+</p>
 <p>
-<div class="well">
+<a name="aggr-example"></a>
+Aggregations are extremely useful for writing stat-like utilities. For example, let's write utilities that count number of <code>write</code> system calls and amount of kilobytes they written. </p>
+<p>
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file wstat.d <br/><p>
 <pre id="code1" class="hide">
 #pragma D option aggsortkey
@@ -220,12 +260,13 @@ tick-1s
 </p>
 </div>
 </p>
+
+Note that aggregations are follow after keys in <code>printa</code> format string, and they are going in the same order they are passed as <code>printa</code> parameters. Format fields for aggregations use <code>@</code> character. Sorting will be performed according to a PID (due to <code>aggsortkey</code> tunable), not by number of operations or amount of bytes written. Option <code>aggsortkeypos</code> is redundant here, because <code>0</code> is default value if <code>aggsortkey</code> is set. </p>
 <p>
-Note that aggregations are follow after keys in <code>printa</code> format string, and they are going in the same order they are passed as <code>printa</code> parameters. Format fields for aggregations use <code>@</code> character. Sorting will be performed according to a PID (due to <code>aggsortkey</code> tunable), not by number of operations or amount of bytes written. Option <code>aggsortkeypos</code> is redundant here, because <code>0</code> is default value if <code>aggsortkey</code> is set. <br /></p>
+SystemTap has similar code, but <code>printa</code> is implemented via our own <code>foreach</code> cycle. On the other hand, we will keep only one associative array here:</p>
 <p>
-SystemTap has similar code, but <code>printa</code> is implemented via our own <code>foreach</code> cycle. On the other hand, we will keep only one associative array here:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file wstat.stp <br/><p>
 <pre id="code2" class="hide">
 global wstat;
@@ -245,32 +286,35 @@ probe timer.s(1) {
     }
 
     delete wstat;
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-Output will be similar for DTrace and SystemTap and will look like:<br /></p>
-<p>
-<pre>
-  PID     EXECNAME  FD     OPS  KBYTES
+
+Output will be similar for DTrace and SystemTap and will look like:
+    <p>
+    <pre>
+PID     EXECNAME  FD     OPS  KBYTES
 15881         sshd   3       1       0
 16170       stapio   1       1       0
 16176       python   8    8052   32208
 16176       python   7    8045   32180
 16176       python  10    8007   32028
-16176       python   9    8055   32220
-</pre>
+16176       python   9    8055   32220</pre>
+</p>
 </p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
     <ul>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a>
+</li>
         <li>
-<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a></li>
+ <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a>
+</li>
 </ul>
 </p>
 

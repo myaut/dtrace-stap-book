@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,88 +52,99 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Virtual File System</h3></p>
+		<h3>
+ Virtual File System</h3>
 <p>
-One of the defining principles of Unix design was "<em>Everything is a file</em>". Files are organized into filesystems of different nature. Some like FAT are pretty simple, some like ZFS and btrfs are complex and incorporate volume manager into them. Some filesystems doesn't require locally attached storage -- networked filesystems such as NFS and CIFS keep data on remote node, while special filesystems do not keep data at all and just representation of kernel structures: for example pipes are files on <em>pipefs</em> in Linux or <em>fifofs</em> in Solaris.<br /></p>
+One of the defining principles of Unix design was "<em>Everything is a file</em>". Files are organized into filesystems of different nature. Some like FAT are pretty simple, some like ZFS and btrfs are complex and incorporate volume manager into them. Some filesystems doesn't require locally attached storage -- networked filesystems such as NFS and CIFS keep data on remote node, while special filesystems do not keep data at all and just representation of kernel structures: for example pipes are files on <em>pipefs</em> in Linux or <em>fifofs</em> in Solaris.</p>
 <p>
-Despite this diversity of filesystem designs, they all share same API and conform same call semantics, so working with local or remote file is transparent for userspace application. To maintain these abstractions, Unix-like systems use <strong>Virtual File System</strong> (VFS) layer. Each <em>filesystem driver</em> exports table of supported operations to VFS and when system call is issued, VFS performs some pre-liminary actions, finds a filesystem-specific function in that table and calls it. <br /></p>
+Despite this diversity of filesystem designs, they all share same API and conform same call semantics, so working with local or remote file is transparent for userspace application. To maintain these abstractions, Unix-like systems use <strong>Virtual File System</strong> (VFS) layer. Each <em>filesystem driver</em> exports table of supported operations to VFS and when system call is issued, VFS performs some pre-liminary actions, finds a filesystem-specific function in that table and calls it. </p>
 <p>
-Each filesystem object has a corresponding data structure as shown in the following table:<br /></p>
+Each filesystem object has a corresponding data structure as shown in the following table:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Description</strong></td>
+<strong>Description</strong> </td>
             <td>
-<strong>Solaris</strong></td>
+ <strong>Solaris</strong> </td>
             <td>
-<strong>Linux</strong></td>
+ <strong>Linux</strong></td>
 </tr>
         <tr>
+
             <td>
 Open file entry </td>
             <td>
-<code>uf_entry_t</code> and <code>file</code></td>
+ <code>uf_entry_t</code> and <code>file</code> </td>
             <td>
-<code>file</code></td>
+ <code>file</code></td>
 </tr>
         <tr>
+
             <td>
 Mounted filesystem </td>
             <td>
-<code>vfs_t</code></td>
+ <code>vfs_t</code> </td>
             <td>
-<code>vfsmount</code> -- for the mount point <br />                               <code>super_block</code> -- for the filesystem</td>
+ <code>vfsmount</code> -- for the mount point 
+                               <code>super_block</code> -- for the filesystem</td>
 </tr>
         <tr>
+
             <td>
 Table of filesystem operations </td>
             <td>
-<code>vfsops_t</code></td>
+ <code>vfsops_t</code> </td>
             <td>
-<code>super_operations</code></td>
+ <code>super_operations</code></td>
 </tr>
         <tr>
+
             <td>
 File or directory </td>
             <td>
-<code>vnode_t</code></td>
+ <code>vnode_t</code> </td>
             <td>
-<code>dentry</code> -- for entry in directory <br />                                            for file itself</td>
+ <code>dentry</code> -- for entry in directory 
+                                            for file itself</td>
 </tr>
         <tr>
+
             <td>
 Table of file/directory operations </td>
             <td>
-<code>vnodeopts_t</code></td>
+ <code>vnodeopts_t</code> </td>
             <td>
-<code>file_operations</code> -- for opened file <br />                                                     <code>inode_operaions</code> -- for inode operations  <br />                                                     <code>address_space_operations</code> -- for working data and page cache</td>
+ <code>file_operations</code> -- for opened file 
+                                                     <code>inode_operaions</code> -- for inode operations  
+                                                     <code>address_space_operations</code> -- for working data and page cache</td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-Each process keeps table of opened files as an array of corresponding structures. When process opens a file, <code>open()</code> system call returns index in that array which is usually referred to as <em>file descriptor</em>. Following calls such as <code>read()</code> or <code>lseek()</code> will get this index as first argument, get corresponding entry from array, get <code>file</code> structure and use it in VFS calls. <br /></p>
+Each process keeps table of opened files as an array of corresponding structures. When process opens a file, <code>open()</code> system call returns index in that array which is usually referred to as <em>file descriptor</em>. Following calls such as <code>read()</code> or <code>lseek()</code> will get this index as first argument, get corresponding entry from array, get <code>file</code> structure and use it in VFS calls. </p>
 <p>
-Linux management structures are shown on the following schematic:<br /></p>
+Linux management structures are shown on the following schematic:</p>
 <p>
 <img src="../images/linux/vfs.png" alt="" class="img-rounded"/></p>
 <p>
-Open file table is indirectly accessible through <code>files</code> field of <code>task_struct</code>. We used 256 entries as an example, actual amount of entries may vary. Each entry in this table is an <code>file</code> object which contains information individual for a specific file descriptor such as open mode <code>f_mode</code> and position in file <code>f_pos</code>. For example, single process can open same file twice (one in <code>O_RDONLY</code> mode another in <code>O_RDWR</code> mode) -- in that case <code>f_mode</code> and <code>f_pos</code> for that file will differ, but <code>inode</code> and possibly <code>dentry</code> objects will be the same. Note that last 2 bits of <code>file</code> pointer are used internally by kernel code. <br /></p>
+Open file table is indirectly accessible through <code>files</code> field of <code>task_struct</code>. We used 256 entries as an example, actual amount of entries may vary. Each entry in this table is an <code>file</code> object which contains information individual for a specific file descriptor such as open mode <code>f_mode</code> and position in file <code>f_pos</code>. For example, single process can open same file twice (one in <code>O_RDONLY</code> mode another in <code>O_RDWR</code> mode) -- in that case <code>f_mode</code> and <code>f_pos</code> for that file will differ, but <code>inode</code> and possibly <code>dentry</code> objects will be the same. Note that last 2 bits of <code>file</code> pointer are used internally by kernel code. </p>
 <p>
-Each file is identifiable by two objects: <code>inode</code> represents service information for file itself like owner information in fields <code>i_uid</code> and <code>i_gid</code>, while <code>dentry</code> represents file in directory hierarchy (<code>dentry</code> is literally a directory entry). <code>d_parent</code> points to a parent dentry -- a <code>dentry</code> of directory where file is located, <code>d_name</code> is a <code>qstr</code> structure which keeps name of the file or directory (to get it use <code>d_name</code> function in SystemTap). <br /></p>
+Each file is identifiable by two objects: <code>inode</code> represents service information for file itself like owner information in fields <code>i_uid</code> and <code>i_gid</code>, while <code>dentry</code> represents file in directory hierarchy (<code>dentry</code> is literally a directory entry). <code>d_parent</code> points to a parent dentry -- a <code>dentry</code> of directory where file is located, <code>d_name</code> is a <code>qstr</code> structure which keeps name of the file or directory (to get it use <code>d_name</code> function in SystemTap). </p>
 <p>
-<code>dentry</code> and <code>inode</code> identify a file within filesystem, but systems have multiple filesystems mounted at different locations. That "location" is referred to as <em>mountpoint</em> and tracked through <code>vfsmount</code> structure in Linux which has <code>mnt_root</code> field which points to a directory which acts as mountpoint. Each filesystem has corresponding <code>super_block</code> object which has <code>s_bdev</code> pointer which points to a block device where filesystem data resides, <code>s_blocksize</code> for a block size within filesystem. Short device name is kept in <code>s_id</code> field, while unique id of filesystem is saved into <code>s_uuid</code> field of super block. <br /></p>
+<code>dentry</code> and <code>inode</code> identify a file within filesystem, but systems have multiple filesystems mounted at different locations. That "location" is referred to as <em>mountpoint</em> and tracked through <code>vfsmount</code> structure in Linux which has <code>mnt_root</code> field which points to a directory which acts as mountpoint. Each filesystem has corresponding <code>super_block</code> object which has <code>s_bdev</code> pointer which points to a block device where filesystem data resides, <code>s_blocksize</code> for a block size within filesystem. Short device name is kept in <code>s_id</code> field, while unique id of filesystem is saved into <code>s_uuid</code> field of super block. </p>
 <p>
-Note the <code>i_mapping</code> and <code>f_mapping</code> fields. They point to <code>address_space</code> structures which we have been discussed in section <a href="virtmem.html">Virtual Memory</a>.<br /></p>
+Note the <code>i_mapping</code> and <code>f_mapping</code> fields. They point to <code>address_space</code> structures which we have been discussed in section <a href="virtmem.html">Virtual Memory</a>.</p>
 <p>
-Let's get information on a file used in <code>read()</code> system call:<br /></p>
+Let's get information on a file used in <code>read()</code> system call:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 stap -e '
     probe syscall.read { 
         file = @cast(task_current(), "task_struct")->
@@ -145,36 +157,43 @@ stap -e '
         printf("READ %d: file '%s' of size '%d' on device %s\n", 
             fd, d_name(dentry), @cast(inode, "inode")->i_size,
             kernel_string(@cast(inode, "inode")->i_sb->s_id)); 
-    } '  -c 'cat /etc/passwd > /dev/null'
-</pre>
+    } '  -c 'cat /etc/passwd > /dev/null'</pre>
+</p>
 </p>
 <p>
-You may use <code>task_dentry_path()</code> function from dentry tapset instead of <code>d_name()</code> to get full path of opened file.<br /></p>
-<span class="label label-warning">Warning</span><div class="well">
-<code>fdt</code> array is protected through special RCU lock, so we should lock it before accessing it like <a href="https://sourceware.org/systemtap/examples/#process/pfiles.stp">pfiles.stp</a> authors do. We have omitted that part in purpose of simplicity. <br /></div>
+You may use <code>task_dentry_path()</code> function from dentry tapset instead of <code>d_name()</code> to get full path of opened file.</p>
 <p>
-Solaris structures organization is much more clear:<br /><img src="../images/solaris/vfs.png" alt="Solaris structures organization is much more clear:<br />" class="img-rounded"/></p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+<code>fdt</code> array is protected through special RCU lock, so we should lock it before accessing it like <a href="https://sourceware.org/systemtap/examples/#process/pfiles.stp">pfiles.stp</a> authors do. We have omitted that part in purpose of simplicity. 
+</p>
+</div>
+</p>
 <p>
-Like Linux, each process keep an array of <code>uf_entry_t</code> entries while entry in this array points to an open file through <code>uf_file</code> pointer. Each file on filesystem is represented by <code>vnode_t</code> structure (literally, <em>node on virtual file system</em>).  When file is opened, Solaris creates new <code>file</code> object and saves open file mode in flag fields <code>f_flag</code> and <code>f_flag2</code>, current file position in <code>f_offset</code> and pointer to a <code>vnode_t</code> in <code>f_vnode</code>. <br /></p>
+Solaris structures organization is much more clear:
+<img src="../images/solaris/vfs.png" alt="Solaris structures organization is much more clear:
+" class="img-rounded"/></p>
 <p>
-<code>vnode_t</code> caches absolute path to a file in <code>v_path</code> field. Type of vnode is saved in <code>v_type</code> field: it could be <code>VREG</code> for regular files, <code>VDIR</code> for directories or <code>VFIFO</code> for pipes. VFS will keep <code>v_stream</code> pointing to a stream corresponding to FIFO for pipes, and list of pages <code>v_pages</code> for vnodes that actually keep data. Each filesystem may save its private data in <code>v_data</code> field. For UFS, for example, it is <code>inode</code> structure (UDF also uses different <code>inode</code> structure, so we named it <code>inode (UFS)</code> to distinguish them). UFS keeps id of inode in <code>i_number</code> field, number of outstanding writes in <code>i_number</code> and <code>i_ic</code> field which is physical representation of inode on disk, including uid and gid of owner, size of file, pointers to blocks, etc. <br /></p>
+Like Linux, each process keep an array of <code>uf_entry_t</code> entries while entry in this array points to an open file through <code>uf_file</code> pointer. Each file on filesystem is represented by <code>vnode_t</code> structure (literally, <em>node on virtual file system</em>).  When file is opened, Solaris creates new <code>file</code> object and saves open file mode in flag fields <code>f_flag</code> and <code>f_flag2</code>, current file position in <code>f_offset</code> and pointer to a <code>vnode_t</code> in <code>f_vnode</code>. </p>
 <p>
-Like in case of vnode, Solaris keeps representation of filesystem in two structures: generic filesystem information like block size <code>vfs_bsize</code> is kept in <code>vfs_t</code> structure, while filesystem-specific information is kept in filesystem structure like <code>ufsvfs_t</code> for UFS. First structure to specific structure through <code>vfs_data</code> pointer. <code>vfs_t</code> refers to its mount point (which is a vnode) through <code>vfs_vnodecovered</code> field, while it refers to filesystem object through <code>v_vfsmountedhere</code> field. <br /></p>
+<code>vnode_t</code> caches absolute path to a file in <code>v_path</code> field. Type of vnode is saved in <code>v_type</code> field: it could be <code>VREG</code> for regular files, <code>VDIR</code> for directories or <code>VFIFO</code> for pipes. VFS will keep <code>v_stream</code> pointing to a stream corresponding to FIFO for pipes, and list of pages <code>v_pages</code> for vnodes that actually keep data. Each filesystem may save its private data in <code>v_data</code> field. For UFS, for example, it is <code>inode</code> structure (UDF also uses different <code>inode</code> structure, so we named it <code>inode (UFS)</code> to distinguish them). UFS keeps id of inode in <code>i_number</code> field, number of outstanding writes in <code>i_number</code> and <code>i_ic</code> field which is physical representation of inode on disk, including uid and gid of owner, size of file, pointers to blocks, etc. </p>
 <p>
-DTrace provides array-translator <code>fds</code> for accessing file information through file descriptor -- it is an array of <code>fileinfo_t</code> structures:<br /></p>
+Like in case of vnode, Solaris keeps representation of filesystem in two structures: generic filesystem information like block size <code>vfs_bsize</code> is kept in <code>vfs_t</code> structure, while filesystem-specific information is kept in filesystem structure like <code>ufsvfs_t</code> for UFS. First structure to specific structure through <code>vfs_data</code> pointer. <code>vfs_t</code> refers to its mount point (which is a vnode) through <code>vfs_vnodecovered</code> field, while it refers to filesystem object through <code>v_vfsmountedhere</code> field. </p>
 <p>
-<pre>
+DTrace provides array-translator <code>fds</code> for accessing file information through file descriptor -- it is an array of <code>fileinfo_t</code> structures:
+    <p>
+    <pre>
 # dtrace -q -n '
     syscall::read:entry { 
         printf("READ %d: file '%s' on filesystem '%s'\n", 
                arg0, fds[arg0].fi_name, fds[arg0].fi_mount); 
-    }' -c 'cat /etc/passwd > /dev/null'
-</pre>
+    }' -c 'cat /etc/passwd > /dev/null'</pre>
+</p>
 </p>
 <p>
-However, if you need to access <code>vnode_t</code> structure directly, you may use schematic above:<br /></p>
-<p>
-<pre>
+However, if you need to access <code>vnode_t</code> structure directly, you may use schematic above:
+    <p>
+    <pre>
 # dtrace -q -n '
     syscall::read:entry {
         this->fi_list = curthread->t_procp->p_user.u_finfo.fi_list; 
@@ -186,72 +205,69 @@ However, if you need to access <code>vnode_t</code> structure directly, you may 
                     (this->mntpt)
                         ? stringof(this->mntpt->v_path)
                         : "/"); 
-    }' -c 'cat /etc/passwd'
-</pre>
+    }' -c 'cat /etc/passwd'</pre>
+</p>
 </p>
 <p>
-Note that root filesystem have NULL <code>vfs_vnodecovered</code>, because there is no upper-layer filesystem on which it mounted. <br /></p>
+Note that root filesystem have NULL <code>vfs_vnodecovered</code>, because there is no upper-layer filesystem on which it mounted. </p>
 <p>
-<strong>Solaris</strong> provides stable set of probes which are tracing VFS through <code>fsinfo</code> provider. It provides vnode information as <code>fileinfo_t</code> structures just like <code>fds</code> array:<br /></p>
-<p>
-<pre>
+<strong>Solaris</strong> provides stable set of probes which are tracing VFS through <code>fsinfo</code> provider. It provides vnode information as <code>fileinfo_t</code> structures just like <code>fds</code> array:
+    <p>
+    <pre>
 # dtrace -n '
         fsinfo:::mkdir { 
             trace(args[0]->fi_pathname); 
             trace(args[0]->fi_mount);
-        }' -c 'mkdir /tmp/test2'
-</pre>
+        }' -c 'mkdir /tmp/test2'</pre>
 </p>
+
+Note that DTrace prints <code>"unknown"</code> for <code>fi_pathname</code> because when mkdir probe fires, <code>v_path</code> is not filled yet. </p>
 <p>
-Note that DTrace prints <code>"unknown"</code> for <code>fi_pathname</code> because when mkdir probe fires, <code>v_path</code> is not filled yet. <br /></p>
-<p>
-VFS interface consists of <code>fop_*</code> functions like <code>fop_mkdir</code> which is callable through macro <code>VOP_MKDIR</code> and, on the other side, call <code>vop_mkdir</code> hook implemented by filesystem through <code>vnodeops_t</code> table. So to trace raw VFS operations you may attach probes directly to that <code>fop_*</code> functions:<br /></p>
-<p>
-<pre>
+VFS interface consists of <code>fop_*</code> functions like <code>fop_mkdir</code> which is callable through macro <code>VOP_MKDIR</code> and, on the other side, call <code>vop_mkdir</code> hook implemented by filesystem through <code>vnodeops_t</code> table. So to trace raw VFS operations you may attach probes directly to that <code>fop_*</code> functions:
+    <p>
+    <pre>
 # dtrace -n '
     fop_mkdir:entry { 
         trace(stringof(args[1])); 
-    }' -c 'mkdir /tmp/test1'
-</pre>
+    }' -c 'mkdir /tmp/test1'</pre>
 </p>
+
+Now string name should be correctly printed. </p>
 <p>
-Now string name should be correctly printed. <br /></p>
-<p>
-There is no unified way to trace VFS in <strong>Linux</strong>. You can use <code>vfs_*</code> functions the same way you did with <code>fop_*</code>, but not all filesystem operations are implemented with them:<br /></p>
-<p>
-<pre>
+There is no unified way to trace VFS in <strong>Linux</strong>. You can use <code>vfs_*</code> functions the same way you did with <code>fop_*</code>, but not all filesystem operations are implemented with them:
+    <p>
+    <pre>
 # stap -e '
     probe kernel.function("vfs_mkdir") {
         println(d_name($dentry));
-    }' -c 'mkdir /tmp/test4'
-</pre>
+    }' -c 'mkdir /tmp/test4'</pre>
+</p>
 </p>
 <p>
-You may however use <em>inotify</em> subsystem to track filesystem operations (if <code>CONFIG_FSNOTIFY</code> is set in kernel's configuration):<br /></p>
-<p>
-<pre>
+You may however use <em>inotify</em> subsystem to track filesystem operations (if <code>CONFIG_FSNOTIFY</code> is set in kernel's configuration):
+    <p>
+    <pre>
 # stap -e '
     probe kernel.function("fsnotify") { 
         if(!($mask == 0x40000100)) 
             next; 
         println(kernel_string2($file_name, "???")); 
-    } ' -c 'mkdir /tmp/test3'
-</pre>
+    } ' -c 'mkdir /tmp/test3'</pre>
 </p>
+
+In this example <code>0x40000100</code> bitmask consists of flags <code>FS_CREATE</code> and <code>FS_ISDIR</code>.</p>
 <p>
-In this example <code>0x40000100</code> bitmask consists of flags <code>FS_CREATE</code> and <code>FS_ISDIR</code>.<br /></p>
-<p>
-Now let's see how VFS operations performed on files:<br /></p>
+Now let's see how VFS operations performed on files:</p>
 <p>
 <img src="../images/vfsops.png" alt="" class="img-rounded"/></p>
 <p>
-Application uses <code>open()</code> system call to open file. At this moment, new <code>file</code> object is created and free entry in open files table is filled with a pointer to that object. Kernel, however needs to find corresponding vnode/dentry object -- it will also need to check some preliminary checks here. I.e. if uid of opening process is not equal to <code>i_uid</code> provided by operating system and file mode is 0600, access should be forbidden. <br /></p>
+Application uses <code>open()</code> system call to open file. At this moment, new <code>file</code> object is created and free entry in open files table is filled with a pointer to that object. Kernel, however needs to find corresponding vnode/dentry object -- it will also need to check some preliminary checks here. I.e. if uid of opening process is not equal to <code>i_uid</code> provided by operating system and file mode is 0600, access should be forbidden. </p>
 <p>
-To perform such mapping between file name passed to <code>open()</code> system call and dentry object, kernel performs a kind of <em>lookup</em> call which searches needed file over directory and returns object. Such operation may be slow (i.e. for file <code>/path/to/file</code> it needs readdir <code>path</code> than do the same with <code>to</code>, and only then seek for file <code>file</code>), so operating systems implement caches of such mappings. They are called <em>dentry cache</em> in Linux and <em>Directory Name Lookup Cache</em> in Solaris. <br /></p>
+To perform such mapping between file name passed to <code>open()</code> system call and dentry object, kernel performs a kind of <em>lookup</em> call which searches needed file over directory and returns object. Such operation may be slow (i.e. for file <code>/path/to/file</code> it needs readdir <code>path</code> than do the same with <code>to</code>, and only then seek for file <code>file</code>), so operating systems implement caches of such mappings. They are called <em>dentry cache</em> in Linux and <em>Directory Name Lookup Cache</em> in Solaris. </p>
 <p>
-In Solaris top-level function that performs lookup called <code>lookuppnvp()</code> (literally, lookup vnode pointer by path name). It calls <code>fop_lookup()</code> which will call filesystem driver. Most filesystems however will seek needed path name in DNLC cache, by doing <code>dnlc_lookup()</code>:<br /></p>
-<p>
-<pre>
+In Solaris top-level function that performs lookup called <code>lookuppnvp()</code> (literally, lookup vnode pointer by path name). It calls <code>fop_lookup()</code> which will call filesystem driver. Most filesystems however will seek needed path name in DNLC cache, by doing <code>dnlc_lookup()</code>:
+    <p>
+    <pre>
 # dtrace -n '
     lookuppnvp:entry /execname == "cat"/ { 
         trace(stringof(args[0]->pn_path)); 
@@ -261,100 +277,117 @@ In Solaris top-level function that performs lookup called <code>lookuppnvp()</co
     }
     dnlc_lookup:entry /execname == "cat"/ { 
         trace(stringof(args[0]->v_path));  trace(stringof(arg1)); 
-    }' -c 'cat /etc/passwd'
-</pre>
+    }' -c 'cat /etc/passwd'</pre>
+</p>
 </p>
 <p>
-Linux uses unified system for caching file names called <em>Directory Entry Cache</em> or simply, <em>dentry cache</em>. When file is opened, one of <code>d_lookup()</code> functions are called:<br /></p>
-<p>
-<pre>
+Linux uses unified system for caching file names called <em>Directory Entry Cache</em> or simply, <em>dentry cache</em>. When file is opened, one of <code>d_lookup()</code> functions are called:
+    <p>
+    <pre>
 # stap -e '
     probe kernel.function("__d_lookup*") {
         if(execname() != "cat") next;
         println(kernel_string($name->name)); 
-    }' -c 'cat /etc/passwd > /dev/null'
-</pre>
+    }' -c 'cat /etc/passwd > /dev/null'</pre>
+</p>
 </p>
 <p>
-Now, when file is opened, we can read or write its contents. All file data is located on disk (in case of disk-based file systems), but translating every file operation into block operation is expensive, so operating system maintains <em>page cache</em>. When data is read from file, it is read from disk to corresponding page and then requested chunk is copied to userspace buffer, so subsequent reads to that file won't need any disk operations -- it would be performed on <em>page cache</em>. When data is written onto file, corresponding page is updated and page is marked as dirty (red asterisk on image). <br /></p>
+Now, when file is opened, we can read or write its contents. All file data is located on disk (in case of disk-based file systems), but translating every file operation into block operation is expensive, so operating system maintains <em>page cache</em>. When data is read from file, it is read from disk to corresponding page and then requested chunk is copied to userspace buffer, so subsequent reads to that file won't need any disk operations -- it would be performed on <em>page cache</em>. When data is written onto file, corresponding page is updated and page is marked as dirty (red asterisk on image). </p>
 <p>
-At the unspecified moment of time, page writing daemon which is relocated in kernel scans page cache for <em>dirty pages</em> and writes them back to disk. Note that <code>mmap()</code> operation in this case will simply map pages from page cache to process address space. Not all filesystems use page cache. ZFS, for example, uses its own caching mechanism called <em>Adaptive Replacement Cache</em> or ARC which is built on top of kmem allocator. <br /></p>
+At the unspecified moment of time, page writing daemon which is relocated in kernel scans page cache for <em>dirty pages</em> and writes them back to disk. Note that <code>mmap()</code> operation in this case will simply map pages from page cache to process address space. Not all filesystems use page cache. ZFS, for example, uses its own caching mechanism called <em>Adaptive Replacement Cache</em> or ARC which is built on top of kmem allocator. </p>
 <p>
-Let's see how <code>read()</code> system call is performed in detail:<br /></p>
+Let's see how <code>read()</code> system call is performed in detail:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Action</strong></td>
+<strong>Action</strong> </td>
             <td>
-<strong>Solaris</strong></td>
+ <strong>Solaris</strong> </td>
             <td>
-<strong>Linux</strong></td>
+ <strong>Linux</strong></td>
 </tr>
         <tr>
+
             <td>
 Application initiates file reading using system call  </td>
             <td>
-<code>read()</code></td>
+ <code>read()</code> </td>
             <td>
-<code>sys_read()</code></td>
+ <code>sys_read()</code></td>
 </tr>
         <tr>
+
             <td>
 Call is passed to VFS stack top layer </td>
             <td>
-<code>fop_read()</code></td>
+ <code>fop_read()</code> </td>
             <td>
-<code>vfs_read()</code></td>
+ <code>vfs_read()</code></td>
 </tr>
         <tr>
+
             <td>
 Call is passed to filesystem driver </td>
             <td>
-<code>v_ops-&gt;vop_read()</code></td>
+ <code>v_ops-&gt;vop_read()</code> </td>
             <td>
-<code>file-&gt;f_op-&gt;read()</code> or <br />                                                            <code>do_sync_read()</code> or <code>new_sync_read()</code></td>
+ <code>file-&gt;f_op-&gt;read()</code> or 
+                                                            <code>do_sync_read()</code> or <code>new_sync_read()</code></td>
 </tr>
         <tr>
+
             <td>
-If file is opened in direct input output mode, <br />    appropriate function is called and data is returned </td>
+If file is opened in direct input output mode, 
+    appropriate function is called and data is returned </td>
             <td>
- I.e. <code>ufs_directio_read()</code></td>
+ I.e. <code>ufs_directio_read()</code> </td>
             <td>
-<code>a_ops-&gt;direct_IO</code></td>
+ <code>a_ops-&gt;direct_IO</code></td>
 </tr>
         <tr>
+
             <td>
-If page is found in page cache, <br />    data is returned </td>
+If page is found in page cache, 
+    data is returned </td>
             <td>
-<code>vpm_data_copy()</code> or <code>segmap_getmap_flt()</code></td>
+ <code>vpm_data_copy()</code> or <code>segmap_getmap_flt()</code> </td>
             <td>
-<code>file_get_page()</code></td>
+ <code>file_get_page()</code></td>
 </tr>
         <tr>
+
             <td>
-If page was not found in page cache, it is <br />    read from filesystem </td>
+If page was not found in page cache, it is 
+    read from filesystem </td>
             <td>
-<code>v_ops-&gt;vop_getpage()</code></td>
+ <code>v_ops-&gt;vop_getpage()</code> </td>
             <td>
-<code>a_ops-&gt;readpage()</code></td>
+ <code>a_ops-&gt;readpage()</code></td>
 </tr>
         <tr>
+
             <td>
 VFS stack creates block input-output request  </td>
             <td>
-<code>bdev_strategy()</code></td>
+ <code>bdev_strategy()</code> </td>
             <td>
-<code>submit_bio()</code></td>
+ <code>submit_bio()</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-This table is very simplistic and doesn't cover many filesystem types like non-disk or journalling filesystems.<br /></div>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+This table is very simplistic and doesn't cover many filesystem types like non-disk or journalling filesystems.
+</p>
+</div>
+</p>
 <p>
 We used names <code>v_ops</code> for table of vnode operations in Solaris, <code>f_op</code> for <code>file_operations</code> and <code>a_ops</code> for <code>address_space_operations</code> in Linux. Note that in Linux filesystems usually implement calls like <code>aio_read</code> or <code>read_iter</code> while read operation calls function like <code>new_sync_read()</code> which converts semantics of <code>read()</code> call to semantics of <code>f_op-&gt;read_iter()</code> call. Such "generic" functions are available in <code>generic</code> and <code>vfs</code> tapsets. </p>
 

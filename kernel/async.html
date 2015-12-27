@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,36 +52,34 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Asynchronicity in kernel</h3></p>
+		<h3>
+ Asynchronicity in kernel</h3>
 <p>
-Let's return to our scripts, <code>scsitrace.stp</code> and <code>sdtrace.d</code> which we had introduced in previous section, <a href="bio.html">Block Input-Output</a>. We tested it with block I/O. If we create a filesystem on block device and try to write to it, we will see some interesting names of processes which actually perform the write. I.e. on Solaris:<br /></p>
-<p>
-<pre>
-PROC: 5/15 zpool-tiger
-</pre>
+Let's return to our scripts, <code>scsitrace.stp</code> and <code>sdtrace.d</code> which we had introduced in previous section, <a href="bio.html">Block Input-Output</a>. We tested it with block I/O. If we create a filesystem on block device and try to write to it, we will see some interesting names of processes which actually perform the write. I.e. on Solaris:
+    <p>
+    <pre>
+PROC: 5/15 zpool-tiger</pre>
 </p>
-<p>
-or on Linux:<br /></p>
-<p>
-<pre>
-PROC: 643/643 flush-8:0
-</pre>
+
+or on Linux:
+    <p>
+    <pre>
+PROC: 643/643 flush-8:0</pre>
 </p>
+
+This is internal system process which is not related to a process which is actually initiated <code>write()</code> call.</p>
 <p>
-This is internal system process which is not related to a process which is actually initiated <code>write()</code> call.<br /></p>
-<p>
-This is called an <em>asynchronicity</em>, a common kernel idiom when requests are kept in queues and being flushed to receiver at an unspecified moment of time (i.e. when device is ready, when we collected batch of adjacent requests, etc.). That <em>flush</em> is performed by separate kernel process (note how it is named in Linux) which has its own context. In our example <code>write()</code> system call won't actually start block input-output but updates page in page cache making it dirty (incorrect ZFS as it actually queues ZIO operation). Then <em>writeback</em> mechanism in Linux or <em>fsflush</em> daemon in Solaris is awoken. They walk dirty pages in page cache and write them back to stable storage. Finally, when disk finishes requested operation, bus driver will generate an interrupt which will create three independent contexts where request was handled:<br /></p>
+This is called an <em>asynchronicity</em>, a common kernel idiom when requests are kept in queues and being flushed to receiver at an unspecified moment of time (i.e. when device is ready, when we collected batch of adjacent requests, etc.). That <em>flush</em> is performed by separate kernel process (note how it is named in Linux) which has its own context. In our example <code>write()</code> system call won't actually start block input-output but updates page in page cache making it dirty (incorrect ZFS as it actually queues ZIO operation). Then <em>writeback</em> mechanism in Linux or <em>fsflush</em> daemon in Solaris is awoken. They walk dirty pages in page cache and write them back to stable storage. Finally, when disk finishes requested operation, bus driver will generate an interrupt which will create three independent contexts where request was handled:</p>
 <p>
 <img src="../images/aio.png" alt="" class="img-rounded"/></p>
 <p>
-This makes thread-local variables useless for such cases.<br /></p>
+This makes thread-local variables useless for such cases.</p>
 <p>
-To overcome this situation we can use associative arrays, but instead of using process ID or thread ID we have to use something stable for a whole request execution. We can save PID using that key and then access it from interrupt probe by using same key and print it.<br /></p>
+To overcome this situation we can use associative arrays, but instead of using process ID or thread ID we have to use something stable for a whole request execution. We can save PID using that key and then access it from interrupt probe by using same key and print it.</p>
 <p>
-In our example it would be address of page in Linux:<br /></p>
-<p>
-<pre>
+In our example it would be address of page in Linux:
+    <p>
+    <pre>
 # stap -e '
     global pids;
     
@@ -104,15 +103,15 @@ In our example it would be address of page in Linux:<br /></p>
 …
 I/O initiated pid: 2975 page: <b>0xffffea00010d4d40</b> 1376926650907810430
 I/O initiated pid: 2975 page: 0xffffea00010d1888 1376926650908267664
-I/O started pid: 665 real pid: 2975 page: <b>0xffffea00010d4d40</b> 1376926681933631892
-</pre>
+I/O started pid: 665 real pid: 2975 page: <b>0xffffea00010d4d40</b> 1376926681933631892</pre>
+</p>
 </p>
 <p>
-Note that despite the fact that process IDs in filesystem and block I/O probe are different, address of <code>page</code> structure is stable here.<br /></p>
+Note that despite the fact that process IDs in filesystem and block I/O probe are different, address of <code>page</code> structure is stable here.</p>
 <p>
-Same works for Solaris -- we can rely on <code>dbuf</code> pointer which represents a <em>dnode buffer</em>:<br /></p>
-<p>
-<pre>
+Same works for Solaris -- we can rely on <code>dbuf</code> pointer which represents a <em>dnode buffer</em>:
+    <p>
+    <pre>
 # dtrace -n '
     dbuf_dirty:entry { 
         pids[(uintptr_t) arg0] = pid; 
@@ -125,11 +124,11 @@ Same works for Solaris -- we can rely on <code>dbuf</code> pointer which represe
         printf("I/O started pid: %d real pid: %d dbuf: %p %d", 
             pid, pids[(uintptr_t) this->db], this->db,
             timestamp);
-    } '
-</pre>
+    } '</pre>
+</p>
 </p>
 <p>
-This technique is usually used <em>request extraction</em> -- in ideal case we could observe all request handling from user clicking in a browser through network I/O, processing in web server, accessing database and, eventually, block I/O caused by that. <br /></p>
+This technique is usually used <em>request extraction</em> -- in ideal case we could observe all request handling from user clicking in a browser through network I/O, processing in web server, accessing database and, eventually, block I/O caused by that. </p>
 <p>
 Modern kernels have low-level primitives for building such asynchronous mechanisms. We will discuss some of them later.</p>
 

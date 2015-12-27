@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 2: Dynamic tracing languages</title>
+	<title> Module 2: Dynamic tracing languages
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,40 +49,47 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 2</h3></p>
+		<h3>
+ Exercise 2</h3>
 <p>
-Modify scripts from Exercise 1 so they count following statistics for processes that are running in a system:<br />     <ul>
+Modify scripts from Exercise 1 so they count following statistics for processes that are running in a system:
+     <ul>
         <li>
- number of attempts to open existing file;<br /> </li>
+ number of attempts to open existing file;
+ </li>
         <li>
- number of attempts to create a file;<br /> </li>
+ number of attempts to create a file;
+ </li>
         <li>
- number of successful attempts.<br /> </li>
+ number of successful attempts.</li>
 </ul>
 </p>
 <p>
-At a period that is defined as command line arguments (specified in seconds) script should print:<br />     <ul>
+
+At a period that is defined as command line arguments (specified in seconds) script should print:
+     <ul>
         <li>
- Current time and day in human-readable format.<br /> </li>
+ Current time and day in human-readable format.
+ </li>
         <li>
- Table that contains gathered statistics per process along with that process name and PID.<br />Numbers should be cleared during each iteration. <br /></li>
+ Table that contains gathered statistics per process along with that process name and PID.
+Numbers should be cleared during each iteration. </li>
 </ul>
 </p>
 <p>
-You can use module <code>file_opener</code> to demonstrate your scripts. This module uses working directory which is passed as <code>root_dir</code> parameter, fills it with some files that are created preliminary (their number is set by <code>created_files</code> parameter). While executing request, it uses <code>file</code> random variable (which range is cut to <code>[1;max_files)</code>) and either tries to create a file or open it depending on <code>create</code> parameter. <br /></p>
+You can use module <code>file_opener</code> to demonstrate your scripts. This module uses working directory which is passed as <code>root_dir</code> parameter, fills it with some files that are created preliminary (their number is set by <code>created_files</code> parameter). While executing request, it uses <code>file</code> random variable (which range is cut to <code>[1;max_files)</code>) and either tries to create a file or open it depending on <code>create</code> parameter. </p>
 <p>
-Run several experiments using TSLoad workload generator varying <code>created_files</code> parameter and compare the results:<br /></p>
-<p>
-<pre>
+Run several experiments using TSLoad workload generator varying <code>created_files</code> parameter and compare the results:
+    <p>
+    <pre>
 # EXPDIR=/opt/tsload/var/tsload/file_opener
 # for I in 1 2 3; do
     mkdir /tmp/fopen$I
     tsexperiment -e $EXPDIR run                             \
             -s workloads:open:params:root_dir=/tmp/fopen$I  \
             -s workloads:open:params:created_files=$((I * 160)) &
-done
-</pre>
+done</pre>
+</p>
 </p>
 <p>
 Try to explain differences you get from the nature of <code>file_opener</code> workload generator module. </p>

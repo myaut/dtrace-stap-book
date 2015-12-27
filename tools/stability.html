@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
+	<title> Module 1: Dynamic tracing tools. dtrace and stap tools
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,23 +49,24 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Stability</h3></p>
+		<h3>
+ Stability</h3>
 <p>
-Another problem to which dynamic tracing systems face is stability of in-kernel interfaces. While system calls never change their interface due to backwards compatibility (if something need to be changed, new system call is introduced†), internal kernel function often do that especially if they not a public API for a drivers. Dynamic tracing languages provide mechanisms to avoid direct use of in-kernel interface by hiding them in abstractions:<br /></p>
+Another problem to which dynamic tracing systems face is stability of in-kernel interfaces. While system calls never change their interface due to backwards compatibility (if something need to be changed, new system call is introduced†), internal kernel function often do that especially if they not a public API for a drivers. Dynamic tracing languages provide mechanisms to avoid direct use of in-kernel interface by hiding them in abstractions:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Stability</strong></td>
+<strong>Stability</strong> </td>
             <td  colspan="2">
-<strong>Data access</strong></td>
+ <strong>Data access</strong> </td>
             <td  colspan="2">
-<strong>Tracepoints</strong></td>
+ <strong>Tracepoints</strong></td>
 </tr>
         <tr>
+
             <td>
-</td>
+           </td>
             <td>
  DTrace </td>
             <td>
@@ -75,10 +77,11 @@ Another problem to which dynamic tracing systems face is stability of in-kernel 
  SystemTap</td>
 </tr>
         <tr>
+
             <td>
 High </td>
             <td>
-<em>translators</em>, i.e. <code>fileinfo_t</code></td>
+ <em>translators</em>, i.e. <code>fileinfo_t</code>  </td>
             <td>
  tapset variables </td>
             <td  rowspan="2">
@@ -87,57 +90,66 @@ High </td>
  tapset aliases, i.e. <code>vm.kfree</code></td>
 </tr>
         <tr>
+
             <td>
 Mediocre </td>
             <td  rowspan="2">
- Global variables and raw arguments like <code>args[0]</code> or <code>(struct_t*) arg0</code></td>
+ Global variables and raw arguments like <code>args[0]</code> or <code>(struct_t*) arg0</code> </td>
             <td  rowspan="2">
- Raw arguments like <code>$task</code> or <code>@cast($task, "task_struct")</code></td>
+ Raw arguments like <code>$task</code> or <code>@cast($task, "task_struct")</code>  </td>
             <td>
  statically defined ftrace probes like <code>kernel.trace("kfree")</code></td>
 </tr>
         <tr>
+
             <td>
 Lowest  </td>
             <td>
-<code>fbt</code> and <code>pid$$</code> providers </td>
+ <code>fbt</code> and <code>pid$$</code> providers </td>
             <td>
  DWARF probes like <code>kernel.function("kfree")</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-To achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provides fewer information than you could access with other approaches. These options will be described in <a href="../lang/tapset.html">Translators and tapsets</a> section of next module. <br /></p>
+To achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provides fewer information than you could access with other approaches. These options will be described in <a href="../lang/tapset.html">Translators and tapsets</a> section of next module. </p>
 <p>
-Linux kernel is changing faster: it has stable releases each 2-3 months, and moreover, its builds are configurable, so some features present in one kernel may be disabled in another and vice versa which makes stability is much more fragile. To overcome that, SystemTap Language has conditional compilation statements which like in C allow to disable certain paths in code. Simplest conditional compilation statements are <code>@defined</code> which evaluates to true if variable passed to it is present in debug information and <code>@choose_defined</code> which chooses from several variables. It also support ternary conditional expression:<br /></p>
-<p>
-<pre>
-    %( kernel_v >= "2.6.30" 
+Linux kernel is changing faster: it has stable releases each 2-3 months, and moreover, its builds are configurable, so some features present in one kernel may be disabled in another and vice versa which makes stability is much more fragile. To overcome that, SystemTap Language has conditional compilation statements which like in C allow to disable certain paths in code. Simplest conditional compilation statements are <code>@defined</code> which evaluates to true if variable passed to it is present in debug information and <code>@choose_defined</code> which chooses from several variables. It also support ternary conditional expression:
+    <p>
+    <pre>
+%( kernel_v >= "2.6.30" 
         %? count = kernel_long($cnt)
         %: count = $cnt 
-    %)
-</pre>
+    %)</pre>
+</p>
 </p>
 <p>
-Here, <code>kernel_v</code> is numerical version of kernel without suffix (for version with suffix, use <code>kernel_vr</code>). SystemTap also defines <code>arch</code> variable and <code>CONFIG_*</code> tokens similiar to configuration options. These options are not available in Embedded C, use traditional preprocessor there.<br /></p>
+Here, <code>kernel_v</code> is numerical version of kernel without suffix (for version with suffix, use <code>kernel_vr</code>). SystemTap also defines <code>arch</code> variable and <code>CONFIG_*</code> tokens similiar to configuration options. These options are not available in Embedded C, use traditional preprocessor there.</p>
 <p>
-Finally, if some probe is missing from kernel, script compilation will fail. DTrace allow to ignore such errors by passing <code>-Z</code> command line option. In SystemTap you may add <code>?</code> at the end of probe name to make this probe optional.<br /></p>
+Finally, if some probe is missing from kernel, script compilation will fail. DTrace allow to ignore such errors by passing <code>-Z</code> command line option. In SystemTap you may add <code>?</code> at the end of probe name to make this probe optional.</p>
 <p>
-<h4>Notes</h4></p>
+    <h4>
+ Notes</h4>
+</p>
 <p>
-† -- unless you are running Solaris 11 which was deprecated and obsoleted many of its system calls..<br /></p>
+† -- unless you are running Solaris 11 which was deprecated and obsoleted many of its system calls..</p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
-    <ul>
+     <ul>
         <li>
-<img src="../images/icons/staplang.png" alt="" class="img-rounded"/><a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00068000000000000000">Conditional compilation</a></li>
+ <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00068000000000000000">Conditional compilation</a>
+ </li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-stab/index.html">Stability</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-stab/index.html">Stability</a>
+ </li>
 </ul>
 </p>
 

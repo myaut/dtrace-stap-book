@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix A. Exercise hints and solutions </title>
+	<title> Appendix A. Exercise hints and solutions 
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,40 +49,40 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 1</h3></p>
+		<h3>
+ Exercise 1</h3>
 <p>
-This exercise is intended to learn some features of dynamic tracing languages that was discussed in modules 1 and 2. First of all we need to pick probes that we will use in our tracing script. They would be parts of <code>syscall</code> provider/tapset. As you can remember from <a href="../tools/systemtap.html#stap">stap command options</a>, probe parameters can be checked with <code>-L</code> option:<br /></p>
-<p>
-<pre>
+This exercise is intended to learn some features of dynamic tracing languages that was discussed in modules 1 and 2. First of all we need to pick probes that we will use in our tracing script. They would be parts of <code>syscall</code> provider/tapset. As you can remember from <a href="../tools/systemtap.html#stap">stap command options</a>, probe parameters can be checked with <code>-L</code> option:
+    <p>
+    <pre>
 # stap -L 'syscall.open'
 syscall.open name:string filename:string flags:long mode:long argstr:string $filename:long int $flags:long int $mode:long int
 # stap -L 'syscall.open.return'
-syscall.open.return name:string retstr:string $return:long int $filename:long int $flags:long int $mode:long int    
-</pre>
+syscall.open.return name:string retstr:string $return:long int $filename:long int $flags:long int $mode:long int</pre>
 </p>
-<p>
-Same can be done for dtrace with <code>-l</code> option:<br /></p>
-<p>
-<pre>
+
+Same can be done for dtrace with <code>-l</code> option:
+    <p>
+    <pre>
 # dtrace -l -f openat\* -v
    ID   PROVIDER            MODULE             FUNCTION NAME
 14167    syscall                               openat entry
- ...
-</pre>
+ ...</pre>
+</p>
 </p>
 <p>
-Return value (which would represent file descriptor number) will be saved into <code>$return</code> variable in SystemTap and <code>arg1</code> argument in DTrace. We will also need flags values: <code>arg2</code> in DTrace (because they are going third in <code>openat()</code> prototype). In SystemTap you can use either DWARF variable <code>$flags</code> or tapset variable <code>flags</code>. Latter is more stable. <br /></p>
+Return value (which would represent file descriptor number) will be saved into <code>$return</code> variable in SystemTap and <code>arg1</code> argument in DTrace. We will also need flags values: <code>arg2</code> in DTrace (because they are going third in <code>openat()</code> prototype). In SystemTap you can use either DWARF variable <code>$flags</code> or tapset variable <code>flags</code>. Latter is more stable. </p>
 <p>
-Similarly, path to opened file will be passed as second <code>openat()</code> argument and will be available in DTrace as <code>arg1</code> or <code>$filename</code>/<code>filename</code> in SystemTap. At the moment of system call, however, file path will be a string which is located in user address space, so to get it in tracing script, you will need to copy it by using <code>copyinstr()</code> in DTrace or one of <code>user_string*()</code> functions. Tapset variable already uses <code>user_string_quoted()</code> to access variable, so we will use it in our scripts.<br /></p>
+Similarly, path to opened file will be passed as second <code>openat()</code> argument and will be available in DTrace as <code>arg1</code> or <code>$filename</code>/<code>filename</code> in SystemTap. At the moment of system call, however, file path will be a string which is located in user address space, so to get it in tracing script, you will need to copy it by using <code>copyinstr()</code> in DTrace or one of <code>user_string*()</code> functions. Tapset variable already uses <code>user_string_quoted()</code> to access variable, so we will use it in our scripts.</p>
 <p>
-Note that data that we want gather is available in two different probes: flags and file path are provided by entry probe, while file descriptor number can only be collected in return probe (SystemTap can provide flags and file path in return probe, but as we mentioned, it depends on compiler optimizations). Since both probes will be executed in the same context, we can use <a href="../lang/vars.html#thread-local-vars">thread-local variables</a>.<br /></p>
+Note that data that we want gather is available in two different probes: flags and file path are provided by entry probe, while file descriptor number can only be collected in return probe (SystemTap can provide flags and file path in return probe, but as we mentioned, it depends on compiler optimizations). Since both probes will be executed in the same context, we can use <a href="../lang/vars.html#thread-local-vars">thread-local variables</a>.</p>
 <p>
-Finally, stringifying flags will require usage of ternary operator <code>?:</code> in DTrace or <code>if/else</code> construct in SystemTap. To concatenate strings, use <code>strjoin</code> from DTrace or string concatenation operator <code>.</code> in SystemTap. <br /></p>
+Finally, stringifying flags will require usage of ternary operator <code>?:</code> in DTrace or <code>if/else</code> construct in SystemTap. To concatenate strings, use <code>strjoin</code> from DTrace or string concatenation operator <code>.</code> in SystemTap. </p>
 <p>
-Here are resulting DTrace script which implements required functionality:<br /></p>
+Here are resulting DTrace script which implements required functionality:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file opentrace.d <br/><p>
 <pre id="code1" class="hide">
 /* These constants are already defined in /usr/lib/dtrace/io.d
@@ -117,10 +118,11 @@ syscall::openat*:return
 </p>
 </div>
 </p>
+
+I have used <code>sprintf()</code> to concatenate strings in SystemTap version of a script:</p>
 <p>
-I have used <code>sprintf()</code> to concatenate strings in SystemTap version of a script:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file opentrace.stp <br/><p>
 <pre id="code2" class="hide">
 global O_WRONLY = 1;
@@ -161,8 +163,9 @@ probe syscall.open.return {
 </p>
 </div>
 </p>
-<p>
-Finally, you will need to add predicates to compare paths with <code>/etc</code> in DTrace by using <code>strstr()</code> subroutine and comparing it with <code>0</code> and SystemTap's <code>ininstr()</code> function.<br /></p>
+
+Finally, you will need to add predicates to compare paths with <code>/etc</code> in DTrace by using <code>strstr()</code> subroutine and comparing it with <code>0</code> and SystemTap's <code>ininstr()</code> function.
+</p>
 
 	</div>
 </div>

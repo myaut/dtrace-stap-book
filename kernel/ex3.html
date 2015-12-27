@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,14 +52,17 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 3</h3></p>
+		<h3>
+ Exercise 3</h3>
 <p>
-<h4>Part 1</h4></p>
+    <h4>
+ Part 1</h4>
+</p>
 <p>
-Modify <code>dumptask.stp</code> and <code>dumptask.d</code> so it will print information on successful binary load by <code>execve()</code> and before process exit. Write a simple program <code>lab3.c</code>:<br /></p>
+Modify <code>dumptask.stp</code> and <code>dumptask.d</code> so it will print information on successful binary load by <code>execve()</code> and before process exit. Write a simple program <code>lab3.c</code>:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file lab3.c <br/><p>
 <pre id="code1" class="hide">
 #include <string.h>
@@ -76,63 +80,71 @@ int main(int argc, char* argv[]) {
 </p>
 </div>
 </p>
-<p>
-Compile it with GCC:<br /></p>
-<p>
-<pre>
-# gcc lab3.c -o lab3
-</pre>
+
+Compile it with GCC:
+    <p>
+    <pre>
+# gcc lab3.c -o lab3</pre>
+</p>
 </p>
 <p>
-Run changed scripts and run your program in different ways:<br /></p>
+Run changed scripts and run your program in different ways:</p>
 <p>
-    <ul>
+     <ul>
         <li>
- Run it with argument:<br />            <p>
+ Run it with argument:
+            <p>
             <pre>
-# ./lab3 arg1
-</pre>
+# ./lab3 arg1</pre>
 </p>
-</li>
+
+ </li>
         <li>
- Create a symbolic link and run a program through it:<br />            <p>
+ Create a symbolic link and run a program through it:
+            <p>
             <pre>
 # ln -s lab3 lab3-1
-# ./lab3-1
-</pre>
+# ./lab3-1</pre>
 </p>
-</li>
+
+ </li>
         <li>
- Created chrooted environment and run <code>lab3</code> inside it:<br />            <p>
+ Created chrooted environment and run <code>lab3</code> inside it:
+            <p>
             <pre>
 # mkdir -p /tmp/chroot/bin /tmp/chroot/lib64 /tmp/chroot/lib
 # mount --bind /lib64 /tmp/chroot/lib64         (in Linux)
 # mount -F lofs /lib /tmp/chroot/lib            (in Solaris)
 # cp lab3 /tmp/chroot/bin
-# chroot /tmp/chroot/ /bin/lab3
-</pre>
+# chroot /tmp/chroot/ /bin/lab3</pre>
 </p>
 </li>
 </ul>
 </p>
 <p>
-<strong>Q</strong>: What data output has been changed? Try to explain these changes.<br /></p>
+<strong>Q</strong>: What data output has been changed? Try to explain these changes.</p>
 <p>
-<h4>Part 2</h4></p>
+    <h4>
+ Part 2</h4>
+</p>
 <p>
-Shell scripts have overhead caused by need to spawn new processes for basic operations, and thus calling <code>fork()</code> and <code>execve()</code>. Write SystemTap and DTrace scripts that measure following characteristics:<br />     <ul>
+Shell scripts have overhead caused by need to spawn new processes for basic operations, and thus calling <code>fork()</code> and <code>execve()</code>. Write SystemTap and DTrace scripts that measure following characteristics:
+     <ul>
         <li>
- time, spent for <code>fork()</code> and <code>execve()</code> system calls;<br /> </li>
+ time, spent for <code>fork()</code> and <code>execve()</code> system calls;
+ </li>
         <li>
- time, spent for child process initialization in userspace: closing files and resetting signals -- it is time interval between finish of <code>fork()</code> call in child context and calling of <code>execve()</code>;<br /> </li>
+ time, spent for child process initialization in userspace: closing files and resetting signals -- it is time interval between finish of <code>fork()</code> call in child context and calling of <code>execve()</code>;
+ </li>
         <li>
- own program time after it was loaded with <code>execve()</code> and before it was exited.<br /> </li>
+ own program time after it was loaded with <code>execve()</code> and before it was exited.</li>
 </ul>
 </p>
 <p>
-To be more correct, we should also measure time spent by <code>ld.so</code> loader and subtract it from <em>own program time</em>, but it involves complex tracing of userspace, so we leave it out of the scope of this exercise. <br /></p>
+
+To be more correct, we should also measure time spent by <code>ld.so</code> loader and subtract it from <em>own program time</em>, but it involves complex tracing of userspace, so we leave it out of the scope of this exercise. </p>
 <p>
-Measure all time periods in microseconds and save them to an aggregations using process executable name and its program arguments.<br /></p>
+Measure all time periods in microseconds and save them to an aggregations using process executable name and its program arguments.</p>
 <p>
 Use <code>proc_starter</code> experiment to demonstrate written script. This module starts <code>sh</code> shell (which can be overridden with <code>shell</code> parameter), uses <code>PS1</code> environment variable to reset prompt, and simulates real user entering commands by passing them through pseudo-terminal. Commands are represented as probability map <code>command</code>.</p>
 

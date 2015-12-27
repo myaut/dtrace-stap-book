@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,83 +52,92 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 4</h3></p>
+		<h3>
+ Exercise 4</h3>
 <p>
-<h4>Part 1</h4></p>
+    <h4>
+ Part 1</h4>
+</p>
 <p>
-Create two scripts: <code>deblock.d</code> and <code>deblock.stp</code> which would demonstrate effects of unaligned input output for a synchronous writes.  To do so, use aggregations to gather throughput (amount of data written) on VFS and BIO layers. Dump aggregations on terminal periodically using timer probes. Results should be grouped using name of disk device or/and mount point path.<br /></p>
+Create two scripts: <code>deblock.d</code> and <code>deblock.stp</code> which would demonstrate effects of unaligned input output for a synchronous writes.  To do so, use aggregations to gather throughput (amount of data written) on VFS and BIO layers. Dump aggregations on terminal periodically using timer probes. Results should be grouped using name of disk device or/and mount point path.</p>
 <p>
-Create filesystems to conduct experiment. For example, ext4 in CentOS:<br /></p>
-<p>
-<pre>
+Create filesystems to conduct experiment. For example, ext4 in CentOS:
+    <p>
+    <pre>
 # mkdir /tiger
 # mkfs.ext4 /dev/sda
-# mount /dev/sda /tiger
-</pre>
+# mount /dev/sda /tiger</pre>
+</p>
+
+and ZFS in Solaris:
+    <p>
+    <pre>
+# zpool create tiger c3t0d0</pre>
+</p>
 </p>
 <p>
-and ZFS in Solaris:<br /></p>
-<p>
-<pre>
-# zpool create tiger c3t0d0
-</pre>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+<code>/dev/sda</code> and <code>c3t0d0</code> are the names in our lab environment. Replace them with with correct ones. <code>/tiger</code> mount point, however will be used in experiment configuration files.
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-<code>/dev/sda</code> and <code>c3t0d0</code> are the names in our lab environment. Replace them with with correct ones. <code>/tiger</code> mount point, however will be used in experiment configuration files.<br /></div>
-<span class="label label-info">Note</span><div class="well">
-You can use other filesystem types, however scripts from hints and solutions section will use ext4 and ZFS. Filesystem should also have prefetching mechanisms for part 2.<br /></div>
+</div>
+
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+You can use other filesystem types, however scripts from hints and solutions section will use ext4 and ZFS. Filesystem should also have prefetching mechanisms for part 2.
+</p>
+</div>
+</p>
 <p>
-Run <code>deblock</code> experiment to evaluate your scripts. 1Mb file is created in this example, and blocks of random size (which is uniformly distributed value from 512 bytes to 16 kilobytes) are written at random offsets to it. Filesystem driver has to align block size to filesystem blocks which will induce additional overheads on block layer and even extra reads. <br /></p>
+Run <code>deblock</code> experiment to evaluate your scripts. 1Mb file is created in this example, and blocks of random size (which is uniformly distributed value from 512 bytes to 16 kilobytes) are written at random offsets to it. Filesystem driver has to align block size to filesystem blocks which will induce additional overheads on block layer and even extra reads. </p>
 <p>
-You can avoid effects of unaligned I/O by changing block size variator parameters like this:<br /></p>
-<p>
-<pre>
+You can avoid effects of unaligned I/O by changing block size variator parameters like this:
+    <p>
+    <pre>
 # /opt/tsload/bin/tsexperiment -e deblock/experiment.json run   \
     -s workloads:fileio:params:block_size:randvar:min=4096  \
-    -s workloads:fileio:params:block_size:randvar:max=4096
-</pre>
+    -s workloads:fileio:params:block_size:randvar:max=4096</pre>
+</p>
+
+Block size becomes uniformly distributed in interval [4096;4096] which will be simply a constant value of 4 kilobytes. Re-run your script and see how workload characteristics are changed.</p>
+<p>
+    <h4>
+ Part 2</h4>
 </p>
 <p>
-Block size becomes uniformly distributed in interval [4096;4096] which will be simply a constant value of 4 kilobytes. Re-run your script and see how workload characteristics are changed.<br /></p>
+In second part of this exercise we will evaluate filesystem prefetching or readahead mechanisms. It will significantly improve synchronous sequential read performance as operating systems will read blocks following by requested block asynchronously making it available in page cache when application will request it. </p>
 <p>
-<h4>Part 2</h4></p>
+Write <code>readahead.stp</code> and <code>readahead.d</code> scripts to see which layer is responsible for prefetching. To do so, count number of operations on three levels: Virtual File System, Block Input-Output and SCSI stack. Grouping and output are the same as in part 1.</p>
 <p>
-In second part of this exercise we will evaluate filesystem prefetching or readahead mechanisms. It will significantly improve synchronous sequential read performance as operating systems will read blocks following by requested block asynchronously making it available in page cache when application will request it. <br /></p>
-<p>
-Write <code>readahead.stp</code> and <code>readahead.d</code> scripts to see which layer is responsible for prefetching. To do so, count number of operations on three levels: Virtual File System, Block Input-Output and SCSI stack. Grouping and output are the same as in part 1.<br /></p>
-<p>
-Note that test file will be already in page cache (or ARC cache in case of ZFS) after we create them, so we will need to flush it before running an experiment. The simplest way to do that is to unmount filesystem and mount it again. I.e in Linux:<br /></p>
-<p>
-<pre>
-# umount /tiger/ ; mount /dev/sda /tiger/
-</pre>
+Note that test file will be already in page cache (or ARC cache in case of ZFS) after we create them, so we will need to flush it before running an experiment. The simplest way to do that is to unmount filesystem and mount it again. I.e in Linux:
+    <p>
+    <pre>
+# umount /tiger/ ; mount /dev/sda /tiger/</pre>
 </p>
-<p>
-Entire ZFS pools have to be exported-imported to destroy ARC cache.<br /></p>
-<p>
-<pre>
-# zpool export tiger ; zpool import tiger
-</pre>
+
+Entire ZFS pools have to be exported-imported to destroy ARC cache.
+    <p>
+    <pre>
+# zpool export tiger ; zpool import tiger</pre>
 </p>
+
+You may also use <code>drop_caches</code> tunable in Linux. This should be done before each experiment run.</p>
 <p>
-You may also use <code>drop_caches</code> tunable in Linux. This should be done before each experiment run.<br /></p>
-<p>
-SimpleIO module of TSLoad workload generator will immediately start experiment after writing the file. We should create that file manually before starting it:<br /></p>
-<p>
-<pre>
-# dd if=/dev/zero of=/tiger/READAHEAD count=40960
-</pre>
+SimpleIO module of TSLoad workload generator will immediately start experiment after writing the file. We should create that file manually before starting it:
+    <p>
+    <pre>
+# dd if=/dev/zero of=/tiger/READAHEAD count=40960</pre>
 </p>
+
+And set <code>overwrite</code> option to true in experiment configuration.</p>
 <p>
-And set <code>overwrite</code> option to true in experiment configuration.<br /></p>
-<p>
-Use readahead experiment to demonstrate your script. You may change sequential operations to random by changing random generator type from sequental to linear congruential generator and see how effects of readahead is changed:<br /></p>
-<p>
-<pre>
+Use readahead experiment to demonstrate your script. You may change sequential operations to random by changing random generator type from sequental to linear congruential generator and see how effects of readahead is changed:
+    <p>
+    <pre>
 # /opt/tsload/bin/tsexperiment -e readahead/experiment.json run \
-        -s workloads:fileio:params:offset:randgen:class=lcg
-</pre>
+        -s workloads:fileio:params:offset:randgen:class=lcg</pre>
+</p>
+
 </p>
 
 	</div>

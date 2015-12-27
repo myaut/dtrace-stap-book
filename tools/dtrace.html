@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
+	<title> Module 1: Dynamic tracing tools. dtrace and stap tools
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,88 +52,120 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>DTrace</h3></p>
+		<h3>
+ DTrace</h3>
 <p>
-DTrace is shipped with Solaris from version 10, no additional actions needed to install it. It also doesn't need any changes to kernel code: it relies on CTF sections, symbol tables and static tracing points that are included into Solaris Kernel binaries. <br /></p>
+DTrace is shipped with Solaris from version 10, no additional actions needed to install it. It also doesn't need any changes to kernel code: it relies on CTF sections, symbol tables and static tracing points that are included into Solaris Kernel binaries. </p>
 <p>
-The heart of DTrace is <code>libdtrace.so.1</code> library which contains compiler that translates script in D language to a <em>DTrace Intermediate Format</em> (DIF). That format is machine codes of simplified RISC which are interpreted by <code>drv/dtrace</code> driver:<br /></p>
+The heart of DTrace is <code>libdtrace.so.1</code> library which contains compiler that translates script in D language to a <em>DTrace Intermediate Format</em> (DIF). That format is machine codes of simplified RISC which are interpreted by <code>drv/dtrace</code> driver:</p>
 <p>
 <img src="../images/dtrace.png" alt="" class="img-rounded"/></p>
 <p>
-DTrace primary front-end tool is <code>dtrace(1M)</code> which act both as compiler and consumer and uses <code>libdtrace.so.1</code> facilities to do that. There are other front-ends: <code>trapstat(1M)</code> and <code>lockstat(1M)</code>, but <code>libdtrace.so.1</code> APIs are open, so you can create your own front end for that (i.e. for Java using JNI). We will refer to <code>dtrace(1M)</code> as DTrace further in a book. <br /></p>
+DTrace primary front-end tool is <code>dtrace(1M)</code> which act both as compiler and consumer and uses <code>libdtrace.so.1</code> facilities to do that. There are other front-ends: <code>trapstat(1M)</code> and <code>lockstat(1M)</code>, but <code>libdtrace.so.1</code> APIs are open, so you can create your own front end for that (i.e. for Java using JNI). We will refer to <code>dtrace(1M)</code> as DTrace further in a book. </p>
 <p>
-<h4>DTrace tool </h4></p>
+    <h4>
+ DTrace tool </h4>
+</p>
 <p>
-DTrace supports three launch modes:<br /></p>
+DTrace supports three launch modes:</p>
 <p>
-    <ul>
+     <ul>
         <li>
- Script is passed as command line argument:<br />   <code># dtrace -n 'syscall::write:entry { trace(arg0); }'</code></li>
+ Script is passed as command line argument:
+   <code># dtrace -n 'syscall::write:entry { trace(arg0); }'</code>
+ </li>
         <li>
- Script is located in separate file:<br />   <code># dtrace -s syscalls.d [arguments]</code><br />   In that case you may pass arguments, for example user ID for traced processes or disk name for which you trace block input-output. In this case arguments will be accesible in variables <code>$1</code>, <code>$2</code>, ... <code>$n</code>. Note that because there is no special handling for string arguments, you may need duplicate quotes (double-quotes needed by DTrace):<br />   <code># dtrace -s syscalls.d '"mysqld"'</code></li>
+ Script is located in separate file:
+   <code># dtrace -s syscalls.d [arguments]</code>
+   In that case you may pass arguments, for example user ID for traced processes or disk name for which you trace block input-output. In this case arguments will be accesible in variables <code>$1</code>, <code>$2</code>, ... <code>$n</code>. Note that because there is no special handling for string arguments, you may need duplicate quotes (double-quotes needed by DTrace):
+   <code># dtrace -s syscalls.d '"mysqld"'</code>
+ </li>
         <li>
- Explicitly passing name of probe:<br />   <code>dtrace [-P provider] [-m module] [-f function] [-n name]</code></li>
+ Explicitly passing name of probe:
+   <code>dtrace [-P provider] [-m module] [-f function] [-n name]</code></li>
 </ul>
 </p>
 <p>
-Here are some useful command line options:<br />     <ul>
+Here are some useful command line options:
+     <ul>
         <li>
-<code>-l</code> -- lists all available probes. Can be filtered using options <code>-P</code>, <code>-m</code>, <code>-f</code> or <code>-n</code> or using <code>grep</code>. I.e.:<br />            <p>
+ <code>-l</code> -- lists all available probes. Can be filtered using options <code>-P</code>, <code>-m</code>, <code>-f</code> or <code>-n</code> or using <code>grep</code>. I.e.:
+            <p>
             <pre>
 # dtrace -l -P io
 ID    PROVIDER        MODULE      FUNCTION NAME
 800         io       genunix       biodone done
 801         io       genunix       biowait wait-done
 802         io       genunix       biowait wait-start
-<cut>
-</pre>
+<cut></pre>
 </p>
+
+ </li>
+        <li>
+ <code>-q</code> -- enables quiet mode. By default DTrace prints probe id, its name and CPU number when probe fires. <code>-q</code> disables that.
+ </li>
+        <li>
+ <code>-w</code> -- allows <em>destructive</em> actions, for example system panics or breakpointing applications. That actions may be forbidden globally by setting kernel tunable <code>dtrace_destructive_disallow</code>.
+ </li>
+        <li>
+ <code>-o FILE</code> -- redirects output to a file. If file already exists, it <strong>appends</strong> to it.
+ </li>
+        <li>
+ <code>-x OPTION[=VALUE]</code> -- sets one of DTrace tunables. Here are some useful tunables:
+               <ul>
+                <li>
+ <code>bufsize</code> -- size of consumer buffer (same as <code>-b</code>). Note that consumer buffers are per-cpu.
+   </li>
+                <li>
+ <code>cpu</code> -- processor on which tracing is enabled (same as <code>-c</code>)
+   </li>
+                <li>
+ <code>dynvarsize</code> -- size of buffers for dynamic variables (associative arrays in particular)
+   </li>
+                <li>
+ <code>quiet</code> -- quiet mode (same as <code>-q</code>)
+   </li>
+                <li>
+ <code>flowindent</code> -- print probes in tree mode with indentation. See more in <a href="../principles/dyncode.html">Dynamic code analysis</a>.
+   </li>
+                <li>
+ <code>destructive</code> -- enables destructive mode (same as <code>-w</code>).
+   These options may be set inside script using pragma directive:
+   <code>#pragma D option bufsize=64m</code>
+ </li>
+</ul>
 </li>
         <li>
-<code>-q</code> -- enables quiet mode. By default DTrace prints probe id, its name and CPU number when probe fires. <code>-q</code> disables that.<br /> </li>
-        <li>
-<code>-w</code> -- allows <em>destructive</em> actions, for example system panics or breakpointing applications. That actions may be forbidden globally by setting kernel tunable <code>dtrace_destructive_disallow</code>.<br /> </li>
-        <li>
-<code>-o FILE</code> -- redirects output to a file. If file already exists, it <strong>appends</strong> to it.<br /> </li>
-        <li>
-<code>-x OPTION[=VALUE]</code> -- sets one of DTrace tunables. Here are some useful tunables:<br />   </li>
-        <ul>
-            <li>
-<code>bufsize</code> -- size of consumer buffer (same as <code>-b</code>). Note that consumer buffers are per-cpu.<br />   </li>
-            <li>
-<code>cpu</code> -- processor on which tracing is enabled (same as <code>-c</code>)<br />   </li>
-            <li>
-<code>dynvarsize</code> -- size of buffers for dynamic variables (associative arrays in particular)<br />   </li>
-            <li>
-<code>quiet</code> -- quiet mode (same as <code>-q</code>)<br />   </li>
-            <li>
-<code>flowindent</code> -- print probes in tree mode with indentation. See more in <a href="../principles/dyncode.html">Dynamic code analysis</a>.<br />   </li>
-            <li>
-<code>destructive</code> -- enables destructive mode (same as <code>-w</code>).<br />   These options may be set inside script using pragma directive:<br />   <code>#pragma D option bufsize=64m</code></li>
+ <code>-C</code> -- call C preprocessor <code>cpp(1)</code> before script compilation. That allows handling C preprocessor directives such as <code>#include</code>, <code>#define</code>, <code>#ifdef</code> and so on. There are some extra preprocessor-related options:
+               <ul>
+                <li>
+ <code>-D MACRO[=SUBSTITUTION]</code> -- defines preprocessor macro. <code>-U</code> undefines it.
+   </li>
+                <li>
+ <code>-I PATH</code> -- adds a path to include files
+   </li>
+                <li>
+ <code>-H</code> -- prints included files
+ </li>
 </ul>
+</li>
         <li>
-<code>-C</code> -- call C preprocessor <code>cpp(1)</code> before script compilation. That allows handling C preprocessor directives such as <code>#include</code>, <code>#define</code>, <code>#ifdef</code> and so on. There are some extra preprocessor-related options:<br />   </li>
-        <ul>
-            <li>
-<code>-D MACRO[=SUBSTITUTION]</code> -- defines preprocessor macro. <code>-U</code> undefines it.<br />   </li>
-            <li>
-<code>-I PATH</code> -- adds a path to include files<br />   </li>
-            <li>
-<code>-H</code> -- prints included files<br /> </li>
-</ul>
+ <code>-A</code> and <code>-a</code> -- enable anonymous tracing which is used to trace system's boot and allows early loading of <code>drv/dtrace</code>
+ </li>
         <li>
-<code>-A</code> and <code>-a</code> -- enable anonymous tracing which is used to trace system's boot and allows early loading of <code>drv/dtrace</code></li>
-        <li>
-<code>-c COMMAND</code> and <code>-p PID</code> -- attaches tracing to a running command or starts new one<br />   </li>
+ <code>-c COMMAND</code> and <code>-p PID</code> -- attaches tracing to a running command or starts new one</li>
 </ul>
 </p>
 <p>
-<h4>DTrace example</h4></p>
+  
+    <h4>
+ DTrace example</h4>
+</p>
 <p>
-Let's create script <code>test.d</code> with following contents:<br /></p>
+Let's create script <code>test.d</code> with following contents:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 #!/usr/sbin/dtrace -qs -x dynvarsize=64m
 #pragma D option flowindent
 
@@ -140,31 +173,37 @@ syscall::write:entry
 /pid == $target/    
 {
         printf("Written %d bytes\n", arg2);
-}
-</pre>
+}</pre>
+</p>
 </p>
 <p>
-Launch it with following options:<br /></p>
+Launch it with following options:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 root@host# chmod +x /root/test.d
-root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"
-</pre>
+root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"</pre>
+</p>
 </p>
 <p>
-<strong>Q</strong>: One by one, remove options <code>flowindent</code> and <code>-q</code> from script. What changed?<br /></p>
+<strong>Q</strong>: One by one, remove options <code>flowindent</code> and <code>-q</code> from script. What changed?</p>
 <p>
-<strong>Q</strong>: Calculate number of probes that are provided by <code>fbt</code> provider:<br /><code># dtrace -l -P fbg | wc -l</code></p>
+<strong>Q</strong>: Calculate number of probes that are provided by <code>fbt</code> provider:
+<code># dtrace -l -P fbg | wc -l</code></p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
-    <ul>
+     <ul>
         <li>
-<img src="../images/icons/manpage.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E26502_01/html/E29031/dtrace-1m.html">dtrace(1M)</a></li>
+ <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E26502_01/html/E29031/dtrace-1m.html">dtrace(1M)</a>
+ </li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a>
+ </li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
 </ul>
 </p>
 

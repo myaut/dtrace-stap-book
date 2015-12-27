@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix A. Exercise hints and solutions </title>
+	<title> Appendix A. Exercise hints and solutions 
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,18 +52,19 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 2</h3></p>
+		<h3>
+ Exercise 2</h3>
 <p>
-We will have to use <code>count()</code><a href="../lang/assocarr.html#aggr">aggregation</a> to count <code>open()</code> and <code>openat()</code> system calls. It can be cleaned up from outdated data with <code>trunc()</code> action in DTrace or <code>delete</code> operation in SystemTap. These scripts are roughly based on <code>wstat.d</code> and <code>wstat.stp</code> from <a href="../lang/assocarr.html#aggr-example">aggregations example</a>.<br /></p>
+We will have to use <code>count()</code> <a href="../lang/assocarr.html#aggr">aggregation</a> to count <code>open()</code> and <code>openat()</code> system calls. It can be cleaned up from outdated data with <code>trunc()</code> action in DTrace or <code>delete</code> operation in SystemTap. These scripts are roughly based on <code>wstat.d</code> and <code>wstat.stp</code> from <a href="../lang/assocarr.html#aggr-example">aggregations example</a>.</p>
 <p>
-To print current timestamp we can use <code>%Y</code> formatting specifier and <code>walltimestamp</code> variable in DTrace. Same can be achieved with <code>ctime()</code> and <code>gettimeofday_s()</code> functions from SystemTap. To print data periodically, we can use <a href="../lang/probes.html#timers">timer probes</a>: <code>timer.s($1)</code> in SystemTap or <code>tick-$1s</code> from DTrace. <code>$1</code> here represents first command line argument.<br /></p>
+To print current timestamp we can use <code>%Y</code> formatting specifier and <code>walltimestamp</code> variable in DTrace. Same can be achieved with <code>ctime()</code> and <code>gettimeofday_s()</code> functions from SystemTap. To print data periodically, we can use <a href="../lang/probes.html#timers">timer probes</a>: <code>timer.s($1)</code> in SystemTap or <code>tick-$1s</code> from DTrace. <code>$1</code> here represents first command line argument.</p>
 <p>
-Finally, we need to determine if open operation requests creation of file or not. We should write predicate for that which tests flags passed to open for <code>O_CREAT</code> flag (we have learned how to access flags in previous exercise). <br /></p>
+Finally, we need to determine if open operation requests creation of file or not. We should write predicate for that which tests flags passed to open for <code>O_CREAT</code> flag (we have learned how to access flags in previous exercise). </p>
 <p>
-Here are resulting scripts:<br /></p>
+Here are resulting scripts:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file openaggr.d <br/><p>
 <pre id="code1" class="hide">
 syscall::openat*:entry
@@ -90,8 +92,8 @@ tick-$1s {
 </p>
 </div>
 </p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file openaggr.stp <br/><p>
 <pre id="code2" class="hide">
 global open, creat, success
@@ -124,6 +126,8 @@ probe timer.s($1) {
 }</pre>
 </p>
 </div>
+</p>
+
 </p>
 
 	</div>

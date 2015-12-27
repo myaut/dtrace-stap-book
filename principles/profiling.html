@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 3: Principles of dynamic tracing</title>
+	<title> Module 3: Principles of dynamic tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,12 +52,13 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Profiling</h3></p>
+		<h3>
+ Profiling</h3>
 <p>
-Consider the following task: you need to know which functions are called more often than others or spend most time when executing because it makes them perfect targets for code optimization. You may do it by attaching to every function entry and exit point the following script:<br /></p>
+Consider the following task: you need to know which functions are called more often than others or spend most time when executing because it makes them perfect targets for code optimization. You may do it by attaching to every function entry and exit point the following script:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 fbt:::entry { 
     self->start = timestamp; 
 } 
@@ -69,88 +71,103 @@ fbt:::return
 } 
 tick-1s { 
     printa("%s %@d %@d", @fc, @ft); 
-    trunc(@fc); trunc(@ft) }
-</pre>
+    trunc(@fc); trunc(@ft) }</pre>
 </p>
-<span class="label label-important">DANGER!</span><div class="well">
-This script is conceptual! Do not run it on real system. <br /></div>
+</p>
 <p>
-If you were able to collect data with this script, you'll got <em>population</em>, but you couldn't do that. Usually function call takes several processor cycles and a single instruction, but when you run it, you'll need hundreds of instructions (for getting timestamp and writing to a aggregation), which causes colossal <em>overhead</em>. Statistics theory, however, provides a solution to that: instead of gathering entire population, you may reduce it to a <em>sample</em>, which is representative (reproduces significant properties of a population). Collecting a sample is called <em>sampling</em>, while sampling function calls is usually referred as <em>profiling</em>.<br /></p>
-<span class="label label-inverse">Definition</span><div class="well">
-In software engineering, <em>profiling</em> is a form of dynamic program analysis that measures, for example, the space (memory) or time complexity of a program, the usage of particular instructions, or the frequency and duration of function calls. Most commonly, profiling information serves to aid program optimization.<br /></div>
+<span class="label label-important">DANGER!</span>    <div class="well">
+        <p>
+This script is conceptual! Do not run it on real system. 
+</p>
+</div>
+</p>
 <p>
-Modern operating systems provide builtin profilers, such as <strong>OProfile</strong> and <strong>SysProf</strong> in Linux which were replaced with <strong>perf</strong> subsystem since 2.6.31 kernel or <strong>er_kernel</strong> from Solaris Studio. However, Dynamic tracing languages allow to build custom profilers. <br /></p>
+If you were able to collect data with this script, you'll got <em>population</em>, but you couldn't do that. Usually function call takes several processor cycles and a single instruction, but when you run it, you'll need hundreds of instructions (for getting timestamp and writing to a aggregation), which causes colossal <em>overhead</em>. Statistics theory, however, provides a solution to that: instead of gathering entire population, you may reduce it to a <em>sample</em>, which is representative (reproduces significant properties of a population). Collecting a sample is called <em>sampling</em>, while sampling function calls is usually referred as <em>profiling</em>.</p>
 <p>
-A simplest profiler records process ID to see which processes or threads consume CPU resources more than others, as we discussed about <a href="../lang/probes.html#timers">timer probes</a>. They may be implemented with following DTrace script:<br /></p>
+<span class="label label-inverse">Definition</span>    <div class="well">
+        <p>
+In software engineering, <em>profiling</em> is a form of dynamic program analysis that measures, for example, the space (memory) or time complexity of a program, the usage of particular instructions, or the frequency and duration of function calls. Most commonly, profiling information serves to aid program optimization.
+</p>
+</div>
+</p>
 <p>
-<pre>
+Modern operating systems provide builtin profilers, such as <strong>OProfile</strong> and <strong>SysProf</strong> in Linux which were replaced with <strong>perf</strong> subsystem since 2.6.31 kernel or <strong>er_kernel</strong> from Solaris Studio. However, Dynamic tracing languages allow to build custom profilers. </p>
+<p>
+A simplest profiler records process ID to see which processes or threads consume CPU resources more than others, as we discussed about <a href="../lang/probes.html#timers">timer probes</a>. They may be implemented with following DTrace script:
+    <p>
+    <pre>
 # dtrace -qn ' 
     profile-997hz {
         @load[pid, execname] = count(); 
     }
-    tick-20s { exit(0); }'
-</pre>
+    tick-20s { exit(0); }'</pre>
+</p>
 </p>
 <p>
-Or in SystemTap:<br /></p>
-<p>
-<pre>
+Or in SystemTap:
+    <p>
+    <pre>
 # stap -e 'global load; 
     probe timer.profile {
         load[pid(), execname()] <<< 1; }
     probe timer.s(20) {
         exit();
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-If we want to go down to a function level, we need to access <em>program counter</em> register (or <em>instruction pointer</em> in x86 terminology) each time profiling probe fires. We will refer to program counter as PC later in this book. In DTrace these values are explicitly provided in <code>arg0</code> -- PC in kernel mode and <code>arg1</code> -- PC in userspace mode in <code>profiling</code> probes. Depending on if process was in kernel mode when profiling probe fired or not, <code>arg0</code> or <code>arg1</code> will be set to 0. Moreover, you may always get current userspace program counter using uregs array: <code>uregs[REG_PC]</code>. There is also <code>caller</code> and <code>ucaller</code> built-in variables. <br /></p>
+If we want to go down to a function level, we need to access <em>program counter</em> register (or <em>instruction pointer</em> in x86 terminology) each time profiling probe fires. We will refer to program counter as PC later in this book. In DTrace these values are explicitly provided in <code>arg0</code> -- PC in kernel mode and <code>arg1</code> -- PC in userspace mode in <code>profiling</code> probes. Depending on if process was in kernel mode when profiling probe fired or not, <code>arg0</code> or <code>arg1</code> will be set to 0. Moreover, you may always get current userspace program counter using uregs array: <code>uregs[REG_PC]</code>. There is also <code>caller</code> and <code>ucaller</code> built-in variables. </p>
 <p>
-You can use <code>addr()</code> tapset function in SystemTap which returns userspace PC or kernel PC depending on where probe were fired (some probes do not allow that, so <code>0</code> will be returned). To get userspace address explicitly, use <code>uaddr()</code> function.<br /></p>
-<span class="label label-warning">Warning</span><div class="well">
-Note that we were used <code>profile-997hz</code> probe to avoid "phasing": if we'd used <code>profile-1000hz</code> probe, there were a chance, that all probes were fired while system timer handler is working, thus making profiling useless (we will see that 100% of time kernel spends in system timer). In SystemTap <code>timer.profile</code> uses system timer for profiling, but <code>addr()</code> and <code>uaddr()</code> return correct values. <br /></div>
+You can use <code>addr()</code> tapset function in SystemTap which returns userspace PC or kernel PC depending on where probe were fired (some probes do not allow that, so <code>0</code> will be returned). To get userspace address explicitly, use <code>uaddr()</code> function.</p>
 <p>
-<h4>CPU performance measurement</h4></p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Note that we were used <code>profile-997hz</code> probe to avoid "phasing": if we'd used <code>profile-1000hz</code> probe, there were a chance, that all probes were fired while system timer handler is working, thus making profiling useless (we will see that 100% of time kernel spends in system timer). In SystemTap <code>timer.profile</code> uses system timer for profiling, but <code>addr()</code> and <code>uaddr()</code> return correct values. 
+</p>
+</div>
+</p>
 <p>
-Even if you collect program counter values, you will get what functions use CPU the most, but that doesn't mean that utilize processor resources effectively. For example, it can spend most of the time waiting for memory or cache or reset pipeline due to branch misprediction instead of utilizing ALU for actual computations. Such wasted cycles are referred as <em>stalled</em> in Intel processor documentation. <br /></p>
+    <h4>
+ CPU performance measurement</h4>
+</p>
 <p>
-Modern processors allow to measure influence of such performance penalties through CPU performance counters. Each time such event happens, CPU increments value of the counter. When counter exceeds threshold, exception is arisen which may be handled by dynamic tracing system. Or, counter may be read from userspace application, for example with <code>rdpmc</code> assembly instruction on Intel CPUs. <br /></p>
+Even if you collect program counter values, you will get what functions use CPU the most, but that doesn't mean that utilize processor resources effectively. For example, it can spend most of the time waiting for memory or cache or reset pipeline due to branch misprediction instead of utilizing ALU for actual computations. Such wasted cycles are referred as <em>stalled</em> in Intel processor documentation. </p>
 <p>
-You may use <code>cpustat</code> tool to get list of available CPU events in Solaris:<br /></p>
+Modern processors allow to measure influence of such performance penalties through CPU performance counters. Each time such event happens, CPU increments value of the counter. When counter exceeds threshold, exception is arisen which may be handled by dynamic tracing system. Or, counter may be read from userspace application, for example with <code>rdpmc</code> assembly instruction on Intel CPUs. </p>
 <p>
-<pre>
+You may use <code>cpustat</code> tool to get list of available CPU events in Solaris:
+    <p>
+    <pre>
 # cpustat -h
 [...]
-event0:  cpu_clk_unhalted.thread_p inst_retired.any_p 
-</pre>
+event0:  cpu_clk_unhalted.thread_p inst_retired.any_p</pre>
 </p>
+
+Description of such events may be found in CPU's documentation. SPARC counters are described in the book "Solaris Application Programming", but it lacks description of newer CPUs (SPARC T3 and later). However, documentation on SPARC T4 and T5 may be found here: <a href="http://www.oracle.com/technetwork/server-storage/sun-sparc-enterprise/documentation/sparc-servers-documentation-163529.html">Systems Documentation</a>. Solaris also provides CPU-independent generic counters which names start with <code>PAPI</code> prefix. </p>
 <p>
-Description of such events may be found in CPU's documentation. SPARC counters are described in the book "Solaris Application Programming", but it lacks description of newer CPUs (SPARC T3 and later). However, documentation on SPARC T4 and T5 may be found here: <a href="http://www.oracle.com/technetwork/server-storage/sun-sparc-enterprise/documentation/sparc-servers-documentation-163529.html">Systems Documentation</a>. Solaris also provides CPU-independent generic counters which names start with <code>PAPI</code> prefix. <br /></p>
-<p>
-Linux have separate subsystem that is responsible for providing access to CPU performance counters: <code>perf</code>. It has userspace utility <code>perf</code>, which can show you list of supported events:<br /></p>
-<p>
-<pre>
+Linux have separate subsystem that is responsible for providing access to CPU performance counters: <code>perf</code>. It has userspace utility <code>perf</code>, which can show you list of supported events:
+    <p>
+    <pre>
 # perf list
 List of pre-defined events (to be used in -e):
     cpu-cycles OR cycles                     [Hardware event]
-    instructions                             [Hardware event]
-</pre>
+    instructions                             [Hardware event]</pre>
+</p>
 </p>
 <p>
-You can use userspace tools <code>perf</code> in Linux or <code>cpustat</code>/<code>cputrack</code> in Solaris to gather CPU counters. <br /></p>
+You can use userspace tools <code>perf</code> in Linux or <code>cpustat</code>/<code>cputrack</code> in Solaris to gather CPU counters. </p>
 <p>
-DTrace provides CPU counters through <code>cpc</code> provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:<br /></p>
-<p>
-<pre>
-<i>EventName</i>-{kernel|user|all}[-<i>Mask</i>]-<i>Number</i>
-</pre>
+DTrace provides CPU counters through <code>cpc</code> provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:
+    <p>
+    <pre>
+<i>EventName</i>-{kernel|user|all}[-<i>Mask</i>]-<i>Number</i></pre>
 </p>
+
+<em>EventName</em> is a name of event taken from <code>cpustat</code> output (and matches documentation name in case of Intel CPUs). Following parameter defines a mode: <em>kernel</em> probes only account kernel instructions, <em>user</em> only work for userspace, and <em>all</em> will profile both. <em>Number</em> is a threshold for a counter after which probe will fire. Do not set <em>Number</em> to a small values to avoid overheads and system lockup, 10000 provides is relatively accurate readings. <em>Mask</em> is an optional parameter which allows to filter devices which accounted in performance counters (such as memory controllers or cores) and should be a hexademical number. </p>
 <p>
-<em>EventName</em> is a name of event taken from <code>cpustat</code> output (and matches documentation name in case of Intel CPUs). Following parameter defines a mode: <em>kernel</em> probes only account kernel instructions, <em>user</em> only work for userspace, and <em>all</em> will profile both. <em>Number</em> is a threshold for a counter after which probe will fire. Do not set <em>Number</em> to a small values to avoid overheads and system lockup, 10000 provides is relatively accurate readings. <em>Mask</em> is an optional parameter which allows to filter devices which accounted in performance counters (such as memory controllers or cores) and should be a hexademical number. <br /></p>
-<p>
-For example, you may use probe <code>PAPI_l3_tcm-user-10000</code> to measure number of userspace misses to last-level cache which is L3 cache in our case:<br /></p>
-<p>
-<pre>
+For example, you may use probe <code>PAPI_l3_tcm-user-10000</code> to measure number of userspace misses to last-level cache which is L3 cache in our case:
+    <p>
+    <pre>
 # dtrace -n '
     cpc:::PAPI_l3_tcm-user-10000 
     /arg1 != 0/ { 
@@ -158,58 +175,68 @@ For example, you may use probe <code>PAPI_l3_tcm-user-10000</code> to measure nu
     END { 
         trunc(@, 20); 
         printa(@); 
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-SystemTap provides access to CPU counter using <code>perf</code> tapset:<br /></p>
-<p>
-<pre>
+SystemTap provides access to CPU counter using <code>perf</code> tapset:
+    <p>
+    <pre>
 # stap -l 'perf.*.*'
 perf.hw.branch_instructions
 [...]
 # stap -l 'perf.*.*.*.*'
-perf.hw_cache.bpu.read.access
-</pre>
+perf.hw_cache.bpu.read.access</pre>
+</p>
 </p>
 <p>
-<a name="perf"></a><br />These probes are actually aliases for the following probes:<br /></p>
-<p>
-<pre>
-perf.type(<i>type</i>).config(<i>config</i>)[.sample(<i>sample</i>)][.process("<i>process-name</i>")][.counter("<i>counter-name</i>")]
-</pre>
+<a name="perf"></a>
+These probes are actually aliases for the following probes:
+    <p>
+    <pre>
+perf.type(<i>type</i>).config(<i>config</i>)[.sample(<i>sample</i>)][.process("<i>process-name</i>")][.counter("<i>counter-name</i>")]</pre>
 </p>
+
+<em>type</em> and <em>config</em> are numbers used in <code>perf_event_attr</code> -- their values may be found in header <code>linux/perf_event.h</code>. <em>sample</em> is a number of events after which probe firing. <em>process-name</em> allows to monitor only certain processes instead of system-wide sampling and contains name of the process (path to executable). <em>counter-name</em> allows to set an alias for performance counter which will be later used for <code>@perf</code> expression (see below). </p>
 <p>
-<em>type</em> and <em>config</em> are numbers used in <code>perf_event_attr</code> -- their values may be found in header <code>linux/perf_event.h</code>. <em>sample</em> is a number of events after which probe firing. <em>process-name</em> allows to monitor only certain processes instead of system-wide sampling and contains name of the process (path to executable). <em>counter-name</em> allows to set an alias for performance counter which will be later used for <code>@perf</code> expression (see below). <br /></p>
-<p>
-To measure last userspace level cache misses in SystemTap, you may use following script:<br /></p>
-<p>
-<pre>
+To measure last userspace level cache misses in SystemTap, you may use following script:
+    <p>
+    <pre>
 # stap -v -e '
     global misses; 
     probe perf.hw_cache.ll.read.miss { 
         if(!user_mode()) next; 
         misses[probefunc()] <<< 1; 
-    } ' -d <path-to-lib>
-</pre>
+    } ' -d <path-to-lib></pre>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-These examples were tested on Intel Xeon E5-2420 processor. Like we mentioned before, performance counters are CPU-specific.<br /></div>
+</p>
 <p>
-SystemTap allows to create per-processor counter which can be read later:<br /></p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+These examples were tested on Intel Xeon E5-2420 processor. Like we mentioned before, performance counters are CPU-specific.
+</p>
+</div>
+</p>
 <p>
-<pre>
+SystemTap allows to create per-processor counter which can be read later:
+    <p>
+    <pre>
 # stap -v -t -e '
     probe perf.hw.instructions
         .process("/bin/bash").counter("insns") { } 
 
     probe process("/bin/bash").function("cd_builtin")  { 
         printf(" insns = %d\n", @perf("insns"));
-    }'
-</pre>
+    }'</pre>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-There is a bug <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=17660">PR-17660</a> which can cause <code>BUG()</code> in kernel when you use <code>@perf</code> in userspace. It seem to be resolved in current SystemTap/Kernel.<br /></div>
+</p>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+There is a bug <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=17660">PR-17660</a> which can cause <code>BUG()</code> in kernel when you use <code>@perf</code> in userspace. It seem to be resolved in current SystemTap/Kernel.
+</p>
+</div>
+</p>
 
 	</div>
 </div>

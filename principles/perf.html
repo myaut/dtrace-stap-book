@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 3: Principles of dynamic tracing</title>
+	<title> Module 3: Principles of dynamic tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,18 +52,28 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Performance analysis</h3></p>
+		<h3>
+ Performance analysis</h3>
 <p>
-Computer users, system administrators and developers are interested in improving of performance of computer systems and dynamic tracing languages are very handful in analysing soft spots of computer systems. We will use two characteristics of computer system to evaluate its performance most of the time: <em>throughput</em> and time spent for servicing request (usually referred as <em>latency</em>). These two characteristics depend on each other as following picture shows:<br /></p>
+Computer users, system administrators and developers are interested in improving of performance of computer systems and dynamic tracing languages are very handful in analysing soft spots of computer systems. We will use two characteristics of computer system to evaluate its performance most of the time: <em>throughput</em> and time spent for servicing request (usually referred as <em>latency</em>). These two characteristics depend on each other as following picture shows:</p>
 <p>
 <img src="../images/perf.png" alt="" class="img-rounded"/></p>
-<span class="label label-info">Information</span><div class="well">
-For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its <em>arrival rate</em>. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to <em>queue length</em>. Growing queues is a sign of the system's <em>saturation</em>. <em>Throughput</em> of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line -- they are treated as <em>errors</em>. When kiosk reaches its saturation point or the <em>knee</em>, <em>throughput</em> of the kiosk will fall, and number of errors will increase, because clerk will be tired. <br /><em>Latency</em> consists of <em>service time</em> which depends on many factors: i.e. if customer need change or clerk can't find copy of newspaper it will grow,  and <em>waiting time</em> -- time spent by a customer waiting in queue. <em>Utilization</em> is defined by a fraction time that clerk spends servicing their customers. I.e. if clerk spends 15 minutes to sell a magazines or newspapers per hour, utilization is 25%. <br />These definitions are part of <em>queueing theory</em> which was applied to telephone exchange, but it is also applicable to computer systems. Either network packet or block input-output operations may be considered as <em>request</em>, while corresponding driver and device are considered as <em>servers</em>. In our kiosk example, customer were the requests while clerk at the kiosk was the server.<br /></div>
 <p>
-To measure throughput we have to attach a probe to one of the functions responsible for handling requests, and use <code>count()</code> aggregation in it. It is preferable to use the last function responsible for that, because it will improve data robustness. Using a timer, we will print the aggregation value and clear it. For example, throughput of disk subsystem may be measured using following SystemTap script:<br /></p>
+<span class="label label-info">Information</span>    <div class="well">
+        <p>
+For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its <em>arrival rate</em>. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to <em>queue length</em>. Growing queues is a sign of the system's <em>saturation</em>. <em>Throughput</em> of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line -- they are treated as <em>errors</em>. When kiosk reaches its saturation point or the <em>knee</em>, <em>throughput</em> of the kiosk will fall, and number of errors will increase, because clerk will be tired. </p>
+        <p>
+<em>Latency</em> consists of <em>service time</em> which depends on many factors: i.e. if customer need change or clerk can't find copy of newspaper it will grow,  and <em>waiting time</em> -- time spent by a customer waiting in queue. <em>Utilization</em> is defined by a fraction time that clerk spends servicing their customers. I.e. if clerk spends 15 minutes to sell a magazines or newspapers per hour, utilization is 25%. </p>
+        <p>
+These definitions are part of <em>queueing theory</em> which was applied to telephone exchange, but it is also applicable to computer systems. Either network packet or block input-output operations may be considered as <em>request</em>, while corresponding driver and device are considered as <em>servers</em>. In our kiosk example, customer were the requests while clerk at the kiosk was the server.
+</p>
+</div>
+</p>
 <p>
-<pre>
+To measure throughput we have to attach a probe to one of the functions responsible for handling requests, and use <code>count()</code> aggregation in it. It is preferable to use the last function responsible for that, because it will improve data robustness. Using a timer, we will print the aggregation value and clear it. For example, throughput of disk subsystem may be measured using following SystemTap script:</p>
+<p>
+    <p>
+    <pre>
 # stap -e ' global io; 
     probe ioblock.end { 
         size = 0
@@ -75,13 +86,13 @@ To measure throughput we have to attach a probe to one of the functions responsi
             printf("%8s %d\n", devname, @sum(io[devname])); 
         } 
         delete io; 
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-Or with DTrace:<br /></p>
-<p>
-<pre>
+Or with DTrace:
+    <p>
+    <pre>
 # dtrace -n '
     io:::done { 
         @[args[1]->dev_statname] = sum(args[0]->b_bcount); 
@@ -89,15 +100,16 @@ Or with DTrace:<br /></p>
     tick-1s { 
         printa(@); 
         clear(@); 
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-To measure <em>arrival rate</em>, on contrary, we need first functions which handle request "arrival" which are in our case <code>ioblock.request</code> and <code>io:::start</code> correspondingly. These probes will be covered in <a href="../kernel/bio.html">Block Input-Output</a> section.<br /></p>
+To measure <em>arrival rate</em>, on contrary, we need first functions which handle request "arrival" which are in our case <code>ioblock.request</code> and <code>io:::start</code> correspondingly. These probes will be covered in <a href="../kernel/bio.html">Block Input-Output</a> section.</p>
 <p>
-<a name="latency"></a><br />Latency measurement is a bit more complicated. We will need to add probes to request arrival and final handler and calculate time difference between these two moments. So we need to save a timestamp of a request arrival and retrieve it at the final handler probe. The easiest way to do that is thread-local variables, but it is not guaranteed that final handler will be called from same context request was created from. For example, final handler may be called from IRQ handler thread. In such cases we will need associative arrays and a unique request key retrievable on both sides, which is usually an address of requests descriptor in memory. For block input-output is <code>struct buf</code> in Solaris and <code>struct bio</code> in Linux. So let's calculate mean latency in SystemTap:<br /></p>
-<p>
-<pre>
+<a name="latency"></a>
+Latency measurement is a bit more complicated. We will need to add probes to request arrival and final handler and calculate time difference between these two moments. So we need to save a timestamp of a request arrival and retrieve it at the final handler probe. The easiest way to do that is thread-local variables, but it is not guaranteed that final handler will be called from same context request was created from. For example, final handler may be called from IRQ handler thread. In such cases we will need associative arrays and a unique request key retrievable on both sides, which is usually an address of requests descriptor in memory. For block input-output is <code>struct buf</code> in Solaris and <code>struct bio</code> in Linux. So let's calculate mean latency in SystemTap:
+    <p>
+    <pre>
 # stap -e ' global start, times;    
     probe ioblock.request { 
         start[$bio] = gettimeofday_us();
@@ -114,13 +126,13 @@ To measure <em>arrival rate</em>, on contrary, we need first functions which han
             printf("%12s %8d\n", devname, @avg(times[devname]));
         }
         delete times;
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-Similar script is for DTrace:<br /></p>
-<p>
-<pre>
+Similar script is for DTrace:
+    <p>
+    <pre>
 # dtrace -qn '
     io:::start { 
         iostart[arg0] = timestamp; 
@@ -132,11 +144,13 @@ Similar script is for DTrace:<br /></p>
         printf("%12s %8s %Y\n", "DEVICE", "ASVC_T", walltimestamp);
         printa("%12s %@8d\n", @rq_svc_t);
         clear(@rq_svc_t);
-    } '
-</pre>
+    } '</pre>
+</p>
 </p>
 <p>
-Utilization may be measured similar to a profiling: high-resolution timer determines if server is busy or not, so utilization will be busy ticks to all ticks ratio. Queue length may be modelled from arrival rate and dispatch rate, but in many cases it is explicitly accessible from kernel or application data.<br /></p>
+Utilization may be measured similar to a profiling: high-resolution timer determines if server is busy or not, so utilization will be busy ticks to all ticks ratio. Queue length may be modelled from arrival rate and dispatch rate, but in many cases it is explicitly accessible from kernel or application data.</p>
+<p>
+</p>
 
 	</div>
 </div>

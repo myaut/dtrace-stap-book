@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix A. Exercise hints and solutions </title>
+	<title> Appendix A. Exercise hints and solutions 
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,14 +52,15 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 6</h3></p>
+		<h3>
+ Exercise 6</h3>
 <p>
-This exercise is not so different than any <a href="../principles/perf.html#latency">latency measurement</a> script where latency is measured as difference between timestamps of two probe firings and saved to an aggregation. <br /></p>
+This exercise is not so different than any <a href="../principles/perf.html#latency">latency measurement</a> script where latency is measured as difference between timestamps of two probe firings and saved to an aggregation. </p>
 <p>
-Note that <code>plockstat$</code> provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using <code>pid$</code> provider. As you may notice from ustack outputs in <code>pthread.d</code> example, mutex lock attempts are implemented by <code>mutex_lock_impl()</code> libc function. We will use <code>quantize()</code> aggregation which will be printed with <code>printa</code>:<br /></p>
+Note that <code>plockstat$</code> provider doesn't serve a probe for mutex lock attempt, so we had to expand it by using <code>pid$</code> provider. As you may notice from ustack outputs in <code>pthread.d</code> example, mutex lock attempts are implemented by <code>mutex_lock_impl()</code> libc function. We will use <code>quantize()</code> aggregation which will be printed with <code>printa</code>:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file mtxtime.d <br/><p>
 <pre id="code1" class="hide">
 pid$target::mutex_lock_impl:entry
@@ -80,16 +82,17 @@ pid$target::experiment_unconfigure:entry
 </p>
 </div>
 </p>
+
+You will need to bind this script to tsexperiment process using <code>-c</code> or <code>-p</code> option.</p>
 <p>
-You will need to bind this script to tsexperiment process using <code>-c</code> or <code>-p</code> option.<br /></p>
+We will need to use static probes <code>mutex_entry</code> and <code>mutex_acquired</code> for a SystemTap version of that script. However, we will need to be careful while working with userspace backtraces. First of all, we should use <code>-d</code> option to provide path to SystemTap for resolving symbols or <code>--ldd</code> to make it scan library dependencies of traced binary and automatically add them (when some of them are missing, <code>stap</code> utility will provide a hint with full paths).</p>
 <p>
-We will need to use static probes <code>mutex_entry</code> and <code>mutex_acquired</code> for a SystemTap version of that script. However, we will need to be careful while working with userspace backtraces. First of all, we should use <code>-d</code> option to provide path to SystemTap for resolving symbols or <code>--ldd</code> to make it scan library dependencies of traced binary and automatically add them (when some of them are missing, <code>stap</code> utility will provide a hint with full paths).<br /></p>
+Mutexes are also often used in TSLoad which can cause excessive overheads when we try to trace them, especially when we will use <code>ubacktrace()</code> function. You can use <code>STP_NO_OVERLOAD</code> macro definition (which can be passed to <code>stap</code> with <code>-D</code> option) to prevent stap from failing when overheads are big, or you can reduce overheads. In our case we will limit amount of traced callers by using <code>ucallers()</code> function which accepts depth of backtrace as a first argument like <code>ustack()</code> function from backtrace and only collects addresses without resolving them to symbols. We will defer symbol resolving to an aggregation printing.</p>
 <p>
-Mutexes are also often used in TSLoad which can cause excessive overheads when we try to trace them, especially when we will use <code>ubacktrace()</code> function. You can use <code>STP_NO_OVERLOAD</code> macro definition (which can be passed to <code>stap</code> with <code>-D</code> option) to prevent stap from failing when overheads are big, or you can reduce overheads. In our case we will limit amount of traced callers by using <code>ucallers()</code> function which accepts depth of backtrace as a first argument like <code>ustack()</code> function from backtrace and only collects addresses without resolving them to symbols. We will defer symbol resolving to an aggregation printing.<br /></p>
+Here are our script for SystemTap:</p>
 <p>
-Here are our script for SystemTap:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file mtxtime.stp <br/><p>
 <pre id="code2" class="hide">
 global mtxtime[128], mtxlockt;
@@ -125,6 +128,7 @@ probe process(@tsexperiment).function("experiment_unconfigure") {
 }</pre>
 </p>
 </div>
+</p>
 </p>
 
 	</div>

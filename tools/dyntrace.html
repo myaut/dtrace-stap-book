@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
+	<title> Module 1: Dynamic tracing tools. dtrace and stap tools
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,34 +52,40 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Dynamic tracing</h3></p>
+		<h3>
+ Dynamic tracing</h3>
 <p>
-Unlike other approaches, dynamic tracing tool embeds tracing code into working user program or kernel, without need of recompilation or reboot. Since any processor instruction may be patched, it can virtually access any information you need at any place. <br /></p>
+Unlike other approaches, dynamic tracing tool embeds tracing code into working user program or kernel, without need of recompilation or reboot. Since any processor instruction may be patched, it can virtually access any information you need at any place. </p>
 <p>
-Solaris DTrace development was begun in 1999, and it became part of Solaris 10 release. Along with other revolutionary Solaris 10 features, it shaken world of operating systems, and still evolve. You may found more information about DTrace history here: <a href="https://blogs.oracle.com/bmc/entry/happy_5th_birthday_dtrace">Happy 5th Birthday, DTrace!</a>.<br /></p>
+Solaris DTrace development was begun in 1999, and it became part of Solaris 10 release. Along with other revolutionary Solaris 10 features, it shaken world of operating systems, and still evolve. You may found more information about DTrace history here: <a href="https://blogs.oracle.com/bmc/entry/happy_5th_birthday_dtrace">Happy 5th Birthday, DTrace!</a>.</p>
 <p>
-Here are some DTrace information sources:<br />     <ul>
+Here are some DTrace information sources:
+     <ul>
         <li>
-<a href="https://wikis.oracle.com/display/DTrace/DTrace">Oracle Wiki</a></li>
+ <a href="https://wikis.oracle.com/display/DTrace/DTrace">Oracle Wiki</a>
+ </li>
         <li>
-<a href="http://www.solarisinternals.com/wiki/index.php/DTrace_Topics">DTrace at SolarisInternals wiki</a></li>
+ <a href="http://www.solarisinternals.com/wiki/index.php/DTrace_Topics">DTrace at SolarisInternals wiki</a>
+ </li>
         <li>
- «Solaris Performance and Tools» book<br /> </li>
+ «Solaris Performance and Tools» book
+ </li>
         <li>
- «DTrace - Dynamic Tracing in Oracle Solaris, Mac OS X and FreeBSD» book<br /> </li>
+ «DTrace - Dynamic Tracing in Oracle Solaris, Mac OS X and FreeBSD» book
+ </li>
         <li>
-<a href="http://download.oracle.com/docs/cd/E19253-01/817-6223/">Solaris Dynamic Tracing Guide</a></li>
+ <a href="http://download.oracle.com/docs/cd/E19253-01/817-6223/">Solaris Dynamic Tracing Guide</a></li>
 </ul>
 </p>
 <p>
+
 During course we will refer to <em>Solaris Dynamic Tracing Guide</em> with the following sign: <img src="../images/icons/dtrace.png" alt=" with the following sign: " class="img-rounded"/></p>
 <p>
-DTrace was open-sourced as a part of OpenSolaris, but due to license incompatibility, it can't be merged with Linux Kernel. Several ports existed, but they lacked of proper support. The only stable port is provided in Unbreakable Enterprise Kernel by Oracle for their own Linux distribution which is not wide-spread. There were attempt to develop another clone of DTrace -- DProbes, but it was a failure. Over time three major Linux players: Red Hat, Hitachi, IBM presented dynamic tracing system for Linux called <a href="http://sourceware.org/systemtap/">SystemTap</a>. It has two primary sources of information: <a href="http://sourceware.org/systemtap/langref/">SystemTap Language Reference</a> to which we will reference with icon <img src="../images/icons/staplang.png" alt=" to which we will reference with icon " class="img-rounded"/><a href="http://sourceware.org/systemtap/tapsets/">SystemTap Tapset Reference Manual</a> to which we will reference with icon <img src="../images/icons/stapset.png" alt=" to which we will reference with icon " class="img-rounded"/>. Of course, there is a Unix manual pages, to which we will refer with icon <img src="../images/icons/manpage.png" alt=". Of course, there is a Unix manual pages, to which we will refer with icon " class="img-rounded"/>. <br /></p>
+DTrace was open-sourced as a part of OpenSolaris, but due to license incompatibility, it can't be merged with Linux Kernel. Several ports existed, but they lacked of proper support. The only stable port is provided in Unbreakable Enterprise Kernel by Oracle for their own Linux distribution which is not wide-spread. There were attempt to develop another clone of DTrace -- DProbes, but it was a failure. Over time three major Linux players: Red Hat, Hitachi, IBM presented dynamic tracing system for Linux called <a href="http://sourceware.org/systemtap/">SystemTap</a>. It has two primary sources of information: <a href="http://sourceware.org/systemtap/langref/">SystemTap Language Reference</a> to which we will reference with icon <img src="../images/icons/staplang.png" alt=" to which we will reference with icon " class="img-rounded"/> <a href="http://sourceware.org/systemtap/tapsets/">SystemTap Tapset Reference Manual</a> to which we will reference with icon <img src="../images/icons/stapset.png" alt=" to which we will reference with icon " class="img-rounded"/>. Of course, there is a Unix manual pages, to which we will refer with icon <img src="../images/icons/manpage.png" alt=". Of course, there is a Unix manual pages, to which we will refer with icon " class="img-rounded"/>. </p>
 <p>
-SystemTap has to generate native module for each script it runs, which is huge performance penalty, so as alternative to it, <a href="https://github.com/ktap/ktap">Ktap</a> is developing. Its language syntax shares some features with SystemTap, but it uses Lua and LuaJIT internally which makes it faster than SystemTap. Modern kernel versions has eBPF integrated, and there is experiment on using it as a platform for generating probe code, but it is far from final stage as of kernel version 4.1. Finally, there is a <a href="http://www.sysdig.org/">sysdig</a> which is scriptless. <br /></p>
+SystemTap has to generate native module for each script it runs, which is huge performance penalty, so as alternative to it, <a href="https://github.com/ktap/ktap">Ktap</a> is developing. Its language syntax shares some features with SystemTap, but it uses Lua and LuaJIT internally which makes it faster than SystemTap. Modern kernel versions has eBPF integrated, and there is experiment on using it as a platform for generating probe code, but it is far from final stage as of kernel version 4.1. Finally, there is a <a href="http://www.sysdig.org/">sysdig</a> which is scriptless. </p>
 <p>
-As name of the book states, it describes SystemTap and DTrace.<br /></p>
+As name of the book states, it describes SystemTap and DTrace.</p>
 <p>
 <img src="../images/dyntrace.png" alt="" class="img-rounded"/></p>
 <p>

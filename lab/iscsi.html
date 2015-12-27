@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Appendix B. Lab setup</title>
+	<title> Appendix B. Lab setup
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,66 +52,74 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>iSCSI</h3></p>
+		<h3>
+ iSCSI</h3>
 <p>
-We will need to use SCSI device so we can fully trace it in <a href="../kernel/ex5.html">exercise 5</a>. Xen hypervisor supports SCSI emulation, but only by emulating outdated <em>LSI 53c895a</em> controller which is not supported by Solaris. However, we can create iSCSI devices in Dom0 and supply them to virtual machines. The following guide is created for Debian 7 which uses <em>iSCSI Enterprise Target</em>. Recent Linux kernels replaced it with <em>LIO</em> stack.<br /></p>
+We will need to use SCSI device so we can fully trace it in <a href="../kernel/ex5.html">exercise 5</a>. Xen hypervisor supports SCSI emulation, but only by emulating outdated <em>LSI 53c895a</em> controller which is not supported by Solaris. However, we can create iSCSI devices in Dom0 and supply them to virtual machines. The following guide is created for Debian 7 which uses <em>iSCSI Enterprise Target</em>. Recent Linux kernels replaced it with <em>LIO</em> stack.</p>
 <p>
-    <ul>
+     <ul>
         <li>
- Install IET packages:<br />            <p>
+ Install IET packages:
+            <p>
             <pre>
-# aptitude install iscsitarget iscsitarget-dkms
-</pre>
+# aptitude install iscsitarget iscsitarget-dkms</pre>
 </p>
-</li>
+
+ </li>
         <li>
- Create logical disks for virtual machines. They would be LVM volumes <code>/dev/mapper/vgmain-sol11--base--lab</code> and <code>/dev/mapper/vgmain-centos7--base--lab</code> in our example.<br /> </li>
+ Create logical disks for virtual machines. They would be LVM volumes <code>/dev/mapper/vgmain-sol11--base--lab</code> and <code>/dev/mapper/vgmain-centos7--base--lab</code> in our example.
+ </li>
         <li>
- Create targets in <code>/etc/iet/ietd.conf</code> file by adding following lines:<br />            <p>
+ Create targets in <code>/etc/iet/ietd.conf</code> file by adding following lines:
+            <p>
             <pre>
 Target iqn.2154-04.tdc.r520:storage.lab5-sol11-base
     Lun 0 Path=/dev/mapper/vgmain-sol11--base--lab,Type=blockio
 
 Target iqn.2154-04.tdc.r520:storage.lab5-centos7-base
-    Lun 0 Path=/dev/mapper/vgmain-centos7--base--lab,Type=blockio
-</pre>
+    Lun 0 Path=/dev/mapper/vgmain-centos7--base--lab,Type=blockio</pre>
 </p>
-Note that target names should match DNS name of a host which provides them.<br /> </li>
+
+Note that target names should match DNS name of a host which provides them.
+ </li>
         <li>
- Configure <code>/etc/iet/initiators.allow</code> file to forbid Solaris access to disk allocated for CentOS machine and vice versa. Delete or comment out <code>ALL ALL</code> line and add lines with target names and IP addresses of corresponding machines:<br />            <p>
+ Configure <code>/etc/iet/initiators.allow</code> file to forbid Solaris access to disk allocated for CentOS machine and vice versa. Delete or comment out <code>ALL ALL</code> line and add lines with target names and IP addresses of corresponding machines:
+            <p>
             <pre>
 iqn.2154-04.tdc.r520:storage.lab5-sol11-base    192.168.50.179
-iqn.2154-04.tdc.r520:storage.lab5-centos7-base  192.168.50.171
-</pre>
+iqn.2154-04.tdc.r520:storage.lab5-centos7-base  192.168.50.171</pre>
 </p>
-</li>
+
+ </li>
         <li>
- Restart IET daemon:<br />            <p>
+ Restart IET daemon:
+            <p>
             <pre>
-# /etc/init.d/iscsitarget restart
-</pre>
+# /etc/init.d/iscsitarget restart</pre>
 </p>
-</li>
+
+ </li>
         <li>
- Configure Solaris initiator. <code>192.168.50.116</code> is an IP address of our Dom0 system which provides iSCSI targets.<br />            <p>
+ Configure Solaris initiator. <code>192.168.50.116</code> is an IP address of our Dom0 system which provides iSCSI targets.
+            <p>
             <pre>
 # iscsiadm add discovery-address 192.168.50.116
 # iscsiadm modify discovery -t enable
-# svcadm restart svc:/network/iscsi/initiator:default
-</pre>
+# svcadm restart svc:/network/iscsi/initiator:default</pre>
 </p>
-</li>
+
+ </li>
         <li>
- Similarly configure CentOS initiator:<br />            <p>
+ Similarly configure CentOS initiator:
+            <p>
             <pre>
 # yum install iscsi-initiator-utils
 # systemctl enable iscsid
 # systemctl start iscsid
 # iscsiadm -m discovery -t sendtargets -p 192.168.50.116
-# iscsiadm -m node --login
-</pre>
+# iscsiadm -m node --login</pre>
 </p>
+
 </li>
 </ul>
 </p>

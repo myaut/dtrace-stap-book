@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,186 +52,207 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Virtual memory</h3></p>
+		<h3>
+ Virtual memory</h3>
 <p>
-Consider the following C program which will be translated into assembler:<br /></p>
-<p>
-<pre>
+Consider the following C program which will be translated into assembler:
+    <p>
+    <pre>
 char msg[] = "Hallo, world";    // mov %edi, $224cc
-msg[1] += 4;                    // add (%edi), $4
-</pre>
+msg[1] += 4;                    // add (%edi), $4</pre>
 </p>
+
+When single instance of that program is running, it will work as expected, message will become "Hello, world". But what will happen if two instances of program will be run simultaneously? Since compiler have used absolute addressing, second program may have been overwritten data of first instance of a program, making it "Hillo, world!" (actually, before that, program loader should load original message "Hallo, world" back). So multiprocessing creates two problems: same addresses of different processes shouldn't point to same physical memory cell and processes should be disallowed to write to memory that doesn't belong to them. <em>Virtual memory</em> is an answer to that problems.</p>
 <p>
-When single instance of that program is running, it will work as expected, message will become "Hello, world". But what will happen if two instances of program will be run simultaneously? Since compiler have used absolute addressing, second program may have been overwritten data of first instance of a program, making it "Hillo, world!" (actually, before that, program loader should load original message "Hallo, world" back). So multiprocessing creates two problems: same addresses of different processes shouldn't point to same physical memory cell and processes should be disallowed to write to memory that doesn't belong to them. <em>Virtual memory</em> is an answer to that problems.<br /></p>
-<p>
-Modern virtual memory mechanisms are based on <em>page addressing</em>: all physical memory is divided to a pages of a small size (4 kb in x86). Processes are exist in a virtual address space where each subset of addresses, say <code>[BASE;BASE+PAGESIZE)</code>, maps to a single page. List of such mappings is maintained as <em>page table</em>. Modern CPUs also provide support for <em>huge pages</em> (Linux) or <em>large pages</em> (Solaris) which may be megabytes or even gigabyte in size. Speaking of our previous example, kernel <em>binary format loader</em> will set up a virtual address space for our program, copying all data to a new locations in physical memory:<br /></p>
+Modern virtual memory mechanisms are based on <em>page addressing</em>: all physical memory is divided to a pages of a small size (4 kb in x86). Processes are exist in a virtual address space where each subset of addresses, say <code>[BASE;BASE+PAGESIZE)</code>, maps to a single page. List of such mappings is maintained as <em>page table</em>. Modern CPUs also provide support for <em>huge pages</em> (Linux) or <em>large pages</em> (Solaris) which may be megabytes or even gigabyte in size. Speaking of our previous example, kernel <em>binary format loader</em> will set up a virtual address space for our program, copying all data to a new locations in physical memory:</p>
 <p>
 <img src="../images/pagetable.png" alt="" class="img-rounded"/></p>
 <p>
-When second instance of a program will start, new process with separate address space will be created, thus making independent copy of process data, including "Hallo, world" message, but with same addresses. When process (actually its thread or task) is dispatched onto CPU, address of its page table is written to a special register (like CR3 on x86), so only it may access its data. All address translations are performed by <em>Memory Management Unit</em> in CPU and are transparent for it.<br /></p>
+When second instance of a program will start, new process with separate address space will be created, thus making independent copy of process data, including "Hallo, world" message, but with same addresses. When process (actually its thread or task) is dispatched onto CPU, address of its page table is written to a special register (like CR3 on x86), so only it may access its data. All address translations are performed by <em>Memory Management Unit</em> in CPU and are transparent for it.</p>
 <p>
-From the process point of view, pages are grouped into <em>segments</em> which constitute <em>address space</em>:<br /></p>
+From the process point of view, pages are grouped into <em>segments</em> which constitute <em>address space</em>:</p>
 <p>
 <img src="../images/pas.png" alt="" class="img-rounded"/></p>
 <p>
-New address spaces are created as a result of <code>execve()</code> system call. When it is finished, new address space constitutes from four segments: <em>text</em> segment contains program code, <em>data</em> segment contains program data. Binary loader also creates two special segments: <em>heap</em> for dynamically allocated memory and <em>stack</em> for program stack. Process arguments and environment are also initially put onto stack. Than, kernel runs process interpreter <code>ld.so</code>, which actually a dynamic linker. That linker searches for libraries for a process such as standard C library <code>libc.so</code> and calls <code>mmap()</code> to load text and data sections of that libraries. <br /></p>
+New address spaces are created as a result of <code>execve()</code> system call. When it is finished, new address space constitutes from four segments: <em>text</em> segment contains program code, <em>data</em> segment contains program data. Binary loader also creates two special segments: <em>heap</em> for dynamically allocated memory and <em>stack</em> for program stack. Process arguments and environment are also initially put onto stack. Than, kernel runs process interpreter <code>ld.so</code>, which actually a dynamic linker. That linker searches for libraries for a process such as standard C library <code>libc.so</code> and calls <code>mmap()</code> to load text and data sections of that libraries. </p>
 <p>
-When you try to allocate memory using <code>malloc()</code>, standard C library may increase heap using <code>brk()</code> or <code>sbrk()</code> system call. Program may also use <code>mmap()</code> calls to map files into memory. If no file is passed to <code>mmap()</code> call, then it will create special memory segment called an <em>anonymous memory</em>. Such memory segment may be used for memory allocators, independent from main process heap.<br /></p>
+When you try to allocate memory using <code>malloc()</code>, standard C library may increase heap using <code>brk()</code> or <code>sbrk()</code> system call. Program may also use <code>mmap()</code> calls to map files into memory. If no file is passed to <code>mmap()</code> call, then it will create special memory segment called an <em>anonymous memory</em>. Such memory segment may be used for memory allocators, independent from main process heap.</p>
 <p>
-You can check address space of a process with <code>pmap</code> program or by viewing <code>/proc/PID/mapping</code> file on Linux. <br /></p>
+You can check address space of a process with <code>pmap</code> program or by viewing <code>/proc/PID/mapping</code> file on Linux. </p>
 <p>
-Let's for example see, how memory is dynamically allocated by calling <code>malloc()</code> with relatively large value. I used Python 2 <code>range(10000)</code> built-in which creates list with 10000 numbers.<br /></p>
+Let's for example see, how memory is dynamically allocated by calling <code>malloc()</code> with relatively large value. I used Python 2 <code>range(10000)</code> built-in which creates list with 10000 numbers.</p>
 <p>
-SystemTap provides corresponding syscalls via tapset <code>vm</code>:<br /></p>
-<p>
-<pre>
+SystemTap provides corresponding syscalls via tapset <code>vm</code>:
+    <p>
+    <pre>
 # stap -d $(which python) --ldd -e '
     probe vm.brk, vm.mmap, vm.munmap { 
         printf("%8s %s/%d %p %d\n", 
             name, execname(), pid(), address, length); 
         print_ubacktrace();
-    }' -c 'python -c "range(10000)"' 
-</pre>
+    }' -c 'python -c "range(10000)"'</pre>
+</p>
 </p>
 <p>
-Solaris doesn't have such tapset, but these operations are performed using <code>as_map()</code> and <code>as_unmap()</code> kernel functions:<br /></p>
-<p>
-<pre>
+Solaris doesn't have such tapset, but these operations are performed using <code>as_map()</code> and <code>as_unmap()</code> kernel functions:
+    <p>
+    <pre>
 # dtrace -qn '
     as_map:entry, as_unmap:entry { 
         printf("%8s %s/%d %p %d\n", 
             probefunc, execname, pid, arg1, arg2);
         ustack();
     }'  
-# python -c "import time; range(10000); time.sleep(2)"  
-</pre>
+# python -c "import time; range(10000); time.sleep(2)"</pre>
+</p>
 </p>
 <p>
-After running both of these scripts, you will see, that lot's of <code>brk()</code> calls are caused by <code>builtin_range()</code> function in Python. <br /></p>
+After running both of these scripts, you will see, that lot's of <code>brk()</code> calls are caused by <code>builtin_range()</code> function in Python. </p>
 <p>
-Process address space is kept in <code>mm_struct</code> in Linux and in <code>as_t</code> structure in Solaris:<br /></p>
+Process address space is kept in <code>mm_struct</code> in Linux and in <code>as_t</code> structure in Solaris:</p>
 <p>
 <img src="../images/linux/mm.png" alt="" class="img-rounded"/></p>
 <p>
-Each memory segment is represented by instance of <code>vm_area_struct</code> structure which has two addresses: <code>vm_start</code> which points to the beginning of a segment and <code>vm_end</code> which points to the end of the segment. Kernel maintains two lists of segments: linear double-linked list of segments (sorted by their addresses) starting with <code>mmap</code> pointer in <code>mm_struct</code> with <code>vm_next</code> and <code>vm_prev</code> pointers, another list is a red-black tree built with <code>mm_rb</code> as root and <code>vm_rb</code> as node. <br /></p>
+Each memory segment is represented by instance of <code>vm_area_struct</code> structure which has two addresses: <code>vm_start</code> which points to the beginning of a segment and <code>vm_end</code> which points to the end of the segment. Kernel maintains two lists of segments: linear double-linked list of segments (sorted by their addresses) starting with <code>mmap</code> pointer in <code>mm_struct</code> with <code>vm_next</code> and <code>vm_prev</code> pointers, another list is a red-black tree built with <code>mm_rb</code> as root and <code>vm_rb</code> as node. </p>
 <p>
-Segments may be mapped files, so they have non-NULL value of <code>vm_file</code> pointing to a <code>file</code>. Each <code>file</code> has an <code>address_space</code> which contains all pages of a file in a <code>page_tree</code> in a <code>address_space</code> object. This object also references <code>host</code> inode of a file and all mappings corresponding to that file through linear and non-linear lists, thus making all mappings of a file shared. Another option for mapping is anonymous memory -- its data is kept in <code>anon_vma</code> structure. Every segment has a <code>vm_mm</code> pointer which refers <code>mm_struct</code> to which it belongs. <br /></p>
+Segments may be mapped files, so they have non-NULL value of <code>vm_file</code> pointing to a <code>file</code>. Each <code>file</code> has an <code>address_space</code> which contains all pages of a file in a <code>page_tree</code> in a <code>address_space</code> object. This object also references <code>host</code> inode of a file and all mappings corresponding to that file through linear and non-linear lists, thus making all mappings of a file shared. Another option for mapping is anonymous memory -- its data is kept in <code>anon_vma</code> structure. Every segment has a <code>vm_mm</code> pointer which refers <code>mm_struct</code> to which it belongs. </p>
 <p>
-<code>mm_struct</code> alone contains other useful information, such as base addresses of entire address space <code>mmap_base</code>, addresses of a stack, heap, data and text segments, etc. Linux also caches memory statistics for a process in <code>rss_stat</code> field of <code>mm_struct</code> which can be pretty-printed with <code>proc_mem*</code> functions in SystemTap:<br /></p>
-<p>
-<pre>
+<code>mm_struct</code> alone contains other useful information, such as base addresses of entire address space <code>mmap_base</code>, addresses of a stack, heap, data and text segments, etc. Linux also caches memory statistics for a process in <code>rss_stat</code> field of <code>mm_struct</code> which can be pretty-printed with <code>proc_mem*</code> functions in SystemTap:
+    <p>
+    <pre>
 # stap -e '
     probe vm.brk, vm.mmap { 
         printf("%8s %d %s\n", name, pid(), proc_mem_string()); 
-    }' -c 'python -c "range(10000)"' 
-</pre>
+    }' -c 'python -c "range(10000)"'</pre>
+</p>
 </p>
 <p>
-In Solaris <code>as_t</code> structure accessible through <code>p_as</code> field of process and keeps all segments in AVL tree where <code>a_segtree</code> is a root node and <code>s_tree</code> is a nodes embedded to a segment:<br /></p>
+In Solaris <code>as_t</code> structure accessible through <code>p_as</code> field of process and keeps all segments in AVL tree where <code>a_segtree</code> is a root node and <code>s_tree</code> is a nodes embedded to a segment:</p>
 <p>
 <img src="../images/solaris/as.png" alt="" class="img-rounded"/></p>
 <p>
-Each segment has backward link to address space <code>s_as</code>, <code>s_base</code> as base address of a segment and <code>s_size</code> as its size. Solaris uses so-called <em>segment drivers</em> to distinguish one type of a segment to another, so it provides table of operations through <code>s_ops</code> field and private data through <code>s_data</code> field. One of the segment drivers is <em>segvn</em> driver which handles mmapped segments of memory both from files and anonymous, which keep their data in <code>segvn_data</code> structure which holds two pointers: <code>vp</code> to file's vnode and <code>amp</code> for a map of anonymous memory. <br /></p>
+Each segment has backward link to address space <code>s_as</code>, <code>s_base</code> as base address of a segment and <code>s_size</code> as its size. Solaris uses so-called <em>segment drivers</em> to distinguish one type of a segment to another, so it provides table of operations through <code>s_ops</code> field and private data through <code>s_data</code> field. One of the segment drivers is <em>segvn</em> driver which handles mmapped segments of memory both from files and anonymous, which keep their data in <code>segvn_data</code> structure which holds two pointers: <code>vp</code> to file's vnode and <code>amp</code> for a map of anonymous memory. </p>
 <p>
-Some memory will be consumed by a process indirectly. For example, when application transfers a packet through the network or writes data to a file on /tmp filesystem, data is buffered by Kernel, but that memory is not mapped to a process. To do so, Kernel uses various in-kernel memory allocators and maintains <em>kernel address space</em>. <br /></p>
+Some memory will be consumed by a process indirectly. For example, when application transfers a packet through the network or writes data to a file on /tmp filesystem, data is buffered by Kernel, but that memory is not mapped to a process. To do so, Kernel uses various in-kernel memory allocators and maintains <em>kernel address space</em>. </p>
 <p>
-<h4>Page fault</h4></p>
+    <h4>
+ Page fault</h4>
+</p>
 <p>
-As we mentioned before, when program accesses memory, memory management unit takes address, finds an entry in a page table and gets physical address. That entry, however, may not exist -- in that case CPU will raise an exception called a <em>page fault</em>. There are three types of page faults that may happen:<br />     <ul>
+As we mentioned before, when program accesses memory, memory management unit takes address, finds an entry in a page table and gets physical address. That entry, however, may not exist -- in that case CPU will raise an exception called a <em>page fault</em>. There are three types of page faults that may happen:
+     <ul>
         <li>
-<em>Minor</em> page fault occurs when page table entry should exist, but corresponding page wasn't allocated or page table entry wasn't created. For example, Linux and Solaris do not allocate mmapped pages immediately, but wait until first page access which causes minor page faults.<br /> </li>
+ <em>Minor</em> page fault occurs when page table entry should exist, but corresponding page wasn't allocated or page table entry wasn't created. For example, Linux and Solaris do not allocate mmapped pages immediately, but wait until first page access which causes minor page faults.
+ </li>
         <li>
-<em>Major</em> page fault requires reading from disk. It may be caused by accessing memory-mapped file or when process memory was paged-out onto disk swap.<br /> </li>
+ <em>Major</em> page fault requires reading from disk. It may be caused by accessing memory-mapped file or when process memory was paged-out onto disk swap.
+ </li>
         <li>
-<em>Invalid</em> page fault occur when application access memory at invalid address or when segment permissions forbid such access (for example writing into text segment, which is usually disallowed). In this case operating system may raise <code>SIGSEGV</code> signal. A special case of invalid page faults is <em>copy-on-write</em> fault which happens when forked process tries to write to a parent's memory. In this case, OS copies page and sets up a new mapping for forked process.<br /></li>
+ <em>Invalid</em> page fault occur when application access memory at invalid address or when segment permissions forbid such access (for example writing into text segment, which is usually disallowed). In this case operating system may raise <code>SIGSEGV</code> signal. A special case of invalid page faults is <em>copy-on-write</em> fault which happens when forked process tries to write to a parent's memory. In this case, OS copies page and sets up a new mapping for forked process.</li>
 </ul>
 </p>
 <p>
-Page faults are considered harmful because they interrupt normal process execution, so there are various system calls such as <code>mlock()</code>, <code>madvise()</code> which allow to flag memory areas to reduce memory faults. I.e. <code>mlock()</code> should guarantee page allocation, so minor fault won't occur for that memory area. If page faults occurs in a kernel address space, it will lead to kernel oops or panic.<br /></p>
+Page faults are considered harmful because they interrupt normal process execution, so there are various system calls such as <code>mlock()</code>, <code>madvise()</code> which allow to flag memory areas to reduce memory faults. I.e. <code>mlock()</code> should guarantee page allocation, so minor fault won't occur for that memory area. If page faults occurs in a kernel address space, it will lead to kernel oops or panic.</p>
 <p>
-You can trace page faults in Linux by attaching to <code>vm.pagefault.return</code> probe. It has <code>fault_type</code> variable which is a bitmask of a fault type. RedHat-like kernels also have <code>mm_anon_*</code> and <code>mm_filemap_*</code> probes. Page faults is also presented to a perf subsystem. In Solaris all virtual memory events including page faults are available in <code>vminfo</code> provider:<br /></p>
+You can trace page faults in Linux by attaching to <code>vm.pagefault.return</code> probe. It has <code>fault_type</code> variable which is a bitmask of a fault type. RedHat-like kernels also have <code>mm_anon_*</code> and <code>mm_filemap_*</code> probes. Page faults is also presented to a perf subsystem. In Solaris all virtual memory events including page faults are available in <code>vminfo</code> provider:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Type</strong></td>
+<strong>Type</strong> </td>
             <td>
-<strong>DTrace</strong></td>
+ <strong>DTrace</strong> </td>
             <td>
-<strong>SystemTap</strong></td>
+ <strong>SystemTap</strong></td>
 </tr>
         <tr>
+
             <td>
-<em>Any</em></td>
+<em>Any</em> </td>
             <td>
-<code>vminfo::as_fault</code></td>
+ <code>vminfo::as_fault</code> </td>
             <td>
-<code>perf.sw.page_faults</code></td>
+ <code>perf.sw.page_faults</code></td>
 </tr>
         <tr>
+
             <td>
-<em>Minor</em></td>
+<em>Minor</em> </td>
             <td>
-</td>
+  </td>
             <td>
-<code>perf.sw.page_faults_min</code></td>
+ <code>perf.sw.page_faults_min</code></td>
 </tr>
         <tr>
+
             <td>
-<em>Major</em></td>
+<em>Major</em> </td>
             <td>
-<code>vminfo:::maj_fault</code> usually followed by <code>vminfo::pgin</code></td>
+ <code>vminfo:::maj_fault</code> usually followed by <code>vminfo::pgin</code> </td>
             <td>
-<code>perf.sw.page_faults_min</code></td>
+ <code>perf.sw.page_faults_min</code></td>
 </tr>
         <tr>
+
             <td>
-<em>Invalid</em></td>
+<em>Invalid</em> </td>
             <td>
-<code>vminfo:::cow_fault</code> for copy-on-write faults <br />            <code>vminfo:::prot_fault</code> for invalid permissions or address </td>
+ <code>vminfo:::cow_fault</code> for copy-on-write faults 
+            <code>vminfo:::prot_fault</code> for invalid permissions or address </td>
             <td>
  See notes below</td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
-<span class="label label-info">Note</span><div class="well">
-Linux doesn't have distinct probe for invalid page fault -- these situations are handled by architecture-specific function <code>do_page_fault()</code>. They are handled by family of <code>bad_area*()</code> functions on x86 architecture, so you can attach to them:<br />    <p>
-    <pre>
+<p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+Linux doesn't have distinct probe for invalid page fault -- these situations are handled by architecture-specific function <code>do_page_fault()</code>. They are handled by family of <code>bad_area*()</code> functions on x86 architecture, so you can attach to them:
+            <p>
+            <pre>
 # stap -e '
     probe kernel.function("bad_area*") { 
         printf("%s pid: %d error_code: %d addr: %p\n", 
             probefunc(), pid(), $error_code, $address); 
-    } '
-</pre>
+    } '</pre>
+</p>
+
 </p>
 </div>
-<span class="label label-info">Note</span><div class="well">
-By default <code>perf</code> probe fires after multiple events, because it is sampler. To alter that behaviour, you should use <code>.sample(1)</code> which will fire on any event, but that requires to pass <code>perf</code> probes in raw form, i.e.:<br />    <p>
-    <pre>
-    perf.type(1).config(2).sample(1)
-</pre>
 </p>
-You can check actual values for type and config in <code>/usr/share/systemtap/linux/perf.stp</code> tapset. See also: <a href="../principles/profiling.html#perf">perf syntax</a> in Profiling section of this book.<br /></div>
 <p>
-Page fault is handled by <code>as_fault()</code> function in Solaris:<br /></p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+By default <code>perf</code> probe fires after multiple events, because it is sampler. To alter that behaviour, you should use <code>.sample(1)</code> which will fire on any event, but that requires to pass <code>perf</code> probes in raw form, i.e.:
+            <p>
+            <pre>
+perf.type(1).config(2).sample(1)</pre>
+</p>
+
+You can check actual values for type and config in <code>/usr/share/systemtap/linux/perf.stp</code> tapset. See also: <a href="../principles/profiling.html#perf">perf syntax</a> in Profiling section of this book.
+</p>
+</div>
+</p>
 <p>
-<pre>
+Page fault is handled by <code>as_fault()</code> function in Solaris:
+    <p>
+    <pre>
 faultcode_t as_fault(struct hat *hat, struct as *as, 
                      caddr_t addr, size_t size,     
-                     enum fault_type type, enum seg_rw rw);
-</pre>
+                     enum fault_type type, enum seg_rw rw);</pre>
 </p>
+
+This function calls <code>as_segat</code> to determine segment to which fault address belongs, providing <code>struct seg*</code> as a return value. When no segment may be found due to invalid fault, it returns NULL. </p>
 <p>
-This function calls <code>as_segat</code> to determine segment to which fault address belongs, providing <code>struct seg*</code> as a return value. When no segment may be found due to invalid fault, it returns NULL. <br /></p>
+Let's write simple tracer for these two functions. It also prints <code>amp</code> address and path of vnode for segvn driver:</p>
 <p>
-Let's write simple tracer for these two functions. It also prints <code>amp</code> address and path of vnode for segvn driver:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file pagefault.d <br/><p>
 <pre id="code1" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -318,28 +340,26 @@ fbt::as_segat:return
     
     DUMP_AS_FAULT();
     DUMP_SEG_VN(this->seg, this->seg_vn);
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-Here is an example of a page fault traced by this script:<br /></p>
-<p>
-<pre>
+
+Here is an example of a page fault traced by this script:
+    <p>
+    <pre>
 <b>as_fault</b> pid: 3408 as: 30003d2dd00
     addr: d2000 size: 1 flags: F_PROT|S_WRITE 
     [c0000:d4000] rwxu
     vn: /usr/bin/bash
-    amp: 30008ae4f78:0
-</pre>
+    amp: 30008ae4f78:0</pre>
 </p>
+
+It was most likely a data segment of a <code>/usr/bin/bash</code> binary (because it has rights <code>rwxu</code>), while type of the fault is <code>F_PROT</code> which means invalid access right which makes it copy-on-write fault. </p>
 <p>
-It was most likely a data segment of a <code>/usr/bin/bash</code> binary (because it has rights <code>rwxu</code>), while type of the fault is <code>F_PROT</code> which means invalid access right which makes it copy-on-write fault. <br /></p>
-<p>
-If you run a script for a process which allocates and initializes large amount of memory, you'll see lots of minor faults (identifiable by <code>F_INVAL</code>) with addresses which are go sequentially:<br /></p>
-<p>
-<pre>
+If you run a script for a process which allocates and initializes large amount of memory, you'll see lots of minor faults (identifiable by <code>F_INVAL</code>) with addresses which are go sequentially:
+    <p>
+    <pre>
 <b>as_fault</b> pid: 987 as: ffffc10008fc6110
     addr: 81f8000 size: 1 flags: F_INVAL|S_WRITE 
     [8062000:a782000] rw-u
@@ -348,24 +368,24 @@ If you run a script for a process which allocates and initializes large amount o
     [8062000:a782000] rw-u
 <b>as_fault</b> pid: 987 as: ffffc10008fc6110
     addr: 81fa000 size: 1 flags: F_INVAL|S_WRITE 
-    [8062000:a782000] rw-u
-</pre>
+    [8062000:a782000] rw-u</pre>
 </p>
+
+Like we mentioned before, when application allocates memory, pages are not necessarily created. So when process touches that memory first time, page fault occurs and actual page allocation is performed.</p>
 <p>
-Like we mentioned before, when application allocates memory, pages are not necessarily created. So when process touches that memory first time, page fault occurs and actual page allocation is performed.<br /></p>
-<p>
-Similarly, all pagefaults are handled by <code>handle_mm_fault()</code> function in Linux:<br /></p>
-<p>
-<pre>
+Similarly, all pagefaults are handled by <code>handle_mm_fault()</code> function in Linux:
+    <p>
+    <pre>
 int handle_mm_fault(struct mm_struct *mm, 
                     struct vm_area_struct *vma,
-                    unsigned long address, unsigned int flags);
-</pre>
+                    unsigned long address, unsigned int flags);</pre>
+</p>
 </p>
 <p>
-SystemTap provides a wrapper for it: <code>vm.pagefault</code> which we will use to write pagefault tracer script for Linux:<br /></p>
+SystemTap provides a wrapper for it: <code>vm.pagefault</code> which we will use to write pagefault tracer script for Linux:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file pagefault.stp <br/><p>
 <pre id="code2" class="hide">
 #!/usr/bin/stap
@@ -469,163 +489,205 @@ probe vm.pagefault {
 
 probe vm.pagefault.return { 
     printf("\t => pid: %d pf: %s\n", pid(), vm_fault_str(fault_type));
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-Here is an example of its output:<br /></p>
-<p>
-<pre>
+
+Here is an example of its output:
+    <p>
+    <pre>
 <b>vm.pagefault</b> pid: 1247 mm: 0xdf8bcc80
         addr: 0xb7703000 flags: WRITE
         VMA [0xb7703000:0xb7709000]
         prot: rw-- may: rwx- flags: VM_ACCOUNT
         amp: 0xdc62ca54
-            => pid: 1247 pf: MINOR
-</pre>
+            => pid: 1247 pf: MINOR</pre>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-<code>vma_flags</code> are not stable and change from version to version. This script contains values according to CentOS 7. Check <code>include/linux/mm.h</code> for details.<br /></div>
+</p>
 <p>
-<h4>Kernel allocator</h4></p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+<code>vma_flags</code> are not stable and change from version to version. This script contains values according to CentOS 7. Check <code>include/linux/mm.h</code> for details.
+</p>
+</div>
+</p>
 <p>
-Virtual memory is distributed between applications and kernel by a subsystem which called <em>kernel allocator</em>. It may be used both for applications and for internal kernel buffers such as ethernet packets, block input-output buffers, etc. <br /></p>
+    <h4>
+ Kernel allocator</h4>
+</p>
 <p>
-Lower layer of the kernel allocator is a <em>page allocator</em>. It maintains lists of <em>free pages</em> which are immediately available to consumers, <em>cache pages</em> which are cached filesystem data and may be easily evicted and <em>used pages</em> that has to be reclaimed thus being writing on disk swap device. Page allocation is performed by <code>page_create_va()</code> function in Solaris which provides <code>page-get</code> and <code>page-get-page</code> static probes:<br /></p>
+Virtual memory is distributed between applications and kernel by a subsystem which called <em>kernel allocator</em>. It may be used both for applications and for internal kernel buffers such as ethernet packets, block input-output buffers, etc. </p>
 <p>
-<pre>
+Lower layer of the kernel allocator is a <em>page allocator</em>. It maintains lists of <em>free pages</em> which are immediately available to consumers, <em>cache pages</em> which are cached filesystem data and may be easily evicted and <em>used pages</em> that has to be reclaimed thus being writing on disk swap device. Page allocation is performed by <code>page_create_va()</code> function in Solaris which provides <code>page-get</code> and <code>page-get-page</code> static probes:
+    <p>
+    <pre>
 # dtrace -qn '
     page-get* { 
         printf("PAGE lgrp: %p mnode: %d bin: %x flags: %x\n", 
             arg0, arg1, arg2, arg3); 
-    }'
-</pre>
+    }'</pre>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-Solaris 11.1 introduced new allocator infrastructure called <em>VM2</em>. Information about it is not publicly available, so it is out of scope of our book. <br /></div>
+</p>
 <p>
-Linux page allocator interface consists of <code>alloc_pages*()</code> family of functions and <code>__get_free_pages()</code> helper. They have <code>mm_page_alloc</code> tracepoint which allows us to trace it:<br /></p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Solaris 11.1 introduced new allocator infrastructure called <em>VM2</em>. Information about it is not publicly available, so it is out of scope of our book. 
+</p>
+</div>
+</p>
 <p>
-<pre>
+Linux page allocator interface consists of <code>alloc_pages*()</code> family of functions and <code>__get_free_pages()</code> helper. They have <code>mm_page_alloc</code> tracepoint which allows us to trace it:
+    <p>
+    <pre>
 # stap -e '
     probe kernel.trace("mm_page_alloc") { 
         printf("PAGE %p order: %x flags: %x migrate: %d\n",
                 $page, $order, $gfp_flags, $migratetype); 
-    }'
-</pre>
+    }'</pre>
+</p>
 </p>
 <p>
-For most kernel objects granularity of a single page (4 or 8 kilobytes usually) is too high, because most structures have varying size. On the other hand, implementing a classical heap allocator is not very effective considering the fact, that kernel performs many allocations for an object of same size. To solve that problem, a <em>SLAB allocator</em> (which we sometimes will refer to as <em>kmem allocator</em>) was implemented in Solaris. SLAB allocator takes one or more pages, splits it into a buffers of a smaller sizes as shown on picture:<br /></p>
+For most kernel objects granularity of a single page (4 or 8 kilobytes usually) is too high, because most structures have varying size. On the other hand, implementing a classical heap allocator is not very effective considering the fact, that kernel performs many allocations for an object of same size. To solve that problem, a <em>SLAB allocator</em> (which we sometimes will refer to as <em>kmem allocator</em>) was implemented in Solaris. SLAB allocator takes one or more pages, splits it into a buffers of a smaller sizes as shown on picture:</p>
 <p>
 <img src="../images/kmem.png" alt="" class="img-rounded"/></p>
 <p>
-Modern SLAB allocators may have various enhancements like per-cpu slabs, SLUB allocator in Linux. Moreover, cache object is not necessarily created in SLAB allocators -- objects of generic sizes may be allocated through function like <code>kmalloc()</code> in Linux or <code>kmem_alloc</code> in Solaris which will pick cache based on a size, such as <code>size-32</code> cache in Linux or <code>kmem_magazine_32</code> in Solaris. You can check overall SLAB statistics with <code>/proc/slabinfo</code> file in Linux, <code>::kmastat</code> mdb command in Solaris or by using KStat: <code>kstat -m unix -c kmem_cache</code>. <br /></p>
+Modern SLAB allocators may have various enhancements like per-cpu slabs, SLUB allocator in Linux. Moreover, cache object is not necessarily created in SLAB allocators -- objects of generic sizes may be allocated through function like <code>kmalloc()</code> in Linux or <code>kmem_alloc</code> in Solaris which will pick cache based on a size, such as <code>size-32</code> cache in Linux or <code>kmem_magazine_32</code> in Solaris. You can check overall SLAB statistics with <code>/proc/slabinfo</code> file in Linux, <code>::kmastat</code> mdb command in Solaris or by using KStat: <code>kstat -m unix -c kmem_cache</code>. </p>
 <p>
-Here are list of the probes related to kernel allocator:<br /></p>
+Here are list of the probes related to kernel allocator:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Object</strong></td>
+<strong>Object</strong> </td>
             <td>
-<strong>Action</strong></td>
+ <strong>Action</strong> </td>
             <td>
-<strong>DTrace</strong></td>
+ <strong>DTrace</strong> </td>
             <td>
-<strong>SystemTap</strong></td>
+ <strong>SystemTap</strong></td>
 </tr>
         <tr>
+
             <td>
 Block of an unspecified size </td>
             <td>
  alloc </td>
             <td>
-<code>fbt::kmem_alloc:entry</code> and <code>fbt::kmem_zalloc:entry</code>                <ul>
+ 
+<code>fbt::kmem_alloc:entry</code> and <code>fbt::kmem_zalloc:entry</code> 
+                 <ul>
                     <li>
-<code>arg0</code> -- size of the block <br /> </li>
+ <code>arg0</code> -- size of the block 
+ </li>
                     <li>
-<code>arg1</code> -- flags         </li>
+ <code>arg1</code> -- flags         </li>
 </ul>
 </td>
             <td>
-<code>vm.kmalloc</code> and <code>vm.kmalloc_node</code>                <ul>
+ 
+<code>vm.kmalloc</code> and <code>vm.kmalloc_node</code> 
+                 <ul>
                     <li>
-<code>caller_function</code> -- address of caller function <br /> </li>
+ <code>caller_function</code> -- address of caller function 
+ </li>
                     <li>
-<code>bytes_req</code> -- requested amount of bytes <br /> </li>
+ <code>bytes_req</code> -- requested amount of bytes 
+ </li>
                     <li>
-<code>bytes_alloc</code> -- size of allocated buffer <br /> </li>
+ <code>bytes_alloc</code> -- size of allocated buffer 
+ </li>
                     <li>
-<code>gfp_flags</code> and <code>gfp_flags_str</code> -- allocation flags <br /> </li>
+ <code>gfp_flags</code> and <code>gfp_flags_str</code> -- allocation flags 
+ </li>
                     <li>
-<code>ptr</code> -- pointer to an allocated block</li>
+ <code>ptr</code> -- pointer to an allocated block</li>
 </ul>
 </td>
 </tr>
         <tr>
+
             <td>
 Block of an unspecified size </td>
             <td>
  free </td>
             <td>
-<code>fbt::kmem_free:entry</code>                <ul>
+ 
+<code>fbt::kmem_free:entry</code> 
+                 <ul>
                     <li>
-<code>arg0</code> -- pointer to the block <br /> </li>
+ <code>arg0</code> -- pointer to the block 
+ </li>
                     <li>
-<code>arg1</code> -- size of the block    </li>
+ <code>arg1</code> -- size of the block    </li>
 </ul>
 </td>
             <td>
-<code>vm.kfree</code>                <ul>
+ 
+<code>vm.kfree</code> 
+                 <ul>
                     <li>
-<code>caller_function</code> -- address of caller function <br /> </li>
+ <code>caller_function</code> -- address of caller function 
+ </li>
                     <li>
-<code>ptr</code> -- pointer to an allocated block</li>
+ <code>ptr</code> -- pointer to an allocated block</li>
 </ul>
 </td>
 </tr>
         <tr>
+
             <td>
 Block from pre-defined cache </td>
             <td>
  alloc </td>
             <td>
-<code>fbt::kmem_cache_alloc:entry</code>                <ul>
+ 
+<code>fbt::kmem_cache_alloc:entry</code> 
+                 <ul>
                     <li>
-<code>arg0</code> -- pointer to <code>kmem_cache_t</code></li>
+ <code>arg0</code> -- pointer to <code>kmem_cache_t</code> 
+ </li>
                     <li>
-<code>arg1</code> -- flags </li>
+ <code>arg1</code> -- flags </li>
 </ul>
 </td>
             <td>
-<code>vm.kmem_cache_alloc</code> and <br /><code>vm.kmem_cache_alloc_node</code> <br />Same params as <code>vm.kmalloc</code></td>
+ 
+<code>vm.kmem_cache_alloc</code> and 
+<code>vm.kmem_cache_alloc_node</code> 
+Same params as <code>vm.kmalloc</code></td>
 </tr>
         <tr>
+
             <td>
 Block from pre-defined cache </td>
             <td>
  free </td>
             <td>
-<code>fbt::kmem_cache_free:entry</code>                <ul>
+ 
+<code>fbt::kmem_cache_free:entry</code> 
+                 <ul>
                     <li>
-<code>arg0</code> -- pointer to <code>kmem_cache_t</code></li>
+ <code>arg0</code> -- pointer to <code>kmem_cache_t</code> 
+ </li>
                     <li>
-<code>arg1</code> -- pointer to a buffer </li>
+ <code>arg1</code> -- pointer to a buffer </li>
 </ul>
 </td>
             <td>
-<code>vm.kmem_cache_free</code> and <br />Same params as <code>vm.kfree</code></td>
+ 
+<code>vm.kmem_cache_free</code> and 
+Same params as <code>vm.kfree</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-Note that SystemTap probes are based on a tracepoints and provided by <code>vm</code> tapset.<br /></p>
+Note that SystemTap probes are based on a tracepoints and provided by <code>vm</code> tapset.</p>
 <p>
 On the other hand, when kernel needs to perform large allocations which are performed rarely, different subsystems are used: <em>vmalloc</em> in Linux, or <em>vmem</em> in Solaris (which is used by <em>kmem</em> SLAB allocator). Solaris also have segment drivers such as <em>segkmem</em>, <em>segkpm</em>, etc. </p>
 

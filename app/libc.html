@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 5: Application tracing</title>
+	<title> Module 5: Application tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,100 +52,110 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Unix C library</h3></p>
+		<h3>
+ Unix C library</h3>
 <p>
-<em>libc</em> is a C library shipped with Unix which provides access to most of its facilities like system calls in a portable manner. Linux <em>glibc</em> (one of the implementations of <em>libc</em> which is most popular) and <em>libc</em> shipped with Solaris contain some USDT probes. We will discuss them in this section. <br /></p>
+<em>libc</em> is a C library shipped with Unix which provides access to most of its facilities like system calls in a portable manner. Linux <em>glibc</em> (one of the implementations of <em>libc</em> which is most popular) and <em>libc</em> shipped with Solaris contain some USDT probes. We will discuss them in this section. </p>
 <p>
-On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as <code>plockstat</code> provider (similar to <a href="../kernel/async.html#lockstat">lockstat</a> provider we discussed earlier). <em>glibc</em>, however implements wider set of probes: along with various <em>pthread</em> operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of <code>setjmp</code>/<code>longjmp</code> and dynamic linker <code>ld.so</code>.<br /></p>
+On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as <code>plockstat</code> provider (similar to <a href="../kernel/async.html#lockstat">lockstat</a> provider we discussed earlier). <em>glibc</em>, however implements wider set of probes: along with various <em>pthread</em> operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of <code>setjmp</code>/<code>longjmp</code> and dynamic linker <code>ld.so</code>.</p>
 <p>
-Lets see how mutexes are traced in Solaris and Linux (in this section we will assume glibc by saying "Linux"). Solaris provides them through <code>plockstat</code> provider:<br /></p>
-<p>
-<pre>
-plockstat<i>pid</i>:::<i>probe-name</i> 
-</pre>
+Lets see how mutexes are traced in Solaris and Linux (in this section we will assume glibc by saying "Linux"). Solaris provides them through <code>plockstat</code> provider:
+    <p>
+    <pre>
+plockstat<i>pid</i>:::<i>probe-name</i></pre>
 </p>
-<p>
-SystemTap will use standard USDT notation for it:<br /></p>
-<p>
-<pre>
-probe process("libpthread.so.0").mark("<i>probe-name</i>")
-</pre>
+
+SystemTap will use standard USDT notation for it:
+    <p>
+    <pre>
+probe process("libpthread.so.0").mark("<i>probe-name</i>")</pre>
 </p>
+
+Note that <code>libpthread.so.0</code> will vary in different distributions. We will use macro-definitions for paths in our scripts. </p>
 <p>
-Note that <code>libpthread.so.0</code> will vary in different distributions. We will use macro-definitions for paths in our scripts. <br /></p>
+Userspace programs have to explicitly ask kernel to block thread that is waiting on condition variable or mutex. Linux provides <code>futex</code> system call for it which is wrapped into so-called <em>low-level-locks</em> in glibc (they are seen by probes those name start with <code>lll</code>). Solaris provides multiple <code>lwp_*</code> system calls for it like <code>lwp_park</code> which "parks" thread (stops its execution).</p>
 <p>
-Userspace programs have to explicitly ask kernel to block thread that is waiting on condition variable or mutex. Linux provides <code>futex</code> system call for it which is wrapped into so-called <em>low-level-locks</em> in glibc (they are seen by probes those name start with <code>lll</code>). Solaris provides multiple <code>lwp_*</code> system calls for it like <code>lwp_park</code> which "parks" thread (stops its execution).<br /></p>
-<p>
-Here are list of probes available for userspace mutexes (use them as probe name). First argument (<code>arg0</code> in DTrace or <code>$arg1</code> in SystemTap) would be address of pthread mutex. Some probes can contain more arguments, i.e. DTrace will pass number of spinning loops to <code>mutex-spun</code> probe. Check documentation for them.<br /></p>
+Here are list of probes available for userspace mutexes (use them as probe name). First argument (<code>arg0</code> in DTrace or <code>$arg1</code> in SystemTap) would be address of pthread mutex. Some probes can contain more arguments, i.e. DTrace will pass number of spinning loops to <code>mutex-spun</code> probe. Check documentation for them.</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Action</strong></td>
+ <strong>Action</strong> </td>
             <td>
-<strong>DTrace</strong></td>
+ <strong>DTrace</strong> </td>
             <td>
-<strong>SystemTap</strong></td>
+ <strong>SystemTap</strong></td>
 </tr>
         <tr>
+
             <td>
 Creation                </td>
             <td>
  -                   </td>
             <td>
-<code>mutex_init</code></td>
+ <code>mutex_init</code></td>
 </tr>
         <tr>
+
             <td>
 Destruction             </td>
             <td>
  -                   </td>
             <td>
-<code>mutex_destroy</code></td>
+ <code>mutex_destroy</code></td>
 </tr>
         <tr>
+
             <td>
 Attempt to acquire      </td>
             <td>
  -                   </td>
             <td>
-<code>mutex_entry</code></td>
+ <code>mutex_entry</code></td>
 </tr>
         <tr>
+
             <td>
 Busy waiting (spinning) </td>
             <td>
-<code>mutex-spin</code><br /><code>mutex-spun</code></td>
+ <code>mutex-spin</code>  <br />   
+                          <code>mutex-spun</code>        </td>
             <td>
  -</td>
 </tr>
         <tr>
+
             <td>
 Attempt to block        </td>
             <td>
-<code>mutex-block</code></td>
+ <code>mutex-block</code>       </td>
             <td>
-<code>lll_lock_wait</code></td>
+ <code>lll_lock_wait</code></td>
 </tr>
         <tr>
+
             <td>
 Acquired mutex          </td>
             <td>
-<code>mutex-blocked</code><br /><code>mutex-acquire</code><br /><code>mutex-error</code></td>
+  <code>mutex-blocked</code> <br />  
+                           <code>mutex-acquire</code> <br />  
+                           <code>mutex-error</code>         </td>
             <td>
-<code>mutex_release</code><br /><code>lll_futex_wake</code></td>
+ <code>mutex_release</code> <br />  
+                                                   <code>lll_futex_wake</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-Here are an example of pthread tracer in SystemTap:<br /></p>
+Here are an example of pthread tracer in SystemTap:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file pthread.stp <br/><p>
 <pre id="code1" class="hide">
 #!/usr/bin/env stap
@@ -202,15 +213,14 @@ probe process(@libpthread).mark("lll_*"),
 
     printf("[%d] %s\n", tid(), pn());
     print_ustack(ucallers(5));
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-If we set tsexperiment process as a target, we can see how request is passed from control thread to a worker thread (some output is omitted):<br /></p>
-<p>
-<pre>
+
+If we set tsexperiment process as a target, we can see how request is passed from control thread to a worker thread (some output is omitted):
+    <p>
+    <pre>
 [8972] process("/lib64/libpthread.so.0").mark("mutex_entry") 0xe1a218
   0x7fbcf890fa27 : tpd_wqueue_put+0x26/0x6a [/opt/tsload/lib/libtsload.so]
 [8972] process("/lib64/libpthread.so.0").mark("mutex_acquired") 0xe1a218
@@ -221,15 +231,16 @@ If we set tsexperiment process as a target, we can see how request is passed fro
 [8971] process("/lib64/libpthread.so.0").mark("mutex_entry") 0xe1a628
  0x7fbcf9148fed : cv_wait+0x2d/0x2f [/opt/tsload/lib/libtscommon.so]
  0x7fbcf890f93f : tpd_wqueue_pick+0x44/0xbc [/opt/tsload/lib/libtsload.so]
-[8971] process("/lib64/libpthread.so.0").mark("mutex_acquired") 0xe1a628
-</pre>
+[8971] process("/lib64/libpthread.so.0").mark("mutex_acquired") 0xe1a628</pre>
+</p>
 </p>
 <p>
-Note that thread with TID=8972 will acquire mutex in <code>tpd_wqueue_put</code> function and then send a broadcast message to all workers. One of them (one with TID=8971) wakes up, re-acquires mutex and gets request through <code>tpd_wqueue_pick</code>. <br /></p>
+Note that thread with TID=8972 will acquire mutex in <code>tpd_wqueue_put</code> function and then send a broadcast message to all workers. One of them (one with TID=8971) wakes up, re-acquires mutex and gets request through <code>tpd_wqueue_pick</code>. </p>
 <p>
-<code>plockstat</code> doesn't support many probes that glibc do, put we can easily replace them with <code>pid</code> provider and function boundary tracing:<br /></p>
+<code>plockstat</code> doesn't support many probes that glibc do, put we can easily replace them with <code>pid</code> provider and function boundary tracing:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file pthread.d <br/><p>
 <pre id="code2" class="hide">
 #!/usr/bin/dtrace
@@ -268,10 +279,10 @@ pid$target::pthread_cond_broadcast:entry {
 </p>
 </div>
 </p>
-<p>
-That script yields similar results on Solaris:<br /></p>
-<p>
-<pre>
+
+That script yields similar results on Solaris:
+    <p>
+    <pre>
 [7] mutex_lock_impl:mutex-acquire   0x46d4a0                        [46d4a0]
               libtsload.so`tpd_wqueue_put+0x26
 [7] cond_signal:entry   0x46d4e0                                    [46d4e0]
@@ -279,17 +290,20 @@ That script yields similar results on Solaris:<br /></p>
 [7] mutex_unlock_queue:mutex-release   0x46d4a0                     [46d4a0]
 [6] mutex_lock_impl:mutex-acquire   0x46d4a0                        [46d4a0]
               libtsload.so`tpd_wqueue_pick+0xb6
-[6] pthread_cond_wait:return   0x15                                 [15]
-</pre>
+[6] pthread_cond_wait:return   0x15                                 [15]</pre>
+</p>
 </p>
 <p>
-<h4>References</h4></p>
+    <h4>
+ References</h4>
+</p>
 <p>
     <ul>
         <li>
-<a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/DESIGN-systemtap-probes.txt">glibc documentation on SystemTap probes</a></li>
+ <a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/DESIGN-systemtap-probes.txt">glibc documentation on SystemTap probes</a>
+</li>
         <li>
-<img src="../images/icons/dtrace.png" alt="" class="img-rounded"/><a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-plockstat/index.html">plockstat Provider</a></li>
+ <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-plockstat/index.html">plockstat Provider</a></li>
 </ul>
 </p>
 

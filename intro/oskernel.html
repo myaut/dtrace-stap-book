@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Introduction</title>
+	<title> Introduction
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,46 +49,70 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Operating System Kernel</h3></p>
-<span class="label label-inverse">Definition</span><div class="well">
-According to Wikipedia, <a href="http://en.wikipedia.org/wiki/Kernel_%28operating_system%29">Operating System Kernel</a> is<br />    <blockquote>
- a computer program that manages I/O (input/output) requests from software, and translates them into data processing instructions for the central processing unit and other electron components of a computer. The kernel is a fundamental part of a modern computer's operating system.<br /></blockquote>
+		<h3>
+ Operating System Kernel</h3>
+<p>
+<span class="label label-inverse">Definition</span>    <div class="well">
+        <p>
+According to Wikipedia, <a href="http://en.wikipedia.org/wiki/Kernel_%28operating_system%29">Operating System Kernel</a> is</p>
+        <p>
+            <p>
+            <blockquote>
+ a computer program that manages I/O (input/output) requests from software, and translates them into data processing instructions for the central processing unit and other electron components of a computer. The kernel is a fundamental part of a modern computer's operating system.</blockquote>
+</p>
+            <p>
+</p>
+</p>
 </div>
+</p>
 <p>
-We will refer to operating system kernel as <em>kernel</em> in the rest of the book. Applications are using <em>system call</em> mechanism to access various kernel functions, and by doing that they transfer control to kernel routines. The current state of application including all variables and current <em>program counter</em> is called <em>context</em>. C is a programming language which is vastly used for writing Unix-like operating systems kernels such as Solaris, FreeBSD and Linux. C supports only procedural programming, but kernel developers adopted object-oriented and even functional programming. <br /></p>
+We will refer to operating system kernel as <em>kernel</em> in the rest of the book. Applications are using <em>system call</em> mechanism to access various kernel functions, and by doing that they transfer control to kernel routines. The current state of application including all variables and current <em>program counter</em> is called <em>context</em>. C is a programming language which is vastly used for writing Unix-like operating systems kernels such as Solaris, FreeBSD and Linux. C supports only procedural programming, but kernel developers adopted object-oriented and even functional programming. </p>
 <p>
-Where can we get information on kernel? Like I said, the most reliable source of such information is source codes which contain comments. You can use cross-reference tools to navigate source codes as easy as click a hyperlink. Some of them are publicly available: like <a href="http://lxr.linux.no/">lxr.linux.no</a> which contains Linux source and <a href="http://src.illumos.org/">src.illumos.org</a> which contains sources for Illumos (FOSS fork of OpenSolaris) in project illumos-gate. You can create your own cross-reference with OpenGrok tool: <a href="https://github.com/OpenGrok/OpenGrok">https://github.com/OpenGrok/OpenGrok</a>.<br /></p>
+Where can we get information on kernel? Like I said, the most reliable source of such information is source codes which contain comments. You can use cross-reference tools to navigate source codes as easy as click a hyperlink. Some of them are publicly available: like <a href="http://lxr.linux.no/">lxr.linux.no</a> which contains Linux source and <a href="http://src.illumos.org/">src.illumos.org</a> which contains sources for Illumos (FOSS fork of OpenSolaris) in project illumos-gate. You can create your own cross-reference with OpenGrok tool: <a href="https://github.com/OpenGrok/OpenGrok">https://github.com/OpenGrok/OpenGrok</a>.</p>
 <p>
-Of course we have to mention textual sources of information. For Linux it is:<br /></p>
+Of course we have to mention textual sources of information. For Linux it is:</p>
 <p>
-    <ul>
+      <ul>
         <li>
-<code>Documentation/</code> directory in kernel sources<br />  </li>
+ <code>Documentation/</code> directory in kernel sources
+  </li>
         <li>
-<a href="http://lkml.org/">Linux Kernel Mailing List</a></li>
+ <a href="http://lkml.org/">Linux Kernel Mailing List</a>
+  </li>
         <li>
-<a href="http://lwn.net/">Linux info from source</a></li>
+ <a href="http://lwn.net/">Linux info from source</a>
+  </li>
         <li>
- Robert Love book "Linux Kernel Development"<br />  </li>
+ Robert Love book "Linux Kernel Development"
+  </li>
         <li>
-<a href="https://lwn.net/Kernel/LDD3/">Linux Device Drivers Book</a></li>
+ <a href="https://lwn.net/Kernel/LDD3/">Linux Device Drivers Book</a></li>
 </ul>
 </p>
 <p>
-Some sources about Solaris:<br /></p>
+ 
+Some sources about Solaris:</p>
 <p>
-    <ul>
+      <ul>
         <li>
-<a href="http://solaris.java.net/">solaris.java.net</a> -- remnants of old OpenSolaris site<br />  </li>
+ <a href="http://solaris.java.net/">solaris.java.net</a> -- remnants of old OpenSolaris site
+  </li>
         <li>
- Richard McDougall and Jim Mauro book "Solaris(TM) Internals: Solaris 10 and OpenSolaris Kernel Architecture"<br />  </li>
+ Richard McDougall and Jim Mauro book "Solaris(TM) Internals: Solaris 10 and OpenSolaris Kernel Architecture"
+  </li>
         <li>
- Oracle course "Solaris 10 Operating System Internals"<br />  </li>
+ Oracle course "Solaris 10 Operating System Internals"</li>
 </ul>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-Solaris sources was closed after Oracle acquisition of Sun in 2009 and some information on Solaris may be outdated.<br /></div>
+<p>
+ 
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Solaris sources was closed after Oracle acquisition of Sun in 2009 and some information on Solaris may be outdated.
+</p>
+</div>
+
+</p>
 
 	</div>
 </div>

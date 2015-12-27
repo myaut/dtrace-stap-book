@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 1: Dynamic tracing tools. dtrace and stap tools</title>
+	<title> Module 1: Dynamic tracing tools. dtrace and stap tools
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -48,34 +49,35 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Tracing</h3></p>
+		<h3>
+ Tracing</h3>
 <p>
-Operating system and application are crucial parts of a computer system, but due to their colossal complexity, there are situations related to software bugs, incorrect system setup that lead to incorrect behavior. To address these issues, system admistrator should perform <em>instrumentation</em> which depends on the issue arisen: it could be performance statistics collection and their analysis, debug or system audit. Two common approaches to <em>instrumentation</em> are <em>sampling</em> when you collect state of the system: values of some variables, stacks of threads, etc. at unspecified moments of time and <em>tracing</em> when you install probes at specified places of software. <em>Profiling</em> is a most famous example of <em>sampling</em>. <br /></p>
+Operating system and application are crucial parts of a computer system, but due to their colossal complexity, there are situations related to software bugs, incorrect system setup that lead to incorrect behavior. To address these issues, system admistrator should perform <em>instrumentation</em> which depends on the issue arisen: it could be performance statistics collection and their analysis, debug or system audit. Two common approaches to <em>instrumentation</em> are <em>sampling</em> when you collect state of the system: values of some variables, stacks of threads, etc. at unspecified moments of time and <em>tracing</em> when you install probes at specified places of software. <em>Profiling</em> is a most famous example of <em>sampling</em>. </p>
 <p>
-<em>Sampling</em> is very helpful when you do not know where issue happens, but it hardly help when you try to know why it happened. I.e. profiling revealed that some function, say <code>foo()</code> that processes lists of elements, consumes 80% of the time, but doesn't say why: whether some lists are too long, or they should be pre-sorted, or list is inappropriate data structure for <code>foo()</code>, or whatever. With <em>tracing</em> we can install a probe to that function, gather information on lists (say their length) and collect cumulative execution of function <code>foo()</code>, and then cross-reference them, searching for a pattern in lists whose processing costs too much CPU time.<br /></p>
+<em>Sampling</em> is very helpful when you do not know where issue happens, but it hardly help when you try to know why it happened. I.e. profiling revealed that some function, say <code>foo()</code> that processes lists of elements, consumes 80% of the time, but doesn't say why: whether some lists are too long, or they should be pre-sorted, or list is inappropriate data structure for <code>foo()</code>, or whatever. With <em>tracing</em> we can install a probe to that function, gather information on lists (say their length) and collect cumulative execution of function <code>foo()</code>, and then cross-reference them, searching for a pattern in lists whose processing costs too much CPU time.</p>
 <p>
-Over time operating system kernels grown different methods of tracing. First one and a simplest one is <strong>counters</strong> -- each time probe fires (say, major page fault), they increase some counter. Counters may bee than read through kstat interface in Solaris:<br /></p>
-<p>
-<pre>
-    # kstat -p |grep maj_fault
-    cpu:0:vm:maj_fault      7588
-</pre>
+Over time operating system kernels grown different methods of tracing. First one and a simplest one is <strong>counters</strong> -- each time probe fires (say, major page fault), they increase some counter. Counters may bee than read through kstat interface in Solaris:
+    <p>
+    <pre>
+# kstat -p |grep maj_fault
+    cpu:0:vm:maj_fault      7588</pre>
+</p>
 </p>
 <p>
-Linux usually provides counters through <code>procfs</code> or <code>sysfs</code>:<br /></p>
-<p>
-<pre>
-    # cat /proc/vmstat  | grep pgmajfault
-    pgmajfault 489268
-</pre>
+Linux usually provides counters through <code>procfs</code> or <code>sysfs</code>:
+    <p>
+    <pre>
+# cat /proc/vmstat  | grep pgmajfault
+    pgmajfault 489268</pre>
+</p>
 </p>
 <p>
-This approach is limited: you can't add counter for every event without losing performance, and they are usually system-wide (i.e. you can't know what process causing major-faults), or process/thread-wide. <br /></p>
+This approach is limited: you can't add counter for every event without losing performance, and they are usually system-wide (i.e. you can't know what process causing major-faults), or process/thread-wide. </p>
 <p>
-More complex approach is <strong>debug printing</strong>: add a <code>printk()</code> or <code>cmn_err()</code> statement as a probe, but this approach is quite limited, because you need recompile kernel each time you need new set of probes (like LTTng does). But if all debug printing will be enabled, you will get excessive system load. By default, most of debug printing in Solaris are disabled unless you compile a DEBUG-build, which is not publicly available. Modern Linux kernels however developed a dynamic debugging facility available via <code>pr_debug()</code>. There are several <strong>static probes</strong> which are deactivated on systems start, but can be activated externally: <em>ftrace</em> and <em>kprobes</em> in Linux and <em>TNF</em> on Solaris, but amount of information provided by them is still limited, and <em>ftrace</em>/<em>kprobes</em> are requiring writing kernel modules which is not convenient and dangerous. <br /></p>
+More complex approach is <strong>debug printing</strong>: add a <code>printk()</code> or <code>cmn_err()</code> statement as a probe, but this approach is quite limited, because you need recompile kernel each time you need new set of probes (like LTTng does). But if all debug printing will be enabled, you will get excessive system load. By default, most of debug printing in Solaris are disabled unless you compile a DEBUG-build, which is not publicly available. Modern Linux kernels however developed a dynamic debugging facility available via <code>pr_debug()</code>. There are several <strong>static probes</strong> which are deactivated on systems start, but can be activated externally: <em>ftrace</em> and <em>kprobes</em> in Linux and <em>TNF</em> on Solaris, but amount of information provided by them is still limited, and <em>ftrace</em>/<em>kprobes</em> are requiring writing kernel modules which is not convenient and dangerous. </p>
 <p>
-So, generally speaking, that approaches provide very limited set of data at very limited set of tracing points. The only approach that widens that limits is <strong>kernel debugger</strong>, but because each breakpoint halts system, <strong>it cannot be used on production systems</strong>. The answer to them are <strong>dynamic tracing</strong> which is the topic of this book.<br /></p>
+So, generally speaking, that approaches provide very limited set of data at very limited set of tracing points. The only approach that widens that limits is <strong>kernel debugger</strong>, but because each breakpoint halts system, <strong>it cannot be used on production systems</strong>. The answer to them are <strong>dynamic tracing</strong> which is the topic of this book.
+</p>
 
 	</div>
 </div>

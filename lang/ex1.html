@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 2: Dynamic tracing languages</title>
+	<title> Module 2: Dynamic tracing languages
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,95 +52,111 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Exercise 1</h3></p>
+		<h3>
+ Exercise 1</h3>
 <p>
-Write <code>opentrace.d</code> and <code>opentrace.stp</code> scripts which are tracing <code>open()</code> system calls. They should print following information in one line:<br />     <ul>
+Write <code>opentrace.d</code> and <code>opentrace.stp</code> scripts which are tracing <code>open()</code> system calls. They should print following information in one line:
+     <ul>
         <li>
- Call context: name of executable file, process ID, user and group IDs of user and group which are executing process.<br /> </li>
+ Call context: name of executable file, process ID, user and group IDs of user and group which are executing process.
+ </li>
         <li>
- Path to file which should be opened.<br /> </li>
+ Path to file which should be opened.
+ </li>
         <li>
- A string containing <code>open()</code> flags <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>, <code>O_APPEND</code>, <code>O_CREAT</code></li>
+ A string containing <code>open()</code> flags <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>, <code>O_APPEND</code>, <code>O_CREAT</code>
+ </li>
         <li>
- Return value of system call<br /> </li>
+ Return value of system call</li>
 </ul>
 </p>
 <p>
-For example:<br /></p>
-<p>
-<pre>
-tee[939(0:0)] open("/tmp/test", O_WRONLY|O_APPEND|O_CREAT) = 3
-</pre>
+
+For example:
+    <p>
+    <pre>
+tee[939(0:0)] open("/tmp/test", O_WRONLY|O_APPEND|O_CREAT) = 3</pre>
+</p>
 </p>
 <p>
-Bit flags values are presented in following table:<br /></p>
+Bit flags values are presented in following table:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Flag</strong></td>
+<strong>Flag</strong> </td>
             <td>
-<strong>Solaris</strong></td>
+ <strong>Solaris</strong> </td>
             <td>
-<strong>Linux (x86)</strong></td>
+ <strong>Linux (x86)</strong></td>
 </tr>
         <tr>
+
             <td>
-<code>O_RDONLY</code></td>
+<code>O_RDONLY</code> </td>
             <td  colspan="2">
  bits 0-1 are not set</td>
 </tr>
         <tr>
+
             <td>
-<code>O_WRONLY</code></td>
+<code>O_WRONLY</code> </td>
             <td>
  1 </td>
             <td>
  1</td>
 </tr>
         <tr>
+
             <td>
-<code>O_RDWR</code></td>
+<code>O_RDWR</code> </td>
             <td>
  2 </td>
             <td>
  2</td>
 </tr>
         <tr>
+
             <td>
-<code>O_APPEND</code></td>
+<code>O_APPEND</code> </td>
             <td>
  8 </td>
             <td>
  1024</td>
 </tr>
         <tr>
+
             <td>
-<code>O_CREAT</code></td>
+<code>O_CREAT</code> </td>
             <td>
  256 </td>
             <td>
 64</td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-Test script that your created by experimenting with redirection to file or a pipe with <code>tee</code> tool:<br /></p>
-<p>
-<pre>
+Test script that your created by experimenting with redirection to file or a pipe with <code>tee</code> tool:
+    <p>
+    <pre>
 # cat /etc/inittab > /tmp/test
 # cat /etc/inittab >> /tmp/test
 # cat /etc/inittab | tee /tmp/test
-# cat /etc/inittab | tee -a /tmp/test
-</pre>
+# cat /etc/inittab | tee -a /tmp/test</pre>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-In Solaris 11 <code>open()</code> system call was replaced with more generic <code>openat()</code>.<br /></div>
+</p>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+In Solaris 11 <code>open()</code> system call was replaced with more generic <code>openat()</code>.
+</p>
+</div>
+</p>
 <p>
 <em>Optional</em>: Modify your scripts so only files that have "/etc" in their path will be shown.</p>
 

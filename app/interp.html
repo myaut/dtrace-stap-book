@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 5: Application tracing</title>
+	<title> Module 5: Application tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,108 +52,135 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Non-native languages</h3></p>
+		<h3>
+ Non-native languages</h3>
 <p>
-As DTrace became popular, many language interpreters got USDT probes. Some of them adopted them in upstream, some probes are provided by the binaries custom packages shipped with operating system. The basic pair of probes provided by most language interpreters are function entry and exit probes which provide name of the function, line number and file name. For example, Perl can be traced that way:<br /></p>
+As DTrace became popular, many language interpreters got USDT probes. Some of them adopted them in upstream, some probes are provided by the binaries custom packages shipped with operating system. The basic pair of probes provided by most language interpreters are function entry and exit probes which provide name of the function, line number and file name. For example, Perl can be traced that way:</p>
 <p>
-<pre>
+    <p>
+    <pre>
 # echo 'use Data::Dumper; 
       map { Dumper($_, ", ") }  ("Hello", "world");' | 
     dtrace -n '
         perl$target:::sub-entry {
             trace(copyinstr(arg0));  trace(copyinstr(arg1)); trace(arg2);
-        }  ' -c 'perl -- -'
-</pre>
+        }  ' -c 'perl -- -'</pre>
+</p>
 </p>
 <p>
-<pre>
+    <p>
+    <pre>
 # stap -e '
         probe process("/usr/lib64/perl5/CORE/libperl.so").mark("sub__entry") {
             printdln(" : ", user_string($arg1), user_string($arg2), $arg3);
         }
     ' -c $'perl -e \'use Data::Dumper; 
-                     map { Dumper($_, ", ") }  ("Hello", "world");\''
-</pre>
+                     map { Dumper($_, ", ") }  ("Hello", "world");\''</pre>
+</p>
 </p>
 <p>
-Note that we had to use stdin as a script in DTrace example. That happened because DTrace cannot parse <code>-c</code> option value in shell-like manner.<br /></p>
+Note that we had to use stdin as a script in DTrace example. That happened because DTrace cannot parse <code>-c</code> option value in shell-like manner.</p>
 <p>
-Here are list of availability of that probes in various interpreters shipped as binary packages. If you lack them, you may want to rebuild interpreters with some configure option like <code>--enable-dtrace</code>.<br /></p>
+Here are list of availability of that probes in various interpreters shipped as binary packages. If you lack them, you may want to rebuild interpreters with some configure option like <code>--enable-dtrace</code>.</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<em>Interpreter</em></td>
+<em>Interpreter</em> </td>
             <td>
-<em>CentOS</em></td>
+ <em>CentOS</em> </td>
             <td>
-<em>Solaris</em></td>
+ <em>Solaris</em></td>
 </tr>
         <tr>
+
             <td>
-<em>Python 2</em></td>
+<em>Python 2</em> </td>
             <td  colspan="2">
- Python has never accepted DTrace patches into upstream. <br />                  However, it was implemented by Solaris developers for Python 2.4, <br />                  and being ported to Fedora's and CentOS python. Only function-related <br />                  probes are supplied: <code>function-entry</code> and <code>function-return</code>.</td>
+ Python has never accepted DTrace patches into upstream. 
+                  However, it was implemented by Solaris developers for Python 2.4, 
+                  and being ported to Fedora's and CentOS python. Only function-related 
+                  probes are supplied: <code>function-entry</code> and <code>function-return</code>.</td>
 </tr>
         <tr>
+
             <td>
-<em>Python 3</em></td>
+<em>Python 3</em> </td>
             <td>
- Like Python 2, Python 3 in CentOS (if installed from EPEL) supports <code>function__entry</code> <br />             and <code>function__return</code> probes. In addition to that, SystemTap supplies example python3 tapset. </td>
+ Like Python 2, Python 3 in CentOS (if installed from EPEL) supports <code>function__entry</code> 
+             and <code>function__return</code> probes. In addition to that, SystemTap supplies example python3 tapset. </td>
             <td>
- <br />             Python 3 is supplied as FOSS (unsupported) package in Solaris 11 and has <code>line</code> probe, <br />             instance creation and garbage-collector related probes.</td>
+ 
+             Python 3 is supplied as FOSS (unsupported) package in Solaris 11 and has <code>line</code> probe, 
+             instance creation and garbage-collector related probes.</td>
 </tr>
         <tr>
+
             <td>
-<em>PHP5</em></td>
+<em>PHP5</em> </td>
             <td>
  Doesn't support USDT tracing but can it be enabled via <code>--enable-dtrace</code> switch when it is built from source. </td>
             <td>
- <br />    PHP supports tracing functions, exceptions and errors, VM opcodes execution and file compiling from <br />    scratch. Its probes will be discussed in the following section, <a href="web.html">Web applications</a>.</td>
+ 
+    PHP supports tracing functions, exceptions and errors, VM opcodes execution and file compiling from 
+    scratch. Its probes will be discussed in the following section, <a href="web.html">Web applications</a>.</td>
 </tr>
         <tr>
+
             <td>
-<em>Ruby 2</em></td>
+<em>Ruby 2</em> </td>
             <td  colspan="2">
- Supports multiple probes including object creation, method entry and exit points and garbage   <br />           collector probes in Ruby 2.0 in CentOS or Ruby 2.1 as FOSS package in Solaris 11.</td>
+ Supports multiple probes including object creation, method entry and exit points and garbage   
+           collector probes in Ruby 2.0 in CentOS or Ruby 2.1 as FOSS package in Solaris 11.</td>
 </tr>
         <tr>
+
             <td>
-<em>Perl 5</em></td>
+<em>Perl 5</em> </td>
             <td  colspan="2">
  Supports subroutine probes <code>sub-entry</code> and <code>sub-return</code> (see examples above).</td>
 </tr>
         <tr>
+
             <td>
-<em>Go</em></td>
+<em>Go</em> </td>
             <td>
- Go is pretty close to native languages in Linux, so you can attach probes directly to its functions while <br />       backtraces show correct function names. Differences in type system between C-based languages and Go, however <br />       prevents SystemTap from accessing arguments. </td>
+ Go is pretty close to native languages in Linux, so you can attach probes directly to its functions while 
+       backtraces show correct function names. Differences in type system between C-based languages and Go, however 
+       prevents SystemTap from accessing arguments. </td>
             <td>
- <br />       Go has experimental support for Solaris so it is not considered as a target for DTrace.</td>
+ 
+       Go has experimental support for Solaris so it is not considered as a target for DTrace.</td>
 </tr>
         <tr>
+
             <td>
-<em>Erlang</em></td>
+<em>Erlang</em> </td>
             <td  colspan="2">
- Neither EPEL nor Solaris package feature USDT probes in BEAM virtual machine, but they are supported in <br />              sources, so building with <code>--with-dynamic-trace</code> option enables various probes including function-boundary probes.</td>
+ Neither EPEL nor Solaris package feature USDT probes in BEAM virtual machine, but they are supported in 
+              sources, so building with <code>--with-dynamic-trace</code> option enables various probes including function-boundary probes.</td>
 </tr>
         <tr>
+
             <td>
-<em>Node.JS</em></td>
+<em>Node.JS</em> </td>
             <td  colspan="2">
- Node.JS is not supplied as OS packages, while binaries from official site doesn't have USDT enabled in Linux <br />               or simply not working in Oracle Solaris (only in Illumos derivatives). Building from sources, however <br />               adds global network-related probes like <code>http-server-request</code>. Function boundary tracing is not supported.</td>
+ Node.JS is not supplied as OS packages, while binaries from official site doesn't have USDT enabled in Linux 
+               or simply not working in Oracle Solaris (only in Illumos derivatives). Building from sources, however 
+               adds global network-related probes like <code>http-server-request</code>. Function boundary tracing is not supported.</td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-Most interpreted language virtual machines still rely on libc to access basic OS facilities like memory allocation, but some may use their own: i.e. PyMalloc in Python, Go runtime is OS-independent in Go language. For example let's see how malloc calls may be cross-referenced with Python code in <code>yum</code> and or <code>pkg</code> package managers using SystemTap or DTrace. We will need to attach to function entry and exit points to track "virtual" python backtrace and malloc call to track amount of allocated bytes. This approach is implemented in the following couple of scripts:<br /></p>
+Most interpreted language virtual machines still rely on libc to access basic OS facilities like memory allocation, but some may use their own: i.e. PyMalloc in Python, Go runtime is OS-independent in Go language. For example let's see how malloc calls may be cross-referenced with Python code in <code>yum</code> and or <code>pkg</code> package managers using SystemTap or DTrace. We will need to attach to function entry and exit points to track "virtual" python backtrace and malloc call to track amount of allocated bytes. This approach is implemented in the following couple of scripts:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file pymalloc.d <br/><p>
 <pre id="code1" class="hide">
 #!/usr/sbin/dtrace -qCZs
@@ -183,8 +211,9 @@ pid$target::malloc:entry
 </p>
 </div>
 </p>
-<p>
-<div class="well">
+
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file pymalloc.stp <br/><p>
 <pre id="code2" class="hide">
 #!/usr/bin/env stap
@@ -213,16 +242,22 @@ probe process(@libc).function("_int_malloc") {
 </p>
 </div>
 </p>
-<span class="label label-info">Note</span><div class="well">
-We have used non-existent <code>foo</code> provider in DTrace example because like JVM, Python is linked with <code>-xlazyload</code> linker flag, so we apply same workaround to find probes that we used in <a href="java.html">Java Virtual Machine</a> section. <br /></div>
+
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+We have used non-existent <code>foo</code> provider in DTrace example because like JVM, Python is linked with <code>-xlazyload</code> linker flag, so we apply same workaround to find probes that we used in <a href="java.html">Java Virtual Machine</a> section. 
+</p>
+</div>
+</p>
 <p>
-Arguments and local variables are also inaccessible directly by SystemTap or DTrace when program in non-native language is traced. That happens because they are executed within virtual machine which has its own representation of function frame which is different from CPU representation: languages with dynamic typing are more likely to keep local variables in a dict-like object than in a stack. These frame and dict-like objects, however, are usually implemented in C and available for dynamic tracing. All that you have to do is to provide their layout. <br /></p>
+Arguments and local variables are also inaccessible directly by SystemTap or DTrace when program in non-native language is traced. That happens because they are executed within virtual machine which has its own representation of function frame which is different from CPU representation: languages with dynamic typing are more likely to keep local variables in a dict-like object than in a stack. These frame and dict-like objects, however, are usually implemented in C and available for dynamic tracing. All that you have to do is to provide their layout. </p>
 <p>
-Let's see how this can be done for Python 3 in Solaris and Linux. If you try to get backtrace of program interpreted by Python 3, you will probably see function named <code>PyEval_EvalCodeEx</code> which is responsible for evaluation of code object. Code object itself has type <code>PyCodeObject</code> and passed as first argument of that function. That structure has fields like <code>co_firstlineno</code>, <code>co_name</code> and <code>co_filename</code>. Last two fields not just C-style strings but kind of <code>PyUnicodeObject</code> -- an object which represents strings in Python 3. It have multiple layouts, but we rely on the simplest one: compacted ASCII strings. That may not be true for all string objects in the program, but that works fine for objects produced by the interpreter itself like code objects.<br /></p>
+Let's see how this can be done for Python 3 in Solaris and Linux. If you try to get backtrace of program interpreted by Python 3, you will probably see function named <code>PyEval_EvalCodeEx</code> which is responsible for evaluation of code object. Code object itself has type <code>PyCodeObject</code> and passed as first argument of that function. That structure has fields like <code>co_firstlineno</code>, <code>co_name</code> and <code>co_filename</code>. Last two fields not just C-style strings but kind of <code>PyUnicodeObject</code> -- an object which represents strings in Python 3. It have multiple layouts, but we rely on the simplest one: compacted ASCII strings. That may not be true for all string objects in the program, but that works fine for objects produced by the interpreter itself like code objects.</p>
 <p>
-DTrace cannot recognize type information from Python libraries, but it supports <code>struct</code> definitions in the code. We will use it to provide <code>PyCodeObject</code> and <code>PyUnicodeObject</code> layouts in a separate file <code>pycode.h</code>. DTrace syntax is pretty much like C syntax, so these definitions are almost copy-and-paste from Python sources. Here is an example of DTrace scripts which trace python program execution:<br /></p>
+DTrace cannot recognize type information from Python libraries, but it supports <code>struct</code> definitions in the code. We will use it to provide <code>PyCodeObject</code> and <code>PyUnicodeObject</code> layouts in a separate file <code>pycode.h</code>. DTrace syntax is pretty much like C syntax, so these definitions are almost copy-and-paste from Python sources. Here is an example of DTrace scripts which trace python program execution:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code3')">+</button>&nbsp; Script file pycode.h <br/><p>
 <pre id="code3" class="hide">
 #ifndef PY_CODE_H
@@ -278,12 +313,13 @@ typedef struct _unicode {
     void*     wstr;
 } PyUnicodeObject;
 
-#endif </pre>
+#endif</pre>
 </p>
 </div>
 </p>
-<p>
-<div class="well">
+
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code4')">+</button>&nbsp; Script file pycode.d <br/><p>
 <pre id="code4" class="hide">
 #!/usr/sbin/dtrace -Cs
@@ -306,12 +342,18 @@ pid$target::PyEval_EvalCodeEx:entry {
 </p>
 </div>
 </p>
-<span class="label label-info">Note</span><div class="well">
-Similar mechanism is used in so-called <em>ustack helpers</em> in DTrace. That allows to build actual backtraces of Python or Node.JS programs when you use <code>jstack()</code> action.<br /></div>
+
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+Similar mechanism is used in so-called <em>ustack helpers</em> in DTrace. That allows to build actual backtraces of Python or Node.JS programs when you use <code>jstack()</code> action.
+</p>
+</div>
+</p>
 <p>
-SystemTap can extract type information directly from DWARF section of shared libraries so all we need to do to achieve same effect in it is to use <code>@cast</code> expression:<br /></p>
+SystemTap can extract type information directly from DWARF section of shared libraries so all we need to do to achieve same effect in it is to use <code>@cast</code> expression:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code5')">+</button>&nbsp; Script file pycode.stp <br/><p>
 <pre id="code5" class="hide">
 #!/usr/bin/env stap
@@ -336,26 +378,34 @@ probe process(@PYTHON3_LIBRARY).function("PyEval_EvalCodeEx") {
                get_py3_string(@cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_filename),
                @cast(code, "PyCodeObject", @PYTHON3_LIBRARY)->co_firstlineno);
     }
-} </pre>
+}</pre>
 </p>
 </div>
 </p>
+
+    <h4>
+ References</h4>
+</p>
 <p>
-<h4>References</h4></p>
-<p>
-    <ul>
+     <ul>
         <li>
-<em>Python</em>: Bugs <a href="https://bugs.python.org/issue4111">#4111</a>, <a href="https://bugs.python.org/issue13405">#13405</a> and <a href="https://bugs.python.org/issue21590">#21590</a></li>
+ <em>Python</em>: Bugs <a href="https://bugs.python.org/issue4111">#4111</a>, <a href="https://bugs.python.org/issue13405">#13405</a> and <a href="https://bugs.python.org/issue21590">#21590</a>
+ </li>
         <li>
-<em>Perl</em>: <a href="http://perldoc.perl.org/perldtrace.html">perldtrace</a></li>
+ <em>Perl</em>: <a href="http://perldoc.perl.org/perldtrace.html">perldtrace</a>
+ </li>
         <li>
-<em>PHP</em>: <a href="http://www.php.net/manual/en/features.dtrace.dtrace.php">Using PHP and DTrace</a></li>
+ <em>PHP</em>: <a href="http://www.php.net/manual/en/features.dtrace.dtrace.php">Using PHP and DTrace</a>
+ </li>
         <li>
-<em>Ruby</em>: <a href="http://ruby-doc.org/core-2.1.0/doc/dtrace_probes_rdoc.html">DTrace Probes</a></li>
+ <em>Ruby</em>: <a href="http://ruby-doc.org/core-2.1.0/doc/dtrace_probes_rdoc.html">DTrace Probes</a>
+ </li>
         <li>
-<em>Erlang</em>: <a href="http://erlang.org/doc/apps/runtime_tools/DTRACE.html">DTrace and Erlang/OTP</a></li>
+ <em>Erlang</em>: <a href="http://erlang.org/doc/apps/runtime_tools/DTRACE.html">DTrace and Erlang/OTP</a></li>
 </ul>
 </p>
+<p>
+ </p>
 
 	</div>
 </div>

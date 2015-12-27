@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 3: Principles of dynamic tracing</title>
+	<title> Module 3: Principles of dynamic tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,19 +52,31 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Dynamic code analysis</h3></p>
-<span class="label label-inverse">Definition</span><div class="well">
-<a href="http://en.wikipedia.org/wiki/Dynamic_program_analysis">Dynamic program analysis</a> is the analysis of computer software that is performed by executing programs on a real or virtual processor.<br /></div>
+		<h3>
+ Dynamic code analysis</h3>
 <p>
-We will refer to program analysis as code analysis since program is a product of code compilation, On contrary, static code analysis is performed without actually running the program. Code analysis helps to match program behaviour such as opening files, sending messages over network to their code. <br /></p>
+<span class="label label-inverse">Definition</span>    <div class="well">
+        <p>
+<a href="http://en.wikipedia.org/wiki/Dynamic_program_analysis">Dynamic program analysis</a> is the analysis of computer software that is performed by executing programs on a real or virtual processor.
+</p>
+</div>
+</p>
 <p>
-<h4>Backtraces (stacks)</h4></p>
+We will refer to program analysis as code analysis since program is a product of code compilation, On contrary, static code analysis is performed without actually running the program. Code analysis helps to match program behaviour such as opening files, sending messages over network to their code. </p>
 <p>
-Simplest way to perform code analysis is to print a backtrace.<br /></p>
-<span class="label label-info">Information</span><div class="well">
-Code uses registers while function is executed most of the time. However, when function is called it will use same registers (unless CPU supports register windows like SPARC processor do, however even they are limited), so it has to save registers somewhere in memory including program counter, which will be used when we return from function.  Usually <em>stack</em> is used as memory for function locals and saved registers. It has special rule of allocation: stack always grow to a increasing or decreasing address, each call allocate a memory beyond current stack pointer (which is also a special register), and increases/decreases it, while each return resets value of stack pointer to a previous, thus deallocating <em>stack frame</em>. <br />If we extract program counter and register values from a stack, we may be able to recover history of calling functions and their arguments. For example, once I encountered panic in Solaris kernel. Printing stack (or, more correctly <em>backtrace</em>) from crash dump uncovered this:<br />    <p>
-    <pre>
+    <h4>
+ Backtraces (stacks)</h4>
+</p>
+<p>
+Simplest way to perform code analysis is to print a backtrace.</p>
+<p>
+<span class="label label-info">Information</span>    <div class="well">
+        <p>
+Code uses registers while function is executed most of the time. However, when function is called it will use same registers (unless CPU supports register windows like SPARC processor do, however even they are limited), so it has to save registers somewhere in memory including program counter, which will be used when we return from function.  Usually <em>stack</em> is used as memory for function locals and saved registers. It has special rule of allocation: stack always grow to a increasing or decreasing address, each call allocate a memory beyond current stack pointer (which is also a special register), and increases/decreases it, while each return resets value of stack pointer to a previous, thus deallocating <em>stack frame</em>. </p>
+        <p>
+If we extract program counter and register values from a stack, we may be able to recover history of calling functions and their arguments. For example, once I encountered panic in Solaris kernel. Printing stack (or, more correctly <em>backtrace</em>) from crash dump uncovered this:
+            <p>
+            <pre>
 fzap_cursor_retrieve+0xc4(6001ceb7d00, 2a100d350d8, 2a100d34fc0, 0, 0, 2a100d34dc8)                                                                                         
 [...]
 zfsvfs_setup+0x80(6001ceb2000, 1, 400, 0, 6001a8c5400, 0)
@@ -71,30 +84,39 @@ zfs_domount+0x20c(60012b4a240, 600187a64c0, 8, 0, 18e0400, 20000)
 zfs_mount+0x20c(60012b4a240, 6001ce86e80, 2a100d359d8, 600104231f8, 100, 0)
 domount+0x9d0(2a100d358b0, 2a100d359d8, 6001ce86e80, 60012b4a240, 1, 0)
 mount+0x108(600107da8f0, 2a100d35ad8, 0, 0, ff3474f4, 100)
-[...]
-</pre>
+[...]</pre>
 </p>
-Name prefix of top-level function implies that problem is in ZAP subsystem, and bottom function says that problem occur while mounting file system. Second argument to <code>zfs_domount</code> function is the name of mounting dataset. By reading string from it we were able to determine its name, make it readonly and boot the system.<br /></div>
+
+Name prefix of top-level function implies that problem is in ZAP subsystem, and bottom function says that problem occur while mounting file system. Second argument to <code>zfs_domount</code> function is the name of mounting dataset. By reading string from it we were able to determine its name, make it readonly and boot the system.
+</p>
+</div>
+</p>
 <p>
-In DTrace stack functions may be used as a keys to an associative arrays, or as separate function calls (in that case they will just print the stack). Stack of kernel functions is available by using <code>stack()</code> subroutine, while userspace application stack is available using <code>ustack()</code> subroutine. Both of them have optional constant integer argument which specifies how many stack frames should be printed. For example:<br /></p>
-<p>
-<pre>
+In DTrace stack functions may be used as a keys to an associative arrays, or as separate function calls (in that case they will just print the stack). Stack of kernel functions is available by using <code>stack()</code> subroutine, while userspace application stack is available using <code>ustack()</code> subroutine. Both of them have optional constant integer argument which specifies how many stack frames should be printed. For example:
+    <p>
+    <pre>
 # dtrace -c 'cat /etc/passwd' -n '
     syscall::read:entry 
     /pid == $target/ 
-        { stack(); ustack(); }' 
-</pre>
+        { stack(); ustack(); }'</pre>
+</p>
 </p>
 <p>
-There are multiple SystemTap functions that are responsible for printing stack:<br />     <ul>
+There are multiple SystemTap functions that are responsible for printing stack:
+     <ul>
         <li>
-<code>backtrace()</code> and <code>ubacktrace()</code> returns a string containing a list of addresses in hexadecimal format;<br /> </li>
+ <code>backtrace()</code> and <code>ubacktrace()</code> returns a string containing a list of addresses in hexadecimal format;
+ </li>
         <li>
-<code>print_stack()</code> and <code>print_ustack()</code> get stack from string returned by backtrace functions, convert addresses to symbols wherever possible and print it;<br /> </li>
+ <code>print_stack()</code> and <code>print_ustack()</code> get stack from string returned by backtrace functions, convert addresses to symbols wherever possible and print it;
+ </li>
         <li>
-<code>print_backtrace()</code> and <code>print_ubacktrace()</code> gets stack and prints it immediately, thus no arguments accepted and no return values supplied;<br /> </li>
+ <code>print_backtrace()</code> and <code>print_ubacktrace()</code> gets stack and prints it immediately, thus no arguments accepted and no return values supplied;
+ </li>
         <li>
-<code>task_backtrace()</code> accepts pointer to process/thread <code>task_struct</code> as a parameter and returns its kernel stack wherever possible. <br />Functions which have <code>u</code> in their names print userspace backtrace, functions which do not have it, print kernel backtrace. For example:<br />            <p>
+ <code>task_backtrace()</code> accepts pointer to process/thread <code>task_struct</code> as a parameter and returns its kernel stack wherever possible. 
+Functions which have <code>u</code> in their names print userspace backtrace, functions which do not have it, print kernel backtrace. For example:
+            <p>
             <pre>
 # stap -c 'cat /etc/passwd' -e '
     probe kernel.function("sys_read") { 
@@ -103,152 +125,176 @@ There are multiple SystemTap functions that are responsible for printing stack:<
     } '
 # stap -c 'cat /etc/passwd' -e '
     probe process("cat").function("read")
-        { print_ubacktrace(); } '
-</pre>
+        { print_ubacktrace(); } '</pre>
 </p>
 </li>
 </ul>
 </p>
 <p>
-Printing backtraces involves getting a symbol which matches some memory address which involves digging into <code>symtab</code> or similar section of binary files. Dynamic tracing systems can do that and print (DTrace) or return a symbol as a string (SystemTap) with following functions:<br /></p>
+Printing backtraces involves getting a symbol which matches some memory address which involves digging into <code>symtab</code> or similar section of binary files. Dynamic tracing systems can do that and print (DTrace) or return a symbol as a string (SystemTap) with following functions:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Userspace</strong></td>
+<strong>Userspace</strong> </td>
             <td>
-<em>DTrace</em></td>
+ <em>DTrace</em> </td>
             <td>
-<em>SystemTap</em></td>
+ <em>SystemTap</em></td>
 </tr>
         <tr>
+
             <td>
 Symbol </td>
             <td>
-<code>usym(addr)</code> or <code>ufunc(addr)</code></td>
+ <code>usym(addr)</code> or <code>ufunc(addr)</code> </td>
             <td>
-<code>usymname(addr)</code></td>
+ <code>usymname(addr)</code></td>
 </tr>
         <tr>
+
             <td>
 Symbol + offset </td>
             <td>
-<code>uaddr(addr)</code></td>
+ <code>uaddr(addr)</code> </td>
             <td>
-<code>usymdata(addr)</code></td>
+ <code>usymdata(addr)</code></td>
 </tr>
         <tr>
+
             <td>
 Library </td>
             <td>
-<code>umod(addr)</code></td>
+ <code>umod(addr)</code> </td>
             <td>
-<code>umodname(addr)</code></td>
+ <code>umodname(addr)</code></td>
 </tr>
         <tr>
+
             <td>
-<strong>Kernel</strong></td>
+<strong>Kernel</strong> </td>
             <td>
-<em>DTrace</em></td>
+ <em>DTrace</em> </td>
             <td>
-<em>SystemTap</em></td>
+ <em>SystemTap</em></td>
 </tr>
         <tr>
+
             <td>
 Symbol </td>
             <td>
-<code>sym(addr)</code> or <code>func(addr)</code></td>
+ <code>sym(addr)</code> or <code>func(addr)</code> </td>
             <td>
-<code>symname(addr)</code></td>
+ <code>symname(addr)</code></td>
 </tr>
         <tr>
+
             <td>
 Symbol + offset </td>
             <td>
-</td>
+  </td>
             <td>
-<code>symdata(addr)</code></td>
+ <code>symdata(addr)</code></td>
 </tr>
         <tr>
+
             <td>
 Library </td>
             <td>
-<code>mod(addr)</code></td>
+ <code>mod(addr)</code> </td>
             <td>
-<code>modname(addr)</code></td>
+ <code>modname(addr)</code></td>
 </tr>
         <tr>
+
             <td>
 Module, symbol + offset </td>
             <td>
-<code>printf("%a", addr)</code></td>
+ <code>printf("%a", addr)</code> </td>
             <td>
-</td>
+ </td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
 <p>
-For example, some kernel interfaces like VFS are polymorphic, so they have a function pointer table. You may extract these pointers and resolve them to a function name:<br /></p>
-<p>
-<pre>
+For example, some kernel interfaces like VFS are polymorphic, so they have a function pointer table. You may extract these pointers and resolve them to a function name:
+    <p>
+    <pre>
 # stap -c 'cat /etc/passwd' --all-modules -e ' 
     probe kernel.function("do_filp_open").return  {
         if(_IS_ERR($return)) next;
         addr = $return->f_op->open;
         printf("name: %s, addr: %s, mod: %s\n", 
-            symname(addr), symdata(addr), modname(addr)); }'
-</pre>
+            symname(addr), symdata(addr), modname(addr)); }'</pre>
 </p>
-<p>
-Similar example for DTrace:<br /></p>
-<p>
-<pre>
+
+Similar example for DTrace:
+    <p>
+    <pre>
 # dtrace -c 'cat /etc/passwd' -n '
     fop_open:entry { 
         this->vop_open = 
             (uintptr_t)(*args[0])->v_op->vop_open;
-        sym(this->vop_open); mod(this->vop_open); }'
-</pre>
+        sym(this->vop_open); mod(this->vop_open); }'</pre>
+</p>
+
+In this example when <code>cat</code> will try to open file, tracing script catch this event and show name of filesystem driver and function from it implementing <code>open()</code> call (unless it is generic function from kernel).</p>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+By default SystemTap seeks only in <code>vmlinux</code> or binary executable files. To search over libraries and modules, use <code>-d</code>, <code>--all-modules</code> and <code>--ldd</code> options as stated in <a href="../tools/systemtap.html">SystemTap</a>.
+</p>
+</div>
 </p>
 <p>
-In this example when <code>cat</code> will try to open file, tracing script catch this event and show name of filesystem driver and function from it implementing <code>open()</code> call (unless it is generic function from kernel).<br /></p>
-<span class="label label-warning">Warning</span><div class="well">
-By default SystemTap seeks only in <code>vmlinux</code> or binary executable files. To search over libraries and modules, use <code>-d</code>, <code>--all-modules</code> and <code>--ldd</code> options as stated in <a href="../tools/systemtap.html">SystemTap</a>.<br /></div>
-<span class="label label-warning">Warning</span><div class="well">
-In DTrace symbols are resolved by consumer, not by DIF interpreter -- that is why they do not return strings, and not usable in string functions. Moreover, if when buffers are switched module was unloaded or process is finished, DTrace will fail to resolve symbols and print raw address in stack or symbol functions.<br /></div>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+In DTrace symbols are resolved by consumer, not by DIF interpreter -- that is why they do not return strings, and not usable in string functions. Moreover, if when buffers are switched module was unloaded or process is finished, DTrace will fail to resolve symbols and print raw address in stack or symbol functions.
+</p>
+</div>
+</p>
 <p>
-SystemTap and DTrace have different formats when printing backtrace symbol names:<br /></p>
+SystemTap and DTrace have different formats when printing backtrace symbol names:</p>
 <p>
 <img src="../images/stackfmt.png" alt="" class="img-rounded"/></p>
 <p>
-<h4>Call trees</h4></p>
+    <h4>
+ Call trees</h4>
+</p>
 <p>
-Note that backtraces show only a stack, a linear structure of functions that lead to event, they do not include callees that were previously called, but already exited. For example in following code (which obviously causes a segmentation fault):<br /></p>
-<p>
-<pre>
+Note that backtraces show only a stack, a linear structure of functions that lead to event, they do not include callees that were previously called, but already exited. For example in following code (which obviously causes a segmentation fault):
+    <p>
+    <pre>
 char* foo() {
     return NULL; }
 void bar() {
     char* str = foo();
-    puts(str); }
-</pre>
+    puts(str); }</pre>
+</p>
+
+we will see functions <code>bar()</code> and <code>puts()</code> on stack, but the problem is caused by <code>foo()</code> function. To trace it along with other functions, we will need a <em>call tree</em>, which is close to <em>call graph</em> which is collected during static calling analysis.</p>
+<p>
+Global or thread-local flag (say <code>traceme</code>) is used to gather call tree. It is set when we enter some function (which is considered a bound for tracing), and reset when we leave it. In following example, we, for example, may limit tracing by using <code>bar()</code> as our bound. Without using such boundary functions, tracing will have too much performance penalties. Probes are attached to <strong>all</strong> functions, but predicate is used to check if <code>traceme</code> flag, so only useful probes will be printed. Such probe only print names of functions preceded with indent whether indent is set according to a depth of call, so output look like a tree. </p>
+<p>
+<span class="label label-important">DANGER!</span>    <div class="well">
+        <p>
+To attach to all kernel functions in SystemTap you have to use <code>kernel.function("*")</code> construct. But even with blacklisted probes, it will most likely panic system, or cause a serious system slowdown. To keep that from happen, limit number of attached probes to a module or at least subsystem by using <code>@path/to/files.c</code> construct like we do in following examples. In DTrace, however <code>fbt:::</code> is pretty safe and may only cause a temporary small freeze (while probes are attached).
+</p>
+</div>
 </p>
 <p>
-we will see functions <code>bar()</code> and <code>puts()</code> on stack, but the problem is caused by <code>foo()</code> function. To trace it along with other functions, we will need a <em>call tree</em>, which is close to <em>call graph</em> which is collected during static calling analysis.<br /></p>
+
+For example, let's see how this approach helps find a source of fault in system call. We will try to execute <code>cat not_exists</code> file which will set errno to <code>ENOENT</code> as expected. Let's find a kernel function that actually reports <code>ENOENT</code>. Usually, negative integer return value used for that, so we will print return values in function return values. This approach is also useful when you have no permission to open file and want to find a security hardening module that stops you from doing that.</p>
 <p>
-Global or thread-local flag (say <code>traceme</code>) is used to gather call tree. It is set when we enter some function (which is considered a bound for tracing), and reset when we leave it. In following example, we, for example, may limit tracing by using <code>bar()</code> as our bound. Without using such boundary functions, tracing will have too much performance penalties. Probes are attached to <strong>all</strong> functions, but predicate is used to check if <code>traceme</code> flag, so only useful probes will be printed. Such probe only print names of functions preceded with indent whether indent is set according to a depth of call, so output look like a tree. <br /></p>
-<span class="label label-important">DANGER!</span><div class="well">
-To attach to all kernel functions in SystemTap you have to use <code>kernel.function("*")</code> construct. But even with blacklisted probes, it will most likely panic system, or cause a serious system slowdown. To keep that from happen, limit number of attached probes to a module or at least subsystem by using <code>@path/to/files.c</code> construct like we do in following examples. In DTrace, however <code>fbt:::</code> is pretty safe and may only cause a temporary small freeze (while probes are attached).<br /></div>
+In SystemTap call tree indentation is performed through <code>indent()</code> and <code>thread_indent()</code> which are maintaining internal buffer, and increase or decrease number of space characters in it according to a number passed as argument to that functions. It is used in following script:</p>
 <p>
-For example, let's see how this approach helps find a source of fault in system call. We will try to execute <code>cat not_exists</code> file which will set errno to <code>ENOENT</code> as expected. Let's find a kernel function that actually reports <code>ENOENT</code>. Usually, negative integer return value used for that, so we will print return values in function return values. This approach is also useful when you have no permission to open file and want to find a security hardening module that stops you from doing that.<br /></p>
-<p>
-In SystemTap call tree indentation is performed through <code>indent()</code> and <code>thread_indent()</code> which are maintaining internal buffer, and increase or decrease number of space characters in it according to a number passed as argument to that functions. It is used in following script:<br /></p>
-<p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file callgraph.stp <br/><p>
 <pre id="code1" class="hide">
 #!/usr/bin/stap
@@ -285,15 +331,14 @@ probe kernel.function("*@fs/*").call ?,
 
         printf("%s <- %s [%d]\n", indent(-1), probefunc(), ret);
     }
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-Output will be following:<br /></p>
-<p>
-<pre>
+
+Output will be following:
+    <p>
+    <pre>
 # ./callgraph.stp -c "cat not_exists"
 cat: not_exists: No such file or directory
 => syscall.open [cat]
@@ -316,17 +361,18 @@ cat: not_exists: No such file or directory
 [...]
 15449 :  <- do_filp_open [4294967294]
 [...]
-<b>15851 : <- do_sys_open [-2]</b>
-</pre>
+<b>15851 : <- do_sys_open [-2]</b></pre>
+</p>
 </p>
 <p>
-So, now we can say that problem is in <code>__link_path_walk</code> function. This is output from CentOS 6, in modern kernels <code>__link_path_walk</code> is deleted and responsible function would be <code>path_openat</code>. <br /></p>
+So, now we can say that problem is in <code>__link_path_walk</code> function. This is output from CentOS 6, in modern kernels <code>__link_path_walk</code> is deleted and responsible function would be <code>path_openat</code>. </p>
 <p>
-<code>indent()</code> function also prints time delta in microseconds since first call. <code>thread_indent()</code> also prints information about execution thread and maintains separate buffer for each thread.<br /></p>
+<code>indent()</code> function also prints time delta in microseconds since first call. <code>thread_indent()</code> also prints information about execution thread and maintains separate buffer for each thread.</p>
 <p>
-DTrace consumer supports automatic indentation of output if <code>flowindent</code> tunable is set:<br /></p>
+DTrace consumer supports automatic indentation of output if <code>flowindent</code> tunable is set:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file callgraph.d <br/><p>
 <pre id="code2" class="hide">
 #!/usr/sbin/dtrace -s
@@ -355,15 +401,14 @@ fbt:::return
 /self->traceme && probefunc != "bcmp"/
 {
         trace(arg1);
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
-<p>
-Script output for ZFS filesystem will be similiar and reveal that <code>ENOENT</code> error was raised by ZFS module:<br /></p>
-<p>
-<pre>
+
+Script output for ZFS filesystem will be similiar and reveal that <code>ENOENT</code> error was raised by ZFS module:
+    <p>
+    <pre>
 # dtrace -s ./callgraph.d -c "cat not_exists"
 dtrace: script './callgraph.d' matched 69098 probes
 cat: not_exists: No such file or directory
@@ -395,23 +440,25 @@ CPU FUNCTION
 [...]
   0    -> set_errno                           
 <b>  0    <- set_errno                                           2</b>
-<b>  0  <- copen                                                 2</b>
-</pre>
+<b>  0  <- copen                                                 2</b></pre>
+</p>
 </p>
 <p>
-<h5>More backtraces </h5></p>
+    <h5>
+ More backtraces </h5>
+</p>
 <p>
-You may also need to track state of kernel data structures or passing parameters during tracing, if you wish to extend your knowledge about kernel or application. Now we know from our traces that Linux uses <code>__link_path_walk()</code>  and Solaris has <code>lookuppnvp()</code> functions to lookup file on filesystems. Let's see, how they handle symbolic links. Let's create one first:<br /></p>
-<p>
-<pre>
+You may also need to track state of kernel data structures or passing parameters during tracing, if you wish to extend your knowledge about kernel or application. Now we know from our traces that Linux uses <code>__link_path_walk()</code>  and Solaris has <code>lookuppnvp()</code> functions to lookup file on filesystems. Let's see, how they handle symbolic links. Let's create one first:
+    <p>
+    <pre>
 # touch file
-# ln -s file symlink
-</pre>
+# ln -s file symlink</pre>
+</p>
 </p>
 <p>
-As you can see, Linux calls <code>__link_path_walk</code> recursively:<br /></p>
-<p>
-<pre>
+As you can see, Linux calls <code>__link_path_walk</code> recursively:
+    <p>
+    <pre>
 # stap -e '
     probe kernel.function(%( kernel_v >= "2.6.32"
                           %? "link_path_walk"
@@ -428,15 +475,14 @@ file
  0xffffffff811ade31 : do_follow_link+0x181/0x450 [kernel]
  0xffffffff811adc1b : <b>__link_path_walk</b>+0x7ab/0x840 [kernel]
  0xffffffff811ae39a : path_walk+0x6a/0xe0 [kernel]
-[...]
-</pre>
+[...]</pre>
 </p>
+
+Since this function was removed in recent kernels, this behaviour is not reproducible in them.</p>
 <p>
-Since this function was removed in recent kernels, this behaviour is not reproducible in them.<br /></p>
-<p>
-In Solaris, however, this function is called only once -- for symbolical link:<br /></p>
-<p>
-<pre>
+In Solaris, however, this function is called only once -- for symbolical link:
+    <p>
+    <pre>
 # dtrace -n '
     lookuppnvp:entry { 
         trace(stringof(args[0]->pn_path));
@@ -445,8 +491,8 @@ In Solaris, however, this function is called only once -- for symbolical link:<b
               genunix`lookuppnatcred+0x119
               genunix`lookupnameatcred+0x97
               genunix`lookupnameat+0x6b
-[...]
-</pre>
+[...]</pre>
+</p>
 </p>
 
 	</div>

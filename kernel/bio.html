@@ -5,7 +5,8 @@
 	<meta name="generator" content="TSDoc 0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<title>Module 4: Operating system kernel tracing</title>
+	<title> Module 4: Operating system kernel tracing
+</title>
 	
 	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
 	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
@@ -51,190 +52,222 @@
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<p>
-<h3>Block Input-Output</h3></p>
+		<h3>
+ Block Input-Output</h3>
 <p>
-When request is handled by Virtual File System, and if it needs to be handled by underlying block device, VFS creates a request to Block Input-Output subsystem. Operating system in this case either fetches new page from a disk to a page cache or writes dirty page onto disk. Disks are usually referred to as <em>block devices</em> because you can access them by using blocks of fixed size: 512 bytes which is disk sector (not to mention disks with advanced format or SSDs). On the other hand, <em>character devices</em> like terminal emulator pass data byte by byte while <em>network devices</em> might have any length of network packet.<br /></p>
+When request is handled by Virtual File System, and if it needs to be handled by underlying block device, VFS creates a request to Block Input-Output subsystem. Operating system in this case either fetches new page from a disk to a page cache or writes dirty page onto disk. Disks are usually referred to as <em>block devices</em> because you can access them by using blocks of fixed size: 512 bytes which is disk sector (not to mention disks with advanced format or SSDs). On the other hand, <em>character devices</em> like terminal emulator pass data byte by byte while <em>network devices</em> might have any length of network packet.</p>
 <p>
-BIO top layer is traceable through <code>io</code> provider in DTrace:<br /></p>
-<p>
-<pre>
+BIO top layer is traceable through <code>io</code> provider in DTrace:
+    <p>
+    <pre>
 # dtrace -qn '
     io:::start 
     /args[0]->b_flags & B_READ/ { 
     printf("io dev: %s file: %s blkno: %u count: %d \n", 
         args[1]->dev_pathname, args[2]->fi_pathname, 
         args[0]->b_lblkno, args[0]->b_bcount); 
-    }' -c "dd if=/dev/dsk/c2t0d1p0 of=/dev/null count=10" 
-</pre>
+    }' -c "dd if=/dev/dsk/c2t0d1p0 of=/dev/null count=10"</pre>
 </p>
+
+If you check function name of that probe, you may see that it is handled by <code>bdev_strategy()</code> kernel function which has only one argument of type <code>struct buf</code>. That buffer represents a single request to a block subsystem and passed as <code>arg0</code> to <code>io:::start</code> probe and then translated to a <code>bufinfo_t</code> structure which is considered stable. DTrace also supplies information about block device and file name in <code>args[1]</code> and <code>args[2]</code>. </p>
 <p>
-If you check function name of that probe, you may see that it is handled by <code>bdev_strategy()</code> kernel function which has only one argument of type <code>struct buf</code>. That buffer represents a single request to a block subsystem and passed as <code>arg0</code> to <code>io:::start</code> probe and then translated to a <code>bufinfo_t</code> structure which is considered stable. DTrace also supplies information about block device and file name in <code>args[1]</code> and <code>args[2]</code>. <br /></p>
-<p>
-Linux has similar architecture: it has <code>struct bio</code> which represents single request to block subsystem and <code>generic_make_request()</code> function (which, however, has alternatives) which passes <code>bio</code> structure to device queues. SystemTap tapset <code>ioblock</code> provides access to BIO probes:<br /></p>
-<p>
-<pre>
+Linux has similar architecture: it has <code>struct bio</code> which represents single request to block subsystem and <code>generic_make_request()</code> function (which, however, has alternatives) which passes <code>bio</code> structure to device queues. SystemTap tapset <code>ioblock</code> provides access to BIO probes:
+    <p>
+    <pre>
 # stap -e '
     probe ioblock.request { 
         if(bio_rw_num(rw) != BIO_READ) 
             next; 
         printf("io dev: %s inode: %d blkno: %u count: %d \n", 
             devname, ino, sector, size); 
-    }' -c "dd if=/dev/sda of=/dev/null count=10"
-</pre>
+    }' -c "dd if=/dev/sda of=/dev/null count=10"</pre>
 </p>
+
+In these examples we have traced only read requests. </p>
 <p>
-In these examples we have traced only read requests. <br /></p>
-<p>
-Here are description of <code>buf</code> structure from Solaris and <code>bio</code> structure from Linux:<br /></p>
+Here are description of <code>buf</code> structure from Solaris and <code>bio</code> structure from Linux:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Field description</strong></td>
+<strong>Field description</strong> </td>
             <td>
-<code>bufinfo_t</code> translator or <code>struct buf</code></td>
+ <code>bufinfo_t</code> translator or <code>struct buf</code> </td>
             <td>
-<code>struct bio</code></td>
+ <code>struct bio</code></td>
 </tr>
         <tr>
+
             <td>
 Request flags </td>
             <td>
-<code>b_flags</code></td>
+ <code>b_flags</code> </td>
             <td>
-<code>bi_flags</code></td>
+ <code>bi_flags</code></td>
 </tr>
         <tr>
+
             <td>
 Read or write </td>
             <td>
- flags <code>B_WRITE</code>, <code>B_READ</code> in <code>b_flags</code></td>
+ flags <code>B_WRITE</code>, <code>B_READ</code> in <code>b_flags</code> </td>
             <td>
-<code>bi_rw</code>, see also functions <code>bio_rw_num()</code> and <code>bio_rw_str()</code></td>
+ <code>bi_rw</code>, see also functions <code>bio_rw_num()</code> and <code>bio_rw_str()</code></td>
 </tr>
         <tr>
+
             <td>
 Number of bytes </td>
             <td>
-<code>b_bcount</code></td>
+ <code>b_bcount</code> </td>
             <td>
-<code>bi_size</code></td>
+ <code>bi_size</code></td>
 </tr>
         <tr>
+
             <td>
 Id of block </td>
             <td>
-<code>b_blkno</code>, <code>b_lblkno</code></td>
+ <code>b_blkno</code>, <code>b_lblkno</code> </td>
             <td>
-<code>bi_sector</code></td>
+ <code>bi_sector</code></td>
 </tr>
         <tr>
+
             <td>
 Request finish callback </td>
             <td>
-<code>b_iodone</code></td>
+ <code>b_iodone</code> </td>
             <td>
-<code>bi_end_io</code></td>
+ <code>bi_end_io</code></td>
 </tr>
         <tr>
+
             <td>
 Device identifiers </td>
             <td>
-<code>b_edev</code>, <code>b_dip</code></td>
+ <code>b_edev</code>, <code>b_dip</code> </td>
             <td>
-<code>bi_bdev</code></td>
+ <code>bi_bdev</code></td>
 </tr>
         <tr>
+
             <td>
 Pointer to data </td>
             <td>
-<code>b_addr</code> or <code>b_pages</code> (only in <code>buf</code> when <code>B_PAGEIO</code> flag is set) </td>
+ <code>b_addr</code> or <code>b_pages</code> (only in <code>buf</code> when <code>B_PAGEIO</code> flag is set) </td>
             <td  rowspan="2">
  See note below</td>
 </tr>
         <tr>
+
             <td>
 Pointer to file descriptor </td>
             <td>
-<code>b_file</code> (only in <code>buf</code>)</td>
+ <code>b_file</code> (only in <code>buf</code>)</td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
-<span class="label label-info">Note</span><div class="well">
-<code>struct bio</code> in Linux contains table <code>bi_io_vec</code>, where each element contains pointer to a page <code>bv_page</code>, length of data <code>bv_len</code> and offset inside page <code>bv_offset</code>. Field <code>bi_vcnt</code> shows how many structures of that type is in vector while current index is kept in <code>bi_idx</code>.<br />Every <code>bio</code> structure can contain many files related to it (i.e. when I/O scheduler merges requests for adjacent pages). You can find file inode by accessing <code>bv_page</code> which points to a page-cache page, which will refer <code>inode</code> through its mapping.<br /></div>
 <p>
-When <em>BIO request</em> is created it is passed to scheduler which re-orders requests in a way which will require fewer movement of disk heads (this improves HDD access time). This subystem plays important role in Linux which implements a lot of different schedulers, including <em>CFQ</em> (used by default in many cases), <em>Deadline</em> and <em>NOOP</em> (doesn't perform scheduling at all). They are traceable with <code>ioscheduler</code> tapset. Solaris doesn't have centralized place for that: ZFS uses <em>VDEV queue</em> mechanism, while the only unifying algorithm is <em>lift sorter</em> which is implemented in <code>sd_add_buf_to_waitq()</code>.<br /></p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+<code>struct bio</code> in Linux contains table <code>bi_io_vec</code>, where each element contains pointer to a page <code>bv_page</code>, length of data <code>bv_len</code> and offset inside page <code>bv_offset</code>. Field <code>bi_vcnt</code> shows how many structures of that type is in vector while current index is kept in <code>bi_idx</code>.</p>
+        <p>
+Every <code>bio</code> structure can contain many files related to it (i.e. when I/O scheduler merges requests for adjacent pages). You can find file inode by accessing <code>bv_page</code> which points to a page-cache page, which will refer <code>inode</code> through its mapping.
+</p>
+</div>
+</p>
 <p>
-After scheduling BIO layer passes request to a device level:<br /></p>
+When <em>BIO request</em> is created it is passed to scheduler which re-orders requests in a way which will require fewer movement of disk heads (this improves HDD access time). This subystem plays important role in Linux which implements a lot of different schedulers, including <em>CFQ</em> (used by default in many cases), <em>Deadline</em> and <em>NOOP</em> (doesn't perform scheduling at all). They are traceable with <code>ioscheduler</code> tapset. Solaris doesn't have centralized place for that: ZFS uses <em>VDEV queue</em> mechanism, while the only unifying algorithm is <em>lift sorter</em> which is implemented in <code>sd_add_buf_to_waitq()</code>.</p>
+<p>
+After scheduling BIO layer passes request to a device level:</p>
 <p>
 <img src="../images/bio.png" alt="" class="img-rounded"/></p>
 <p>
-Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with <em>device mapper</em> in Linux or <em>MPxIO</em> in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called <em>SCSI stack</em>. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:<br /></p>
+Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with <em>device mapper</em> in Linux or <em>MPxIO</em> in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called <em>SCSI stack</em>. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:</p>
 <p>
     <table class="table table-bordered">
         <tr>
             <td>
-<strong>Action</strong></td>
+<strong>Action</strong> </td>
             <td>
-<strong>Solaris</strong></td>
+ <strong>Solaris</strong> </td>
             <td>
-<strong>Linux</strong></td>
+ <strong>Linux</strong></td>
 </tr>
         <tr>
+
             <td>
 New instance of SCSI packet is created </td>
             <td>
-<code>scsi_init_pkt()</code></td>
+ <code>scsi_init_pkt()</code> </td>
             <td>
-<code>scsi.ioentry</code></td>
+ <code>scsi.ioentry</code></td>
 </tr>
         <tr>
+
             <td>
 SCSI packet is dispatched on queue </td>
             <td>
-<code>sd_add_buf_to_waitq()</code></td>
+ <code>sd_add_buf_to_waitq()</code> </td>
             <td>
-<code>scsi.iodispatching</code></td>
+ <code>scsi.iodispatching</code></td>
 </tr>
         <tr>
+
             <td>
 SCSI packet is passed to low-level driver </td>
             <td>
-<code>sdt::scsi-transport-dispatch</code><br /><code>scsi_transport()</code></td>
+ <code>sdt::scsi-transport-dispatch</code> <br /> 
+                                            <code>scsi_transport()</code>  </td>
             <td>
-<code>scsi.ioexecute</code></td>
+ <code>scsi.ioexecute</code></td>
 </tr>
         <tr>
+
             <td>
 Low-level driver generates interrupt when SCSI packet is finished </td>
             <td>
-<code>sd_return_command()</code></td>
+ <code>sd_return_command()</code> </td>
             <td>
-<code>scsi.iocompleted</code><br /><code>scsi.iodone</code></td>
+ <code>scsi.iocompleted</code> <br />
+                                                                                            <code>scsi.iodone</code></td>
 </tr>
         <tr>
+
             <td>
 </td>
 </tr>
 </table>
 </p>
-<span class="label label-warning">Warning</span><div class="well">
-Probe <code>scsi.ioexecute</code> can be not fired for all SCSI packets: usually bus or disk driver puts request to internal queue and processes it independently from SCSI stack.<br /></div>
-<span class="label label-info">Note</span><div class="well">
-We have used Solaris functions starting from <code>sd</code> prefix in this example. They are from <code>sd</code> driver which represents SCSI disk. There is also <code>ssd</code> driver which is used for FC disks -- it is based on <code>sd</code> driver, but all functions in it are using <code>ssd</code> prefix, i.e. <code>ssd_return_command</code>.<br /></div>
+<p>
+<span class="label label-warning">Warning</span>    <div class="well">
+        <p>
+Probe <code>scsi.ioexecute</code> can be not fired for all SCSI packets: usually bus or disk driver puts request to internal queue and processes it independently from SCSI stack.
+</p>
+</div>
+</p>
+<p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+We have used Solaris functions starting from <code>sd</code> prefix in this example. They are from <code>sd</code> driver which represents SCSI disk. There is also <code>ssd</code> driver which is used for FC disks -- it is based on <code>sd</code> driver, but all functions in it are using <code>ssd</code> prefix, i.e. <code>ssd_return_command</code>.
+</p>
+</div>
+</p>
 <p>
 <img src="../images/solaris/bio.png" alt="" class="img-rounded"/></p>
 <p>
-In Solaris each SCSI <em>LUN</em> has a corresponding <code>sd_lun</code> structure which keeps queue of buffers in doubly-linked list referenced by <code>un_waitq_headp</code> and <code>un_waitq_tailp</code> pointers. When new command is passed to SCSI stack, <code>un_ncmds_in_driver</code> is increased and when packet is dispatched to transport, <code>un_ncmds_in_transport</code> is increased. They are decreased when SCSI packet is discarded or when it was successfully processed and interrupt is fired to notify OS about that. SCSI stack uses <code>b_private</code> field to keep <code>sd_xbuf</code> structure that keeps reference to SCSI packet through <code>xb_pktp</code> pointer.<br /></p>
+In Solaris each SCSI <em>LUN</em> has a corresponding <code>sd_lun</code> structure which keeps queue of buffers in doubly-linked list referenced by <code>un_waitq_headp</code> and <code>un_waitq_tailp</code> pointers. When new command is passed to SCSI stack, <code>un_ncmds_in_driver</code> is increased and when packet is dispatched to transport, <code>un_ncmds_in_transport</code> is increased. They are decreased when SCSI packet is discarded or when it was successfully processed and interrupt is fired to notify OS about that. SCSI stack uses <code>b_private</code> field to keep <code>sd_xbuf</code> structure that keeps reference to SCSI packet through <code>xb_pktp</code> pointer.</p>
 <p>
-Following script traces block I/O layer and SCSI stack (<code>sd</code> driver in particular) in Solaris:<br /></p>
+Following script traces block I/O layer and SCSI stack (<code>sd</code> driver in particular) in Solaris:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file sdtrace.d <br/><p>
 <pre id="code1" class="hide">
 #!/usr/sbin/dtrace -qCs
@@ -354,17 +387,16 @@ io:::done {
 io:::done {
     commit(specs[BUF_SPEC_INDEX(arg0)]);
     specs[BUF_SPEC_INDEX(arg0)] = 0;
-}
-</pre>
+}</pre>
 </p>
 </div>
 </p>
+
+It saves history of all I/O stages into a <a href="../lang/print.html#speculation">speculation</a> which is committed when operation is finished. Note that due to the fact that speculation has one buffer per processor output may be garbled when interrupt was delivered to a processor other than processor that initiated request and <code>sdintr</code> is called on it. </p>
 <p>
-It saves history of all I/O stages into a <a href="../lang/print.html#speculation">speculation</a> which is committed when operation is finished. Note that due to the fact that speculation has one buffer per processor output may be garbled when interrupt was delivered to a processor other than processor that initiated request and <code>sdintr</code> is called on it. <br /></p>
-<p>
-Here is an example output for script:<br /></p>
-<p>
-<pre>
+Here is an example output for script:
+    <p>
+    <pre>
 <b>io-start</b>                 ffffc100040c4300 cpu0 2261
         PROC: 1215/1 dd
         BUF flags: R 200061 count: 512 blkno: 0 comp:   0x0                                               
@@ -377,23 +409,24 @@ Here is an example output for script:<br /></p>
 <b>sdintr</b>                   ffffc100040c4300 cpu0 565121
         SCSI PKT flags: 14000 state: 1f comp:   sd`sdintr                                         
 <b>io-done</b>                  ffffc100040c4300 cpu0 597642
-        BUF flags: R 2200061 count: 512 blkno: 0 comp:   0x0
-</pre>
+        BUF flags: R 2200061 count: 512 blkno: 0 comp:   0x0</pre>
+</p>
 </p>
 <p>
-Each stage of request (marked bold) contains its name, address of <code>buf</code> pointer and time since request creation in nanoseconds. In our case largest difference is between <code>scsi_transport</code> and <code>sdintr</code> which is about half a second. It can be simply explained: actual I/O was performed between these stages, and it is slower than processor operations. <br /></p>
+Each stage of request (marked bold) contains its name, address of <code>buf</code> pointer and time since request creation in nanoseconds. In our case largest difference is between <code>scsi_transport</code> and <code>sdintr</code> which is about half a second. It can be simply explained: actual I/O was performed between these stages, and it is slower than processor operations. </p>
 <p>
-SCSI stack also uses callback mechanism to notify request initiators when it is finished. In our case lower-level driver had used <code>sdintr</code> callback while <code>b_iodone</code> field wasn't filled. It is more likely that caller used <code>biowait()</code> routine to wait for request completion. <br /></p>
+SCSI stack also uses callback mechanism to notify request initiators when it is finished. In our case lower-level driver had used <code>sdintr</code> callback while <code>b_iodone</code> field wasn't filled. It is more likely that caller used <code>biowait()</code> routine to wait for request completion. </p>
 <p>
-Like we said before, Linux has intermediate layer called a scheduler which can re-order requests. Due to that, BIO layer maintains generic layer of block device queues which are represented by <code>struct request_queue</code> which holds requests as <code>struct request</code> instances:<br /></p>
+Like we said before, Linux has intermediate layer called a scheduler which can re-order requests. Due to that, BIO layer maintains generic layer of block device queues which are represented by <code>struct request_queue</code> which holds requests as <code>struct request</code> instances:</p>
 <p>
 <img src="../images/linux/bio.png" alt="" class="img-rounded"/></p>
 <p>
-Each request may have multiple <code>bio</code> requests which are kept as linked list. New requests are submitted through <code>blk_queue_bio()</code> kernel function which will either create a new <code>request</code> using <code>get_request()</code> function for it or merge it with already existing <code>request</code>.<br /></p>
+Each request may have multiple <code>bio</code> requests which are kept as linked list. New requests are submitted through <code>blk_queue_bio()</code> kernel function which will either create a new <code>request</code> using <code>get_request()</code> function for it or merge it with already existing <code>request</code>.</p>
 <p>
-Here are example script for Linux which traces BIO layer and SCSI stack:<br /></p>
+Here are example script for Linux which traces BIO layer and SCSI stack:</p>
 <p>
-<div class="well">
+    <p>
+    <div class="well">
 <button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file scsitrace.stp <br/><p>
 <pre id="code2" class="hide">
 #!/usr/bin/stap
@@ -505,10 +538,11 @@ probe ioblock.end {
 </p>
 </div>
 </p>
+
+Script example outputs are shown below:</p>
 <p>
-Script example outputs are shown below:<br /></p>
-<p>
-<pre>
+    <p>
+    <pre>
 <b>kernel.function("get_request@block/blk-core.c:1074").return</b> 0xffff880039ff1500 0xffff88001d8fea00 cpu0 4490
         PROC: 16668/16674 tsexperiment
         BUF flags: R f000000000000001 count: 4096 blkno: 779728 comp: end_bio_bh_io_sync
@@ -522,13 +556,18 @@ Script example outputs are shown below:<br /></p>
 <b>scsi.iodispatching</b>       0xffff880039ff1500 0xffff88001d8fea00 cpu0 29882
 <b>scsi.iodone</b>              0xffff880039ff1500 0xffff88001d8fea00 cpu1 4368018
 <b>scsi.iocompleted</b>         0xffff880039ff1500 0xffff88001d8fea00 cpu0 4458073
-<b>ioblock.end</b>              0xffff880039ff1500 cpu0 1431980041275998676
-</pre>
+<b>ioblock.end</b>              0xffff880039ff1500 cpu0 1431980041275998676</pre>
+</p>
 </p>
 <p>
-Unlike Solaris, it shows to pointers for each stage: one for <code>bio</code> structure and one for <code>request</code>. Note that we didn't use <code>ioblock.request</code> in our example. That is because we wanted to distinguish merged and alone requests which can be done only with function boundary tracing.<br /></p>
-<span class="label label-info">Note</span><div class="well">
-Linux 3.13 introduced a new mechanism for block device queues called <em>blk-mq</em> (<em>Multi-Queue Block IO</em>). It is not covered in this book.<br /></div>
+Unlike Solaris, it shows to pointers for each stage: one for <code>bio</code> structure and one for <code>request</code>. Note that we didn't use <code>ioblock.request</code> in our example. That is because we wanted to distinguish merged and alone requests which can be done only with function boundary tracing.</p>
+<p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+Linux 3.13 introduced a new mechanism for block device queues called <em>blk-mq</em> (<em>Multi-Queue Block IO</em>). It is not covered in this book.
+</p>
+</div>
+</p>
 
 	</div>
 </div>
