@@ -62,8 +62,8 @@ This work is licensed under the  Creative Commons Attribution-Noncommercial-Shar
  * [Asynchronicity in kernel][kernel/async]
     * [Exercise 5][kernel/ex5]
  * [Network Stack][kernel/net]
- * [Synchronization primitives][kernel/sync]
- * [Interrupt handling][kernel/irq]
+ * [Synchronization primitives][kernel/sobj]
+ * [Interrupt handling and deferred execution][kernel/irq]
 
 ### Module 5: Application tracing
 [__docspace__:app]
