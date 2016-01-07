@@ -22,6 +22,19 @@ As DTrace became popular, many language interpreters got USDT probes. Some of th
 
 Note that we had to use stdin as a script in DTrace example. That happened because DTrace cannot parse `-c` option value in shell-like manner.
 
+Language interpreters provide not only function entry probes, here are other examples of supplied probes:
+
+    * Function entry and exit probes.
+        * In PHP and Python -- `function-entry`/`function-return`.
+        * In Perl -- `sub-entry`/`sub-return`.
+        * In Ruby -- `method-entry`/`method-return`.
+        * In Tcl -- `proc-entry`/`proc-return`.
+    * Probes that fire inside function: `line` in Python which corresponds to a interpreted line and `execute-entry`/`execute-return`, which fire per each Zend interpreter VM operation.
+    * Probes of file execution and compilation: such as `compile-file-entry`/`compile-file-return` in PHP and `loading-file`/`loaded-file` in Perl
+    * Error and exception probes: `raise` in Ruby and `exception-thrown`/`exception-caught`/`error` in PHP
+    * Object creation probes: `obj-create`/`obj-free` in Tcl, `instance-new-*`/`instance-delete-*` in Python, `object-create-start`/`object-create-done`/`object-free` in Ruby
+    * Garbage collector probes: `gc-start`/`gc-done` in Python, `gc-*-begin`/`gc-*-end` in Ruby 2.0 or `gc-begin`/`gc-end` in Ruby 1.8
+
 Here are list of availability of that probes in various interpreters shipped as binary packages. If you lack them, you may want to rebuild interpreters with some configure option like `--enable-dtrace`.
 
 ---
