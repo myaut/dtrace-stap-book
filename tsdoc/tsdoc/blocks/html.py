@@ -133,6 +133,11 @@ class HTMLPrinter(Printer):
             
             _class, label = HTMLPrinter.INCUT_CLASSES[block.style]
             self.stream.write('<span class="%s">%s</span>' % (_class, label))
+        elif isinstance(block, Span):
+            if block.style == 'small':
+                block_tags.append(('small', None))
+            elif block.style[0] == '#':
+                block_tags.append(('span', 'style="color: {0};"'.format(block.style[1:])))
         
         for tag, attrs in block_tags:
             self.stream.write(' ' * indent)

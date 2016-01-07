@@ -161,6 +161,12 @@ class Incut(Block):
         Block.__init__(self, parts)
         
         self.style = style
+
+class Span(Block):
+    def __init__(self, style=None, parts=[]):
+        Block.__init__(self, parts)
+        
+        self.style = style
     
 class NavLink(object):
     PREV = 0

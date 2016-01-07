@@ -345,6 +345,14 @@ class MarkdownParser(object):
         self._push(idx, _Frame(cls, idx+count, rtag))
         return idx + count
     
+    @_ctlcount(3)
+    @_ignore(Code, InlineCode, Link)
+    @_seek_char(' ')
+    def _span(self, idx, count, options):
+        self._push(idx, _Frame(Span, idx+count, '___',
+                               style=options))
+        return idx + count
+    
     @_ctlcount(1)
     @_ignore(Code, InlineCode)
     def _inline_code(self, idx, count):
@@ -424,6 +432,7 @@ class MarkdownParser(object):
         ('>', _blockquote),
         ('#', _header),
         ('*', _list_entry),
+        ('___', _span),
         ('_*', _styled),
         ('`', _inline_code),
         ('```', _code_block),
