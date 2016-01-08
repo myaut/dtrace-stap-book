@@ -324,7 +324,9 @@ class MarkdownParser(object):
             while self.stack[-1] is not ul:
                 self._pop(idx, idx)
         
-        self._push(idx, _Frame(ListEntry, idx + 1, level=count))
+        self._push(idx, _Frame(ListEntry, idx + 1, 
+                               level=sum(issubclass(frame.cls, ListBlock)
+                                         for frame in self.stack)))
         return idx + 1
     
     @_ignore(Code, InlineCode, Link)

@@ -3,12 +3,20 @@
 Another problem to which dynamic tracing systems face is stability of in-kernel interfaces. While system calls never change their interface due to backwards compatibility (if something need to be changed, new system call is introduced†), internal kernel function often do that especially if they not a public API for a drivers. Dynamic tracing languages provide mechanisms to avoid direct use of in-kernel interface by hiding them in abstractions:
 
 ---
-__Stability__ |2,1 __Data access__ |2,1 __Tracepoints__
-           | DTrace | SystemTap | DTrace | SystemTap
-High | _translators_, i.e. `fileinfo_t`  | tapset variables |1,2 statically defined tracing providers (`sdt` and many others) | tapset aliases, i.e. `vm.kfree`
-Mediocre |1,2 Global variables and raw arguments like `args[0]` or `(struct_t*) arg0` |1,2 Raw arguments like `$task` or `@cast($task, "task_struct")`  | statically defined ftrace probes like `kernel.trace("kfree")`
+1,2 _Stability_ |2,1 __Data access__ 
+           _DTrace_ | _SystemTap_
+High | _translators_, i.e. `fileinfo_t`  | tapset variables 
+Lowest | Global variables and raw arguments like `args[0]` or `(struct_t*) arg0` | Raw arguments like `$task` or `@cast($task, "task_struct")`  
+---
+
+---
+1,2 _Stability_ |2,1 __Tracepoints__
+           _DTrace_ | _SystemTap_
+High  | statically defined tracing providers (like `io` and many others) | tapset aliases, i.e. `vm.kfree`
+Mediocre | static tracepoints with `sdt` provider | statically defined ftrace probes like `kernel.trace("kfree")`
 Lowest  | `fbt` and `pid$$` providers | DWARF probes like `kernel.function("kfree")`
 ---
+
 
 To achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provides fewer information than you could access with other approaches. These options will be described in [Translators and tapsets][lang/tapset] section of next module. 
 

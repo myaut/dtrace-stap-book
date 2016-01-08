@@ -29,6 +29,7 @@ int a = 777;
 '''
 
 import sys
+import string
 
 class LineBreak(object):
     def __str__(self):
@@ -64,14 +65,22 @@ class InlineCode(Text):
 class Reference(Text):
     def __str__(self):
         return ''
-
-class CodeReference(Reference):
-    def __init__(self, text, ref_name, ref_class):
-        Reference.__init__(self, text.replace(' ', '_'))
+    
+    def parse(self):
+        ''' Parses meta-reference and returns pair of tag and value '''
+        if not self.text or self.text[0] != '_':
+            return None, None
         
-        self.ref_name = ref_name
-        self.ref_class = ref_class
-
+        if ':' in self.text:
+            return self.text.split(':')
+        
+        return self.text, None
+    
+    def get_name(self):
+        return ''.join((c if c not in (string.whitespace + string.punctuation)
+                        else '_')
+                       for c in self.text)
+    
 class Label(Text):
     def __init__(self, text, style):
         Text.__init__(self, text)

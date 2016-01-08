@@ -58,7 +58,9 @@ class DocPage(object):
         and returns those that match predicate. 
         
         Allows to avoid recursive algorithms'''
-        return self._iter_parts_block(pred, self.blocks) 
+        for block in self.blocks:
+            for part in self._iter_parts_block(pred, block):
+                yield part
     
     def _iter_parts_block(self, pred, block, level = 0):
         for part in block:
@@ -125,10 +127,10 @@ class IndexPage(MarkdownPage):
     REFERENCE_HEADER = 'Reference'
     
     class DocSpaceReference(DocPage):
-        def __init__(self, docspace, references, ref_prefix = ''):
+        def __init__(self, references, ref_prefix = ''):
             name = 'reference'
             
-            DocPage.__init__(self, docspace, name)
+            DocPage.__init__(self, name, name)
             
             self.references = references
             self.header = IndexPage.REFERENCE_HEADER
@@ -142,16 +144,12 @@ class IndexPage(MarkdownPage):
             sorted_refs = defaultdict(dict)
             
             for (ref_link, ref_part) in self.references.items():
-                if isinstance(ref_part, CodeReference):
-                    name = ref_part.ref_name
-                    if self.ref_prefix and name.lower().startswith(self.ref_prefix):
-                        realname = name[len(self.ref_prefix):]
-                        first_letter = (self.ref_prefix + realname[0]).upper()
-                    else:
+                tag, tagvalue = ref_part.parse()
+                if tag == '__index__':
+                    for name in tagvalue.split(','):
                         first_letter = name[0].upper()
-                    
-                    sorted_refs[first_letter][name] = (ref_link, ref_part)
-            
+                        sorted_refs[first_letter][name] = (ref_link, ref_part)
+                
             for letter in sorted(sorted_refs.keys()):
                 hobj = Header(IndexPage.REF_LETTER_HSIZE, [letter])
                 block = Paragraph([hobj])
@@ -161,7 +159,7 @@ class IndexPage(MarkdownPage):
                     ref_link, ref_part = refs[name]
                     
                     linkobj = Link(name, Link.INTERNAL, ref_link)
-                    entry = [linkobj, ', ', ref_part.ref_class, LineBreak()]
+                    entry = [linkobj, LineBreak()]
                     
                     block.extend(entry)
                     
@@ -170,7 +168,7 @@ class IndexPage(MarkdownPage):
                 self.blocks.append(block) 
     
     class DocSpaceIndex(DocPage):
-        def __init__(self, header, docspace, is_external, gen_reference, ref_prefix = ''):
+        def __init__(self, header, docspace, is_external=False, gen_reference=False, ref_prefix = ''):
             name = 'index'
             
             DocPage.__init__(self, docspace, name)
@@ -234,7 +232,7 @@ class IndexPage(MarkdownPage):
             
             # Substitute links with references to pages
             if printer.xref_pages:
-                self._xref(index)
+                self._xref(index, self.links)
             
             if printer.single_doc:
                 if self.is_external:
@@ -246,7 +244,7 @@ class IndexPage(MarkdownPage):
                     stream = file(self.doc_path, 'w')
                     printer.do_print_pages(stream, self.header, pages)
             else:    
-                for page in self.pages:
+                for page in self.pages.values():
                     if VERBOSE:
                         print 'Generating %s...' % page.doc_path
                     if not os.path.isdir(os.path.dirname(page.doc_path)):
@@ -287,11 +285,10 @@ class IndexPage(MarkdownPage):
             
             links = []
             
-            iter_parts = page.iter_parts(pred)
-            for part in iter_parts:
+            for part in page.iter_parts(pred):
                 if isinstance(part, Reference):
                     full_ref = '%s/%s#%s' % (page.docspace, page.name,
-                                             part.text)
+                                             part.get_name())
                     self.references[full_ref] = part
                 else:
                     if is_index:
@@ -345,8 +342,8 @@ class IndexPage(MarkdownPage):
             
             return page
             
-        def _xref(self, index):
-            for (refpage, link) in self.links:
+        def _xref(self, index, links):
+            for (refpage, link) in links:
                 if link.type != Link.INTERNAL:
                     continue
                 
@@ -372,35 +369,15 @@ class IndexPage(MarkdownPage):
                 else:
                     anchor = ''
                 
-                link.where = refpage.gen_link_to(page) + anchor            
+                link.where = refpage.gen_link_to(page) + anchor
         
-        def _create_reference(self):
-            reference = IndexPage.DocSpaceReference(self.docspace,
-                                                    self.references,
-                                                    self.ref_prefix)
-            
-            self.pages['reference'] = reference
-            self.reference = reference
-            
-            self.links.extend(reference.links)
-            
-            # Generate index entry for reference
-            hobj = Header(IndexPage.CHAPTER_HSIZE, [IndexPage.REFERENCE_HEADER])
-            list = ListBlock()
-            
-            ds_ref_link = '%s/%s' % (self.docspace, 'reference')
-            link = Link(IndexPage.REFERENCE_LINK_TEXT, Link.INTERNAL, ds_ref_link)
-            list.add(ListEntry(1, [link]))
-            
-            self.blocks.append(Paragraph([hobj, list]))
-            self.links.append((self, link)) 
-    
     def __init__(self, page_path, doc_header, pages): 
         MarkdownPage.__init__(self, page_path)
         self.header = doc_header
         self.docspace = ''
         
         self.pages = pages
+        self.reference = None
         
         self._process_index()
         
@@ -431,9 +408,11 @@ class IndexPage(MarkdownPage):
         
         # Generate index itself
         if not printer.single_doc:
+            self._generate_reference(printer)
+            
             if VERBOSE:
                 print 'Generating index...'
-        
+            
             self.prep_print()
             
             stream = file(self.doc_path, 'w')
@@ -448,9 +427,46 @@ class IndexPage(MarkdownPage):
                     for _, link in docspace.index_links:
                         where = link.where.split('/')[1]
                         pages.append(docspace.pages[where])
-                
+            
             stream = file(self.doc_path, 'w')
             printer.do_print_pages(stream, self.header, pages)
+    
+    def _generate_reference(self, printer):
+        ref_docspace = IndexPage.DocSpaceIndex('reference', 'reference')
+        
+        references = {}
+        
+        for docspace in self.docspaces:
+            references.update(docspace.references)
+        
+        reference = IndexPage.DocSpaceReference(references)
+        pages = {'reference': reference}
+        
+        self.pages.update(pages)
+        self.reference = reference
+        
+        reference.create_doc_path(self.doc_dir, self.doc_suffix)
+        reference.add_nav_link(NavLink.UP, self)      
+        
+        ref_docspace.process(pages, self.docspaces)
+        ref_docspace.prepare(self)
+        ref_docspace._xref(self, reference.links)
+        
+        if VERBOSE:
+            print 'Generating {0}...'.format(reference.doc_path)
+        
+        # Generate index entry for reference
+        hobj = Header(IndexPage.CHAPTER_HSIZE, [IndexPage.REFERENCE_HEADER])
+        list = ListBlock()
+        
+        link = Link(IndexPage.REFERENCE_LINK_TEXT, Link.EXTERNAL,
+                    self.gen_link_to(reference))
+        list.add(ListEntry(1, [link]))
+        
+        self.blocks.append(Paragraph([hobj, list]))
+        
+        stream = file(reference.doc_path, 'w')
+        printer.do_print(stream, reference.header, reference)
     
     def _process_index(self):
         # 1st pass - split index page into smaller indexes
@@ -481,7 +497,7 @@ class IndexPage(MarkdownPage):
                     docspace_index = None
                     blocks = [block]
                     docspace = None
-                    tags = [part.text
+                    tags = [part.parse()
                             for part in part.parts 
                             if isinstance(part, Reference)]
                     
@@ -490,15 +506,15 @@ class IndexPage(MarkdownPage):
             
             if docspace_index is None and header is not None:
                 # Process tag directives
-                for tag in tags:
+                for tag, tagvalue in tags:
                     if tag == '__external_index__':
                         is_external = True
                     elif tag == '__reference__':
                         gen_reference = True
-                    elif tag.startswith('__refprefix__'):
-                        _, ref_prefix = tag.split(':')
-                    elif tag.startswith('__docspace__'):
-                        _, docspace = tag.split(':')
+                    elif tag == '__refprefix__':
+                        ref_prefix = tagvalue
+                    elif tag == '__docspace__':
+                        docspace = tagvalue
                     
                 if not docspace:
                     print >> sys.stderr, 'WARNING: Not found __docspace__ directive for "%s"' % header

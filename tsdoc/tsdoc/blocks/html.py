@@ -168,6 +168,7 @@ class HTMLPrinter(Printer):
             else:
                 tag = None
                 tag_attrs = {}
+                text = self._html_filter(block, str(part))
                 
                 if isinstance(part, ItalicText):
                     tag = 'em'
@@ -180,8 +181,8 @@ class HTMLPrinter(Printer):
                     tag_attrs["class"] = "label label-%s" % part.style
                 elif isinstance(part, Reference):
                     tag = 'a'
-                    tag_attrs['name'] = part.text
-                    part.text = ''
+                    tag_attrs['name'] = part.get_name()
+                    text = ''
                 elif isinstance(part, Image):
                     # XXX: very dependent on book's directory structure
                     tag = '<img src="{}" alt="{}" class="img-rounded"/>'.format(
@@ -197,8 +198,6 @@ class HTMLPrinter(Printer):
                 elif isinstance(part, BreakLine):
                     self.stream.write('<br />')
                     continue
-                
-                text = self._html_filter(block, str(part))
                 
                 if tag:
                     attr_str = ' '.join('%s="%s"' % (attr, value)

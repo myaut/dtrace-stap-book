@@ -1,4 +1,4 @@
-### TSLoad workload generator
+### [__index__:TSLoad workload generator] TSLoad workload generator
 
 During this course we will need to demonstrate created scripts on a real system. We will use version 0.2 of TSLoad workload generator to do so. Its [documentation](http://myaut.github.io/tsload/) and [source code](https://github.com/myaut/tsload) are available on GitHub.
 

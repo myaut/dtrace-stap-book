@@ -21,7 +21,7 @@ To demonstrate it on real example, we will use following examples and run `cat /
 	}'
 ```
 
-SystmTap version:
+SystemTap version:
 ```
 # stap -e '
 	probe syscall.open { 
