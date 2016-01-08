@@ -14,8 +14,8 @@ elif doc_format == 'markdown':
     doc_suffix = '.md'
 elif doc_format == 'latex':
     doc_suffix = '.tex'
-elif doc_format == 'creole':
-    doc_suffix = '.creole'            
+elif doc_format == 'pdf':
+    doc_suffix = '.pdf'            
 else:
     raise StopError("Invalid documentation format '%s'" % doc_format)
 
@@ -26,9 +26,13 @@ env.Append(BUILDERS = {'DocGenerator': DocGenerator})
 
 env.Append(ENV = {'TSDOC_FORMAT': doc_format})
 env.Append(ENV = {'TSDOC_HEADER': 'Dynamic Tracing with DTrace & SystemTap'})
+env.Append(ENV = {'TSDOC_AUTHOR': 'Sergey Klyaus'})
 env.Append(ENV = {'TSDOC_HTML_TEMPLATE': File('../book/template.html').abspath})
 if GetOption('verbose'):
     env.Append(ENV = {'TSDOC_VERBOSE': True})
+if GetOption('no_sources'):
+    env.Append(ENV = {'TSDOC_NO_SOURCES': True})
+
 
 index = File('index.md')
 

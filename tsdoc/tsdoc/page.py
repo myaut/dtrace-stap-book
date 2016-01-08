@@ -233,16 +233,20 @@ class IndexPage(MarkdownPage):
             self._gen_nav_links(self.index_links, index)
             
             # Substitute links with references to pages
-            self._xref(index)
-            
-            pages = self.pages.values()
+            if printer.xref_pages:
+                self._xref(index)
             
             if printer.single_doc:
                 if self.is_external:
+                    pages = []
+                    
+                    for link in self.index_links:
+                        pages.append(self.pages[link.where])
+                    
                     stream = file(self.doc_path, 'w')
                     printer.do_print_pages(stream, self.header, pages)
             else:    
-                for page in pages:
+                for page in self.pages:
                     if VERBOSE:
                         print 'Generating %s...' % page.doc_path
                     if not os.path.isdir(os.path.dirname(page.doc_path)):
@@ -435,11 +439,15 @@ class IndexPage(MarkdownPage):
             stream = file(self.doc_path, 'w')
             printer.do_print(stream, self.header, self)
         else:
-            pages = []
+            pages = [self]
             
             for docspace in self.docspaces:
                 if not docspace.is_external:
-                    pages.extend(docspace.pages.values())
+                    pages.append(docspace)
+                    
+                    for _, link in docspace.index_links:
+                        where = link.where.split('/')[1]
+                        pages.append(docspace.pages[where])
                 
             stream = file(self.doc_path, 'w')
             printer.do_print_pages(stream, self.header, pages)

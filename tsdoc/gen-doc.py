@@ -10,7 +10,7 @@ from tsdoc.blocks import Link
 from tsdoc.blocks.markdown import MarkdownPrinter
 from tsdoc.blocks.html import HTMLPrinter
 from tsdoc.blocks.latex import LatexPrinter
-from tsdoc.blocks.creole import CreolePrinter
+from tsdoc.blocks.pdf import PDFPrinter
 
 # Main code
 _ = sys.argv.pop(0)
@@ -33,9 +33,9 @@ elif doc_format == 'markdown':
 elif doc_format == 'latex':
     doc_suffix = '.tex'
     printer = LatexPrinter()
-elif doc_format == 'creole':
-    doc_suffix = '.creole'
-    printer = CreolePrinter()    
+elif doc_format == 'pdf':
+    doc_suffix = '.pdf'
+    printer = PDFPrinter()    
 else:
     raise ValueError("Invalid documentation format '%s'" % doc_format)
 

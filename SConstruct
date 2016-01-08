@@ -6,6 +6,9 @@ AddOption('--doc-format',  dest='doc_format', action="store", default='html',
           metavar='FORMAT', help='Documentation format (markdown or html)')
 AddOption('--verbose', dest='verbose', action='store_true', default=False,
           help='Be verbose')
+AddOption('--no-sources', dest='no_sources', action='store_true', default=False,
+          help='Do not put source files to book')
+
 
 InkscapeBuilder = Builder(action = Action('inkscape -z -e $TARGET $SOURCE'),
                           suffix = '.png',

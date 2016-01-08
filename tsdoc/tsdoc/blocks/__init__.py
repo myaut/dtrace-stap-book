@@ -147,7 +147,7 @@ class TableCell(Block):
         self.colspan = colspan
         self.rowspan = rowspan
 
-class BlockQuote(Paragraph):
+class BlockQuote(Block):
     pass
 
 class CodeListing(Code):
@@ -204,6 +204,9 @@ def pprint_block(block, stream = sys.stdout, indent = 0):
         
         
 class Printer:
+    single_doc = False
+    xref_pages = True
+    
     TAB_STOPS = 4
     
     def _fix_tab_stops(self, text):

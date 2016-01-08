@@ -80,7 +80,7 @@ Following script traces block I/O layer and SCSI stack (`sd` driver in particula
 
 ````` scripts/dtrace/sdtrace.d
 
-It saves history of all I/O stages into a [speculation][lang/print#speculation] which is committed when operation is finished. Note that due to the fact that speculation has one buffer per processor output may be garbled when interrupt was delivered to a processor other than processor that initiated request and `sdintr` is called on it. 
+It saves history of all I/O stages into a [speculation][lang/print#speculations] which is committed when operation is finished. Note that due to the fact that speculation has one buffer per processor output may be garbled when interrupt was delivered to a processor other than processor that initiated request and `sdintr` is called on it. 
 
 Here is an example output for script:
 ```

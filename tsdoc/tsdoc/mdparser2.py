@@ -489,10 +489,14 @@ class MarkdownParser(object):
     PRE_POP_TABLE = [
         (ListBlock, _post_list),
         (Code, _post_code),
-        (Link, _post_link),
+        (Link, _post_link)
         ]
     
     def _post_pop_row(self, idx, top):
+        tail = self.text[idx+1:idx+4]
+        if tail == '---':
+            return
+        
         self._push(idx, _Frame(TableRow, idx, tail='\n'))
         self._post_pop_cell(idx, None)
     
@@ -552,8 +556,8 @@ int a = 777 * 5;
 void f();
     ```
 
-````` /usr/include/stdio.h
-````` /usr/include/stdlib.h
+````` /etc/motd
+````` /etc/SuSE-release
 
 !!! DEF
 ---

@@ -2,7 +2,7 @@
 
 _libc_ is a C library shipped with Unix which provides access to most of its facilities like system calls in a portable manner. Linux _glibc_ (one of the implementations of _libc_ which is most popular) and _libc_ shipped with Solaris contain some USDT probes. We will discuss them in this section. 
 
-On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as `plockstat` provider (similar to [lockstat][kernel/async#lockstat] provider we discussed earlier). _glibc_, however implements wider set of probes: along with various _pthread_ operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of `setjmp`/`longjmp` and dynamic linker `ld.so`.
+On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as `plockstat` provider (similar to [lockstat][kernel/sobj#lockstat] provider we discussed earlier). _glibc_, however implements wider set of probes: along with various _pthread_ operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of `setjmp`/`longjmp` and dynamic linker `ld.so`.
 
 Lets see how mutexes are traced in Solaris and Linux (in this section we will assume glibc by saying "Linux"). Solaris provides them through `plockstat` provider:
 ```
