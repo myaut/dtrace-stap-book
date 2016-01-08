@@ -801,6 +801,9 @@ code {
   background-color: #efeffb;
   white-space: nowrap;
 }
+small code {
+  font-size: 10pt;
+}
 pre {
   display: block;
   padding: 8.5pt;

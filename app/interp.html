@@ -81,6 +81,43 @@ As DTrace became popular, many language interpreters got USDT probes. Some of th
 <p>
 Note that we had to use stdin as a script in DTrace example. That happened because DTrace cannot parse <code>-c</code> option value in shell-like manner.</p>
 <p>
+Language interpreters provide not only function entry probes, here are other examples of supplied probes:</p>
+<p>
+        <ul>
+        <li>
+ Function entry and exit probes.
+                    <ul>
+                <li>
+ In PHP and Python -- <code>function-entry</code>/<code>function-return</code>.
+        </li>
+                <li>
+ In Perl -- <code>sub-entry</code>/<code>sub-return</code>.
+        </li>
+                <li>
+ In Ruby -- <code>method-entry</code>/<code>method-return</code>.
+        </li>
+                <li>
+ In Tcl -- <code>proc-entry</code>/<code>proc-return</code>.
+    </li>
+</ul>
+</li>
+        <li>
+ Probes that fire inside function: <code>line</code> in Python which corresponds to a interpreted line and <code>execute-entry</code>/<code>execute-return</code>, which fire per each Zend interpreter VM operation.
+    </li>
+        <li>
+ Probes of file execution and compilation: such as <code>compile-file-entry</code>/<code>compile-file-return</code> in PHP and <code>loading-file</code>/<code>loaded-file</code> in Perl
+    </li>
+        <li>
+ Error and exception probes: <code>raise</code> in Ruby and <code>exception-thrown</code>/<code>exception-caught</code>/<code>error</code> in PHP
+    </li>
+        <li>
+ Object creation probes: <code>obj-create</code>/<code>obj-free</code> in Tcl, <code>instance-new-*</code>/<code>instance-delete-*</code> in Python, <code>object-create-start</code>/<code>object-create-done</code>/<code>object-free</code> in Ruby
+    </li>
+        <li>
+ Garbage collector probes: <code>gc-start</code>/<code>gc-done</code> in Python, <code>gc-*-begin</code>/<code>gc-*-end</code> in Ruby 2.0 or <code>gc-begin</code>/<code>gc-end</code> in Ruby 1.8</li>
+</ul>
+</p>
+<p>
 Here are list of availability of that probes in various interpreters shipped as binary packages. If you lack them, you may want to rebuild interpreters with some configure option like <code>--enable-dtrace</code>.</p>
 <p>
     <table class="table table-bordered">

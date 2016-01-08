@@ -1,0 +1,428 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title> Introduction
+</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+	
+	<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-71659121-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="foreword.html"><strong>Prev</strong>(Foreword)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="tsload.html"><strong>Next</strong>(TSLoad workload generator)</a></li>
+</ul>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<h3>
+ Typographic conventions</h3>
+<p>
+This is a book published on the web and so it doesn't have any "typography", but certain parts of text are decorated with certain styles, thus we describe them in this section of the book.</p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Meaning</em> </td>
+            <td>
+ <em>Example</em></td>
+</tr>
+        <tr>
+
+            <td>
+First appearance of new terms </td>
+            <td>
+ <em>Central processing unit</em> (<em>CPU</em>) executes program code.</td>
+</tr>
+        <tr>
+
+            <td>
+Multiple terms linked with each other </td>
+            <td>
+ CPU consists of <strong>execution units</strong>, <strong>cache</strong> and <strong>memory controller</strong>.</td>
+</tr>
+        <tr>
+
+            <td>
+Definition of a term </td>
+            <td>
+  
+  <span class="label label-inverse">Definition</span>                <div class="well">
+                    <p>
+  According to this book,
+                          <p>
+                        <blockquote>
+ A <em>central processing unit</em> (<em>CPU</em>) executes program code.
+  </blockquote>
+</p>
+</p>
+</div>
+ </td>
+</tr>
+        <tr>
+
+            <td>
+Additional information about OS or hardware internals </td>
+            <td>
+ 
+  <span class="label label-info">Information</span>                <div class="well">
+                    <p>
+  Do not read me if you already know me the answer
+  </p>
+</div>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Notes and some additional information                 </td>
+            <td>
+ 
+  <span class="label label-info">Note</span>                <div class="well">
+                    <p>
+  I am note and I am providing external information about the implementation
+  </p>
+</div>
+ 
+  <span class="label label-warning">Warning</span>                <div class="well">
+                    <p>
+  I will warn you about some implementation quirks
+  </p>
+</div>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Information that some of the examples or code in the section is not suitable for production use </td>
+            <td>
+ 
+  <span class="label label-important">DANGER!</span>                <div class="well">
+                    <p>
+  Never try to do <code>rm -rf /</code> on your home computer.
+  </p>
+</div>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Function name, or name of the probe, any other entity that exist in source code </td>
+            <td>
+ 
+  If you want to print a line on standard output in pure C, use <code>puts()</code></td>
+</tr>
+        <tr>
+
+            <td>
+Chunk of the code that has to be used or command to be executed </td>
+            <td>
+ 
+                  <p>
+                <pre>
+int main() {
+    puts("Hello, world");
+}</pre>
+</p>
+ 
+                  <p>
+                <pre>
+$ perl -se '                     
+    print "Hello, $who" . "\n"
+    ' -- -who=world</pre>
+</p>
+ </td>
+</tr>
+        <tr>
+
+            <td>
+Placeholders in program examples are covered in <em>italic</em> </td>
+            <td>
+ 
+                  <p>
+                <pre>
+puts(<i>output-string</i>)</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Large portions of example outputs may have some output outlined with bold: </td>
+            <td>
+ 
+                  <p>
+                <pre>
+$ gcc hello.c -o hello
+$ ./hello
+<b>Hello, world</b></pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Large program listing (if you want to show it, press on "+" button) </td>
+            <td>
+ 
+                  <p>
+                <div class="well">
+<button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file hellouser.py <br/><p>
+<pre id="code1" class="hide">
+import os
+print "Hello, " + os.getenv('LOGNAME', 'anonymous') + '!'</pre>
+</p>
+</div>
+</p>
+</td>
+</tr>
+</table>
+</p>
+<p>
+    <h4>
+ Structural diagrams</h4>
+</p>
+<p>
+Many kernel-related topics will contain structural diagrams which will represent kernel data structures like this:</p>
+<p>
+<img src="../images/solaris/streams.png" alt="" class="img-rounded"/></p>
+<p>
+In this example two instances of <code>mblk_t</code> structure (which is typedef alias) are shown which are linked together through pair of <code>mblk_t</code> pointers <code>b_next</code> and <code>b_prev</code>. Not all fields are shown on this diagram, types are omitted, while order of fields may not match real one. Following conventions are used in this type of diagrams:</p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Example code</em> </td>
+            <td>
+ <em>Diagram and explanation</em></td>
+</tr>
+        <tr>
+
+            <td>
+                 <p>
+                <pre>
+struct structB {
+    int field10;
+    char field20;
+};
+struct structA {
+    struct structB* bp;
+    int field1;
+};</pre>
+</p>
+ </td>
+            <td>
+ <img src="../images/conv/pointer.png" alt=" " class="img-rounded"/> <br /> 
+       structure <code>structA</code> points to instance of <code>structB</code></td>
+</tr>
+        <tr>
+
+            <td>
+                 <p>
+                <pre>
+struct structA;
+struct structB {
+    int field10;
+    struct structA* ap;
+};
+struct structA {
+    struct structB* bp;
+    int field1;
+};</pre>
+</p>
+ </td>
+            <td>
+ <img src="../images/conv/reverse.png" alt=" " class="img-rounded"/> <br /> 
+       structure <code>structB</code> contains backward pointer to structure <code>structA</code></td>
+</tr>
+        <tr>
+
+            <td>
+                 <p>
+                <pre>
+struct structA {
+    struct structB* bp;
+    int field1;
+    struct {
+        char c1;
+        char c2;
+    } cobj;
+};</pre>
+</p>
+ </td>
+            <td>
+ <img src="../images/conv/embed.png" alt=" " class="img-rounded"/> <br /> 
+       structure <code>structA</code> has embedded structure (not neccessarily to be anonymous)</td>
+</tr>
+        <tr>
+
+            <td>
+                 <p>
+                <pre>
+struct structB {
+    int field10;
+    char field20;
+};
+struct structA {
+    struct structB* bp;
+    int field1;
+};</pre>
+</p>
+ </td>
+            <td>
+ <img src="../images/conv/array.png" alt=" " class="img-rounded"/> <br /> 
+       structure <code>structA</code> points to a dynamic array of structures <code>structB</code></td>
+</tr>
+        <tr>
+
+            <td>
+                 <p>
+                <pre>
+struct structB {
+    int field10;
+    char field20;
+    struct list_head node;
+};
+struct structA {
+    struct list_head blist;
+    int field1;
+};</pre>
+</p>
+ </td>
+            <td>
+ <img src="../images/conv/list.png" alt=" " class="img-rounded"/> <br /> 
+       structure <code>structA</code> contains head of linked list of <code>structB</code> instances <br /> 
+       Various structure relations can be shown with this type of arrows:      
+                         <ul>
+                    <li>
+ Single solid glyph shows node-to-node relations in linked list      
+         </li>
+                    <li>
+ Double solid glyphs shows head-to-node relations in linked list      
+         </li>
+                    <li>
+ Double dashed glyphs shows various tree-like relations like RB tree in Linux</li>
+</ul>
+</td>
+</tr>
+        <tr>
+
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+    <h4>
+ Timeline diagrams</h4>
+</p>
+<p>
+Timeline diagrams are used to show various processes that exist in traced system and chain of events or operations happening with them and at the same time contains names of probes:</p>
+<p>
+<img src="../images/timeline.png" alt="" class="img-rounded"/></p>
+<p>
+This diagram should be read like this:</p>
+<p>
+        <ul>
+        <li>
+ Thick             <span style="color: #6666ff;">
+<strong>colored</strong> </span>
+ arrows represent flow of some processes -- usually they are threads or processes in a system.             <span style="color: #999999;">
+<strong>Gray</strong> </span>
+ arrows represent processes that are inactive for some reason (usually, blocked and thus cannot be executed on CPU). Arrows corresponding to the same process share same baseline. 
+    </li>
+        <li>
+ Thin black arrows demonstrate transfer of control between several operations. In this example <code>puts()</code> call triggers <code>write</code> system call. Some of them may be omitted.
+    </li>
+        <li>
+ Thin             <span style="color: #ff6600;">
+colored</span>
+ lines demonstrate subsequent chain of events unrelated to the process. In this example phrase <code>Hi, Frank</code> arrives in Konsole window (graphic terminal).
+    </li>
+        <li>
+ Text in dashed rectangles contains name of             <span style="color: #003380;">
+SystemTap</span>
+ and             <span style="color: #800000;">
+DTrace</span>
+ probes corresponding to the operations or events happening with the process.</li>
+</ul>
+</p>
+<p>
+Virtual time axis beginning at the top and it is vertical.</p>
+<p>
+<span class="label label-important">DANGER!</span>    <div class="well">
+        <p>
+Probes shown in this example are purely fictional.
+</p>
+</div>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar navbar-bottom">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-left">
+<li><a href="foreword.html"><strong>Prev</strong>(Foreword)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="tsload.html"><strong>Next</strong>(TSLoad workload generator)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
+</body>
+</html>

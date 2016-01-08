@@ -40,15 +40,401 @@
 <div class="navbar">
     <div class="navbar-inner">
 	    <div class="container">
-			
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="net.html"><strong>Prev</strong>(Network Stack)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="irq.html"><strong>Next</strong>(Interrupt handling and deferred execution)</a></li>
+</ul>
 		</div>
     </div>
 </div>
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<span class="label label-warning">Warning</span><div class="well">
-This page is not yet written. Sorry. <a href="../index.html">Return to index.</a></div>
+		<h3>
+ Synchronization primitives</h3>
+<p>
+    <h4>
+ Locks</h4>
+</p>
+<p>
+Modern operating system kernels are multi-threaded thus they allow parallel execution of service routines and userspace threads. However, they share some common pools of resources and objects for which these threads compete and may cause conflicts if two threads request access simultaneously. If operating system won't resolve such conflict, object data may be corrupted which may cause incorrect system behaviour and eventually, system panic.</p>
+<p>
+<span class="label label-info">Information</span>    <div class="well">
+        <p>
+For example, we have two processes in a system with pids 119 and 123 which are simultaneously executed on different CPUs (for simplicity of the example, strictly speaking processes can compete for same resource even on uni-processor system if scheduler will perform context switch while process is accessing resource or object). So those processes are simultaneously called <code>fork()</code>, so operating system has to create a clones of these processes and assign new pids to them. If we didn't provide mechanism that regulates accesses to pid table, they both acquire first free pid 122 which leads to creation two processes with equal process ids which makes no sense.</p>
+        <p>
+To prevent this, operating systems may use <em>mutex</em> (like it is done in Solaris) or combination of <em>spin-lock</em> and <em>atomic operation</em> (Linux). <code>mutex_enter()</code> call in Solaris guarantees that only one thread can be executed while holding mutex. Other threads will execute busy loop (which is called <em>spin</em>) or will be blocked on a sleep queue and will be removed from run queue when they call <code>mutex_enter()</code> for mutex that already held:</p>
+        <p>
+<img src="../images/sobj.png" alt="" class="img-rounded"/></p>
+        <p>
+When process 119 acquires new process id, it leaves mutex by calling <code>mutex_exit()</code>. This function activates other process, 123, which may now access pid table, but it can't get process id 122 because process 123 is already sees changes made by process 119. So it takes next available pid which is 124. 
+</p>
+</div>
+ </p>
+<p>
+Mechanisms that prevent such conflicts from happening like processes with equal pids in the example above are called <em>synchronization primitives</em>. They synchronize (even serialize) accesses to shared resources and objects, but their implementation is independent of nature of resource or object they are protecting. </p>
+<p>
+Simplest primitive is an <em>atomic</em>. Atomics rely on processor ability to lock the system bus and prevent other processor accesses to the memory (i.e. with <code>lock</code> instruction prefix in x86 command set) for a single instruction thus guarantee that no other thread will perform another operation with the cell at the moment. They are widely used in Linux (but can be emulated on some architectures), and almost not used in Solaris.</p>
+<p>
+Atomics allow only single machine instruction to be performed on data atomically. If more actions has to be done with guarantee that no other thread will intervene, <em>critical section</em> has to be implemented. First concern is how many threads are allowed in the critical section. <em>Mutexes</em> (mutual exclusion) allow only single thread, <em>semaphores</em>, which are generic variant of mutex, allow limited amount of threads, <em>read-write locks</em> allow multiple reader threads which do not change object but only single writer thread which exclusively modifies object data. </p>
+<p>
+The second question is how to handle thread that failed competition for accessing synchronization object: it could either <em>spin</em> in busy loop or being put to a scheduler's <em>sleep</em> queue. Not all synchronization objects are suitable for sleeping: i.e. it couldn't be used in a interrupt context. Both approaches are also can be wasteful: spinning for a long time can occupy processor while dequeuing and enqueuing threads to a scheduler queue can be wasteful for short operations. </p>
+<p>
+Linux prefers <em>spin locks</em>, but uses blocking mutexes in some places, Solaris uses universal mutex interface which provides both spinning and adaptive mutexes (adaptive mutex spins for short time and then goes to sleep phase). There are also sequental locks and Read-Copy-Upgrade synchronization policy in Linux which would be outside of our short review.</p>
+<p>
+<span class="label label-important">DANGER!</span>    <div class="well">
+        <p>
+Linux and SystemTap doesn't provide probes for tracing locks (that are used in critical sections), and, moreover, critical sections may be used in modules generated by SystemTap. Due to that, some spinlock functions are blacklisted from tracing and require Guru mode to be enabled. We will provide name of the function for tracing locks, but do not recommend to use them in production tracing.
+</p>
+</div>
+</p>
+<p>
+    <table class="table table-bordered">
+        <tr>
+            <td>
+<em>Action</em> </td>
+            <td>
+ <em>DTrace</em> </td>
+            <td>
+ <em>SystemTap</em></td>
+</tr>
+        <tr>
+
+            <td  colspan="3">
+ <strong>Adaptive locks</strong> (which support blocking)</td>
+</tr>
+        <tr>
+
+            <td>
+Acquire                             </td>
+            <td>
+ 
+<code>lockstat:::adaptive-acquire</code>    <br />  
+<code>lockstat:::adaptive-block</code>      <br />  
+<code>lockstat:::adaptive-spin</code>          </td>
+            <td>
+ 
+<code>kernel.function("mutex_lock*")</code> <br />  
+                <small>
+<code>kernel.function("debug_mutex_add_waiter")</code> </small>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Release                               </td>
+            <td>
+ 
+<code>lockstat:::adaptive-release</code>         </td>
+            <td>
+ 
+<code>kernel.function("mutex_unlock*")</code>  <br /> 
+                <small>
+<code>kernel.function("debug_mutex_unlock")</code></small>
+ <br /> 
+                <small>
+<code>kernel.function("debug_mutex_wake_waiter")</code></small>
+</td>
+</tr>
+        <tr>
+
+            <td  colspan="3">
+ <strong>Spin locks</strong></td>
+</tr>
+        <tr>
+
+            <td>
+Acquire                              </td>
+            <td>
+  
+<code>lockstat:::spin-acquire</code>           <br /> 
+<code>lockstat:::spin-spin</code>              <br /> 
+<code>lockstat:::thread-spin</code>             </td>
+            <td>
+  
+<code>kernel.function("spin_lock*")</code>     <br /> 
+                <small>
+<code>kernel.function("debug_spin_lock_before")</code></small>
+ <br /> 
+                <small>
+<code>kernel.function("debug_spin_lock_after")</code></small>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Release                              </td>
+            <td>
+  
+<code>lockstat:::spin-release</code>            </td>
+            <td>
+  
+<code>kernel.function("spin_unlock*")</code>   <br /> 
+                <small>
+<code>kernel.function("debug_spin_unlock")</code></small>
+</td>
+</tr>
+        <tr>
+
+            <td  colspan="3">
+ <strong>Read-write locks</strong></td>
+</tr>
+        <tr>
+
+            <td>
+Acquire                               </td>
+            <td>
+  
+<code>lockstat:::rw-acquire</code>              <br /> 
+<code>lockstat:::rw-block</code>                 </td>
+            <td>
+  
+<code>kernel.function("_raw_read_lock")</code>  <br /> 
+<code>kernel.function("_raw_write_lock")</code> <br /> 
+                <small>
+<code>kernel.function("do_raw_read_lock")</code></small>
+        <br /> 
+                <small>
+<code>kernel.function("debug_write_lock_before")</code></small>
+ <br /> 
+                <small>
+<code>kernel.function("debug_write_lock_after")</code></small>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Release                                 </td>
+            <td>
+  
+<code>lockstat:::rw-release</code>                 </td>
+            <td>
+  
+<code>kernel.function("_raw_read_unlock")</code>  <br /> 
+<code>kernel.function("_raw_write_unlock")</code> <br /> 
+                <small>
+<code>kernel.function("do_raw_read_unlock")</code></small>
+ <br /> 
+                <small>
+<code>kernel.function("debug_write_unlock")</code></small>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Reader to writer promotion </td>
+            <td>
+ <code>lockstat:::rw-upgrade</code> </td>
+            <td>
+ -</td>
+</tr>
+        <tr>
+
+            <td>
+Writer to reader downgrade </td>
+            <td>
+ <code>lockstat:::rw-downgrade</code> </td>
+            <td>
+ -</td>
+</tr>
+        <tr>
+
+            <td>
+</td>
+</tr>
+</table>
+</p>
+<p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+Probes ending with <code>-spin</code> and <code>-block</code> in DTrace fire at the same time as <code>-acquire</code> but provide information about a time spent in sleep queue or spinning.
+</p>
+</div>
+</p>
+<p>
+<span class="label label-info">Note</span>    <div class="well">
+        <p>
+SystemTap probes that are shown with             <small>
+<code>small font</code></small>
+ are only available when kernel built with debug configuration options such as <code>CONFIG_DEBUG_MUTEXES</code>. 
+</p>
+</div>
+</p>
+<p>
+There is a separate consumer for lockstat provider in Solaris: <code>lockstat</code> is a separate utility which doesn't require a script to be written. </p>
+<p>
+    <h4>
+ Events</h4>
+</p>
+<p>
+Another type of synchronization primitives is event notifications. For example, command that is expects input on tty should be queued into corresponding queue of tty device so then user puts data into it they will be activated and can begin processing of user input. Linux provides <em>wait queues</em> to implement such behaviour with a simplified interface to them called <em>completion variable</em>. </p>
+<p>
+They can be traced with following script:</p>
+<p>
+    <p>
+    <div class="well">
+<button class="btn" onclick="toggleCode('code1')">+</button>&nbsp; Script file wqtrace.stp <br/><p>
+<pre id="code1" class="hide">
+probe kernel.function("prepare_to_wait*"),
+      kernel.function("add_wait_queue*") {
+    if(pid() == stp_pid()) next;
+
+    state = -1;
+    if(@defined($state))
+        state = $state;
+      
+    printf("[%d]%s %s:%s\n\twq head: %p wq: %p\n", 
+           pid(), execname(), symname(caller_addr()), 
+           probefunc(), $q, $wait);
+    printf("\ttsk: %p state: %x func: %s\n", 
+           $wait->private, state, symname($wait->func));
+}
+
+probe kernel.function("wait_for_completion*") {
+    if(pid() == stp_pid()) next;
+
+    timeout = 0;
+    if(@defined($timeout))
+        timeout = $timeout;
+    
+    printf("[%d]%s %s:%s\n\tcompletion: %pwq head: %p timeout: %d\n", 
+            pid(), execname(), symname(caller_addr()), 
+            probefunc(), $x, &$x->wait, timeout);
+}
+
+probe kernel.function("wait_for_completion*").return {
+    if(pid() == stp_pid()) next;
+
+    printf("[%d]%s %s:%s\n\tcompletion: %p\n", 
+            pid(), execname(), symname(caller_addr()), probefunc(), $x);
+}
+
+probe kernel.function("finish_wait"),
+      kernel.function("remove_wait_queue") {
+    if(pid() == stp_pid()) next;
+
+    printf("[%d]%s %s:%s\n\twq head: %p wq: %p\n", 
+           pid(), execname(), symname(caller_addr()), 
+           probefunc(), $q, $wait);
+}
+    
+probe kernel.function("complete"),
+      kernel.function("complete_all") {
+    if(pid() == stp_pid()) next;
+
+    printf("[%d]%s %s:%s\n\tcompletion: %p wq head: %p\n", 
+            pid(), execname(), symname(caller_addr()), 
+            probefunc(), $x, &$x->wait);
+}
+
+probe kernel.function("__wake_up"),
+      kernel.function("__wake_up_locked*"), 
+      kernel.function("__wake_up_sync*") {
+    if(pid() == stp_pid()) next;
+
+    nr = -1
+    if(@defined($nr_exclusive))
+        nr = $nr_exclusive;
+    if(@defined($nr))
+        nr = $nr;
+    
+    printf("[%d]%s %s:%s\n\twq head: %p state: %p nr: %d\n", 
+            pid(), execname(), symname(caller_addr()), 
+            probefunc(), $q, $mode, nr);
+}</pre>
+</p>
+</div>
+</p>
+
+Here is example command which periodically awakens <code>cat</code> process on pipe input:</p>
+<p>
+    <p>
+    <pre>
+$ bash -c 'for I in a b c d e f g h; 
+            do echo $I; 
+                sleep 0.1; done' | cat > /dev/null</pre>
+</p>
+</p>
+<p>
+If we'd run that command, we will see similar output:</p>
+<p>
+    <p>
+    <pre>
+[11704]bash pipe_write:__wake_up_sync_key
+        wq head: 0xffff8800371f6628 state: 0x1 nr: 1
+[11704]bash do_wait:add_wait_queue
+        wq head: 0xffff880039e11220 wq: 0xffff88001f89ff20
+        tsk: 0xffff88003971a220 state: ffffffffffffffff func: child_wait_callback
+[11705]cat pipe_wait:finish_wait
+        wq head: 0xffff8800371f6628 wq: 0xffff88001ee47d40
+[11705]cat pipe_read:__wake_up_sync_key
+        wq head: 0xffff8800371f6628 state: 0x1 nr: 1
+[11705]cat pipe_wait:prepare_to_wait
+        wq head: 0xffff8800371f6628 wq: 0xffff88001ee47d40
+        tsk: 0xffff8800397196c0 state: 1 func: autoremove_wake_function</pre>
+</p>
+</p>
+<p>
+As you can see, bash triggers <code>pipe_write()</code> function to write a character to a pipe with a <code>cat</code> process. After that <code>cat</code> process awakens from queue with head <code>0xffff8800371f6628</code> and goes through <code>finish_wait()</code> function. It reads data from pipe, notifies writers that there is free space in pipe buffer that can be written into and after putting letter to <code>/dev/null</code> sleeps again in <code>prepare_to_wait()</code> function. If we hadn't redirected cat output to <code>/dev/null</code>, than we would see longer chain of activated processes, maybe including SSH daemon process which host pty and network activity.</p>
+<p>
+In Solaris kernel event notification is performed with pair of mutex and <em>condition variable</em> of type <code>kcondvar_t</code>. It has pretty simple interface: <code>cv_wait</code> family of functions waits on condition variable (adds process to sleep queue) with optional timeout parameter and allowing signal handling, <code>cv_signal</code> notifies single thread and wakes up it, <code>cv_broadcast</code> wakes up all threads:</p>
+<p>
+    <p>
+    <div class="well">
+<button class="btn" onclick="toggleCode('code2')">+</button>&nbsp; Script file cvtrace.d <br/><p>
+<pre id="code2" class="hide">
+cv_wait*:entry  {
+    self->timeout = 0;
+}
+
+cv_timedwait_hires:entry,
+cv_timedwait_sig_hires:entry {
+    self->timeout = (arg2 / arg3) * arg3;
+}
+
+cv_wait:entry,
+cv_wait_sig:entry,
+cv_wait_sig_swap_core:entry,
+cv_timedwait_hires:entry,
+cv_timedwait_sig_hires:entry  {
+    printf("[%d] %s %s cv: %p mutex: %p timeout: %d\n", 
+            pid, execname, probefunc, arg0, arg1, self->timeout);
+    stack(4);
+}
+
+cv_signal:entry,
+cv_broadcast:entry {
+    printf("[%d] %s %s cv: %p\n", 
+            pid, execname, probefunc, arg0);
+    stack(4);
+}</pre>
+</p>
+</div>
+</p>
+
+An example with cat utility which will used above will induce following output:</p>
+<p>
+    <p>
+    <pre>
+[15087] cat cv_wait_sig_swap_core cv: ffffc1000c9dde9c mutex: ffffc1000c9dde40 timeout: 0
+              genunix`cv_wait_sig_swap+0x18
+              fifofs`fifo_read+0xc7
+              genunix`fop_read+0xaa
+              genunix`read+0x30c
+              
+[15086] bash cv_broadcast cv: ffffc1000c9dde9c
+              fifofs`fifo_wakereader+0x2f
+              fifofs`fifo_write+0x316
+              genunix`fop_write+0xa7
+              genunix`write+0x309</pre>
+</p>
+</p>
+<p>
+Kernel also provide tools for implementing thread blocking in user space. Solaris provides set of syscalls for doing that, such as <code>lwp_mutex_timedlock</code> while Linux supplies universal system call called <em>futex</em> (fast userspace mutex).</p>
+<p>
+</p>
 
 	</div>
 </div>
@@ -58,7 +444,15 @@ This page is not yet written. Sorry. <a href="../index.html">Return to index.</a
 <div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
-            
+            <ul class="nav pull-left">
+<li><a href="net.html"><strong>Prev</strong>(Network Stack)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+<ul class="nav pull-right">
+<li><a href="irq.html"><strong>Next</strong>(Interrupt handling and deferred execution)</a></li>
+</ul>
         </div>
     </div>
 </div>

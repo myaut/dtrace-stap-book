@@ -40,15 +40,92 @@
 <div class="navbar">
     <div class="navbar-inner">
 	    <div class="container">
-			
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a><ul class="nav pull-left">
+<li><a href="sobj.html"><strong>Prev</strong>(Synchronization primitives)</a></li>
+</ul>
 		</div>
     </div>
 </div>
 
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
-		<span class="label label-warning">Warning</span><div class="well">
-This page is not yet written. Sorry. <a href="../index.html">Return to index.</a></div>
+		<h3>
+ Interrupt handling and deferred execution</h3>
+<p>
+Single instance of processor (core or hardware thread) can execute only single flow of instructions and won't switch to another flow of instructions unless it is explicitly specified with branch instruction. This model, however, prevents operating system from implementing illusion of multiprocessing by periodically switching active threads (which represent flow of instructions). To implement multiprocessing and many other concepts, processor provide mechanism of <em>interrupts</em>. </p>
+<p>
+When device, another processor or internal processor unit has to notify current processor about some event: arrival of data in ring buffer of NIC, process exit leading to killing all of its threads or integer division by zero, they send an <em>interrupt request (IRQ)</em>.  Multiprocessing itself is handled through virtual device, called <em>system timer</em> which can send interrupt after pre-defined time. In response to interrupt request, processor saves context on current stack and switches its execution to pre-defined <em>interrupt service routine (ISR)</em> or <em>interrupt handler</em>. The closest userspace analogue of interrupts is signals. </p>
+<p>
+Interrupts are generally considered bad for performance as their handling "steals" time from actual program, leads to cache cooldown, etc., so a lot of effort in operating system development is put to reduce their negative effect. It is done through better balancing interrupts across processors and deferring execution of the interrupt service routine. Due to that only high-priority interrupts such as <em>Non-Maskable Interrupt (NMI)</em> are handled directly in a interrupt service routine. </p>
+<p>
+Most interrupts use <em>interrupt threads</em> - separate threads that can handle interrupt but in a same time can be interrupted or de-scheduled (but they will have highest priorities in Solaris). These threads are created by device drivers in Linux and then saved into <code>handler</code> field of <code>irqaction</code> structure and are being activated if interrupt handler has returned <code>IRQ_WAKE_THREAD</code> code. In Solaris, on contrary, each processor has its own interrupt handling thread which is saved into <code>cpu_intr_thread</code> of <code>cpu_t</code>.</p>
+<p>
+SystemTap provides irq tapset which contains probes for tracing interrupt handlers:</p>
+<p>
+    <p>
+    <pre>
+# stap --all-modules -e '
+    probe irq_handler.entry, irq_handler.exit { 
+        printf("%-16s %s irq %d dev %s\n", pn(), symname(handler), 
+            irq, kernel_string(dev_name)); }  '</pre>
+</p>
+</p>
+<p>
+Solaris has several SDT probes that can be used to trace interrupt handlers too:</p>
+<p>
+    <p>
+    <pre>
+# dtrace -n '
+    av_dispatch_autovect:entry { 
+        self->vec = arg0; } 
+    sdt:::interrupt* { 
+        printf("%s irq %d dev %s", probename, self->vec, 
+            (arg0) ? stringof(((struct dev_info*) arg0)->devi_addr) : "??");  
+        sym(arg1);  } '</pre>
+</p>
+</p>
+<p>
+Interrupt threads is not the only method to defer execution of certain kernel code: kernel provides a lot of other facilities to do so. They are referred to as <em>bottom halves</em> of interrupt, while interrupt handler itself is a <em>top half</em> which responsibility is to activate bottom half. An example of them is defferred interrupt handlers <strong>softirqs</strong> and <strong>tasklets</strong> in Linux which are executed in the context of <code>ksoftirqd-N</code> kernel threads. They are prioritized where <code>TASKLET_SOFTIRQ</code> has the lesser priority and serves for execution of tasklets (they are more lightweight than softirqs). They could be traced using <code>softirq.entry</code> and <code>softirq.exit</code> probes.</p>
+<p>
+If bottom half (or any other in-kernel job) has to be executed at specified moment of time, Linux provides <strong>timers</strong> while Solaris has <em>cyclic subsystem</em> which can be accessed through <strong>callouts</strong> or <code>timeout()</code>/<code>untimeout()</code> calls.</p>
+<p>
+To simplify execution of small chunks of work Linux provide <strong>workqueue</strong> mechanism which has closest analogue in Solaris -- <strong>task queues</strong>. They provide a pool of worker threads whose extract function and data pointers from a queue and call that function. Many drivers may implement their own work queues. Solaris provides static probes to trace task queues:</p>
+<p>
+    <p>
+    <pre>
+# dtrace -n '
+    taskq-exec-start, taskq-enqueue { 
+        this->tqe = (taskq_ent_t*) arg1; 
+        printf("%-16s %s ", probename, stringof(((taskq_t*) arg0)->tq_name)); 
+        sym((uintptr_t) this->tqe->tqent_func); 
+        printf("(%p)", this->tqe->tqent_arg); }'</pre>
+</p>
+</p>
+<p>
+SystemTap provide corresponding probes in irq tapset, but they do not work in modern kernels:</p>
+<p>
+    <p>
+    <pre>
+# stap --all-modules -e '
+    probe workqueue.insert, workqueue.execute { 
+        printf("%-16s %s %s(%p)\n", 
+            pn(), task_execname(wq_thread), symname(work_func), work); 
+    }  '</pre>
+</p>
+</p>
+<p>
+Linux kernel 2.6.36 got new workqueue implementation, and, eventually new set of tracepoints which can be traced like this (SystemTap &gt;=2.5 required):</p>
+<p>
+    <p>
+    <pre>
+# stap --all-modules -e '
+probe kernel.trace("workqueue_execute_end"),
+      kernel.trace("workqueue_execute_start") {
+        printf("%s %s(%p)\n", 
+                pn(), symname($work->func), $work);  } '</pre>
+</p>
+
+</p>
 
 	</div>
 </div>
@@ -58,7 +135,12 @@ This page is not yet written. Sorry. <a href="../index.html">Return to index.</a
 <div class="navbar navbar-bottom">
     <div class="navbar-inner">
         <div class="container">
-            
+            <ul class="nav pull-left">
+<li><a href="sobj.html"><strong>Prev</strong>(Synchronization primitives)</a></li>
+</ul>
+<ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
         </div>
     </div>
 </div>
