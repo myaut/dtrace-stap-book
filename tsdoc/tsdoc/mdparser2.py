@@ -216,6 +216,9 @@ class MarkdownParser(object):
                 self._trace2('TAILCHK {0:x} {1} {2}', id(frame), frame.cls.__name__, repr(frame.tail))
                 self._pop(idx, tidx, frame)
                 return tidx
+            
+            if issubclass(frame.cls, Incut) or issubclass(frame.cls, Code):
+                return idx
         
         return idx
         
@@ -486,7 +489,7 @@ class MarkdownParser(object):
     PRE_POP_TABLE = [
         (ListBlock, _post_list),
         (Code, _post_code),
-        (Link, _post_link)
+        (Link, _post_link),
         ]
     
     def _post_pop_row(self, idx, top):

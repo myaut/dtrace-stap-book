@@ -8,6 +8,7 @@ This work is licensed under the  Creative Commons Attribution-Noncommercial-Shar
 [__docspace__:intro]
 
  * [Foreword][intro/foreword]
+ * [Typographic conventions][intro/conv]
  * [TSLoad workload generator][intro/tsload] 
  * [Operating system Kernel][intro/oskernel]
 
