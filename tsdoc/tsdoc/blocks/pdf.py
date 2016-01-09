@@ -149,14 +149,6 @@ class PDFPrinter(Printer):
     MAX_CODE_LINE_LEN = 80
     MAX_CODE_LINE_WIDTH = PAGE_WIDTH * 0.8
     
-    CODE_REPLACE = [
-        ('\t', '    '),
-        ('<b>', ''),
-        ('</b>', ''),
-        ('<i>', ''),
-        ('</i>', ''),
-        ]
-    
     INCUT_CLASSES = { 'DEF' : 'Definition',
                       'WARN' : 'Warning',
                       'INFO':  'Information',
@@ -293,6 +285,7 @@ class PDFPrinter(Printer):
         registerFont(TTFont('Mono', self.MONO_FONT))
     
     def _print_index(self, paragraphs, index, header):
+        # Generate index page and TOC based on it 
         paragraphs.append(Spacer(self.PAGE_WIDTH, self.PAGE_HEIGHT / 4))
         paragraphs.append(RLParagraph(header, self._styles['title']))
         paragraphs.append(Spacer(self.PAGE_WIDTH, self.PAGE_HEIGHT / 5))
@@ -350,6 +343,7 @@ class PDFPrinter(Printer):
         if isinstance(block, Table):
             return self._print_table(block)
         
+        # Pick paragraph style based on block nature
         style = self._styles['default']
         if isinstance(block, Header):
             style = self._styles['h{0}'.format(block.size)]
@@ -358,12 +352,19 @@ class PDFPrinter(Printer):
         elif root:
             style = self._styles['root']
         
+        # Generate style for lists on-the-fly
         if level:
             style = ParagraphStyle('style{0}'.format(id(block)),
                                    parent=style, bulletIndent=(level * 10),
                                    spaceAfter=0, spaceBefore=0)
         
-        # Generate paragraph's text
+        # Generate paragraph's text. PLATYPUS doesn't support hiearchial paragraphs like HTML do,
+        # so we linearize blocks into paragraphs list: each time subblock appear, we complete 
+        # current paragraph and start a new one. 
+        
+        # For Incuts which may have subparagraphs, we add two colored paragraphs before and after 
+        # so they will be distinguishable. Span is another exception -- it doesn't rendered as 
+        # separate paragraph, but as a <span> within paragraph.
         paragraphs, out = self._start_block(block, True)
         
         for part in block.parts:
@@ -567,7 +568,10 @@ class PDFPrinter(Printer):
         
         out = cStringIO.StringIO()
         for part in code.parts:
-            for line in part.splitlines():
+            # TODO: support bold/italic text in preformatted
+            text = str(part).replace('\t', '    ')
+            
+            for line in text.splitlines():
                 self._print_code_line(line, out, style)
         
         paragraphs = []
@@ -581,10 +585,7 @@ class PDFPrinter(Printer):
         
         return paragraphs
     
-    def _print_code_line(self, line, out, style):
-        for old, new in self.CODE_REPLACE:
-            line = line.replace(old, new)
-            
+    def _print_code_line(self, line, out, style):    
         # split long lines
         width = stringWidth(line, style.fontName, style.fontSize)
         

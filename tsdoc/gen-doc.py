@@ -11,6 +11,7 @@ from tsdoc.blocks.markdown import MarkdownPrinter
 from tsdoc.blocks.html import HTMLPrinter
 from tsdoc.blocks.latex import LatexPrinter
 from tsdoc.blocks.pdf import PDFPrinter
+from tsdoc.blocks.epub import EpubPrinter
 
 # Main code
 _ = sys.argv.pop(0)
@@ -35,7 +36,10 @@ elif doc_format == 'latex':
     printer = LatexPrinter()
 elif doc_format == 'pdf':
     doc_suffix = '.pdf'
-    printer = PDFPrinter()    
+    printer = PDFPrinter()
+elif doc_format == 'epub':
+    doc_suffix = '.epub'
+    printer = EpubPrinter()
 else:
     raise ValueError("Invalid documentation format '%s'" % doc_format)
 

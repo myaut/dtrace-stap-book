@@ -15,7 +15,9 @@ elif doc_format == 'markdown':
 elif doc_format == 'latex':
     doc_suffix = '.tex'
 elif doc_format == 'pdf':
-    doc_suffix = '.pdf'            
+    doc_suffix = '.pdf'
+elif doc_format == 'epub':
+    doc_suffix = '.epub'
 else:
     raise StopError("Invalid documentation format '%s'" % doc_format)
 
@@ -27,6 +29,7 @@ env.Append(BUILDERS = {'DocGenerator': DocGenerator})
 env.Append(ENV = {'TSDOC_FORMAT': doc_format})
 env.Append(ENV = {'TSDOC_HEADER': 'Dynamic Tracing with DTrace & SystemTap'})
 env.Append(ENV = {'TSDOC_AUTHOR': 'Sergey Klyaus'})
+env.Append(ENV = {'TSDOC_UID': 'dtrace_stap_book'})
 env.Append(ENV = {'TSDOC_HTML_TEMPLATE': File('../book/template.html').abspath})
 if GetOption('verbose'):
     env.Append(ENV = {'TSDOC_VERBOSE': True})

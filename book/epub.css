@@ -1,0 +1,27 @@
+/* incut styles */
+
+div.incut {
+    margin-left: 1em;
+}
+.incut-DEF {
+    background-color: #f2f2f2;
+}
+.incut-WARN {
+    background-color: #ffccaa;
+}
+.incut-DANGER {
+    background-color: #f4d7d7;
+}
+.incut-NOTE {
+    background-color: #aaeeff;
+    border-left: blue 3px solid;
+}
+.incut-INFO {
+    background-color: #d5e5ff;
+}
+
+
+/* images */
+img {
+    width: 100%;
+}

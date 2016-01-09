@@ -76,14 +76,21 @@ class MarkdownParser(object):
         # Ignores certain certain tags when in context of certain parts/blocks
         def __init__(self, *classes):
             self.classes = classes
+            self.mask = False
         def __call__(self, f):
             def wrapper(parser, idx, count):
                 top = parser.stack[-1]
-                if top.cls in self.classes:
+                if (top.cls in self.classes) ^ self.mask:
                     return idx
                 return f(parser, idx, count)
             wrapper.__name__ = f.__name__
             return wrapper
+    
+    class _inblock(_ignore):
+        # Only match tag in block
+        def __init__(self, *classes):
+            self.classes = classes
+            self.mask = True
     
     class _seek_char(object):
         # Seeks for tail char and advance idx correspondingly while passing 
@@ -371,6 +378,18 @@ class MarkdownParser(object):
         self._push(idx, _Frame(Code, idx + count, '```'))
         return idx + count
     
+    @_inblock(Code)
+    @_seek_char('>')
+    def _codefmt(self, idx, count, tag):
+        tags = {'b': BoldText,
+                'i': ItalicText}
+        
+        if tag not in tags:
+            return idx
+        
+        self._push(idx, _Frame(tags[tag], idx + count, '</{0}>'.format(tag)))
+        return idx + count
+    
     @_block()
     @_ctlcount(5)
     @_seek_char('\n')
@@ -433,6 +452,7 @@ class MarkdownParser(object):
         ('\\', _escape),
         ('\n\n', _end_paragraph),
         
+        ('<', _codefmt),
         ('>>>', _breakline),
         ('>', _blockquote),
         ('#', _header),
@@ -456,11 +476,13 @@ class MarkdownParser(object):
         del top.options['indent']
     
     def _post_code(self, idx, top):
-        # TODO: implement syntax hightlighting here
-        
-        top.text = [text.strip()
-                    for text in top.text]
-        
+        # TODO: implement syntax hightlighting here        
+        if top.text:
+            if isinstance(top.text[0], str):
+                top.text[0] = top.text[0].lstrip() 
+            if isinstance(top.text[-1], str):
+                top.text[-1] = top.text[-1].rstrip() 
+            
     def _post_link(self, idx, top):
         char = self.text[idx + 1] if idx < (len(self.text) - 1) else ''
         
@@ -553,9 +575,9 @@ This is \_escaped thing. Escaping: \\
 * SECOND
 
 ```
-int a = 777 * 5;
+<b>int</b> a = 777 * 5;
 
-void f();
+<b>void</b> f();
     ```
 
 ````` /etc/motd
