@@ -13,11 +13,15 @@ AddOption('--no-sources', dest='no_sources', action='store_true', default=False,
 InkscapeBuilder = Builder(action = Action('inkscape -z -e $TARGET $SOURCE'),
                           suffix = '.png',
                           src_suffix = '.svg')
+CompressBuilder = Builder(action = Action('convert -define png:compression-level=9 -define png:compression-strategy=0 -define png:compression-filter=0 $SOURCE $TARGET'),
+                          suffix = '.png',
+                          src_suffix = '.svg')
 LessBuilder = Builder(action = Action('lesscpy $LESSFLAGS $SOURCE > $TARGET'),
                       suffix = '.css',
                       src_suffix = '.less')
 env.Append(BUILDERS = {'InkscapeBuilder': InkscapeBuilder,
-                       'LessBuilder': LessBuilder})
+                       'LessBuilder': LessBuilder,
+                       'CompressBuilder': CompressBuilder})
 
 def ConvertSVGs(env, imgdir, width):
     img = env.Clone()
@@ -25,10 +29,10 @@ def ConvertSVGs(env, imgdir, width):
     
     for image in imgdir.glob('*.svg'):
         tgt = os.path.join('build', image.path.replace('.svg', '.png'))
-        img.InkscapeBuilder(tgt, image)
+        img.CompressBuilder(tgt, img.InkscapeBuilder(tgt + '.1', image))
     for image in imgdir.glob('*.png'):
         tgt = os.path.join('build', image.path)
-        env.Command(tgt, image, Copy("$TARGET", "$SOURCE"))
+        img.CompressBuilder(tgt, image)
         
 
 ConvertSVGs(env, Dir('images'), 800)
