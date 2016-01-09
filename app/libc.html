@@ -57,18 +57,18 @@
 <p>
 <em>libc</em> is a C library shipped with Unix which provides access to most of its facilities like system calls in a portable manner. Linux <em>glibc</em> (one of the implementations of <em>libc</em> which is most popular) and <em>libc</em> shipped with Solaris contain some USDT probes. We will discuss them in this section. </p>
 <p>
-On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as <code>plockstat</code> provider (similar to <a href="../kernel/async.html#lockstat">lockstat</a> provider we discussed earlier). <em>glibc</em>, however implements wider set of probes: along with various <em>pthread</em> operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of <code>setjmp</code>/<code>longjmp</code> and dynamic linker <code>ld.so</code>.</p>
+On Solaris USDT probes are limited to userspace mutexes and read-write locks which available as <code>plockstat</code> provider (similar to <a href="../kernel/sobj.html#lockstat">lockstat</a> provider we discussed earlier). <em>glibc</em>, however implements wider set of probes: along with various <em>pthread</em> operations which include not only mutexes and rwlocks but also condition variables and threads operations, it supports tracing of <code>setjmp</code>/<code>longjmp</code> and dynamic linker <code>ld.so</code>.</p>
 <p>
 Lets see how mutexes are traced in Solaris and Linux (in this section we will assume glibc by saying "Linux"). Solaris provides them through <code>plockstat</code> provider:
     <p>
     <pre>
-plockstat<i>pid</i>:::<i>probe-name</i></pre>
+plockstat<em>pid</em>:::<em>probe-name</em></pre>
 </p>
 
 SystemTap will use standard USDT notation for it:
     <p>
     <pre>
-probe process("libpthread.so.0").mark("<i>probe-name</i>")</pre>
+probe process("libpthread.so.0").mark("<em>probe-name</em>")</pre>
 </p>
 
 Note that <code>libpthread.so.0</code> will vary in different distributions. We will use macro-definitions for paths in our scripts. </p>
@@ -143,11 +143,6 @@ Acquired mutex          </td>
             <td>
  <code>mutex_release</code> <br />  
                                                    <code>lll_futex_wake</code></td>
-</tr>
-        <tr>
-
-            <td>
-</td>
 </tr>
 </table>
 </p>
@@ -303,7 +298,7 @@ That script yields similar results on Solaris:
  <a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/DESIGN-systemtap-probes.txt">glibc documentation on SystemTap probes</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-plockstat/index.html">plockstat Provider</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-plockstat/index.html">plockstat Provider</a></li>
 </ul>
 </p>
 

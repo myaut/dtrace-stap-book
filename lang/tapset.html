@@ -117,7 +117,7 @@ probe lstat = kernel.function("sys_newlstat").return ? {
 This example is unrealistic: it is easier to attach to <code>vfs_lstat</code> function which has universal representation of <code>stat</code> structure and doesn't involve copying from userspace. Summarizing the syntax of creating aliases:
     <p>
     <pre>
-probe <i>alias-name</i> {=|+=} <i>probe-name-1</i> [?] [,<i>probe-name-2</i> [?] ...] <i>probe-body</i></pre>
+probe <em>alias-name</em> {=|+=} <em>probe-name-1</em> [?] [,<em>probe-name-2</em> [?] ...] <em>probe-body</em></pre>
 </p>
 
 Here <code>=</code> is used for creating prologue aliases and <code>+=</code> is for epilogue aliases. Question mark <code>?</code> suffix is optional and used if some functions are not present in kernel -- it allows to choose probe from multiple possibilities.</p>
@@ -162,10 +162,10 @@ If you have enabled preprocessor with <code>-C</code> option, you may use <code>
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
 </ul>
 </p>
 

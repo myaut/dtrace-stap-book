@@ -59,7 +59,7 @@ DTrace is shipped with Solaris from version 10, no additional actions needed to 
 <p>
 The heart of DTrace is <code>libdtrace.so.1</code> library which contains compiler that translates script in D language to a <em>DTrace Intermediate Format</em> (DIF). That format is machine codes of simplified RISC which are interpreted by <code>drv/dtrace</code> driver:</p>
 <p>
-<img src="../images/dtrace.png" alt="" class="img-rounded"/></p>
+<img src="../images/dtrace.png" alt="image:dtrace" class="img-rounded"/></p>
 <p>
 DTrace primary front-end tool is <code>dtrace(1M)</code> which act both as compiler and consumer and uses <code>libdtrace.so.1</code> facilities to do that. There are other front-ends: <code>trapstat(1M)</code> and <code>lockstat(1M)</code>, but <code>libdtrace.so.1</code> APIs are open, so you can create your own front end for that (i.e. for Java using JNI). We will refer to <code>dtrace(1M)</code> as DTrace further in a book. </p>
 <p>
@@ -197,13 +197,13 @@ root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"</pre>
 <p>
      <ul>
         <li>
- <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E26502_01/html/E29031/dtrace-1m.html">dtrace(1M)</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E26502_01/html/E29031/dtrace-1m.html">dtrace(1M)</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
 </ul>
 </p>
 

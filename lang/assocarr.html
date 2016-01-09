@@ -114,10 +114,10 @@ Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for 
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
 </ul>
 </p>
 <p>
@@ -128,7 +128,7 @@ Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for 
 <p>
 <em>Aggregations</em> are most useful for evaluating system performance (they are called <em>statistics</em> in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:</p>
 <p>
-<img src="../images/aggrs.png" alt="" class="img-rounded"/></p>
+<img src="../images/aggrs.png" alt="image:aggrs" class="img-rounded"/></p>
 <p>
 Aggregations in DTrace reside in separate namespace: each name of aggregation begins with at-symbol <code>@</code>. Single at-symbol <code>@</code> is an alias to <code>@_</code> and is a shorter possible aggregation name which is useful for one-liners. Moreover, if it was not printed in the END probe, or timer probe, DTrace will automatically print it for you. There is no need to declare aggregation, and it support key access same way associative array does. When value is added to a aggregation, it is "assigned" to a return value of aggregating function, i.e. <code>@fds = avg(arg0);</code> will create an aggregation which calculates mean value of <code>arg0</code>.</p>
 <p>
@@ -217,11 +217,6 @@ Limit number of values </td>
             <td>
  Use <code>limit</code> clause in <code>foreach</code></td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -232,7 +227,7 @@ Aggregations may be sorted in DTrace using <code>aggsortkey</code>, <code>aggsor
 </div>
 </p>
 <p>
-<a name="aggr-example"></a>
+<a name="aggr_example"></a>
 Aggregations are extremely useful for writing stat-like utilities. For example, let's write utilities that count number of <code>write</code> system calls and amount of kilobytes they written. </p>
 <p>
     <p>
@@ -310,10 +305,10 @@ PID     EXECNAME  FD     OPS  KBYTES
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a>
 </li>
 </ul>
 </p>

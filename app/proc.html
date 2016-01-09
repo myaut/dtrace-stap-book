@@ -54,7 +54,7 @@
 <p>
 We had covered kernel organization in detail in previous chapter, but it would be useless without userspace application that services end-user requests. It can be either simple <code>cat</code> program which we used in many previous examples to complex web application which uses web server and relational database. Like with the kernel, DTrace and SystemTap allow to set a probe to any instruction in it, however it will require additional switch to kernel space to execute the code. For example, let's install probe on a <code>read()</code> call on the side of standard C library:</p>
 <p>
-<img src="../images/appprobes.png" alt="" class="img-rounded"/></p>
+<img src="../images/appprobes.png" alt="image:approbes" class="img-rounded"/></p>
 <p>
 In DTrace userspace tracing is performed through <code>pid</code> provider:
     <p>
@@ -143,7 +143,7 @@ provider my_prog {
  Now you need to insert probes into your program code. You may use generic <code>DTRACE_PROBEn</code> macros (in DTrace, supported by SystemTap) or <code>STAP_PROBEn</code> macros (in SystemTap) from <code>&lt;sys/sdt.h&gt;</code> header:
             <p>
             <pre>
-DTRACE_PROBE<i>n</i>(<i>provider-name</i>, <i>probe-name</i>, <i>arg1</i>, ...);</pre>
+DTRACE_PROBE<em>n</em>(<em>provider-name</em>, <em>probe-name</em>, <em>arg1</em>, ...);</pre>
 </p>
 
     Or you may use macros from generated header:
@@ -240,7 +240,7 @@ USDT probes are available via <code>process</code> tapset:
 Full name of the probe will use following naming schema:
     <p>
     <pre>
-process("<i>path-to-program</i>").provider("<i>name-of-provider</i>").mark("<i>name-of-probe</i>")</pre>
+process("<em>path-to-program</em>").provider("<em>name-of-provider</em>").mark("<em>name-of-probe</em>")</pre>
 </p>
 
 Note that unlike DTrace, SystemTap won't replace underscores with dashes</p>
@@ -278,7 +278,7 @@ Because of the nature of DTrace probes which are registered dynamically, they co
  SystemTap Wiki: <a href="https://sourceware.org/systemtap/wiki/AddingUserSpaceProbingToApps">Adding User Space Probing to an Application</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/>  <a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/>  <a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
 </ul>
 </p>
 

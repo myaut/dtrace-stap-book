@@ -63,7 +63,7 @@ DTrace allows to print a memory dump using <code>tracemem()</code> action which 
 <p>
 To reduce competition for output buffers in multicore systems, SystemTap and DTrace allocate buffers on per-cpu basis. Then they need to extract data from them, they switch buffers and walk over it. Consider following example: process A starts on CPU 0 while process B starts on CPU 1, than context switch occurs and both processes migrating on opposite CPU (this is unrealistic situation for scheduler, so it is only an example) as shown on picture:</p>
 <p>
-<img src="../images/cpubufs.png" alt="" class="img-rounded"/></p>
+<img src="../images/cpubufs.png" alt="image:cpubufs" class="img-rounded"/></p>
 <p>
 In this example you will get the following output:
     <p>
@@ -82,13 +82,13 @@ This makes interpretation of output is extremely complicated especially in case 
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html">Output Formatting</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html">Output Formatting</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Formatted_output.html">Formatted output</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Formatted_output.html">Formatted output</a></li>
 </ul>
 </p>
 <p>
@@ -111,10 +111,10 @@ Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scr
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-spec/index.html">Speculative Tracing</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-spec/index.html">Speculative Tracing</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/speculation.stp.html">Speculation</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/speculation.stp.html">Speculation</a>
 </li>
 </ul>
 </p>

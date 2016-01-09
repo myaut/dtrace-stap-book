@@ -68,7 +68,7 @@ printf("The time is %lld\n", (unsigned long long) timestamp);</pre>
 <p>
 There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but it can be emulated via associative arrays.</p>
 <p>
-<img src="../images/varscope.png" alt="" class="img-rounded"/></p>
+<img src="../images/varscope.png" alt="image:varscope" class="img-rounded"/></p>
 <p>
 In this image variable lifetimes are shown as arrows on the right of the drawing. </p>
 <p>
@@ -184,13 +184,13 @@ local: 26765 global: 26765
         <p>
 But when you run multiple <code>dd</code> processes, local and global numbers will eventually differ, because in case of race condition, new space will be allocated:</p>
         <p>
-<img src="../images/localglobal.png" alt="" class="img-rounded"/></p>
+<img src="../images/localglobal.png" alt="image:localglobal" class="img-rounded"/></p>
         <p>
 </p>
 </div>
 </p>
 <p>
-<a name="thread-local-vars"></a>
+<a name="thread_local_vars"></a>
     <h4>
  Thread-local variables</h4>
 </p>
@@ -231,13 +231,13 @@ Other use-case for thread-local variables is when you want to trace only process
 <p>
      <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html">Variables</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html">Variables</a>
  </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062000000000000000">Data types</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062000000000000000">Data types</a>
  </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00043000000000000000">Variables</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00043000000000000000">Variables</a>
 </li>
 </ul>
 </p>

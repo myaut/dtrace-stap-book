@@ -214,11 +214,6 @@ Module, symbol + offset </td>
             <td>
  </td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -261,7 +256,7 @@ In DTrace symbols are resolved by consumer, not by DIF interpreter -- that is wh
 <p>
 SystemTap and DTrace have different formats when printing backtrace symbol names:</p>
 <p>
-<img src="../images/stackfmt.png" alt="" class="img-rounded"/></p>
+<img src="../images/stackfmt.png" alt="image:stackfmt" class="img-rounded"/></p>
 <p>
     <h4>
  Call trees</h4>
@@ -352,16 +347,16 @@ cat: not_exists: No such file or directory
 12451 :    -> path_walk
 12581 :     -> __link_path_walk
 [...]
-<b>14284 :     <- __link_path_walk [-2]</b>
+<strong>14284 :     <- __link_path_walk [-2]</strong>
 14339 :     -> path_put
 [...]
 14655 :     <- path_put [0]
-<b>14732 :    <- path_walk [-2]</b>
-<b>14755 :   <- do_path_lookup [-2]</b>
+<strong>14732 :    <- path_walk [-2]</strong>
+<strong>14755 :   <- do_path_lookup [-2]</strong>
 [...]
 15449 :  <- do_filp_open [4294967294]
 [...]
-<b>15851 : <- do_sys_open [-2]</b></pre>
+<strong>15851 : <- do_sys_open [-2]</strong></pre>
 </p>
 </p>
 <p>
@@ -428,19 +423,19 @@ CPU FUNCTION
   0                <- crgetmapped                 3298657895888
   0                -> zfs_lookup              
 [...]
-<b>  0                <- zfs_lookup                              2</b>
-<b>  0              <- fop_lookup                                2</b>
+<strong>  0                <- zfs_lookup                              2</strong>
+<strong>  0              <- fop_lookup                                2</strong>
   0              -> vn_rele                   
   0              <- vn_rele                       3298588956544
-<b>  0            <- lookuppnvp                                  2</b>
-<b>  0          <- lookuppnatcred                                2</b>
-<b>  0        <- lookupnameatcred                                2</b>
-<b>  0      <- lookupnameat                                      2</b>
-<b>  0    <- vn_openat                                           2</b>
+<strong>  0            <- lookuppnvp                                  2</strong>
+<strong>  0          <- lookuppnatcred                                2</strong>
+<strong>  0        <- lookupnameatcred                                2</strong>
+<strong>  0      <- lookupnameat                                      2</strong>
+<strong>  0    <- vn_openat                                           2</strong>
 [...]
   0    -> set_errno                           
-<b>  0    <- set_errno                                           2</b>
-<b>  0  <- copen                                                 2</b></pre>
+<strong>  0    <- set_errno                                           2</strong>
+<strong>  0  <- copen                                                 2</strong></pre>
 </p>
 </p>
 <p>
@@ -466,14 +461,14 @@ As you can see, Linux calls <code>__link_path_walk</code> recursively:
         println(kernel_string($name)); 
         print_backtrace(); }' -c 'cat symlink'
 symlink
- 0xffffffff811ad470 : <b>__link_path_walk</b>+0x0/0x840 [kernel]
+ 0xffffffff811ad470 : <strong>__link_path_walk</strong>+0x0/0x840 [kernel]
  0xffffffff811ae39a : path_walk+0x6a/0xe0 [kernel]
  0xffffffff811ae56b : do_path_lookup+0x5b/0xa0 [kernel]
 [...]
 file
- 0xffffffff811ad470 : <b>__link_path_walk</b>+0x0/0x840 [kernel]
+ 0xffffffff811ad470 : <strong>__link_path_walk</strong>+0x0/0x840 [kernel]
  0xffffffff811ade31 : do_follow_link+0x181/0x450 [kernel]
- 0xffffffff811adc1b : <b>__link_path_walk</b>+0x7ab/0x840 [kernel]
+ 0xffffffff811adc1b : <strong>__link_path_walk</strong>+0x7ab/0x840 [kernel]
  0xffffffff811ae39a : path_walk+0x6a/0xe0 [kernel]
 [...]</pre>
 </p>

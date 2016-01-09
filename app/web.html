@@ -75,22 +75,22 @@ An alternative of that is to use mod_dtrace module, but we won't discuss it in o
 <p>
 We will use Drupal with MySQL database running under Zend PHP interpreter in Apache web-server in mod_php mode. You can also use PHP-FPM, but it makes requests mapping harder as requests would be processed by different processes. In our case, without PHP-FPM, web-application and http-server would be of same context:</p>
 <p>
-<img src="../images/webapp.png" alt="" class="img-rounded"/></p>
+<img src="../images/webapp.png" alt="image:webapp" class="img-rounded"/></p>
 <p>
 You will need to use provider name to access PHP, MySQL and Apache HTTP Server probes. Their naming convention is the same as any other USDT probe:
     <p>
     <pre>
-php*:::<i>probe-name</i>
-mysql*:::<i>probe-name</i>
-ap*:::<i>probe-name</i></pre>
+php*:::<em>probe-name</em>
+mysql*:::<em>probe-name</em>
+ap*:::<em>probe-name</em></pre>
 </p>
 
 Same works for SystemTap: provider names are optional, but you will need to specify full path to a binary file or use its name and setup <code>PATH</code> environment variable:
     <p>
     <pre>
-process("httpd").mark("<i>probe__name</i>")
-process("mysqld").mark("<i>probe__name</i>")
-process("libphp5.so").mark("<i>probe__name</i>")</pre>
+process("httpd").mark("<em>probe__name</em>")
+process("mysqld").mark("<em>probe__name</em>")
+process("libphp5.so").mark("<em>probe__name</em>")</pre>
 </p>
 
 We will use full paths in macros in example scripts.</p>
@@ -275,11 +275,6 @@ Request is redirected                 </td>
                     <li>
  $arg3 — HTTP status</li>
 </ul>
-</td>
-</tr>
-        <tr>
-
-            <td>
 </td>
 </tr>
 </table>
@@ -583,11 +578,6 @@ Caught exception                            </td>
 </ul>
 </td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -765,11 +755,6 @@ MySQL has wide set of probes. They are described in MySQL documentation: <a href
                     <li>
   $arg1 —  status</li>
 </ul>
-</td>
-</tr>
-        <tr>
-
-            <td>
 </td>
 </tr>
 </table>

@@ -77,7 +77,7 @@ Which types diagrams are mostly useful? Let's find out.</p>
 <p>
 The simplest one is a <em>linear diagram</em>. X axis in that diagram is the time, so it allows to see changes in system's behaviour over time. These diagrams may be combined together (but the time axis should be same on all plots), which allows to reveal correlations between characteristics, as shown on following image:</p>
 <p>
-<img src="../images/linear.png" alt="" class="img-rounded"/></p>
+<img src="../images/linear.png" alt="image:linear.png" class="img-rounded"/></p>
 <p>
 These three characteristics are names of the probes from <code>vminfo</code> provider in DTrace: <code>zfod</code> stands for <em>zero-filled on-demand</em> which is page allocation, while <code>pgpgin</code> and <code>pgpgout</code> are events related to reading/writing pages to a backing store, such as disk swap partition. In this case, <code>memeat</code> process (which name is self-explanatory -- it allocates all available RAM) allocates plenty of memory, so number of <code>zfod</code> events is high, causing to some pages being read or written to a disk swap. </p>
 <p>
@@ -148,11 +148,6 @@ Consider the following example: you apply to a job in some company which has 100
                     <td>
  7k roubles</td>
 </tr>
-                <tr>
-
-                    <td>
-</td>
-</tr>
 </table>
 </p>
         <p>
@@ -163,7 +158,7 @@ Would you want to work there if salary is distributed according row? Doubtful. L
 <p>
 If we calculate per-process difference between scheduler timestamps and build a logarithmic histogram plot, we'll see several requests which lasts for seconds:</p>
 <p>
-<img src="../images/density.png" alt="" class="img-rounded"/></p>
+<img src="../images/density.png" alt="image:density" class="img-rounded"/></p>
 <p>
 Y axis is logarithmic and represents a number of observed intervals when CPU was busy for time period shown on X axis. If we normalize this characteristic, we will get probability density function. </p>
 <p>
@@ -180,7 +175,7 @@ Aggregations <code>quantize()</code>/<code>hist_linear()</code> and <code>lquant
 <p>
 When two axes is not enough for your graph, you may also use a colour intensity of each pixel too. Let's see, how CPU usage is distributed across CPUs. To do so we need pick a step for the observation interval, say <code>T=100ms</code>, accumulate all intervals when non-idle thread were on that CPU, say <code>t</code>, than pixel's intensity will be <code>1.0 - t/T</code> so <code>1.0</code> (white) will say that CPU was idle all the time, while <code>0.0</code> (black) will be evidence that CPU is very busy. For our example, we will see, that CPU 4 is periodically runs CPU-bound tasks:</p>
 <p>
-<img src="../images/heatmap.png" alt="" class="img-rounded"/></p>
+<img src="../images/heatmap.png" alt="image:heatmap" class="img-rounded"/></p>
 <p>
     <h4>
  Gantt charts</h4>
@@ -188,7 +183,7 @@ When two axes is not enough for your graph, you may also use a colour intensity 
 <p>
 Generally speaking, gantt charts help to understand state of the system across the timeline. For example they are helpful in planning projects: what job needs to be done by whom and when, so the jobs are placed on X axis while Y axis is a timeline, and color is used to distinguish teams responsible for jobs. In our case we may be interested in how load distributed across CPUs, and what's causing it, so we here are a gantt chart:</p>
 <p>
-<img src="../images/oncpu.png" alt="" class="img-rounded"/></p>
+<img src="../images/oncpu.png" alt="image:oncpu" class="img-rounded"/></p>
 <p>
 We added process name to the longest bars, and it seems that <code>bash</code> process causing trouble. We could discover it before, adding tags on histogram.</p>
 

@@ -166,11 +166,6 @@ Pointer to file descriptor </td>
             <td>
  <code>b_file</code> (only in <code>buf</code>)</td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -187,7 +182,7 @@ When <em>BIO request</em> is created it is passed to scheduler which re-orders r
 <p>
 After scheduling BIO layer passes request to a device level:</p>
 <p>
-<img src="../images/bio.png" alt="" class="img-rounded"/></p>
+<img src="../images/bio.png" alt="image:bio" class="img-rounded"/></p>
 <p>
 Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with <em>device mapper</em> in Linux or <em>MPxIO</em> in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called <em>SCSI stack</em>. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:</p>
 <p>
@@ -238,11 +233,6 @@ Low-level driver generates interrupt when SCSI packet is finished </td>
  <code>scsi.iocompleted</code> <br />
                                                                                             <code>scsi.iodone</code></td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -260,7 +250,7 @@ We have used Solaris functions starting from <code>sd</code> prefix in this exam
 </div>
 </p>
 <p>
-<img src="../images/solaris/bio.png" alt="" class="img-rounded"/></p>
+<img src="../images/solaris/bio.png" alt="image:solaris-bio" class="img-rounded"/></p>
 <p>
 In Solaris each SCSI <em>LUN</em> has a corresponding <code>sd_lun</code> structure which keeps queue of buffers in doubly-linked list referenced by <code>un_waitq_headp</code> and <code>un_waitq_tailp</code> pointers. When new command is passed to SCSI stack, <code>un_ncmds_in_driver</code> is increased and when packet is dispatched to transport, <code>un_ncmds_in_transport</code> is increased. They are decreased when SCSI packet is discarded or when it was successfully processed and interrupt is fired to notify OS about that. SCSI stack uses <code>b_private</code> field to keep <code>sd_xbuf</code> structure that keeps reference to SCSI packet through <code>xb_pktp</code> pointer.</p>
 <p>
@@ -392,23 +382,23 @@ io:::done {
 </div>
 </p>
 
-It saves history of all I/O stages into a <a href="../lang/print.html#speculation">speculation</a> which is committed when operation is finished. Note that due to the fact that speculation has one buffer per processor output may be garbled when interrupt was delivered to a processor other than processor that initiated request and <code>sdintr</code> is called on it. </p>
+It saves history of all I/O stages into a <a href="../lang/print.html#speculations">speculation</a> which is committed when operation is finished. Note that due to the fact that speculation has one buffer per processor output may be garbled when interrupt was delivered to a processor other than processor that initiated request and <code>sdintr</code> is called on it. </p>
 <p>
 Here is an example output for script:
     <p>
     <pre>
-<b>io-start</b>                 ffffc100040c4300 cpu0 2261
+<strong>io-start</strong>                 ffffc100040c4300 cpu0 2261
         PROC: 1215/1 dd
         BUF flags: R 200061 count: 512 blkno: 0 comp:   0x0                                               
         DEV 208,192 sd
         FILE <none>+-1
-<b>sd_add_buf_to_waitq</b>      ffffc100040c4300 cpu0 11549
-<b>scsi-transport-dispatch</b>  ffffc100040c4300 cpu0 18332
-<b>scsi_transport</b>           ffffc100040c4300 cpu0 21136
+<strong>sd_add_buf_to_waitq</strong>      ffffc100040c4300 cpu0 11549
+<strong>scsi-transport-dispatch</strong>  ffffc100040c4300 cpu0 18332
+<strong>scsi_transport</strong>           ffffc100040c4300 cpu0 21136
         SCSI PKT flags: 14000 state: 0 comp:   sd`sdintr                                         
-<b>sdintr</b>                   ffffc100040c4300 cpu0 565121
+<strong>sdintr</strong>                   ffffc100040c4300 cpu0 565121
         SCSI PKT flags: 14000 state: 1f comp:   sd`sdintr                                         
-<b>io-done</b>                  ffffc100040c4300 cpu0 597642
+<strong>io-done</strong>                  ffffc100040c4300 cpu0 597642
         BUF flags: R 2200061 count: 512 blkno: 0 comp:   0x0</pre>
 </p>
 </p>
@@ -419,7 +409,7 @@ SCSI stack also uses callback mechanism to notify request initiators when it is 
 <p>
 Like we said before, Linux has intermediate layer called a scheduler which can re-order requests. Due to that, BIO layer maintains generic layer of block device queues which are represented by <code>struct request_queue</code> which holds requests as <code>struct request</code> instances:</p>
 <p>
-<img src="../images/linux/bio.png" alt="" class="img-rounded"/></p>
+<img src="../images/linux/bio.png" alt="image:linux-bio" class="img-rounded"/></p>
 <p>
 Each request may have multiple <code>bio</code> requests which are kept as linked list. New requests are submitted through <code>blk_queue_bio()</code> kernel function which will either create a new <code>request</code> using <code>get_request()</code> function for it or merge it with already existing <code>request</code>.</p>
 <p>
@@ -543,20 +533,20 @@ Script example outputs are shown below:</p>
 <p>
     <p>
     <pre>
-<b>kernel.function("get_request@block/blk-core.c:1074").return</b> 0xffff880039ff1500 0xffff88001d8fea00 cpu0 4490
+<strong>kernel.function("get_request@block/blk-core.c:1074").return</strong> 0xffff880039ff1500 0xffff88001d8fea00 cpu0 4490
         PROC: 16668/16674 tsexperiment
         BUF flags: R f000000000000001 count: 4096 blkno: 779728 comp: end_bio_bh_io_sync
         DEV 8,0 INO 0
-<b>ioscheduler.elv_add_request</b> 0xffff880039ff1500 0xffff88001d8fea00 cpu0 15830
+<strong>ioscheduler.elv_add_request</strong> 0xffff880039ff1500 0xffff88001d8fea00 cpu0 15830
         DEV 8,0
-<b>scsi.ioentry</b>             0xffff880039ff1500 0xffff88001d8fea00 cpu0 19847
-<b>scsi.iodispatching</b>       0xffff880039ff1500 0xffff88001d8fea00 cpu0 25744
+<strong>scsi.ioentry</strong>             0xffff880039ff1500 0xffff88001d8fea00 cpu0 19847
+<strong>scsi.iodispatching</strong>       0xffff880039ff1500 0xffff88001d8fea00 cpu0 25744
         SCSI DEV 2:0:0:0 RUNNING
         SCSI PKT flags: 122c8000 comp: 0x0
-<b>scsi.iodispatching</b>       0xffff880039ff1500 0xffff88001d8fea00 cpu0 29882
-<b>scsi.iodone</b>              0xffff880039ff1500 0xffff88001d8fea00 cpu1 4368018
-<b>scsi.iocompleted</b>         0xffff880039ff1500 0xffff88001d8fea00 cpu0 4458073
-<b>ioblock.end</b>              0xffff880039ff1500 cpu0 1431980041275998676</pre>
+<strong>scsi.iodispatching</strong>       0xffff880039ff1500 0xffff88001d8fea00 cpu0 29882
+<strong>scsi.iodone</strong>              0xffff880039ff1500 0xffff88001d8fea00 cpu1 4368018
+<strong>scsi.iocompleted</strong>         0xffff880039ff1500 0xffff88001d8fea00 cpu0 4458073
+<strong>ioblock.end</strong>              0xffff880039ff1500 cpu0 1431980041275998676</pre>
 </p>
 </p>
 <p>

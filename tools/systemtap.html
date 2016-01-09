@@ -63,7 +63,7 @@ For vanilla kernels you will need to configure <code>CONFIG_DEBUG_INFO</code> op
 <p>
 SystemTap doesn't have VM in-kernel (unlike DTrace and KTap), instead it generates kernel module source written in C than builds it, so you will also need a compiler toolchain (<code>make</code>, <code>gcc</code> and <code>ld</code>). Compilation takes five phases: <em>parse</em>, <em>elaborate</em> in which tapsets and debuginfo is linked with script, <em>translate</em> in which C code is generated, <em>compile</em> and <em>run</em>:</p>
 <p>
-<img src="../images/stapprocess.png" alt="" class="img-rounded"/></p>
+<img src="../images/stapprocess.png" alt="image:stapprocess" class="img-rounded"/></p>
 <p>
 SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. <em>Tapsets</em> are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during <em>elaborate</em> stage. <em>Runtime</em> is written in C and used during <em>compile</em> stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. </p>
 <p>
@@ -194,16 +194,16 @@ root@host# stap /root/test.stp -c "dd if=/dev/zero of=/dev/null count=1"</pre>
 <p>
      <ul>
         <li>
- <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stap.1.html">STAP</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stap.1.html">STAP</a>
  </li>
         <li>
- <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/staprun.8.html">STAPRUN</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/staprun.8.html">STAPRUN</a>
  </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00025000000000000000">The stap command</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00025000000000000000">The stap command</a>
  </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00067000000000000000">Literals passed in from the stap command line</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00067000000000000000">Literals passed in from the stap command line</a></li>
 </ul>
 </p>
 

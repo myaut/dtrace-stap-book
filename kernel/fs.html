@@ -119,11 +119,6 @@ Table of file/directory operations </td>
                                                      <code>inode_operaions</code> -- for inode operations  
                                                      <code>address_space_operations</code> -- for working data and page cache</td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -131,7 +126,7 @@ Each process keeps table of opened files as an array of corresponding structures
 <p>
 Linux management structures are shown on the following schematic:</p>
 <p>
-<img src="../images/linux/vfs.png" alt="" class="img-rounded"/></p>
+<img src="../images/linux/vfs.png" alt="image:vfs" class="img-rounded"/></p>
 <p>
 Open file table is indirectly accessible through <code>files</code> field of <code>task_struct</code>. We used 256 entries as an example, actual amount of entries may vary. Each entry in this table is an <code>file</code> object which contains information individual for a specific file descriptor such as open mode <code>f_mode</code> and position in file <code>f_pos</code>. For example, single process can open same file twice (one in <code>O_RDONLY</code> mode another in <code>O_RDWR</code> mode) -- in that case <code>f_mode</code> and <code>f_pos</code> for that file will differ, but <code>inode</code> and possibly <code>dentry</code> objects will be the same. Note that last 2 bits of <code>file</code> pointer are used internally by kernel code. </p>
 <p>
@@ -171,8 +166,7 @@ You may use <code>task_dentry_path()</code> function from dentry tapset instead 
 </p>
 <p>
 Solaris structures organization is much more clear:
-<img src="../images/solaris/vfs.png" alt="Solaris structures organization is much more clear:
-" class="img-rounded"/></p>
+<img src="../images/solaris/vfs.png" alt="image:vfs" class="img-rounded"/></p>
 <p>
 Like Linux, each process keep an array of <code>uf_entry_t</code> entries while entry in this array points to an open file through <code>uf_file</code> pointer. Each file on filesystem is represented by <code>vnode_t</code> structure (literally, <em>node on virtual file system</em>).  When file is opened, Solaris creates new <code>file</code> object and saves open file mode in flag fields <code>f_flag</code> and <code>f_flag2</code>, current file position in <code>f_offset</code> and pointer to a <code>vnode_t</code> in <code>f_vnode</code>. </p>
 <p>
@@ -259,7 +253,7 @@ In this example <code>0x40000100</code> bitmask consists of flags <code>FS_CREAT
 <p>
 Now let's see how VFS operations performed on files:</p>
 <p>
-<img src="../images/vfsops.png" alt="" class="img-rounded"/></p>
+<img src="../images/vfsops.png" alt="image:vfsops" class="img-rounded"/></p>
 <p>
 Application uses <code>open()</code> system call to open file. At this moment, new <code>file</code> object is created and free entry in open files table is filled with a pointer to that object. Kernel, however needs to find corresponding vnode/dentry object -- it will also need to check some preliminary checks here. I.e. if uid of opening process is not equal to <code>i_uid</code> provided by operating system and file mode is 0600, access should be forbidden. </p>
 <p>
@@ -373,11 +367,6 @@ VFS stack creates block input-output request  </td>
  <code>bdev_strategy()</code> </td>
             <td>
  <code>submit_bio()</code></td>
-</tr>
-        <tr>
-
-            <td>
-</td>
 </tr>
 </table>
 </p>

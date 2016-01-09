@@ -160,7 +160,7 @@ You can use userspace tools <code>perf</code> in Linux or <code>cpustat</code>/<
 DTrace provides CPU counters through <code>cpc</code> provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:
     <p>
     <pre>
-<i>EventName</i>-{kernel|user|all}[-<i>Mask</i>]-<i>Number</i></pre>
+<em>EventName</em>-{kernel|user|all}[-<em>Mask</em>]-<em>Number</em></pre>
 </p>
 
 <em>EventName</em> is a name of event taken from <code>cpustat</code> output (and matches documentation name in case of Intel CPUs). Following parameter defines a mode: <em>kernel</em> probes only account kernel instructions, <em>user</em> only work for userspace, and <em>all</em> will profile both. <em>Number</em> is a threshold for a counter after which probe will fire. Do not set <em>Number</em> to a small values to avoid overheads and system lockup, 10000 provides is relatively accurate readings. <em>Mask</em> is an optional parameter which allows to filter devices which accounted in performance counters (such as memory controllers or cores) and should be a hexademical number. </p>
@@ -194,7 +194,7 @@ perf.hw_cache.bpu.read.access</pre>
 These probes are actually aliases for the following probes:
     <p>
     <pre>
-perf.type(<i>type</i>).config(<i>config</i>)[.sample(<i>sample</i>)][.process("<i>process-name</i>")][.counter("<i>counter-name</i>")]</pre>
+perf.type(<em>type</em>).config(<em>config</em>)[.sample(<em>sample</em>)][.process("<em>process-name</em>")][.counter("<em>counter-name</em>")]</pre>
 </p>
 
 <em>type</em> and <em>config</em> are numbers used in <code>perf_event_attr</code> -- their values may be found in header <code>linux/perf_event.h</code>. <em>sample</em> is a number of events after which probe firing. <em>process-name</em> allows to monitor only certain processes instead of system-wide sampling and contains name of the process (path to executable). <em>counter-name</em> allows to set an alias for performance counter which will be later used for <code>@perf</code> expression (see below). </p>

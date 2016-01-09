@@ -54,7 +54,7 @@
 <p>
 As we mentioned in <a href="../tools/tracing.html">Tracing</a>, it is used for statistics collection and performance analysis, dynamic kernel or application debug, system audit. Imagine the situation in which various processes running by two different users are opening files:</p>
 <p>
-<img src="../images/catfiles.png" alt="" class="img-rounded"/></p>
+<img src="../images/catfiles.png" alt="image:catfiles" class="img-rounded"/></p>
 <p>
 What problems can occur and how they are solved by dynamic tracing? Users can complain to very slow opening of a file, so we need to do <em>performance analysis</em>. First of all, we have confirm user complaints by measuring time spent in <code>open()</code>, <code>read()</code> and <code>write()</code> system calls. We can also try to cross-reference slow calls and filesystems on which they occur (by gathering mount paths), if problems are caused by bad NAS or disk. If the problem still exists, than you will need to go down VFS stack, i.e. by measuring time spent in block I/O or in lookup operations. </p>
 <p>
@@ -75,7 +75,7 @@ To demonstrate it on real example, we will use following examples and run <code>
 </p>
 </p>
 <p>
-SystmTap version:
+SystemTap version:
     <p>
     <pre>
 # stap -e '

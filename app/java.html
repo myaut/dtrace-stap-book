@@ -61,7 +61,7 @@ Same works for <em>Java Virtual Machine</em>. Oracle's implementation of JVM, ca
 <p>
 By default <code>hotspot</code> provider allows to trace only rare events, such as class loading, starting and stopping threads, VM-wide and GC-wide events and JIT compiler events. That was done to reduce overheads of USDT probes. For example, to trace methods, compiler has to inject two calls into produced code:</p>
 <p>
-<img src="../images/java.png" alt="" class="img-rounded"/></p>
+<img src="../images/java.png" alt="image:java" class="img-rounded"/></p>
 <p>
 To enable additional probes, use following <code>java</code> command line options:
         <ul>
@@ -725,11 +725,6 @@ Unload of compiled method                            </td>
 </ul>
 </td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -763,7 +758,7 @@ However, you can alter source code of jstack tapset to use other global events a
 There is a bug in JDK: <a href="https://bugs.openjdk.java.net/browse/JDK-7187999">JDK-7187999: dtrace jstack action is broken</a>. Due to it, <code>jstack()</code> won't work for Java7 in Solaris 11. One of workarounds is to try to seek for available probes in a process:
             <p>
             <pre>
-# dtrace -P foo<i>Java-PID</i></pre>
+# dtrace -P foo<em>Java-PID</em></pre>
 </p>
 
 That attempt will fail, but it will lead DTrace to extract required helper functions from Java process.

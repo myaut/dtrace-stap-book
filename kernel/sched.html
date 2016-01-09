@@ -73,7 +73,7 @@ In Solaris functions of the scheduler is invoked through <code>swtch()</code> fu
 <p>
 Process lifetime in terms of the scheduler is shown on the following picture.</p>
 <p>
-<img src="../images/sched.png" alt="" class="img-rounded"/></p>
+<img src="../images/sched.png" alt="image:sched" class="img-rounded"/></p>
 <p>
 In scheduler, context switching may be split in two steps:</p>
 <p>
@@ -233,17 +233,12 @@ FSS </td>
             <td>
  <em>Fair Share Scheduler</em> -- allows to distribute processor time proportionally between groups of processes such as zones or projects.</td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
 Solaris dispatcher control structures are shown on the following picture:</p>
 <p>
-<img src="../images/solaris/sched.png" alt="" class="img-rounded"/></p>
+<img src="../images/solaris/sched.png" alt="image:sol-sched" class="img-rounded"/></p>
 <p>
 Each processor has corresponding <code>cpu_t</code> structure, which includes two pointers to threads: <code>cpu_dispthread</code> -- a thread chosen by scheduler to be the next process after resume, and <code>cpu_thread</code> -- process which is currently is on CPU. <code>cpu_last_swtch</code> contains time of last context switch in lbolts (changed into high-resolution time in nanoseconds in Solaris 11). Each <code>cpu_t</code> has dispatcher queue represented by <code>disp_t</code> structure and corresponding array of queue heads of type <code>dispq_t</code>. Each queue head has links to first and last thread in queue (<code>kthread_t</code> objects are linked through <code>t_link</code> pointer) and <code>dq_sruncnt</code> -- number of threads in this queue. </p>
 <p>
@@ -528,14 +523,14 @@ Here is sample output for <em>duality</em> experiment (some output was omitted):
 <p>
     <p>
     <pre>
-=> <b>cv_unsleep</b> [wakeup] 
+=> <strong>cv_unsleep</strong> [wakeup] 
         CPU : last switch: T-50073us rr: 0 kprr: 0
         wakeup t: ffffc100054f13e0 tsexperiment[1422]/7 TS pri: 59        
-=> <b>setbackdq</b>
+=> <strong>setbackdq</strong>
         setbackdq t: ffffc100054f13e0 tsexperiment[1422]/7 TS pri: 59        
-=> <b>setfrontdq</b>
+=> <strong>setfrontdq</strong>
         setfrontdq t: ffffc10005e90ba0 tsexperiment[1422]/5 TS pri: 0        
-=> <b>disp</b>
+=> <strong>disp</strong>
         CPU : last switch: T-50140us rr: 1 kprr: 0
                 current t: ffffc10005e90ba0 tsexperiment[1422]/5 TS pri: 0
                 disp    t: ffffc10005e90ba0 tsexperiment[1422]/5 TS pri: 0
@@ -544,7 +539,7 @@ Here is sample output for <em>duality</em> experiment (some output was omitted):
         TS: timeleft: 19 flags:  cpupri: 0 upri: 0 boost: 0 => 0
         disp t: ffffc100054f13e0 tsexperiment[1422]/7 TS pri: 59
         TS: timeleft: 3 flags:  cpupri: 59 upri: 0 boost: 0 => 0
-=> <b>disp</b>
+=> <strong>disp</strong>
         CPU : last switch: T-1804us rr: 0 kprr: 0
                 current t: ffffc100054f13e0 tsexperiment[1422]/7 TS pri: 59
                 disp    t: ffffc100054f13e0 tsexperiment[1422]/7 TS pri: 59
@@ -600,7 +595,7 @@ Here is sample output for <em>concurrency</em> experiment (some output was omitt
 <p>
     <p>
     <pre>
-=> <b>disp</b> 
+=> <strong>disp</strong> 
         CPU : last switch: T-39971us rr: 1 kprr: 0
                 current t: ffffc10009711800 tsexperiment[1391]/6 TS pri: 40
                 disp    t: ffffc10009711800 tsexperiment[1391]/6 TS pri: 40
@@ -609,27 +604,27 @@ Here is sample output for <em>concurrency</em> experiment (some output was omitt
         TS: timeleft: 4 flags:  cpupri: 40 upri: 0 boost: 0 => 0
         disp t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 40
         TS: timeleft: 4 flags:  cpupri: 40 upri: 0 boost: 0 => 0
-=> <b>clock_tick </b>
+=> <strong>clock_tick </strong>
         clock_tick t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 40
         TS: timeleft: 3 flags:  cpupri: 40 upri: 0 boost: 0 => 0
-=> <b>clock_tick   </b>      
+=> <strong>clock_tick   </strong>      
         clock_tick t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 40
         TS: timeleft: 2 flags:  cpupri: 40 upri: 0 boost: 0 => 0
-=> <b>clock_tick</b>         
+=> <strong>clock_tick</strong>         
         clock_tick t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 40
         TS: timeleft: 1 flags:  cpupri: 40 upri: 0 boost: 0 => 0
         cpu_surrender t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 30
-=> <b>clock_tick</b>         
+=> <strong>clock_tick</strong>         
         clock_tick t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 30
         TS: timeleft: 0 flags: TSBACKQ| cpupri: 30 upri: 0 boost: 0 => 0
-=> <b>setbackdq </b>
+=> <strong>setbackdq </strong>
         setbackdq t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 30
         TS: timeleft: 8 flags:  cpupri: 30 upri: 0 boost: 0 => 0
-=> <b>disp  </b>      
+=> <strong>disp  </strong>      
         curthread:  t: ffffc10005c07420 tsexperiment[1391]/5 TS pri: 30
         TS: timeleft: 8 flags:  cpupri: 30 upri: 0 boost: 0 => 0
         disp t: fffffffc80389c00 sched[0]/0 SYS pri: 60
-=> <b>disp </b>
+=> <strong>disp </strong>
         curthread:  t: fffffffc80389c00 sched[0]/0 SYS pri: 60
         disp t: ffffc10009711800 tsexperiment[1391]/6 TS pri: 40
         TS: timeleft: 4 flags:  cpupri: 40 upri: 0 boost: 0 => 0</pre>
@@ -711,11 +706,6 @@ Cyclic scheduling was implemented in Linux O(1) scheduler, but it was replaced w
             <td>
  Idle threads -- picked only when other classes do not have runnbalbe threads.</td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -728,7 +718,7 @@ Consider the following situation: there are currently two users on a 8-CPU host 
 <p>
 Let's look into details of implementation of CFS scheduler. First of all, it doesn't deal with tasks directly, but schedules <em>scheduler entities</em> of type <code>struct sched_entity</code>. Such entity may represent a task or a queue of entities of type <code>struct cfs_rq</code> (which is referenced by field <code>my_q</code>), thus allowing to build hierarchies of entities and allocate resources to task groups which are called <em>CGroups</em> in Linux. Processor run queue is represented by type <code>struct rq</code> contains field <code>cfs</code> which is instance of <code>struct cfs_rq</code> and contains queue of all high-level entities. Each entity has <code>cfs_rq</code> pointer which points to CFS runqueue to which that entity belongs:</p>
 <p>
-<img src="../images/linux/sched.png" alt="" class="img-rounded"/></p>
+<img src="../images/linux/sched.png" alt="image:cfs-sched" class="img-rounded"/></p>
 <p>
 In this example processor run queue has two scheduler entities: one CFS queue with single task (which refers top-level <code>cfs_rq</code> through <code>parent</code> pointer) in it and one top-level task. </p>
 <p>
@@ -1041,7 +1031,7 @@ Let's conduct same experiments we performed on Solaris. In "duality" experiment 
 <p>
     <p>
     <pre>
-=> <b>check_preempt_wakeup</b>:
+=> <strong>check_preempt_wakeup</strong>:
     se:    curr tsexperiment/6061 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+-978205 vruntime: MIN+0
     se:      se tsexperiment/6063 SCHED_NORMAL
@@ -1052,16 +1042,16 @@ Let's conduct same experiments we performed on Solaris. In "duality" experiment 
     se:   first tsexperiment/6063 SCHED_NORMAL
     se:     rb: tsexperiment/6063 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+41023325 vruntime: MIN+-6000000
-<= <b>check_preempt_wakeup</b>
+<= <strong>check_preempt_wakeup</strong>
 
-=> <b>task_tick_fair</b> J=4302675615 queued: 0 curr: tsexperiment/6061 SCHED_NORMAL
+=> <strong>task_tick_fair</strong> J=4302675615 queued: 0 curr: tsexperiment/6061 SCHED_NORMAL
     sched_slice: 6000000
     se:    curr tsexperiment/6061 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+-260001 vruntime: MIN+260001
         delta_exec: 42261531        delta: 6260001
-<= <b>task_tick_fair</b>
+<= <strong>task_tick_fair</strong>
 
-=> <b>pick_next_task_fair</b> D=42422710 J=4302675615
+=> <strong>pick_next_task_fair</strong> D=42422710 J=4302675615
     pick_next_entity
     CFS_RQ: /
         nr_running: 2 load.weight: 2048 min_vruntime: 314380161884
@@ -1072,7 +1062,7 @@ Let's conduct same experiments we performed on Solaris. In "duality" experiment 
         load.weight: 1024 exec_start: RQ+42261531 vruntime: MIN+-6000000
     se:   rb-r: tsexperiment/6061 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+-131878 vruntime: MIN+391879
-<= <b>pick_next_task_fair</b>
+<= <strong>pick_next_task_fair</strong>
     se:   sched tsexperiment/6063 SCHED_NORMAL</pre>
 </p>
 </p>
@@ -1081,27 +1071,27 @@ In <em>concurrency</em> experiment thread receives 6ms timeslice (return value o
 <p>
     <p>
     <pre>
-=> <b>pick_next_task_fair</b> D=7015045 J=4302974601
-<= <b>pick_next_task_fair</b>
+=> <strong>pick_next_task_fair</strong> D=7015045 J=4302974601
+<= <strong>pick_next_task_fair</strong>
     se:   sched t: 0xffff880015ba0000 tsexperiment/6304 SCHED_NORMAL
 
-=> <b>task_tick_fair</b> J=4302974602 queued: 0 curr: t: 0xffff880015ba0000 tsexperiment/6304 SCHED_NORMAL
+=> <strong>task_tick_fair</strong> J=4302974602 queued: 0 curr: t: 0xffff880015ba0000 tsexperiment/6304 SCHED_NORMAL
     sched_slice: 6000000
     se:    curr tsexperiment/6304 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+-868810 vruntime: MIN+0
         delta_exec: 868810      delta: -4996961
-<= <b>task_tick_fair</b>
+<= <strong>task_tick_fair</strong>
 
 ...
 
-=> <b>task_tick_fair</b> J=4302974608 queued: 0 curr: t: 0xffff880015ba0000 tsexperiment/6304 SCHED_NORMAL
+=> <strong>task_tick_fair</strong> J=4302974608 queued: 0 curr: t: 0xffff880015ba0000 tsexperiment/6304 SCHED_NORMAL
     sched_slice: 6000000
     se:    curr tsexperiment/6304 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+-1007610 vruntime: MIN+1008440
         delta_exec: 6874211     delta: 1008440
-<= <b>task_tick_fair</b>
+<= <strong>task_tick_fair</strong>
 
-=> <b>pick_next_task_fair</b> D=7040772 J=4302974608
+=> <strong>pick_next_task_fair</strong> D=7040772 J=4302974608
     pick_next_entity
     CFS_RQ: /
         nr_running: 2 load.weight: 2048 min_vruntime: 337102568062
@@ -1112,7 +1102,7 @@ In <em>concurrency</em> experiment thread receives 6ms timeslice (return value o
         load.weight: 1024 exec_start: RQ+6874211 vruntime: MIN+0
     se:   rb-r: tsexperiment/6304 SCHED_NORMAL
         load.weight: 1024 exec_start: RQ+-160403 vruntime: MIN+1168843
-<= <b>pick_next_task_fair</b>
+<= <strong>pick_next_task_fair</strong>
     se:   sched tsexperiment/6305 SCHED_NORMAL</pre>
 </p>
 </p>

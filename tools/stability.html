@@ -56,25 +56,17 @@ Another problem to which dynamic tracing systems face is stability of in-kernel 
 <p>
     <table class="table table-bordered">
         <tr>
-            <td>
-<strong>Stability</strong> </td>
+            <td  rowspan="2">
+ <em>Stability</em> </td>
             <td  colspan="2">
  <strong>Data access</strong> </td>
-            <td  colspan="2">
- <strong>Tracepoints</strong></td>
 </tr>
         <tr>
 
             <td>
-           </td>
+           <em>DTrace</em> </td>
             <td>
- DTrace </td>
-            <td>
- SystemTap </td>
-            <td>
- DTrace </td>
-            <td>
- SystemTap</td>
+ <em>SystemTap</em></td>
 </tr>
         <tr>
 
@@ -84,8 +76,39 @@ High </td>
  <em>translators</em>, i.e. <code>fileinfo_t</code>  </td>
             <td>
  tapset variables </td>
+</tr>
+        <tr>
+
+            <td>
+Lowest </td>
+            <td>
+ Global variables and raw arguments like <code>args[0]</code> or <code>(struct_t*) arg0</code> </td>
+            <td>
+ Raw arguments like <code>$task</code> or <code>@cast($task, "task_struct")</code>  </td>
+</tr>
+</table>
+</p>
+<p>
+    <table class="table table-bordered">
+        <tr>
             <td  rowspan="2">
- statically defined tracing providers (<code>sdt</code> and many others) </td>
+ <em>Stability</em> </td>
+            <td  colspan="2">
+ <strong>Tracepoints</strong></td>
+</tr>
+        <tr>
+
+            <td>
+           <em>DTrace</em> </td>
+            <td>
+ <em>SystemTap</em></td>
+</tr>
+        <tr>
+
+            <td>
+High  </td>
+            <td>
+ statically defined tracing providers (like <code>io</code> and many others) </td>
             <td>
  tapset aliases, i.e. <code>vm.kfree</code></td>
 </tr>
@@ -93,10 +116,8 @@ High </td>
 
             <td>
 Mediocre </td>
-            <td  rowspan="2">
- Global variables and raw arguments like <code>args[0]</code> or <code>(struct_t*) arg0</code> </td>
-            <td  rowspan="2">
- Raw arguments like <code>$task</code> or <code>@cast($task, "task_struct")</code>  </td>
+            <td>
+ static tracepoints with <code>sdt</code> provider </td>
             <td>
  statically defined ftrace probes like <code>kernel.trace("kfree")</code></td>
 </tr>
@@ -108,11 +129,6 @@ Lowest  </td>
  <code>fbt</code> and <code>pid$$</code> providers </td>
             <td>
  DWARF probes like <code>kernel.function("kfree")</code></td>
-</tr>
-        <tr>
-
-            <td>
-</td>
 </tr>
 </table>
 </p>
@@ -145,10 +161,10 @@ Finally, if some probe is missing from kernel, script compilation will fail. DTr
 <p>
      <ul>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00068000000000000000">Conditional compilation</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00068000000000000000">Conditional compilation</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-stab/index.html">Stability</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-stab/index.html">Stability</a>
  </li>
 </ul>
 </p>

@@ -64,7 +64,7 @@
 <p>
 For example, let's see how synchronous writing to a disk is performed in Linux and what can be traced:</p>
 <p>
-<img src="../images/probes.png" alt="" class="img-rounded"/></p>
+<img src="../images/probes.png" alt="image:probes" class="img-rounded"/></p>
 <p>
 When process wants to start synchronous write, it issues <code>write()</code> system call and by doing that it transfers control to a kernel code, to a <code>sys_write()</code> function in particular. This function eventually calls a <code>submit_bio()</code> function which pushes data from user process to a queue of corresponding disk device. If we attach probes to these functions, we can gather the following information:
       <ul>
@@ -164,7 +164,7 @@ Function boundary tracing is the largest and most generic class of tracing. Func
 <p>
     <p>
     <pre>
-bdev_strategy:    pushq  %rbp           →  <b>int    $0x3</b>
+bdev_strategy:    pushq  %rbp           →  <strong>int    $0x3</strong>
 bdev_strategy+1:  movq   %rsp,%rbp         movq   %rsp,%rbp
 bdev_strategy+4:  subq   $0x10,%rsp        subq   $0x10,%rsp</pre>
 </p>
@@ -177,7 +177,7 @@ Userspace probes will be covered in <a href="../app/proc.html">Module 5</a>.
 </div>
 </p>
 <p>
-<a name="stap-syntax"></a>
+<a name="stap_syntax"></a>
     <h5>
  SystemTap</h5>
 </p>
@@ -185,13 +185,13 @@ Userspace probes will be covered in <a href="../app/proc.html">Module 5</a>.
 SystemTap function probe names have the following syntax:
     <p>
     <pre>
-{kernel|module("<i>module-pattern</i>")}.function("<i>function-pattern</i>")[.{call|return|inline}]</pre>
+{kernel|module("<em>module-pattern</em>")}.function("<em>function-pattern</em>")[.{call|return|inline}]</pre>
 </p>
 
 where <em>kernel</em> means that function is statically linked into <code>vmlinux</code> binary, while <em>module</em> followed by its name pattern seeks inside module. <em>module-pattern</em> is usually a name of a kernel module, but may contain wildcards such as <code>*</code>, <code>?</code>, and character class <code>[]</code>. <em>function-pattern</em> is a bit more complex: along with direct specifying its name, or using wildcards, it also support at-suffix followed by a source file name and optional source line number:
     <p>
     <pre>
-<i>function-name</i>[@<i>source-path</i>[{:<i>line-number</i>|:<i>first-line</i>-<i>last-line</i>|+<i>relative-line-number</i>}]]</pre>
+<em>function-name</em>[@<em>source-path</em>[{:<em>line-number</em>|:<em>first-line</em>-<em>last-line</em>|+<em>relative-line-number</em>}]]</pre>
 </p>
 
 Wildcards can be used in <em>source-path</em>.</p>
@@ -213,9 +213,9 @@ Function probe name ends with suffix defining a point in function where probe sh
 Along with attaching to any line through <em>relative-line-number</em> syntax, SystemTap allows to patch any kernel instruction:
     <p>
     <pre>
-kernel.statement(<i>function-pattern</i>)
-kernel.statement(<i>address</i>).absolute
-module(<i>module-pattern</i>).statement(<i>function-pattern</i>)</pre>
+kernel.statement(<em>function-pattern</em>)
+kernel.statement(<em>address</em>).absolute
+module(<em>module-pattern</em>).statement(<em>function-pattern</em>)</pre>
 </p>
 </p>
 <p>
@@ -240,8 +240,8 @@ When we will use following syntax for probe names:
 Another option is DWARF-less probing which uses kprobes if debug information is not available:
     <p>
     <pre>
-kprobe[.module("<i>module-pattern</i>")].function(<i>function-pattern</i>)[.return]
-kprobe.statement(<i>address</i>).absolute</pre>
+kprobe[.module("<em>module-pattern</em>")].function(<em>function-pattern</em>)[.return]
+kprobe.statement(<em>address</em>).absolute</pre>
 </p>
 </p>
 <p>
@@ -263,14 +263,14 @@ fbt:e1000g:e1000g_*:entry</pre>
 A simplest variant of function boundary tracing is a system call tracing. In <strong>SystemTap</strong> they are implemented as aliases on top of corresponding functions and accessible in syscall tapset:
     <p>
     <pre>
-syscall.<i>system-call-name</i>[.return]</pre>
+syscall.<em>system-call-name</em>[.return]</pre>
 </p>
 </p>
 <p>
 <strong>DTrace</strong> uses different mechanisms for attaching to a system calls: it is implemented through driver <code>systrace</code> and patches system call entry point in a <code>sysent</code> table. A syntax for probes, however, is similar to <code>fbt</code>:
     <p>
     <pre>
-syscall::<i>system-call-name</i>:{entry|return}</pre>
+syscall::<em>system-call-name</em>:{entry|return}</pre>
 </p>
 
 Note that if you omit provider name, some probes will match both function and system calls, so probe will fire twice.</p>
@@ -310,8 +310,8 @@ Statically defined probes are extremely useful in DTrace because it doesn't prov
 In Linux statically defined tracing were added in version 2.6.24, as kernel markers, but it is deprecated now and replaced by <em>FTrace</em> subsystem. <strong>SystemTap</strong> supports both:
     <p>
     <pre>
-kernel.trace("<i>tracepoint-pattern</i>")
-kernel.mark("<i>mark</i>")[.format("<i>format</i>")]</pre>
+kernel.trace("<em>tracepoint-pattern</em>")
+kernel.mark("<em>mark</em>")[.format("<em>format</em>")]</pre>
 </p>
 </p>
 <p>
@@ -349,14 +349,14 @@ These probes are not related to a kernel events, but to execution of tracing scr
 <p>
 Take for example profiler probe which records task name from <code>current</code> pointer (it always points to task executing on CPU now):</p>
 <p>
-<img src="../images/timer-probe.png" alt="" class="img-rounded"/></p>
+<img src="../images/timer-probe.png" alt="image:timer-probe" class="img-rounded"/></p>
 <p>
 So if we count that timer probe has fired two times, once in context of left process and once in context of right process, we can conclude that they both consume 50% of CPU time, like <code>prstat</code> and <code>top</code> utilities do. Profiling will be covered in <a href="../principles/profiling.html">Profiling</a> section of Module 3.</p>
 <p>
 In <strong>SystemTap</strong> service probes have following syntax:
     <p>
     <pre>
-{begin|end}[(<i>priority</i>)]
+{begin|end}[(<em>priority</em>)]
 error</pre>
 </p>
 
@@ -365,7 +365,7 @@ Where priority is a number which defines an order of executing <code>begin</code
 Timers are specified in a following form:
     <p>
     <pre>
-timer.<i>unit</i>(<i>period</i>)[.randomize(<i>deviation</i>)]</pre>
+timer.<em>unit</em>(<em>period</em>)[.randomize(<em>deviation</em>)]</pre>
 </p>
 
 Timer probes are executed on single CPU which id is undefined. <em>randomize</em> allows to make period a uniform distributed random value. </p>
@@ -375,7 +375,7 @@ For profiling use <code>timer.profile</code> probe which fires on all CPUs and a
 <strong>DTrace</strong> has <code>BEGIN</code> and <code>END</code> probes in <code>dtrace</code> providers. Timers are handled by <code>profile</code> provider which provide two types of probes: <code>tick</code> which fires on any CPU once at a time period, and <code>profile</code> which does the same for all CPUs. Probe name is followed by a parameter with number and unit:
     <p>
     <pre>
-[profile:::]{tick|profile}-<i>period</i>[<i>unit</i>]</pre>
+[profile:::]{tick|profile}-<em>period</em>[<em>unit</em>]</pre>
 </p>
 </p>
 <p>
@@ -467,11 +467,6 @@ d </td>
             <td>
  jiffies (system ticks in SystemTap)</td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -493,7 +488,7 @@ Lets take following C code as an example (assuming it is located in kernel-space
 9       height = b * sin(angle);
 10 
 11      DTRACE_PROBE1(triangle__height, h); 
-        <b>or</b>
+        <strong>or</strong>
         trace_triangle_height(h);
 12
 13      return a * height; 
@@ -557,11 +552,6 @@ Lets take following C code as an example (assuming it is located in kernel-space
  kernel.tri_area("tri_area").return 
                             kernel.statement("tri_area+12")</td>
 </tr>
-        <tr>
-
-            <td>
-</td>
-</tr>
 </table>
 </p>
 <p>
@@ -575,16 +565,16 @@ Lets take following C code as an example (assuming it is located in kernel-space
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt=" " class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
 </ul>
 </p>
 <p>
@@ -594,10 +584,10 @@ Lets take following C code as an example (assuming it is located in kernel-space
 <p>
     <ul>
         <li>
- <img src="../images/icons/manpage.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt=" " class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
 </ul>
 </p>
 
