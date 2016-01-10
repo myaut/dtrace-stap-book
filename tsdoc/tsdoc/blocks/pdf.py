@@ -9,6 +9,9 @@ import cStringIO
 
 import PIL
 
+from tempfile import NamedTemporaryFile
+from PyPDF2 import PdfFileWriter, PdfFileReader
+
 from tsdoc.blocks import *
 
 from reportlab.rl_config import defaultPageSize
@@ -26,6 +29,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import enums, colors, pagesizes
+
+from tsdoc.svg2rlg import svg2rlg
 
 class _InfoFlowable(Flowable):
     # Hidden flowable for information 
@@ -52,6 +57,22 @@ class _ListingInfoFlowable(_InfoFlowable):
     def draw(self):
         pass
 
+class _PDFImage(Flowable):
+    def __init__(self, fname, width, height):
+        Flowable.__init__(self)
+        self.fname = fname
+        self.width = width 
+        self.height = height
+        self.x = 0
+        self.y = 0
+        self.page = 0
+        
+    def drawOn(self, canvas, x, y, _sW=None):
+        # Do not draw PDFImage, just save position -- it is actually drawn later with PyPDF
+        self.x = x + canvas._currentMatrix[-2]
+        self.y = y + canvas._currentMatrix[-1]
+        self.page = canvas.getPageNumber()
+    
 class ListOfListings(TableOfContents):
     def __init__(self, ext):
         self.ext = re.compile(r'([^.]*)\.' + ext)
@@ -135,6 +156,7 @@ class _TSDocTemplate(SimpleDocTemplate):
 class PDFPrinter(Printer):
     single_doc = True
     xref_pages = False
+    stream_mode = 'wb'
     
     PAGE_WIDTH, PAGE_HEIGHT = defaultPageSize           
     
@@ -171,6 +193,7 @@ class PDFPrinter(Printer):
         # Dictionary page name -> header/level used for generating TOCs
         self._page_info = {}
         self._current_page = None
+        self._pdf_images = []
         
         self.print_sources = not os.environ.get('TSDOC_NO_SOURCES')
         
@@ -274,8 +297,30 @@ class PDFPrinter(Printer):
         
         print >> sys.stderr, "Rendering PDF..."
         
-        doc = _TSDocTemplate(stream)
+        docf = NamedTemporaryFile()
+        doc = _TSDocTemplate(docf)
         doc.multiBuild(paragraphs, canvasmaker=index.getCanvasMaker())
+        
+        print >> sys.stderr, "Rendering PDF images..."
+        
+        docf.flush()
+        pdfin = PdfFileReader(docf.name)
+        pdfout = PdfFileWriter()
+        for pageno, page in enumerate(pdfin.pages):
+            for img in self._pdf_images:
+                if img.page != (pageno + 1):
+                    continue
+                
+                # Load image
+                imgin = PdfFileReader(img.fname)
+                imgpage = imgin.getPage(0)
+                scale = min(img.width / imgpage.mediaBox[2].as_numeric(), 
+                            img.height / imgpage.mediaBox[3].as_numeric())
+                page.mergeScaledTranslatedPage(imgpage, scale, img.x, img.y)
+            
+            pdfout.addPage(page)
+        
+        pdfout.write(stream)
     
     def _register_fonts(self):
         afmfile, pfbfile, fontname = self.TITLE_FONT
@@ -384,7 +429,8 @@ class PDFPrinter(Printer):
                 # Create separate paragraph for large images
                 img = self._print_image(part)
                 
-                if (img._width > self.MAX_INLINE_IMAGE_SIZE or 
+                if not isinstance(img, RLImage) or (
+                        img._width > self.MAX_INLINE_IMAGE_SIZE or 
                         img._height > self.MAX_INLINE_IMAGE_SIZE):
                     paragraphs, out = self._end_block(paragraphs, out, block, style)
                     paragraphs.append(img)
@@ -405,8 +451,6 @@ class PDFPrinter(Printer):
         # We need to perform proportional resizing of images if they exceed 
         # page size and also apply dpi to them. So pre-read images.
         
-        # TODO: use svg?
-        
         image = PIL.Image.open(path)
         
         maxwidth, maxheight = self.PAGE_WIDTH * 0.8, self.PAGE_HEIGHT * 0.8
@@ -421,6 +465,14 @@ class PDFPrinter(Printer):
         if imgheight > maxheight:
             imgwidth /= (imgheight / maxheight)
             imgheight = maxheight
+        
+        if imgwidth > self.MAX_INLINE_IMAGE_SIZE or imgheight > self.MAX_INLINE_IMAGE_SIZE:
+            # Try to use pdf images for large images so it will be vectorized
+            pdfpath = path.replace('.png', '.pdf')
+            if os.path.exists(pdfpath):
+                pdfimg = _PDFImage(pdfpath, imgwidth, imgheight)
+                self._pdf_images.append(pdfimg)
+                return pdfimg
         
         return RLImage(path, width=imgwidth, height=imgheight)
     

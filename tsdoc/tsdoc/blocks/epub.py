@@ -26,6 +26,7 @@ class _ZipStream(object):
 
 class EpubPrinter(Printer):
     single_doc = True
+    stream_mode = 'wb'
     xref_pages = False
     
     NAMESPACES = {'XML': 'http://www.w3.org/XML/1998/namespace',

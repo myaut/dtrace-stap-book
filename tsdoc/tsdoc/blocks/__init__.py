@@ -215,6 +215,7 @@ def pprint_block(block, stream = sys.stdout, indent = 0):
 class Printer:
     single_doc = False
     xref_pages = True
+    stream_mode = 'w'
     
     TAB_STOPS = 4
     

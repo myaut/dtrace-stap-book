@@ -241,7 +241,7 @@ class IndexPage(MarkdownPage):
                     for link in self.index_links:
                         pages.append(self.pages[link.where])
                     
-                    stream = file(self.doc_path, 'w')
+                    stream = open(self.doc_path, printer.stream_mode)
                     printer.do_print_pages(stream, self.header, pages)
             else:    
                 for page in self.pages.values():
@@ -250,7 +250,7 @@ class IndexPage(MarkdownPage):
                     if not os.path.isdir(os.path.dirname(page.doc_path)):
                         print >> sys.stderr, 'WARNING: Directory "%s" does not exist' % (os.path.dirname(page.doc_path))
                         continue
-                    stream = file(page.doc_path, 'w')
+                    stream = open(page.doc_path, printer.stream_mode)
                     printer.do_print(stream, self.header, page)
         
         def find_page(self, link):
@@ -415,7 +415,7 @@ class IndexPage(MarkdownPage):
             
             self.prep_print()
             
-            stream = file(self.doc_path, 'w')
+            stream = open(self.doc_path, printer.stream_mode)
             printer.do_print(stream, self.header, self)
         else:
             pages = [self]
@@ -428,7 +428,7 @@ class IndexPage(MarkdownPage):
                         where = link.where.split('/')[1]
                         pages.append(docspace.pages[where])
             
-            stream = file(self.doc_path, 'w')
+            stream = open(self.doc_path, printer.stream_mode)
             printer.do_print_pages(stream, self.header, pages)
     
     def _generate_reference(self, printer):

@@ -23,15 +23,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="161.06342"
-     inkscape:cy="100.7599"
+     inkscape:cx="206.10125"
+     inkscape:cy="238.88474"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1156"
-     inkscape:window-x="1919"
-     inkscape:window-y="-15"
+     inkscape:window-height="1184"
+     inkscape:window-x="1079"
+     inkscape:window-y="241"
      inkscape:window-maximized="1"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -495,19 +495,7 @@
        id="path3083-4-1-8"
        d="m 90.03744,532.18999 0,51.05857"
        style="fill:#0066ff;stroke:#0066ff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-mid:none;marker-end:url(#Arrow2Mendt)" />
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot5118"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-       transform="translate(79.828843,44.834316)"><flowRegion
-         id="flowRegion5120"><rect
-           id="rect5122"
-           width="113.13708"
-           height="37.880722"
-           x="27.274118"
-           y="184.97136"
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono" /></flowRegion><flowPara
-         id="flowPara5124" /></flowRoot>    <path
+    <path
        inkscape:connector-curvature="0"
        id="path4277"
        d="m 97.579619,265.16101 139.401041,0"
@@ -545,63 +533,115 @@
            id="tspan5128-4"
            sodipodi:role="line">SIGCHLD</tspan></text>
     </g>
-    <flowRoot
+    <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
-       id="flowRoot5216-0-0-6-4-2-4"
-       transform="translate(444.48666,274.34856)"><flowRegion
-         id="flowRegion5218-5-9-6-2-5-6" /><flowPara
-         id="flowPara5409-5-6-9-4-9"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">kprocess.exec</flowPara><flowPara
-         id="flowPara5672"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">proc:::exec</flowPara></flowRoot>    <g
-       id="g5794">
-      <g
-         transform="translate(328.90253,158.95685)"
-         id="g5224-2-3-2">
-        <flowRoot
-           xml:space="preserve"
-           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
-           id="flowRoot5216-0-0-6"><flowRegion
-             id="flowRegion5218-5-9-6" /><flowPara
-             id="flowPara5409-5-6"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">scheduler.process_fork</flowPara><flowPara
-             id="flowPara5668"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">kprocess.create</flowPara><flowPara
-             id="flowPara5674"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">proc:::create</flowPara></flowRoot>      </g>
-      <rect
-         transform="translate(79.828843,44.834316)"
-         y="99.108391"
-         x="245.97214"
-         height="61.114227"
-         width="219.20309"
-         id="rect5722"
-         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
-    </g>
+       x="444.48666"
+       y="274.34857"
+       id="text3137"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="274.34857"
+         id="tspan3139"><tspan
+           x="444.48666"
+           y="274.34857"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3141">kprocess.exec</tspan><tspan
+           dx="0"
+           x="569.61163"
+           y="274.34857"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3143" /></tspan><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="294.34857"
+         id="tspan3145"><tspan
+           x="444.48666"
+           y="294.34857"
+           style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3147">proc:::exec</tspan></tspan></text>
     <g
-       id="g5760">
-      <g
-         transform="translate(331.19602,226.99765)"
-         id="g5224-2-3">
-        <flowRoot
-           xml:space="preserve"
-           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
-           id="flowRoot5216-0-0"><flowRegion
-             id="flowRegion5218-5-9" /><flowPara
-             id="flowPara5222-1-0"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">kprocess.start</flowPara><flowPara
-             id="flowPara5409-5"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">proc:::start</flowPara></flowRoot>      </g>
-      <rect
-         transform="translate(79.828843,44.834316)"
-         y="167.29369"
-         x="245.97214"
-         height="40.911179"
-         width="145.46196"
-         id="rect5724"
-         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
+       id="g5224-2-3-2"
+       transform="translate(328.90253,158.95685)">
+      <text
+         xml:space="preserve"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         x="0"
+         y="0"
+         id="text3113"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           x="0"
+           y="0"
+           id="tspan3115"><tspan
+             x="0"
+             y="0"
+             style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+             id="tspan3117">scheduler.process_fork</tspan><tspan
+             dx="9.625"
+             style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+             id="tspan3119" /></tspan><tspan
+           sodipodi:role="line"
+           x="0"
+           y="20"
+           id="tspan3121"><tspan
+             x="0"
+             style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+             id="tspan3123">kprocess.create</tspan><tspan
+             dx="9.625"
+             style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+             id="tspan3125" /></tspan><tspan
+           sodipodi:role="line"
+           x="0"
+           y="40"
+           id="tspan3127"><tspan
+             x="0"
+             style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+             id="tspan3129">proc:::create</tspan></tspan></text>
     </g>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="rect5722"
+       width="219.20309"
+       height="61.114227"
+       x="325.80099"
+       y="143.9427" />
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+       x="331.19601"
+       y="226.99765"
+       id="text3159"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="331.19601"
+         y="226.99765"
+         id="tspan3161"><tspan
+           x="331.19601"
+           y="226.99765"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3163">kprocess.start</tspan><tspan
+           dx="0"
+           x="465.94601"
+           y="226.99765"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3165" /></tspan><tspan
+         sodipodi:role="line"
+         x="331.19601"
+         y="246.99765"
+         id="tspan3167"><tspan
+           x="331.19601"
+           y="246.99765"
+           style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3169">proc:::start</tspan></tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="rect5724"
+       width="145.46196"
+       height="40.911179"
+       x="325.80099"
+       y="212.12801" />
     <rect
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
        id="rect5726"
@@ -609,20 +649,47 @@
        height="44.194172"
        x="441.61456"
        y="258.84756" />
-    <g
-       id="g5224-2-3-2-0"
-       transform="translate(444.48666,327.02099)">
-      <flowRoot
-         id="flowRoot5216-0-0-6-4"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
-         xml:space="preserve"><flowRegion
-           id="flowRegion5218-5-9-6-2" /><flowPara
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-           id="flowPara5409-5-6-9">kprocess.exec_complete</flowPara><flowPara
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-           id="flowPara5678">proc:::exec-success</flowPara><flowPara
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-           id="flowPara5680">proc:::exec-failure</flowPara></flowRoot>    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+       x="444.48666"
+       y="327.021"
+       id="text3176"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="327.021"
+         id="tspan3178"><tspan
+           x="444.48666"
+           y="327.021"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3180">kprocess.exec_complete</tspan><tspan
+           dx="0"
+           x="656.23663"
+           y="327.021"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3182" /></tspan><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="347.021"
+         id="tspan3184"><tspan
+           x="444.48666"
+           y="347.021"
+           style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3186">proc:::exec-success</tspan><tspan
+           dx="0"
+           x="627.36163"
+           y="347.021"
+           style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3188" /></tspan><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="367.021"
+         id="tspan3190"><tspan
+           x="444.48666"
+           y="367.021"
+           style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3192">proc:::exec-failure</tspan></tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
        id="rect5730"
@@ -630,45 +697,82 @@
        height="63.892147"
        x="441.61456"
        y="310.61789" />
-    <g
-       id="g5786">
-      <g
-         transform="translate(402.68613,259.01851)"
-         id="g5224-2-3-8">
-        <flowRoot
-           transform="translate(-126.77414,273.75134)"
-           xml:space="preserve"
-           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
-           id="flowRoot5216-0-0-5"><flowRegion
-             id="flowRegion5218-5-9-0" /><flowPara
-             id="flowPara5409-5-3"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">scheduler.process_free</flowPara><flowPara
-             id="flowPara5720"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono;fill-opacity:1">kprocess.release</flowPara></flowRoot>      </g>
-      <rect
-         transform="translate(79.828843,44.834316)"
-         y="470.79993"
-         x="191.07143"
-         height="45.357143"
-         width="222.5"
-         id="rect5738"
-         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
-    </g>
-    <g
-       id="g5224-2-3-2-0-1"
-       transform="translate(399.0298,392.36989)">
-      <flowRoot
-         id="flowRoot5216-0-0-6-4-2"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
-         xml:space="preserve"
-         transform="translate(45.456864,61.114229)"><flowRegion
-           id="flowRegion5218-5-9-6-2-5" /><flowPara
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-           id="flowPara5409-5-6-9-4">scheduler.process_exit</flowPara><flowPara
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-           id="flowPara5684">kprocess.exit</flowPara><flowPara
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
-           id="flowPara5686">proc:::exit</flowPara></flowRoot>    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+       x="275.91199"
+       y="532.76984"
+       id="text3221"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="275.91199"
+         y="532.76984"
+         id="tspan3223"><tspan
+           x="275.91199"
+           y="532.76984"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3225">scheduler.process_free</tspan><tspan
+           dx="0"
+           x="487.66199"
+           y="532.76984"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3227" /></tspan><tspan
+         sodipodi:role="line"
+         x="275.91199"
+         y="552.76984"
+         id="tspan3229"><tspan
+           x="275.91199"
+           y="552.76984"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3231">kprocess.release</tspan></tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="rect5738"
+       width="222.5"
+       height="45.357143"
+       x="270.90027"
+       y="515.63422" />
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+       x="444.48666"
+       y="453.48413"
+       id="text3199"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="453.48413"
+         id="tspan3201"><tspan
+           x="444.48666"
+           y="453.48413"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3203">scheduler.process_exit</tspan><tspan
+           dx="0"
+           x="656.23663"
+           y="453.48413"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3205" /></tspan><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="473.48413"
+         id="tspan3207"><tspan
+           x="444.48666"
+           y="473.48413"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3209">kprocess.exit</tspan><tspan
+           dx="0"
+           x="569.61163"
+           y="473.48413"
+           style="font-size:16px;font-weight:normal;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3211" /></tspan><tspan
+         sodipodi:role="line"
+         x="444.48666"
+         y="493.48413"
+         id="tspan3213"><tspan
+           x="444.48666"
+           y="493.48413"
+           style="font-size:16px;font-weight:normal;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="tspan3215">proc:::exit</tspan></tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
        id="rect5740"
