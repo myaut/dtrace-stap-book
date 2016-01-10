@@ -28,7 +28,6 @@ CPU number | `cpu` | `cpu()`
 Probe names | `probeprov`, `probemod`, \
               `probefunc`, `probename` | `pp()`, `pn()`, `ppfunc()`,  \
                                          `probefunc()`, `probemod()`
-
 ---
 
 #### References

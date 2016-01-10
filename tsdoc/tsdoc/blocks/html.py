@@ -6,10 +6,16 @@ from StringIO import StringIO
 
 from tsdoc.blocks import *
 
+import PIL
+
 class HTMLPrinter(Printer):
     single_doc = False
     
     NAV_HOME_TEXT = 'Home'
+    
+    FLOATING_DIV_BASE_WIDTH = 700
+    FLOATING_DIV_BASE_PCT = 108
+    SPACER_BASE_HEIGHT = 2400
     
     NAV_LINKS = [(NavLink.PREV, 'pull-left', 'Prev'),
                  (NavLink.UP, 'pull-center', 'Up'),
@@ -22,15 +28,23 @@ class HTMLPrinter(Printer):
                       'NOTE': ('label label-info', 'Note'),
                       'DANGER': ('label label-important', 'DANGER!') }
     
+    IMAGE_PATH = os.environ.get('TSDOC_IMGDIR')
+    
     def __init__(self, template_path):
         template_file = file(template_path, 'r')
         self.template = string.Template(template_file.read())
+        
+        self._relpath = None
+        self._image_scale = None
+        
         template_file.close()
     
     def do_print(self, stream, header, page):
         self.real_stream = stream
         self.block_idx_gen = iter(xrange(sys.maxint))
         self.stream = StringIO()
+        
+        self._relpath = '../' if page.docspace else ''
         
         for block in page:
             self._print_block(block)
@@ -46,7 +60,7 @@ class HTMLPrinter(Printer):
                                         GENERATOR = 'TSDoc 0.2',
                                         HEADER = '<!-- HEADER -->',
                                         TAIL = '<!-- TAIL -->',
-                                        RELPATH = '../' if page.docspace else '')
+                                        RELPATH = self._relpath)
         
         self.real_stream.write(text)
         
@@ -115,7 +129,12 @@ class HTMLPrinter(Printer):
         elif isinstance(block, ListBlock):
             block_tags.append(('ul', None))
         elif isinstance(block, Table):
-            block_tags.append(('table', 'class="table table-bordered"'))
+            attr = 'class="table table-bordered"'
+            if block.colwidths is not None:
+                # Do not make width of every column strict
+                attr += ' style="width: %d%%"' % int(100 * sum(block.colwidths))
+            
+            block_tags.append(('table', attr))
         elif isinstance(block, TableRow):
             block_tags.append(('tr', None))
         elif isinstance(block, TableCell):
@@ -128,6 +147,26 @@ class HTMLPrinter(Printer):
             block_tags.append(('td', attrs))
         elif isinstance(block, BlockQuote):
             block_tags.append(('blockquote', None))
+        elif isinstance(block, FlowableIncut):
+            style = 'position: absolute; '
+            if 'x' in block.coords:
+                x = block.coords['x'] * self.FLOATING_DIV_BASE_PCT
+                style += 'left: {0:.1f}%; '.format(x)
+            if 'w' in block.coords:
+                w = block.coords['w'] * self.FLOATING_DIV_BASE_WIDTH
+                style += 'width: {0:.1f}px; '.format(w)
+            if 'y' in block.coords:
+                y = block.coords['y'] * self.SPACER_BASE_HEIGHT
+                style += 'margin-top: {0:.1f}px; '.format(y)
+            if 's' in block.coords:
+                self._image_scale = block.coords['s']
+            
+            block_tags.append(('div', 'style="{0}"'.format(style)))
+        elif isinstance(block, PageSpacer):
+            if block.iscond:
+                return
+            h = block.height * self.SPACER_BASE_HEIGHT
+            block_tags.append(('div', 'style="height: {0:.1f}px"'.format(h)))
         elif isinstance(block, Incut):
             block_tags.append(('div', 'class="well"'))
             
@@ -158,7 +197,10 @@ class HTMLPrinter(Printer):
         
         for (tag, attrs) in reversed(block_tags):
             self.stream.write('</%s>\n' % tag)
-            
+        
+        if isinstance(block, FlowableIncut) and 's' in block.coords:
+            self._image_scale = None
+        
     def _print_parts(self, block, indent):
         text = ''
         list_stack = []
@@ -185,10 +227,18 @@ class HTMLPrinter(Printer):
                     text = ''
                 elif isinstance(part, Image):
                     # XXX: very dependent on book's directory structure
-                    tag = '<img src="{}" alt="{}" class="img-rounded"/>'.format(
-                                '../images/' + part.where, text)
-                    self.stream.write(tag)
-                    continue
+
+                    tag = 'img'
+                    tag_attrs['src'] = self._relpath + 'images/' + part.where
+                    tag_attrs['alt'] = text
+                    tag_attrs['class'] = 'img-rounded'
+                    if self._image_scale:
+                        image = PIL.Image.open(os.path.join(self.IMAGE_PATH, part.where))
+                        imgwidth, imgheight = image.size
+                        tag_attrs['width'] = imgwidth * self._image_scale
+                        tag_attrs['height'] = imgheight * self._image_scale
+                    
+                    text = ''
                 elif isinstance(part, Link):
                     tag = 'a'
                     tag_attrs['href'] = part.where
@@ -205,7 +255,7 @@ class HTMLPrinter(Printer):
                                         in tag_attrs.items())
                     if attr_str:
                         attr_str = ' ' + attr_str
-                        
+                    
                     text = '<%s%s>' % (tag, attr_str) + text + '</%s>' % (tag)                
                 
                 text = text.replace('\t', ' ' * Printer.TAB_STOPS)

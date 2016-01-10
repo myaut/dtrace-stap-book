@@ -1,0 +1,53 @@
+import os
+import sys
+
+from itertools import chain
+
+Import('env')
+
+def _inkscape_builder(opt, suffix):
+    return Builder(action = Action('inkscape -z %s $TARGET $SOURCE' % opt),
+                   suffix = suffix, src_suffix = '.svg')
+
+InkscapeBuilder = _inkscape_builder('-e', '.svg.png')
+InkscapeSVGBuilder = _inkscape_builder('-l', '.plain.svg')
+InkscapePDFBuilder = _inkscape_builder('-A', '.pdf')
+
+CompressBuilder = Builder(action = Action('convert -define png:compression-level=9 -define png:compression-strategy=0 -define png:compression-filter=0 $SOURCE $TARGET'),
+                          suffix = '.png',
+                          src_suffix = '.svg.png')
+SVGMerger = Builder(action = Action('%s images/merge-svgs.py $TARGET $SOURCES' % (sys.executable)),
+                    src_suffix = '.svg', suffix = '.svg')
+
+
+env.Append(BUILDERS = {'InkscapeBuilder': InkscapeBuilder,
+                       'InkscapeSVGBuilder': InkscapeSVGBuilder,
+                       'InkscapePDFBuilder': InkscapePDFBuilder,
+                       'SVGMerger': SVGMerger,
+                       'CompressBuilder': CompressBuilder})
+
+
+def ConvertSVGs(env, imgdir, width):
+    img = env.Clone()
+    img['PNGWIDTH'] = width
+    
+    tgt = []
+    
+    for image in imgdir.glob('*.svg'):
+        if image.abspath.endswith('plain.svg'):
+            continue
+        
+        img.CompressBuilder(None, img.InkscapeBuilder(None, image))
+        img.InkscapeSVGBuilder(None, image)
+        img.InkscapePDFBuilder(None, image)
+    
+    for image in chain(imgdir.glob('*.png'), imgdir.glob('*.plain.svg'), imgdir.glob('*.pdf')):
+        env.Depends('images', tgt)
+
+env.SVGMerger('netprobes2.svg', ['netprobes.svg', 'net.svg'])
+
+ConvertSVGs(env, Dir('.'), 800)
+ConvertSVGs(env, Dir('linux'), 800)
+ConvertSVGs(env, Dir('solaris'), 800)
+ConvertSVGs(env, Dir('conv'), 300)
+ConvertSVGs(env, Dir('icons'), 24)

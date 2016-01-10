@@ -23,14 +23,18 @@ else:
 
 DocGenerator = Builder(action = Action('%s tsdoc/gen-doc.py $SOURCES' % (sys.executable)),
                        src_suffix = '.md', suffix = doc_suffix)
+CheatsheetGenerator = Builder(action = Action('%s tsdoc/gen-cheatsheet.py $SOURCE $TARGET' % (sys.executable)),
+                              src_suffix = '.md', suffix = '.pdf')
 
-env.Append(BUILDERS = {'DocGenerator': DocGenerator})
+env.Append(BUILDERS = {'DocGenerator': DocGenerator,
+                       'CheatsheetGenerator': CheatsheetGenerator})
 
 env.Append(ENV = {'TSDOC_FORMAT': doc_format})
 env.Append(ENV = {'TSDOC_HEADER': 'Dynamic Tracing with DTrace & SystemTap'})
 env.Append(ENV = {'TSDOC_AUTHOR': 'Sergey Klyaus'})
 env.Append(ENV = {'TSDOC_UID': 'dtrace_stap_book'})
-env.Append(ENV = {'TSDOC_HTML_TEMPLATE': File('../book/template.html').abspath})
+env.Append(ENV = {'TSDOC_IMGDIR': 'build/book/images'})
+env.Append(ENV = {'TSDOC_HTML_TEMPLATE': File('template.html').abspath})
 if GetOption('verbose'):
     env.Append(ENV = {'TSDOC_VERBOSE': True})
 if GetOption('no_sources'):
@@ -58,5 +62,12 @@ if doc_format == 'html':
 docs = env.DocGenerator([index] + GlobDocs('intro') + GlobDocs('tools')  
                                 + GlobDocs('lang') + GlobDocs('principles')
                                 + GlobDocs('kernel') + GlobDocs('app')
-                                + GlobDocs('hints') + GlobDocs('lab'))
+                                + GlobDocs('hints') + GlobDocs('lab')  
+                                + GlobDocs('cheatsheet'))
+env.Depends(docs, 'template.html')
+env.Depends(docs, 'images')
 env.AlwaysBuild(docs)
+
+csenv = env.Clone()
+csenv.Append(ENV = {'TSDOC_HEADER': 'DTrace & SystemTap cheatsheet'})
+cs = csenv.CheatsheetGenerator('cheatsheet.pdf', 'cheatsheet/cheatsheet.md')

@@ -1,0 +1,4 @@
+This cheatsheet is based on 
+<a href="http://myaut.github.io/dtrace-stap-book/" color="blue">Dynamic Tracing with DTrace & SystemTap</a> 
+book by Sergey Klyaus <br />
+This work is licensed under the (CC BY-NC-SA 3.0) License. 

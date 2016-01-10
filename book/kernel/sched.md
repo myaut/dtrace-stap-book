@@ -76,7 +76,7 @@ Solaris implements cyclic scheduling, but it support fair scheduling algorithms 
 
 The following table shows scheduler classes implemented in Solaris.
 
----
+--- %15,15,70
 __Class__ | __Priority range__ | __Description__
  - | 160-169 | Interrupt threads (they are not handled by scheduler explicitly).
 RT | 100-159 | _RealTime_ processes and threads.
@@ -191,12 +191,12 @@ Note how `timeleft` field is changing: it is calculated as `ts_timer` - `ts_lwp-
 
 Cyclic scheduling was implemented in Linux O(1) scheduler, but it was replaced with Completely Fair Scheduler (CFS) scheduler in 2.6.22 kernel. Cyclic scheduling is represented by RT class which is rarely used. There are also some non-default schedulers like BFS which are not available in vanilla kernel but shipped as separate patches. Each `task_struct` has field `policy` which determines which scheduler class will be used for it. Policies are shown in the following table:
 
----
+--- %12,10,18,60
 __Priority__ | __Class__ | __Policy__ | __Description__
 1 | stop | - | Special class for stopped CPUs. Such CPUs cannot execute any threads.
 1,2 2 |1,2 rt | `SCHED_RR` |1,2 Implements cyclic scheduling using round-robin or FIFO policies
 			    `SCHED_FIFO`
-1,2 3 |1,2 fair (CFS) | `SCHED_NORMAL` (`SCHED_OTHER`) | Default policy for most kernel and user threads 
+1,2 3 |1,2 fair (CFS) | `SCHED_NORMAL` >>> (`SCHED_OTHER`) | Default policy for most kernel and user threads 
                         `SCHED_BATCH` | Similar to `SCHED_NORMAL`, but process which was recently waken up won't try to dispatch on CPU which is more fittful for batch tasks
 4 | idle | `SCHED_IDLE` | Idle threads -- picked only when other classes do not have runnbalbe threads.
 ---

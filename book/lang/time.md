@@ -2,7 +2,7 @@
 
 A man used to live with a calendar and 24-hour representation of time. Coordinated Universal Time (UTC) is used for that now. These details are not needed for most kernel or application processes, so there is multiple time sources available for tracing tools:
 
----
+--- %60,20,20
 __Time source__ | __DTrace__ | __SystemTap__
 _System timer_ is responsible for handling periodical events in kernel such as context switch. System timer usually ticks at constant frequency (but ticks may be omitted in _tickless kernels_). Interval between firing timer is usually referred as special unit of time: _tick_, _lbolt_ in Solaris or _jiffy_ in Linux. Timer frequency in Linux can be get using `HZ()` function. | `\`lbolt` or `\`lbolt64` | `jiffies()`
 _Processor cycles counter_ is a special CPU register which act as a counter which increases on each cycle, such as `TSC` in x86 or `%tick` in SPARC. It may not be monotonic. | | `get_cycles()`

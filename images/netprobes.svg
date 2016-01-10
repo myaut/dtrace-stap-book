@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1513.5841"
+   height="496.40118"
+   id="svg3210"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="netprobes.svg">
+  <defs
+     id="defs3212">
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mstart"
+       style="overflow:visible">
+      <path
+         id="path6761"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(0.4,0,0,0.4,4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send"
+       style="overflow:visible">
+      <path
+         id="path4608"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend"
+       style="overflow:visible">
+      <path
+         id="path6361"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="EmptyTriangleOutL"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="EmptyTriangleOutL"
+       style="overflow:visible">
+      <path
+         id="path6500"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill:#ffffff;fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(0.8,0,0,0.8,-4.8,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend"
+       style="overflow:visible">
+      <path
+         id="path6367"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         id="path6343"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend"
+       style="overflow:visible">
+      <path
+         id="path6349"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <linearGradient
+       id="linearGradient5860"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop5862" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-5"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4608-8"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-6"
+       style="overflow:visible">
+      <path
+         id="path6349-5"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-9"
+       style="overflow:visible">
+      <path
+         id="path6349-4"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-4"
+       style="overflow:visible">
+      <path
+         id="path6349-1"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-63"
+       style="overflow:visible">
+      <path
+         id="path6349-59"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend-1"
+       style="overflow:visible">
+      <path
+         id="path6349-2"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6232"
+       style="overflow:visible">
+      <path
+         id="path6234"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6236"
+       style="overflow:visible">
+      <path
+         id="path6238"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6240"
+       style="overflow:visible">
+      <path
+         id="path6242"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6244"
+       style="overflow:visible">
+      <path
+         id="path6246"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6244-4"
+       style="overflow:visible">
+      <path
+         id="path6246-5"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5169948"
+     inkscape:cx="367.07334"
+     inkscape:cy="589.53605"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1184"
+     inkscape:window-x="1079"
+     inkscape:window-y="241"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4104"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       originx="393.16008px"
+       originy="-110.37079px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3215">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(355.59117,143.25578)">
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       x="244.82278"
+       y="70.148201"
+       id="text4927"
+       sodipodi:linespacing="125%"
+       transform="translate(-7.9310913,92.23622)"><tspan
+         sodipodi:role="line"
+         id="tspan4929"
+         x="244.82278"
+         y="70.148201" /></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot5129"
+       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       transform="translate(-7.9310913,92.23622)"><flowRegion
+         id="flowRegion5131"><rect
+           id="rect5133"
+           width="229.77782"
+           height="116.94049"
+           x="289.27386"
+           y="-275.88623" /></flowRegion><flowPara
+         id="flowPara5135" /></flowRoot>    <g
+       id="g4444"
+       transform="translate(1.5258789e-5,3.1528951)">
+      <flowRoot
+         transform="translate(-72.916702,127.74172)"
+         id="flowRoot5216-0-0-6-6-9-7"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         xml:space="preserve"><flowRegion
+           id="flowRegion5218-5-9-6-2-3-9" /><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5668-1-6-1">kernel.function(&quot;ip_rcv&quot;)</flowPara><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5674-5-7-2">ip:::receive</flowPara></flowRoot>      <rect
+         y="112.7417"
+         x="-290.92657"
+         height="41.329838"
+         width="222.70227"
+         id="rect5722-2-4-0"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g4451"
+       transform="translate(0,9.7313809)">
+      <g
+         transform="translate(-73.224319,251.35457)"
+         id="g5224-2-3-2-2-8-8-6">
+        <flowRoot
+           xml:space="preserve"
+           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           id="flowRoot5216-0-0-6-6-9-7-0"><flowRegion
+             id="flowRegion5218-5-9-6-2-3-9-7" /><flowPara
+             id="flowPara5668-1-6-1-5"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">netdev.rx</flowPara><flowPara
+             id="flowPara5674-5-7-2-4"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">mac_rx_common:entry</flowPara></flowRoot>      </g>
+      <rect
+         y="235.75095"
+         x="-259.96912"
+         height="41.37228"
+         width="191.74483"
+         id="rect5722-2-4-0-6"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g5224-2-3-2-2-8-4"
+       transform="translate(365.89162,-125.00805)">
+      <flowRoot
+         id="flowRoot5216-0-0-6-6-9-9"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         xml:space="preserve"><flowRegion
+           id="flowRegion5218-5-9-6-2-3-21" /><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5668-1-6-0">socket.*</flowPara><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara3392-1">syscall.*</flowPara><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5674-5-7-5">syscall::*:entry</flowPara></flowRoot>    </g>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="rect5722-2-4-5"
+       width="170.73404"
+       height="62.770847"
+       x="280.9826"
+       y="-142.75578" />
+    <g
+       id="g4704"
+       transform="translate(1.5258789e-5,-3.2139595)">
+      <g
+         id="g4459">
+        <flowRoot
+           xml:space="preserve"
+           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           id="flowRoot5216-0-0-6-6-9"
+           transform="translate(-72.916702,45.16939)"><flowRegion
+             id="flowRegion5218-5-9-6-2-3" /><flowPara
+             id="flowPara5668-1-6"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">tcp.receive</flowPara><flowPara
+             id="flowPara3392"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">tcp.recvmsg</flowPara><flowPara
+             id="flowPara5674-5-7"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">  tcp:::receive</flowPara></flowRoot>        <rect
+           style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+           id="rect5722-2-4"
+           width="143.08394"
+           height="62.854782"
+           x="-211.30824"
+           y="27.379694" />
+      </g>
+      <g
+         id="g4437">
+        <flowRoot
+           xml:space="preserve"
+           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           id="flowRoot5216-0-0-6-6-9-7-3"
+           transform="translate(-72.609085,-7.8909433)"><flowRegion
+             id="flowRegion5218-5-9-6-2-3-9-0" /><flowPara
+             id="flowPara5668-1-6-1-7"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">kernel.function(&quot;tcp_v4_hnd_req&quot;)</flowPara><flowPara
+             id="flowPara5674-5-7-2-1"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">tcp:::accept-*</flowPara></flowRoot>        <rect
+           style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+           id="rect5722-2-4-0-7"
+           width="286.86688"
+           height="41.196712"
+           x="-355.09119"
+           y="-23.639202" />
+      </g>
+    </g>
+    <g
+       id="g4667"
+       transform="translate(-265.41533,161.39156)">
+      <flowRoot
+         transform="translate(1091.2365,91.139203)"
+         id="flowRoot5216-0-0-6-6-9-3"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         xml:space="preserve"><flowRegion
+           id="flowRegion5218-5-9-6-2-3-7" /><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara3392-4">netdev.transmit</flowPara><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara4562">netdev.hard_transmit</flowPara><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5674-5-7-8">mac_tx:entry</flowPara></flowRoot>      <rect
+         y="73.426262"
+         x="1087.0614"
+         height="62.70129"
+         width="190.84651"
+         id="rect5722-2-4-50"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g4660"
+       transform="translate(-265.33867,-42.816923)">
+      <flowRoot
+         transform="translate(1090.7648,173.71153)"
+         id="flowRoot5216-0-0-6-6-9-7-8"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+         xml:space="preserve"><flowRegion
+           id="flowRegion5218-5-9-6-2-3-9-5" /><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5668-1-6-1-4">kernel.function(&quot;ip_rcv&quot;)</flowPara><flowPara
+           style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           id="flowPara5674-5-7-2-0">ip:::receive</flowPara></flowRoot>      <rect
+         y="158.71152"
+         x="1086.9847"
+         height="41.329838"
+         width="222.70227"
+         id="rect5722-2-4-0-1"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g4682"
+       transform="translate(0,12.613583)">
+      <g
+         transform="translate(-265.24675,-257.21048)"
+         id="g4644">
+        <g
+           id="g5224-2-3-2-2-8-8-6-3"
+           transform="translate(1091.0861,297.32438)">
+          <flowRoot
+             id="flowRoot5216-0-0-6-6-9-7-0-4"
+             style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+             xml:space="preserve"><flowRegion
+               id="flowRegion5218-5-9-6-2-3-9-7-6" /><flowPara
+               style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+               id="flowPara5668-1-6-1-5-2">tcp.sendmsg</flowPara><flowPara
+               style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+               id="flowPara5674-5-7-2-4-9">tcp:::send</flowPara></flowRoot>        </g>
+        <rect
+           style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+           id="rect5722-2-4-0-6-7"
+           width="127.18376"
+           height="41.556042"
+           x="1086.8928"
+           y="281.62888" />
+      </g>
+      <g
+         transform="translate(-265.33867,-53.364859)"
+         id="g4675">
+        <flowRoot
+           xml:space="preserve"
+           style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+           id="flowRoot5216-0-0-6-6-9-7-3-0"
+           transform="translate(1091.0861,38.07887)"><flowRegion
+             id="flowRegion5218-5-9-6-2-3-9-0-4" /><flowPara
+             id="flowPara5668-1-6-1-7-0"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">kernel.function(&quot;tcp_v4_connect&quot;)</flowPara><flowPara
+             id="flowPara5674-5-7-2-1-6"
+             style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">tcp:::connect-*</flowPara></flowRoot>        <rect
+           style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+           id="rect5722-2-4-0-7-0"
+           width="286.86688"
+           height="41.196712"
+           x="1086.9847"
+           y="22.33061" />
+      </g>
+      <g
+         transform="translate(-121.23664,-329.25486)"
+         id="g4652">
+        <g
+           id="g5224-2-3-2-2-8-8-6-3-3"
+           transform="translate(1091.0861,369.36876)">
+          <flowRoot
+             id="flowRoot5216-0-0-6-6-9-7-0-4-1"
+             style="font-size:24px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+             xml:space="preserve"><flowRegion
+               id="flowRegion5218-5-9-6-2-3-9-7-6-0" /><flowPara
+               style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#003380;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+               id="flowPara5668-1-6-1-5-2-3">tcp.disconnect</flowPara><flowPara
+               style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#800000;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+               id="flowPara5674-5-7-2-4-9-7">tcp_disconnect:entry</flowPara></flowRoot>        </g>
+        <rect
+           style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+           id="rect5722-2-4-0-6-7-9"
+           width="191.74483"
+           height="41.37228"
+           x="1086.9847"
+           y="353.76514" />
+      </g>
+    </g>
+    <g
+       transform="translate(-355.59117,-143.25578)"
+       id="g3097">
+      <use
+         xlink:href="net.svg"
+         height="441.2749"
+         width="1513.5841"
+         y="0"
+         x="0"
+         id="use121" />
+    </g>
+  </g>
+</svg>

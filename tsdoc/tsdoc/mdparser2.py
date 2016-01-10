@@ -273,6 +273,17 @@ class MarkdownParser(object):
         
         return idx + 2
     
+    @_ignore(Code, InlineCode)
+    @_ctlcount(2)
+    def _endash(self, idx, count):
+        top = self.stack[-1]
+        
+        top.text.append(self.text[top.idx:idx])
+        top.text.append(u'\u2013'.encode('utf-8'))
+        top.idx = idx + 1
+        
+        return idx + 2
+    
     def _end_paragraph(self, idx, count):
         if count == 1:
             return 
@@ -404,6 +415,25 @@ class MarkdownParser(object):
         self._pop(idx + count, idx + count)
         return idx + count
     
+    @_block()
+    @_ctlcount(5)
+    @_seek_char('\n')
+    def _page_spacer(self, idx, count, options):
+        frame = _Frame(PageSpacer, idx + count)
+        
+        options = options.split()
+        
+        if options[0] == 'STYLE':
+            frame.options['style'] = options[1]
+        else:
+            frame.options['isbreak'] = 'END' in options
+            frame.options['iscond'] = 'COND' in options
+            frame.options['height'] = float(options[0])
+        
+        self._push(idx, frame)
+        self._pop(idx + count, idx + count)
+        return idx + count
+    
     @_ctlcount(4)
     def _breakpoint(self, idx, count):
         raise MarkdownParseError(idx, 'breakpoint', self.stack)
@@ -416,9 +446,17 @@ class MarkdownParser(object):
         style = options.strip()
         if not style:
             raise MarkdownParseError(idx, 'incut has empty style', self.stack)
-        
-        self._push(idx, _Frame(Incut, idx + count, '!!!',
-                               style=options.strip()))
+        if style[0] == 'F':
+            coords = dict((k, float(v))
+                          for k, v 
+                          in [opt.split(':') 
+                              for opt 
+                              in options.split()[1:]])
+            self._push(idx, _Frame(FlowableIncut, idx + count, '!!!',
+                                   coords=coords))
+        else:
+            self._push(idx, _Frame(Incut, idx + count, '!!!',
+                                   style=options.strip()))
         self._push(idx, _Frame(Paragraph, idx + count))
         
         return idx + count
@@ -442,7 +480,15 @@ class MarkdownParser(object):
     @_ctlcount(3)
     @_seek_char('\n')
     def _table(self, idx, count, options):
-        self._push(idx, _Frame(Table, idx + count, tail='---'))
+        frame = _Frame(Table, idx + count, tail='---')
+        
+        for opt in options.split():
+            if opt[0] == '%':
+                widths = [float(v) / 100.0
+                          for v in opt[1:].split(',')]
+                frame.options['colwidths'] = widths
+        
+        self._push(idx, frame)
         self._post_pop_row(idx + count, None)
         
         return idx + count
@@ -450,10 +496,12 @@ class MarkdownParser(object):
     CHAR_TABLE = [
         ('$$$$', _breakpoint),
         ('\\', _escape),
+        ('--', _endash),
         ('\n\n', _end_paragraph),
         
         ('<', _codefmt),
         ('>>>', _breakline),
+        ('>>>>>', _page_spacer),
         ('>', _blockquote),
         ('#', _header),
         ('*', _list_entry),
@@ -603,3 +651,4 @@ More text
     
     for block in blocks:
         pprint_block(block)
+        

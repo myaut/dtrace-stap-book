@@ -99,6 +99,23 @@ Stop | \
   Arguments are same as for `thread-start`    | \
 `hotspot.thread_stop`                       >>> \
   Arguments are same as for `hotspot.thread_start`
+3,1 __Methods__
+Call | \
+`method-entry`                                  \
+  * arg0 — internal JVM thread's identifier     \
+  * arg1:arg2 — class name                      \
+  * arg3:arg4 — method name                     \
+  * arg5:arg6 — method signature              | \
+`hotspot.method_entry`                          \
+  * thread_id — internal JVM thread's identifier\
+  * class — class name                          \
+  * method — method name                        \
+  * sig — method signature
+Return | \
+`method-return`                                 \
+  Arguments are same as for  method-entry       \
+`hotspot.method_return`                       | \
+  Arguments are same as for  hotspot.method_entry
 3,1 __Class loader__
 Load | \
 `class-loaded`                  \

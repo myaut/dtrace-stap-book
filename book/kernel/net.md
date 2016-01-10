@@ -93,7 +93,7 @@ Here are example DTrace script for tracing message receiving in Solaris 11:
 
 Solaris 11 introduced new providers for tracing network: `tcp`, `udp` and `ip`. Here are probes that are provided by them and their siblings from Linux and SystemTap:
 
----
+--- %20,35,45
 _Action_ | _DTrace_ | _SystemTap_
 3,1 **TCP**
 Connection to remote node | \

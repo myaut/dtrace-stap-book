@@ -10,27 +10,25 @@ import cStringIO
 import PIL
 
 from tempfile import NamedTemporaryFile
-from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 
 from tsdoc.blocks import *
 
 from reportlab.rl_config import defaultPageSize
-from reportlab.platypus import (Paragraph, Preformatted, SimpleDocTemplate, 
-                                PageBreak, Spacer, KeepTogether, Flowable, 
-                                CondPageBreak)
+from reportlab.platypus import (BaseDocTemplate, PageTemplate, NextPageTemplate,
+                                PageBreak, Spacer, KeepTogether, Flowable, XPreformatted,
+                                CondPageBreak, Frame)
 from reportlab.platypus.tableofcontents import TableOfContents, SimpleIndex
 from reportlab.platypus import Table as RLTable
 from reportlab.platypus import Image as RLImage
 from reportlab.platypus import Paragraph as RLParagraph
 
-from reportlab.pdfbase.pdfmetrics import (stringWidth, registerTypeFace, 
+from reportlab.pdfbase.pdfmetrics import (stringWidth, registerTypeFace, registerFontFamily,
                                           registerFont, EmbeddedType1Face, Font)
 from reportlab.pdfbase.ttfonts import TTFont
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import enums, colors, pagesizes
-
-from tsdoc.svg2rlg import svg2rlg
 
 class _InfoFlowable(Flowable):
     # Hidden flowable for information 
@@ -72,6 +70,89 @@ class _PDFImage(Flowable):
         self.x = x + canvas._currentMatrix[-2]
         self.y = y + canvas._currentMatrix[-1]
         self.page = canvas.getPageNumber()
+
+    def scale(self, s):
+        self.width *= s
+        self.height *= s
+
+class _ImageBlock(KeepTogether):
+    def __init__(self, para, img):
+        self.img = img
+        KeepTogether.__init__(self, [para, img])
+    
+    def wrap(self, aW, aH):
+        return KeepTogether.wrap(self, aW, aH)
+
+class RLFlexibleParagraph(RLParagraph):
+    BASE_WIDTH = 0.3 * pagesizes.inch
+    
+    def _calcFragWidth(self, frags):
+        widths = []
+        width = self.BASE_WIDTH
+        
+        for frag in frags:
+            width += stringWidth(getattr(frag, 'text', ''), 
+                                 frag.fontName, frag.fontSize)
+            
+            if hasattr(frag, 'lineBreak'):
+                widths.append(width)
+                width = self.BASE_WIDTH
+        
+        widths.append(width)
+        return max(widths)
+    
+    def wrap(self, aW, aH):
+        # Default implementation of RLParagraph eats all available width which is bad
+        # for tables. We customize it so for small paragraphs, only minimal needed 
+        # width will be used (based on paragraph frags)
+        
+        # We also need space width for "spaces" between paragraphs
+        nW = self._calcFragWidth(self.frags)
+        if self.bulletText:
+            nW += self._calcFragWidth(self.frags)
+        
+        # Also account indentations
+        style = self.style
+        nW += max(style.leftIndent,
+                  style.firstLineIndent) + style.rightIndent + style.bulletIndent
+        
+        aW = min(aW, nW)
+        return RLParagraph.wrap(self, aW, aH)
+
+class _FlowableIncut(Flowable):
+    def __init__(self, coords, paragraphs):
+        Flowable.__init__(self)
+        self.coords = coords
+        
+        # Scale pdf images
+        s = self.coords.get('s', 1.0)
+        for para in paragraphs:
+            if isinstance(para, _PDFImage):
+                para.scale(s)
+            
+        self.paragraphs = paragraphs
+        
+        self._maxWidth = 0
+    
+    def wrap(self, w, h):
+        self._maxWidth = self.coords.get('w', 1.0) * w
+        return 0, 0
+    
+    def drawOn(self, canvas, x, y, _sW=None):
+        W, H = canvas._pagesize
+        x = max(x, self.coords.get('x', 0.0) * W)
+        y -= self.coords.get('y', 0.0) * H
+        
+        canvas.saveState()
+        canvas.translate(x, y)
+        
+        y = 0
+        for para in self.paragraphs:
+            w, h = para.wrap(self._maxWidth, H - y)
+            para.drawOn(canvas, 0.0, y - h)
+            y -= h
+        
+        canvas.restoreState()
     
 class ListOfListings(TableOfContents):
     def __init__(self, ext):
@@ -84,7 +165,10 @@ class ListOfListings(TableOfContents):
             if self.ext.match(fname):
                 self.addEntry(*stuff)
 
-class _TSDocTemplate(SimpleDocTemplate):
+class TSDocTemplate(BaseDocTemplate):
+    DEFAULT_PAGE_TEMPLATE = 'Normal'
+    INDEX_NAME = 'Index'
+    
     def afterFlowable(self, flowable):
         if isinstance(flowable, _PageInfoFlowable):
             key = flowable.page.page_path.replace('/', '_')
@@ -101,7 +185,15 @@ class _TSDocTemplate(SimpleDocTemplate):
                 
             self.notify('TOCEntry', (level, header, self.page))
             self.canv.bookmarkPage(key)
-            self.canv.addOutlineEntry(header.strip(), key, level=level)
+            
+            # We do not need outline entries here because they are lost in a PyPDF2 mess --
+            # instead cache outline entry here
+            # self.canv.addOutlineEntry(header.strip(), key, level=level)
+            self.outlines.append((self.page, level, header))
+        
+        if isinstance(flowable, SimpleIndex):
+            self.notify('TOCEntry', (0, self.INDEX_NAME, self.page))
+            self.outlines.append((self.page, 0, self.INDEX_NAME))
         
         if isinstance(flowable, _ListingInfoFlowable):
             self.notify('TOCListing', (1, flowable.fname, self.page))
@@ -111,24 +203,32 @@ class _TSDocTemplate(SimpleDocTemplate):
         self.canv.setAuthor(os.environ['TSDOC_AUTHOR'])
         
         self.header = ''
+        self.outlines = []
         
-        return SimpleDocTemplate.handle_documentBegin(self)
+        self._page_template = self.DEFAULT_PAGE_TEMPLATE
+        self._handle_nextPageTemplate(self.DEFAULT_PAGE_TEMPLATE)
+        
+        return self._handle_documentBegin()
+    
+    def handle_nextPageTemplate(self, pt):
+        self._page_template = pt
     
     def handle_pageEnd(self):
-        if self.page < 2:
-            return SimpleDocTemplate.handle_pageEnd(self)
+        if self.page < 3:
+            return self._handle_pageEnd()
         
         canv = self.canv
         
-        W, H = defaultPageSize
-        w, h = W / 3, pagesizes.inch
-        padding = pagesizes.inch
+        # Get main page frame boundaries
+        frame = self.pageTemplate.frames[0]
+        l, r = frame._leftPadding, frame._width - frame._rightPadding
+        h = frame._bottomPadding
         
         # Draw line
         canv.saveState()
         canv.setStrokeColorRGB(0, 0, 0)
         canv.setLineWidth(0.5)
-        canv.line(padding, h, W - padding, h)
+        canv.line(l, h, r, h)
         canv.restoreState()
         
         # Draw page number & header
@@ -145,14 +245,56 @@ class _TSDocTemplate(SimpleDocTemplate):
                            style=ParagraphStyle('footer-left',
                                     parent=style, alignment=enums.TA_LEFT))
         
-        pw, ph = right.wrapOn(canv, w, h)
-        right.drawOn(canv, W - padding - pw, h - ph)
+        pw, ph = right.wrapOn(canv, (r - l), h)
+        right.drawOn(canv, l, h - ph)
         
-        pw, ph = left.wrapOn(canv, w, h)
-        left.drawOn(canv, padding, h - ph)
+        pw, ph = left.wrapOn(canv, (r - l), h)
+        left.drawOn(canv, l, h - ph)
         
-        return SimpleDocTemplate.handle_pageEnd(self)
+        # Set next page template(-s)
+        if self._page_template is not None:
+            self._handle_nextPageTemplate(self._page_template)
+        
+        return self._handle_pageEnd()
+
+class CheatSheetTemplate(TSDocTemplate):
+    DEFAULT_PAGE_TEMPLATE = 'CheatSheet'
     
+    def afterFlowable(self, flowable):
+        if isinstance(flowable, RLParagraph):
+            if flowable.style.name == 'h3':
+                self.outlines.append((self.page, 0, flowable.text))
+    
+        if isinstance(flowable, _FlowableIncut):
+            for para in flowable.paragraphs:
+                self.afterFlowable(para)
+        
+    def handle_pageEnd(self):
+        # Get main page frame boundaries
+        frame = self.pageTemplate.frames[0]
+        l, r = frame._leftPadding, frame._width - frame._rightPadding
+        h = frame._topPadding
+        H = frame._height
+        
+        # Draw heading
+        para = RLParagraph(os.environ['TSDOC_HEADER'], 
+                           style=ParagraphStyle('title', alignment=enums.TA_RIGHT, 
+                                                fontName='LCMSS8', fontSize=12, leading=14))
+        pw, ph = para.wrapOn(self.canv, (r - l), h)
+        para.drawOn(self.canv, l, H - h)
+        
+        # Draw watermark
+        with open('book/watermark.txt') as f:
+            watermark = f.read()
+        
+        para = RLParagraph(watermark, 
+                           style=ParagraphStyle('footer-base', fontName='Times-Roman', 
+                                                leading=10, fontSize=8, alignment=enums.TA_LEFT))
+        pw, ph = para.wrapOn(self.canv, (r - l), h)
+        para.drawOn(self.canv, l, h - ph)
+        
+        return self._handle_pageEnd()
+
 class PDFPrinter(Printer):
     single_doc = True
     xref_pages = False
@@ -160,12 +302,12 @@ class PDFPrinter(Printer):
     
     PAGE_WIDTH, PAGE_HEIGHT = defaultPageSize           
     
-    IMAGE_DPI = 120
-    IMAGE_PATH = 'build/images'
+    IMAGE_DPI = 150
+    IMAGE_PATH = os.environ.get('TSDOC_IMGDIR')
     MAX_INLINE_IMAGE_SIZE = 64
     
-    TITLE_FONT = ('tsdoc/lcmss8.afm', 'tsdoc/lcmss8.pfb', 'LCMSS8')
-    MONO_FONT = 'tsdoc/DejaVuSansMono.ttf'
+    TITLE_FONT = ('fonts/lcmss8.afm', 'fonts/lcmss8.pfb', 'LCMSS8')
+    MONO_FONT = ('Mono{0}', 'fonts/DejaVuSansMono{0}.ttf')
     
     RIGHT_ARROW = u"\u2192".encode('utf-8')
     MAX_CODE_LINE_LEN = 80
@@ -177,10 +319,12 @@ class PDFPrinter(Printer):
                       'NOTE': 'Note',
                       'DANGER': 'DANGER!' }
     
+    CODE_TAGS = {BoldText: ('<b>', '</b>'),
+                 ItalicText: ('<i>', '</i>')}
+    
     SOURCE_URL = 'https://raw.githubusercontent.com/myaut/dtrace-stap-book/master/'
     
-    TABLE_WIDTH = PAGE_WIDTH * 0.75
-    TABLE_MIN_COL_WIDTH = 2 * pagesizes.inch
+    TABLE_PADDING = 0.2 * pagesizes.inch
     
     TITLE_INDEX = 'Index'
     TITLE_TOC = 'Table of contents'
@@ -189,15 +333,29 @@ class PDFPrinter(Printer):
                       ('DTrace example scripts', r'd$'),
                       ('Other source files', '(?!d|stp)')]
     
-    def __init__(self):
+    PAGE_TEMPLATES = {
+        'Normal': (PAGE_WIDTH, PAGE_HEIGHT, pagesizes.inch, pagesizes.inch),
+        'CheatSheet': (PAGE_WIDTH, PAGE_HEIGHT, pagesizes.inch / 2, pagesizes.inch / 2)
+        }
+    
+    def __init__(self, print_index=True, doc_cls=TSDocTemplate):
         # Dictionary page name -> header/level used for generating TOCs
         self._page_info = {}
         self._current_page = None
         self._pdf_images = []
         
+        self._story = []
+        self._story_stack = []
+        
+        self.doc_cls = doc_cls
+                
         self.print_sources = not os.environ.get('TSDOC_NO_SOURCES')
+        self.print_index = print_index
+        
+        self.author = os.environ.get('TSDOC_AUTHOR')
         
         self._create_styles()
+        self._set_page_template(self.doc_cls.DEFAULT_PAGE_TEMPLATE)
     
     def _create_styles(self):
         default = ParagraphStyle(
@@ -207,7 +365,7 @@ class PDFPrinter(Printer):
                     leading=12,
                     leftIndent=0, rightIndent=0, firstLineIndent=0,
                     alignment=enums.TA_LEFT,
-                    spaceBefore=0, spaceAfter=2,
+                    spaceBefore=4, spaceAfter=4,
                     bulletFontName='Times-Roman', bulletFontSize=10, bulletIndent=0,
                     textColor=colors.black, backColor=None,
                     wordWrap=None,
@@ -221,16 +379,21 @@ class PDFPrinter(Printer):
                 )
         
         header = ParagraphStyle('header', parent=default, 
-                                fontName='LCMSS8', alignment=enums.TA_LEFT)
+                                fontName='LCMSS8', alignment=enums.TA_LEFT,
+                                spaceBefore=12, spaceAfter=6)
         incut = ParagraphStyle('header', parent=default, 
                                 alignment=enums.TA_CENTER, textColor=colors.white, 
                                 fontName='LCMSS8', fontSize=10)
+        code = ParagraphStyle('code', parent=default,
+                                fontSize=10, fontName='Mono')
         
         self._styles = {
             'default': default,
             
             'title': ParagraphStyle('title', alignment=enums.TA_CENTER, 
                                     fontName='LCMSS8', fontSize=42, leading=48),
+            'title-author': ParagraphStyle('title-author', alignment=enums.TA_CENTER, 
+                                    fontName='LCMSS8', fontSize=24, leading=32),
             
             'root': ParagraphStyle('root', parent=default, 
                                    fontSize=12, leading=14, firstLineIndent=8,
@@ -243,10 +406,8 @@ class PDFPrinter(Printer):
             'h5': ParagraphStyle('h5', parent=header, fontSize=14, leading=16),
             'h6': ParagraphStyle('h6', parent=header, fontSize=12, leading=14),
             
-            'code': ParagraphStyle('code', parent=default,
-                                   fontSize=10, fontName='Mono',
-                                   backColor=colors.lightskyblue,
-                                   borderWidth=2, borderColor=colors.skyblue),
+            'code': code,
+            'subcode': ParagraphStyle('subcode', parent=code, fontSize=8, leading=10),
             
             'incut-DEF': ParagraphStyle('incut-def', parent=incut, backColor=colors.darkgray),
             'codelisting': ParagraphStyle('codelisting', parent=incut, backColor=colors.darkgreen),
@@ -257,55 +418,81 @@ class PDFPrinter(Printer):
             
             'blockquote': ParagraphStyle('blockquote', parent=default, leftIndent=20)
             }
-        
+    
+    def _set_page_template(self, name):
+        self._page_template_name = name
+        self._page_template = self.PAGE_TEMPLATES[name]
+    
+    def _get_page_width(self):
+        return (self._page_template[0] - 2*self._page_template[2]) 
     
     def do_print_pages(self, stream, header, pages):
+        story = self._story
         self.stream = stream
-        
-        paragraphs = []
         
         print >> sys.stderr, "Generating PDF..."
         
         self._register_fonts()
         
         pages = iter(pages)
-        self._print_index(paragraphs, next(pages), header)
+        
+        if self.print_index:
+            index = next(pages)
+            self._current_page = index
+            self._print_index(index, header)
         
         for page in pages:
             # In the beginning of new section -- add page break
             self._current_page = page
             if hasattr(page, 'is_external'):
-                paragraphs.append(PageBreak())
-                paragraphs.append(Spacer(self.PAGE_WIDTH,
-                                         self.PAGE_HEIGHT / 5))
+                story.append(PageBreak())
+                story.append(Spacer(self._page_template[0],
+                                    self._page_template[1] / 5))
             
-            paragraphs.append(_PageInfoFlowable(page, self._page_info.get(page.page_path)))            
+            if self.print_index:
+                story.append(_PageInfoFlowable(page, self._page_info.get(page.page_path)))            
             
             if hasattr(page, 'is_external'):
-                paragraphs.append(RLParagraph(page.header,
-                                              style=self._styles['h2']))
+                story.append(RLParagraph(page.header,
+                                         style=self._styles['h2']))
                 continue
             
             # Render page blocks
             for block in page:
-                paragraphs.extend(self._print_paragraph(block, root=True))
+                self._print_paragraph(block, root=True)
+                
+            if self._page_template_name != self.doc_cls.DEFAULT_PAGE_TEMPLATE:
+                # If page has overriden page styles, revert it afterwards
+                story.append(NextPageTemplate(self.doc_cls.DEFAULT_PAGE_TEMPLATE))
+                self._page_template_name = self.doc_cls.DEFAULT_PAGE_TEMPLATE
         
-        index = SimpleIndex()
-        paragraphs.append(PageBreak())
-        paragraphs.append(RLParagraph(self.TITLE_INDEX, self._styles['h3']))
-        paragraphs.append(index)
-        
+        # Rendering PDF...
         print >> sys.stderr, "Rendering PDF..."
         
         docf = NamedTemporaryFile()
-        doc = _TSDocTemplate(docf)
-        doc.multiBuild(paragraphs, canvasmaker=index.getCanvasMaker())
+        doc = self.doc_cls(docf)
+        doc.addPageTemplates(self._get_page_templates())
         
+        if self.print_index:
+            canvasmaker = self._print_reference()
+            doc.multiBuild(story, canvasmaker=canvasmaker)
+        else:
+            doc.build(story)
+        
+        # Rendering PDF with images...
         print >> sys.stderr, "Rendering PDF images..."
         
         docf.flush()
+        
+        self._merge_pdf_images(docf, stream, doc.outlines)
+    
+    def _merge_pdf_images(self, docf, stream, outlines):
         pdfin = PdfFileReader(docf.name)
+        
         pdfout = PdfFileWriter()
+        pdfout._info.getObject().update(pdfin.getDocumentInfo())
+        
+        # embed images into file
         for pageno, page in enumerate(pdfin.pages):
             for img in self._pdf_images:
                 if img.page != (pageno + 1):
@@ -316,9 +503,18 @@ class PDFPrinter(Printer):
                 imgpage = imgin.getPage(0)
                 scale = min(img.width / imgpage.mediaBox[2].as_numeric(), 
                             img.height / imgpage.mediaBox[3].as_numeric())
+                
                 page.mergeScaledTranslatedPage(imgpage, scale, img.x, img.y)
             
             pdfout.addPage(page)
+        
+        # create outlines
+        stack = []
+        for pageno, level, header in outlines:
+            stack = stack[:level]
+            
+            parent = (stack[0] if stack else None)
+            stack.append(pdfout.addBookmark(header.strip(), pageno - 1, parent))
         
         pdfout.write(stream)
     
@@ -327,36 +523,65 @@ class PDFPrinter(Printer):
         registerTypeFace(EmbeddedType1Face(afmfile, pfbfile))
         registerFont(Font(fontname, fontname, 'WinAnsiEncoding'))
         
-        registerFont(TTFont('Mono', self.MONO_FONT))
+        for suffix in ['', '-Bold', '-Oblique', '-BoldOblique']:
+            registerFont(TTFont(self.MONO_FONT[0].format(suffix), 
+                                self.MONO_FONT[1].format(suffix)))
+        registerFontFamily('Mono', normal='Mono', bold='Mono-Bold', 
+                           italic='Mono-Oblique', boldItalic='Mono-BoldOblique')
     
-    def _print_index(self, paragraphs, index, header):
+    def _get_page_templates(self):
+        templates = []
+        
+        for (name, (w, h, xm, ym)) in self.PAGE_TEMPLATES.items():
+            templates.append(PageTemplate(id=name, 
+                                          frames=[Frame(0, 0, w, h, xm, ym, xm, ym, id=name)], 
+                                          pagesize=(w, h)))
+            
+        return templates
+
+    def _print_index(self, index, header):
         # Generate index page and TOC based on it 
-        paragraphs.append(Spacer(self.PAGE_WIDTH, self.PAGE_HEIGHT / 4))
-        paragraphs.append(RLParagraph(header, self._styles['title']))
-        paragraphs.append(Spacer(self.PAGE_WIDTH, self.PAGE_HEIGHT / 5))
+        story = self._story
+        story.append(Spacer(self._page_template[0], self._page_template[1] / 4))
+        story.append(RLParagraph(header, self._styles['title']))
+        story.append(Spacer(self._page_template[0], self._page_template[1] / 5))
+        story.append(RLParagraph(self.author, self._styles['title-author']))
         
         blocks = iter(index)
         for block in blocks:
-            if any(isinstance(part, Reference) and part.text == '__endfrontpage__'
-                   for part in block):
+            refs = [part.text
+                    for part in block 
+                    if isinstance(part, Reference)]
+            if '__endfrontpage__' in refs:
+                story.append(PageBreak())
+            if '__endbackpage__' in refs:
                 break
-            paragraphs.extend(self._print_paragraph(block, root=True))
+            
+            self._print_paragraph(block, root=True)
             
         self._find_page_info(blocks)
         
         # Print table of contents. index.md contains 
-        paragraphs.append(PageBreak())
-        paragraphs.append(RLParagraph(self.TITLE_TOC, self._styles['h3']))
-        self._add_toc(paragraphs, TableOfContents())
+        story.append(PageBreak())
+        story.append(RLParagraph(self.TITLE_TOC, self._styles['h3']))
+        self._add_toc(TableOfContents())
         
         # Generate list of sources
         if self.print_sources:
-            paragraphs.append(PageBreak())
+            story.append(PageBreak())
             for title, re_ext in self.SOURCE_INDEXES:
-                paragraphs.append(RLParagraph(title, self._styles['h3']))
-                self._add_toc(paragraphs, ListOfListings(re_ext))
+                story.append(RLParagraph(title, self._styles['h3']))
+                self._add_toc(ListOfListings(re_ext))
     
-    def _add_toc(self, paragraphs, toc):
+    def _print_reference(self):
+        index = SimpleIndex()
+        self._story.append(PageBreak())
+        self._story.append(RLParagraph(self.TITLE_INDEX, self._styles['h3']))
+        self._story.append(index)
+        
+        return index.getCanvasMaker()
+    
+    def _add_toc(self, toc):
         root = self._styles['root']
         
         toc.levelStyles = [
@@ -364,12 +589,12 @@ class PDFPrinter(Printer):
                 fontName='Times-Bold', fontSize=14,
                 leftIndent=20, firstLineIndent=-20, spaceBefore=5, leading=16),
             ParagraphStyle('TOCHeading2', parent=root,
-                leftIndent=40, firstLineIndent=-20, spaceBefore=0, leading=12),
+                leftIndent=40, firstLineIndent=-20, spaceBefore=0, leading=10),
             ParagraphStyle('TOCHeading3', parent=root,
-                leftIndent=60, firstLineIndent=-20, spaceBefore=0, leading=12)
+                leftIndent=60, firstLineIndent=-20, spaceBefore=0, leading=10)
             ]
         
-        paragraphs.append(toc)
+        self._story.append(toc)
     
     def _find_page_info(self, parts, level=1):
         for part in parts:
@@ -382,11 +607,38 @@ class PDFPrinter(Printer):
             if isinstance(part, Link) and part.type == Link.INTERNAL:
                 self._page_info[part.where] = (level, part.text)
     
-    def _print_paragraph(self, block, level=None, root=False):
+    def _save_state(self):        
+        self._story_stack.append(self._story)
+        self._story = []
+    
+    def _restore_state(self):
+        story = self._story
+        self._story = self._story_stack.pop()
+        return story
+    
+    def _print_paragraph(self, block, level=None, root=False, width=1.0):
         if isinstance(block, Code):
-            return self._print_code(block)
+            return self._print_code(block, root)
         if isinstance(block, Table):
-            return self._print_table(block)
+            return self._print_table(block, table_width=width)
+        if isinstance(block, PageSpacer):
+            if block.isbreak:
+                if block.iscond:
+                    return self._story.append(CondPageBreak(block.height * self._page_template[1]))
+                return self._story.append(PageBreak())
+            if block.style:
+                self._set_page_template(block.style)
+                # Break to a new page unless we already have whole page available. This trick
+                # is used to render cheatsheets both in book and in separate PDF without extra page
+                return self._story.append(NextPageTemplate(block.style))
+            return self._story.append(Spacer(0, block.height * self._page_template[1]))
+        
+        # Save state to get paragraphs
+        if isinstance(block, FlowableIncut):
+            width = block.coords.get('w', width)
+            self._save_state()
+        elif root and isinstance(block, Incut):
+            self._save_state()
         
         # Pick paragraph style based on block nature
         style = self._styles['default']
@@ -410,42 +662,51 @@ class PDFPrinter(Printer):
         # For Incuts which may have subparagraphs, we add two colored paragraphs before and after 
         # so they will be distinguishable. Span is another exception -- it doesn't rendered as 
         # separate paragraph, but as a <span> within paragraph.
-        paragraphs, out = self._start_block(block, True)
+        out = self._start_block(block, True)
         
         for part in block.parts:
             if isinstance(part, Block) and not isinstance(part, Span):
-                paragraphs, out = self._end_block(paragraphs, out, block, style)
+                out = self._end_block(root, out, block, style)
                 
                 # Allow to use "root" style for root lists,  but forbid it in tables and incuts, etc.
                 childroot = False
                 if isinstance(part, ListEntry) or isinstance(part, ListBlock):
                     level = getattr(part, 'level', None)
                     childroot = root
+                if isinstance(part, Code) or isinstance(part, Table):
+                    childroot = root
                 
-                paragraphs.extend(self._print_paragraph(part, level, root=childroot))
+                self._print_paragraph(part, level, root=childroot, width=width)
                 continue
             
             if isinstance(part, Image):
                 # Create separate paragraph for large images
-                img = self._print_image(part)
+                img = self._print_image(part, width)
                 
                 if not isinstance(img, RLImage) or (
                         img._width > self.MAX_INLINE_IMAGE_SIZE or 
                         img._height > self.MAX_INLINE_IMAGE_SIZE):
-                    paragraphs, out = self._end_block(paragraphs, out, block, style)
-                    paragraphs.append(img)
+                    out = self._end_block(root, out, block, style)
+                    
+                    # We want to keep image together with a paragraph before
+                    if self._story:
+                        img = _ImageBlock(self._story.pop(), img)
+                        
+                    self._story.append(img)
                     continue
             
             self._part_to_strio(part, out, style.fontSize)
         
-        paragraphs, _ = self._end_block(paragraphs, out, block, style, True)
+        self._end_block(root, out, block, style, True)
         
+        if isinstance(block, FlowableIncut):
+            incut = _FlowableIncut(block.coords, self._restore_state())
+            return self._story.append(incut)
         if root and isinstance(block, Incut):
-            return [KeepTogether(paragraphs)]
-        
-        return paragraphs
+            incut = KeepTogether(self._restore_state())
+            return self._story.append(incut)
     
-    def _print_image(self, img):
+    def _print_image(self, img, width):
         path = os.path.join(self.IMAGE_PATH, img.where)
         
         # We need to perform proportional resizing of images if they exceed 
@@ -453,7 +714,7 @@ class PDFPrinter(Printer):
         
         image = PIL.Image.open(path)
         
-        maxwidth, maxheight = self.PAGE_WIDTH * 0.8, self.PAGE_HEIGHT * 0.8
+        maxwidth, maxheight = self._get_page_width() * width, self._page_template[1]
         imgwidth, imgheight = image.size
         
         imgwidth *= (pagesizes.inch / self.IMAGE_DPI)
@@ -477,7 +738,6 @@ class PDFPrinter(Printer):
         return RLImage(path, width=imgwidth, height=imgheight)
     
     def _start_block(self, block, first=False):
-        paragraphs = []
         out = cStringIO.StringIO()
         
         if isinstance(block, ListEntry):
@@ -485,33 +745,35 @@ class PDFPrinter(Printer):
         
         if first:
             if isinstance(block, Header):
-                paragraphs.append(CondPageBreak(pagesizes.inch))
+                self._story.append(CondPageBreak((7 - block.size) * pagesizes.inch / 2))
             
-            self._begin_incut(block, paragraphs)
+            self._begin_incut(block)
         
-        return paragraphs, out
+        return out
         
-    def _end_block(self, paragraphs, out, block, style, last=False):
-        paragraphs.append(RLParagraph(out.getvalue(), style))        
-        _, out = self._start_block(block)
+    def _end_block(self, root, out, block, style, last=False):
+        if any(c not in string.whitespace
+               for c in out.getvalue()):
+            self._story.append((RLParagraph if root else RLFlexibleParagraph)(out.getvalue(), style))        
+        out = self._start_block(block)
         
         if last:
-            self._end_incut(block, paragraphs)
+            self._end_incut(block)
         
-        return paragraphs, out
+        return out
     
-    def _begin_incut(self, block, paragraphs):
+    def _begin_incut(self, block):
         incut_style, incut_message = self._incut_format(block)
         if incut_style:
-            paragraphs.append(CondPageBreak(pagesizes.inch / 2))
-            paragraphs.append(RLParagraph(incut_message, style=incut_style))
+            self._story.append(CondPageBreak(pagesizes.inch / 2))
+            self._story.append(RLParagraph(incut_message, style=incut_style))
     
-    def _end_incut(self, block, paragraphs):
+    def _end_incut(self, block):
         incut_style, _ = self._incut_format(block)
         if incut_style:
             incut_style = ParagraphStyle(incut_style.name + '-end', parent=incut_style, 
                                          fontSize=4, leading=4)
-            paragraphs.append(RLParagraph('&nbsp;', style=incut_style))
+            self._story.append(RLParagraph('&nbsp;', style=incut_style))
     
     def _incut_format(self, block):
         if isinstance(block, CodeListing):
@@ -608,14 +870,15 @@ class PDFPrinter(Printer):
         else:
             out.write(' />')
                 
-    def _print_code(self, code):
-        style = self._styles['code']
+    def _print_code(self, code, root=False):
+        style = self._styles['code' if root else 'subcode']
         
         if isinstance(code, CodeListing) and not self.print_sources:
-            return [RLParagraph(
-                'Source file: <a href="{url}/{fname}">{fname}</a>'.format(
+            self._story.append(RLParagraph(
+                'Source file: <a href="{url}/{fname}" color="blue">{fname}</a>'.format(
                     url=self.SOURCE_URL, fname=code.fname),
-                style=style)]
+                style=self._styles['default']))
+            return
         
         
         out = cStringIO.StringIO()
@@ -623,21 +886,20 @@ class PDFPrinter(Printer):
             # TODO: support bold/italic text in preformatted
             text = str(part).replace('\t', '    ')
             
-            for line in text.splitlines():
-                self._print_code_line(line, out, style)
-        
-        paragraphs = []
+            for line in text.splitlines(True):
+                tags = self.CODE_TAGS.get(type(part), ('', ''))
+                self._print_code_line(line, out, style, tags)
         
         if isinstance(code, CodeListing):
-            paragraphs = [_ListingInfoFlowable(code.fname)]
+            self._story.append(_ListingInfoFlowable(code.fname))
         
-        self._begin_incut(code, paragraphs)
-        paragraphs.append(Preformatted(out.getvalue(), style))
-        self._end_incut(code, paragraphs)
-        
-        return paragraphs
+        self._begin_incut(code)
+        self._story.append(XPreformatted(out.getvalue(), style))
+        self._end_incut(code)
     
-    def _print_code_line(self, line, out, style):    
+    def _print_code_line(self, line, out, style, tags):
+        out.write(tags[0]) 
+        
         # split long lines
         width = stringWidth(line, style.fontName, style.fontSize)
         
@@ -658,9 +920,10 @@ class PDFPrinter(Printer):
                 except:
                     pass
         
-        print >> out, line
+        out.write(line)
+        out.write(tags[1]) 
     
-    def _print_table(self, table):
+    def _print_table(self, table, table_width=1.0):       
         parastyle = self._styles['default']
         data = []  
         
@@ -669,58 +932,81 @@ class PDFPrinter(Printer):
         
         rowid = 0
         for row in table:
+            if not isinstance(row, TableRow):
+                continue
+            
+            datarow = []
             colid = 0
             
             for cell in row:
                 if not isinstance(cell, TableCell):
                     continue
                 
-                colmax, rowmax = colid, rowid
+                # Fill colspans and rowspans with empty cells
+                for cmd in style:
+                    if (cmd[0] == 'SPAN' and 
+                            cmd[2][0] <= colid <= cmd[1][0] and
+                            cmd[1][1] <= rowid <= cmd[2][1]):
+                        colspan = cmd[2][0] - colid + 1
+                        datarow.extend([[]] * colspan)
+                        colid += colspan
                 
                 if cell.colspan > 1 or cell.rowspan > 1:
                     colmax, rowmax = colid + cell.colspan - 1, rowid + cell.rowspan - 1
                     style.append(('SPAN', (colid, rowid), (colmax, rowmax)))
-                    
-                paragraphs = self._print_paragraph(cell)
                 
-                # Extend data with new table cell
-                while len(data) <= rowmax:
-                    data.append([])
-                for currowid, row in enumerate(data):
-                    while len(row) <= colmax:
-                        row.append('')
-                    if rowid == currowid:
-                        row[colid] = paragraphs
-                
+                self._save_state()
+                self._print_paragraph(cell)
+                datarow.append(self._restore_state())
                 colid += 1
-            
+                            
             if colid > 0:
+                data.append(datarow)
                 rowid += 1
                 
         # TODO: allow to specify number of rows in table in md?
-        
         if not data:
-            return []
+            return
         
+        table_width *= self._get_page_width()
+        if table.colwidths:
+            col_widths = [width * table_width
+                          for width in table.colwidths]
+        else:
+            col_widths = self._compute_col_widths(data, table_width)
+        
+        self._story.append(RLTable(data, style=style, repeatRows=1, colWidths=col_widths))
+    
+    def _compute_col_widths(self, data, table_width):
         # Find maximum length of paragraph in table to determine better col width 
-        # TODO: better to use wrapon?
-        col_widths = [max(stringWidth(para.text, fontName=parastyle.fontName, fontSize=parastyle.fontSize) 
-                          for para 
-                          in itertools.chain(*[row[colid] 
-                                               for row in data
-                                               if len(row) > colid])
-                          if isinstance(para, RLParagraph))
-                      for colid in range(len(data[0]))]
-        total_width = sum(col_widths)
+        colcount = max(len(datarow) for datarow in data)
+        
+        col_widths = [self.TABLE_PADDING] * colcount
+        col_heights = [self.TABLE_PADDING] * colcount
+        min_col_widths = [self.TABLE_PADDING] * colcount
+        
+        for row in data:
+            for colid, col in enumerate(row):
+                for para in col:
+                    width, height = para.wrap(table_width, self._page_template[1])
+                    col_widths[colid] = max(width, col_widths[colid])
+                    col_heights[colid] += height
+                    
+                    min_width = (para.minWidth() if isinstance(para, RLParagraph)
+                                 else getattr(para, 'width', 0))
+                    min_col_widths[colid] = max(min_width, min_col_widths[colid])
         
         # Normalize column widths
-        col_widths = [min(width * self.TABLE_WIDTH / total_width, 
-                          self.TABLE_MIN_COL_WIDTH)
-                      for width in col_widths]
+        total_width = sum(col_widths)
+        max_height = max(col_heights)
+        col_widths = [min(width * height * table_width / total_width / max_height, 
+                          min_width) + self.TABLE_PADDING
+                      for width, height, min_width 
+                      in zip(col_widths, col_heights, min_col_widths)]
         
         # Compensate for extra width due to min column width
-        extra_width = sum(col_widths) - self.TABLE_WIDTH
+        extra_width = sum(col_widths) - table_width
         col_widths = [width - (extra_width / len(col_widths))
                       for width in col_widths]
-            
-        return [RLTable(data, style=style, repeatRows=1, colWidths=col_widths)]
+        
+        return col_widths

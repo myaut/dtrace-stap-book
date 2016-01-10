@@ -1,10 +1,10 @@
-##### _Sergey Klyaus_
+[__endfrontpage__]
 
-Copyright © 2011-2015 Sergey Klyaus
+Copyright © 2011-2016 Sergey Klyaus
 
 This work is licensed under the  Creative Commons Attribution-Noncommercial-ShareAlike 3.0 License. To view a copy of this license, visit [https://creativecommons.org/licenses/by-nc-sa/3.0/](https://creativecommons.org/licenses/by-nc-sa/3.0/) or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
-[__endfrontpage__]
+[__endbackpage__]
 
 Other formats: [PDF (full)](dtrace-stap-book.pdf), [PDF (no sources)](dtrace-stap-book-ns.pdf), [EPUB (no sources)](dtrace-stap-book.epub)
 
@@ -98,3 +98,6 @@ Other formats: [PDF (full)](dtrace-stap-book.pdf), [PDF (no sources)](dtrace-sta
  * [Setting up Operating Systems][lab/os]
  * [iSCSI][lab/iscsi]
  * [Web application stack][lab/web]
+
+### Appendix C. [Cheatsheet][cheatsheet/cheatsheet]
+[__docspace__:cheatsheet]

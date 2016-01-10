@@ -55,7 +55,7 @@ class EpubPrinter(Printer):
     
     SOURCE_URL = 'https://raw.githubusercontent.com/myaut/dtrace-stap-book/master/'
     
-    IMAGE_PATH = 'build/images'
+    IMAGE_PATH = os.environ.get('TSDOC_IMGDIR')
     CSS_PATH = 'book/epub.css'
     
     INCUT_CLASSES = { 'DEF' : 'Definition',
@@ -68,7 +68,7 @@ class EpubPrinter(Printer):
         self._epub = None
         
         self._page_name = None
-        self._anchor_prefix = None
+        self._anchor_prefix = ''
         self._page_stream = None
         self._page_root = None
         self._page_body = None
@@ -170,7 +170,7 @@ class EpubPrinter(Printer):
         
         blocks = iter(index)
         for block in blocks:
-            if any(isinstance(part, Reference) and part.text == '__endfrontpage__'
+            if any(isinstance(part, Reference) and part.text == '__endbackpage__'
                    for part in block):
                 break
             
@@ -461,7 +461,8 @@ class EpubPrinter(Printer):
                 el = etree.Element('small')
             elif block.style[0] == '#':
                 el = etree.Element('span', {'style': 'color: {0};'.format(block.style[1:])})
-        elif isinstance(block, Paragraph):
+        else:
+            # if isinstance(block, Paragraph)
             el = etree.Element('p')
         
         for part in block:

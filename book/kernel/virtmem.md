@@ -87,7 +87,7 @@ You can trace page faults in Linux by attaching to `vm.pagefault.return` probe. 
 __Type__ | __DTrace__ | __SystemTap__
 _Any_ | `vminfo::as_fault` | `perf.sw.page_faults`
 _Minor_ |  | `perf.sw.page_faults_min`
-_Major_ | `vminfo:::maj_fault` usually followed by `vminfo::pgin` | `perf.sw.page_faults_min`
+_Major_ | `vminfo:::maj_fault` usually followed by `vminfo::pgin` | `perf.sw.page_faults_maj`
 _Invalid_ | `vminfo:::cow_fault` for copy-on-write faults \
 			`vminfo:::prot_fault` for invalid permissions or address | See notes below
 ---

@@ -124,6 +124,14 @@ class Block(object):
     def __iter__(self):
         return iter(self.parts)
 
+class PageSpacer(Block):
+    def __init__(self, height=0, isbreak=False, iscond=False, style=None, parts = []):
+        self.height = height
+        self.isbreak = isbreak
+        self.iscond = iscond
+        self.style = style
+        Block.__init__(self, parts)
+
 class Header(Block):
     def __init__(self, size, parts = []):
         self.size = size
@@ -144,7 +152,9 @@ class Code(Paragraph):
     pass
 
 class Table(Block):
-    pass
+    def __init__(self, colwidths = None, parts = []):
+        Block.__init__(self, parts)
+        self.colwidths = colwidths
 
 class TableRow(Block):
     pass
@@ -170,6 +180,11 @@ class Incut(Block):
         Block.__init__(self, parts)
         
         self.style = style
+
+class FlowableIncut(Block):
+    def __init__(self, coords, parts = []):
+        Block.__init__(self, parts)
+        self.coords = coords
 
 class Span(Block):
     def __init__(self, style=None, parts=[]):

@@ -232,7 +232,7 @@ For example `tick-1s` will fire every second. Note that, not all platforms may p
 
 SystemTap and DTrace support the following timer units:
 
----
+--- %10,10,20
 2,1 __Unit__ | __Description__
 ns | nsec | nanoseconds
 us | usec | microseconds

@@ -40,19 +40,22 @@ SystemTap allows to access kernel and user memory through set of functions which
 Summarizing all that, we should use following to read or write first character of strings in example above:
 
 ---
- | |                   `kptr` | `badp` | `uptr`
-1,2 DTrace | __read__ | `*((char*) arg0)` | `*((char*) arg0)` | `*((char*) copyin(arg0, 1))`
-            __write__ |2,1 | Use copyout (see below)
-1,2 SystemTap | __read__ | `kernel_char($kptr)` | `kernel_char($badp)` with try-catch block | `user_char($uptr)`
-               __write__ | `set_kernel_char($kptr, 'M')` | `set_kernel_char($badp, 'M')` with try-catch block | 
----
-
-Example for `copyout`:
+_Operation_ | _Pointer_ | _DTrace_            | _SystemTap_
+1,3 __read__  | `kptr` |1,2 `*((char*) arg0)` | `kernel_char($kptr)`
+                `badp` |                        `kernel_char($kptr)` >>>  \
+                                                with try-catch-block
+                `uptr` | `*((char*) copyin(arg0, 1))` | `user_char($uptr)`
+1,3 __write__ | `kptr` |1,2 -                 | `set_kernel_char($kptr, 'M')`
+                `badp` |                        `set_kernel_char($kptr, 'M')` >>>  \
+                                                with try-catch-block
+                `uptr` | \
 ```
 this->c = (char*) alloca(1); 
 *this->c = 'M'; 
-copyout(this->c, arg0, 1);```
- 
+copyout(this->c, arg0, 1);
+``` | -
+---
+
 #### Safety notes
 
 To avoid system panicking, before actually accessing memory through raw pointer, DTrace and SystemTap have to:
