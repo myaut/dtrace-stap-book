@@ -56,7 +56,7 @@
  Synchronization primitives</h3>
 <p>
     <h4>
- Locks</h4>
+ <a name="__index___lock"></a> <a name="__index___mutex"></a> Locks</h4>
 </p>
 <p>
 Modern operating system kernels are multi-threaded thus they allow parallel execution of service routines and userspace threads. However, they share some common pools of resources and objects for which these threads compete and may cause conflicts if two threads request access simultaneously. If operating system won't resolve such conflict, object data may be corrupted which may cause incorrect system behaviour and eventually, system panic.</p>
@@ -67,7 +67,7 @@ For example, we have two processes in a system with pids 119 and 123 which are s
         <p>
 To prevent this, operating systems may use <em>mutex</em> (like it is done in Solaris) or combination of <em>spin-lock</em> and <em>atomic operation</em> (Linux). <code>mutex_enter()</code> call in Solaris guarantees that only one thread can be executed while holding mutex. Other threads will execute busy loop (which is called <em>spin</em>) or will be blocked on a sleep queue and will be removed from run queue when they call <code>mutex_enter()</code> for mutex that already held:</p>
         <p>
-<img src="../images/sobj.png" alt="image:sobj" class="img-rounded"/></p>
+<img src="../images/sobj.png" alt="image:sobj" class="img-rounded"></img></p>
         <p>
 When process 119 acquires new process id, it leaves mutex by calling <code>mutex_exit()</code>. This function activates other process, 123, which may now access pid table, but it can't get process id 122 because process 123 is already sees changes made by process 119. So it takes next available pid which is 124. 
 </p>
@@ -91,7 +91,7 @@ Linux and SystemTap doesn't provide probes for tracing locks (that are used in c
 </div>
 </p>
 <p>
-<a name="lockstat"></a>
+<a name="__index___lockstat__provider__DTrace_"></a> <a name="lockstat"></a>
     <table class="table table-bordered">
         <tr>
             <td>
@@ -262,7 +262,7 @@ SystemTap probes that are shown with             <small>
 There is a separate consumer for lockstat provider in Solaris: <code>lockstat</code> is a separate utility which doesn't require a script to be written. </p>
 <p>
     <h4>
- Events</h4>
+ <a name="__index___wait_queue__Linux_"></a> Events</h4>
 </p>
 <p>
 Another type of synchronization primitives is event notifications. For example, command that is expects input on tty should be queued into corresponding queue of tty device so then user puts data into it they will be activated and can begin processing of user input. Linux provides <em>wait queues</em> to implement such behaviour with a simplified interface to them called <em>completion variable</em>. </p>
@@ -375,7 +375,7 @@ If we'd run that command, we will see similar output:</p>
 <p>
 As you can see, bash triggers <code>pipe_write()</code> function to write a character to a pipe with a <code>cat</code> process. After that <code>cat</code> process awakens from queue with head <code>0xffff8800371f6628</code> and goes through <code>finish_wait()</code> function. It reads data from pipe, notifies writers that there is free space in pipe buffer that can be written into and after putting letter to <code>/dev/null</code> sleeps again in <code>prepare_to_wait()</code> function. If we hadn't redirected cat output to <code>/dev/null</code>, than we would see longer chain of activated processes, maybe including SSH daemon process which host pty and network activity.</p>
 <p>
-In Solaris kernel event notification is performed with pair of mutex and <em>condition variable</em> of type <code>kcondvar_t</code>. It has pretty simple interface: <code>cv_wait</code> family of functions waits on condition variable (adds process to sleep queue) with optional timeout parameter and allowing signal handling, <code>cv_signal</code> notifies single thread and wakes up it, <code>cv_broadcast</code> wakes up all threads:</p>
+<a name="__index___condition_variable__Solaris_"></a> In Solaris kernel event notification is performed with pair of mutex and <em>condition variable</em> of type <code>kcondvar_t</code>. It has pretty simple interface: <code>cv_wait</code> family of functions waits on condition variable (adds process to sleep queue) with optional timeout parameter and allowing signal handling, <code>cv_signal</code> notifies single thread and wakes up it, <code>cv_broadcast</code> wakes up all threads:</p>
 <p>
     <p>
     <div class="well">

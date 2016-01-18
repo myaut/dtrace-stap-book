@@ -1,0 +1,1485 @@
+<html>
+<head>
+	<meta charset="utf-8" /> 
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="generator" content="TSDoc 0.2">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title> Appendix C. Cheatsheet
+
+</title>
+	
+	<link rel="stylesheet" href="../bootstrap/css/bootstrap.css" />
+	<link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen,handheld"/>
+	
+	<script type="text/javascript">
+	function toggleCode(id) {
+		code = document.getElementById(id);
+		hideClass = 'hide';
+		
+		if(code.classList.contains(hideClass))
+			code.classList.remove(hideClass);
+		else
+			code.classList.add(hideClass);
+	}
+	</script>
+	
+	<script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-71659121-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="navbar">
+    <div class="navbar-inner">
+	    <div class="container">
+			<a class="brand" href="../index.html">Dynamic Tracing with DTrace & SystemTap</a>
+		</div>
+    </div>
+</div>
+
+<div class="container max-height no-overflow">
+	<div id="content" nevow:render="content">
+		<div style="height: 0.0px">
+</div>
+<p>
+
+    <h3>
+ Tools</h3>
+</p>
+<p>
+    <table class="table table-bordered" style="width: 100%">
+        <tr>
+            <td>
+ </td>
+            <td>
+ <em>DTrace</em> </td>
+            <td>
+ <em>SystemTap</em></td>
+</tr>
+        <tr>
+
+            <td>
+Tool </td>
+            <td>
+ <code>dtrace(1M)</code> </td>
+            <td>
+ <code>stap(1)</code></td>
+</tr>
+        <tr>
+
+            <td>
+List probes </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace <strong>-l</strong>
+# dtrace <strong>-l -P io</strong></pre>
+</p>
+ </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap <strong>-l 'ioblock.*'</strong>
+# stap <strong>-L 'ioblock.*'</strong></pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+One-liner </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace <strong>-n</strong> '
+    syscall::read:entry { 
+        trace(arg1); } '</pre>
+</p>
+ </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap <strong>-e</strong> '
+    probe syscall.read { 
+        println(fd); } '</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Script </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace <strong>-s script.d</strong></pre>
+</p>
+ 
+(optionally add <code>-C</code> for preprocessor, <code>-q</code> for quiet mode) </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap <strong>script.stp</strong></pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Custom probe </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace <strong>-P io -n start</strong></pre>
+</p>
+ </td>
+            <td>
+ -</td>
+</tr>
+        <tr>
+
+            <td>
+Integer arguments </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace -n '
+    syscall::read:entry 
+       / cpu == <strong>$1</strong> / ' <strong>0</strong></pre>
+</p>
+ </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap -e '
+    probe syscall.read { 
+     if(cpu() != <strong>$1</strong>) next;
+       println(fd); } ' <strong>0</strong></pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+String arguments </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace -n '
+    syscall::read:entry 
+       / execname == <strong>$1</strong> / ' <strong>'"cat"'</strong></pre>
+</p>
+ </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap -e '
+    probe syscall.read { 
+     if(execname() == <strong>@1</strong>) 
+        println(fd); } ' <strong>cat</strong></pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Guru/destructive mode (                <span style="color: red;">
+!</span>
+) </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace <strong>-w</strong> ...</pre>
+</p>
+ </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap <strong>-g</strong> ...</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Redirect to file </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace <strong>-o FILE</strong> ...</pre>
+</p>
+ (appends) </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap <strong>-o FILE</strong> ...</pre>
+</p>
+ (rewrites) </td>
+</tr>
+        <tr>
+
+            <td>
+Tracing process  </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# dtrace -n '
+    syscall::read:entry 
+       / pid == <strong>$target</strong> / { ...
+         }' <strong>-c 'cat /etc/motd'</strong></pre>
+</p>
+ (or <code>-p PID</code>) </td>
+            <td>
+ 
+                   <p>
+                <pre>
+# stap -e '
+    probe syscall.read { 
+     if(pid() == <strong>target()</strong>) ...
+         } ' <strong>-c 'cat /etc/motd'</strong></pre>
+</p>
+ (or <code>-x PID</code>)</td>
+</tr>
+</table>
+</p>
+<p>
+    <h3>
+ Probe names</h3>
+</p>
+<p>
+    <table class="table table-bordered" style="width: 100%">
+        <tr>
+            <td>
+            </td>
+            <td>
+ <em>DTrace</em> </td>
+            <td>
+ <em>SystemTap</em></td>
+</tr>
+        <tr>
+
+            <td>
+Begin/end   </td>
+            <td>
+ <code>dtrace:::BEGIN</code>, <code>dtrace:::END</code> </td>
+            <td>
+ <code>begin</code>, <code>end</code></td>
+</tr>
+        <tr>
+
+            <td>
+<code>foo()</code> entry </td>
+            <td>
+ <code>fbt::foo:entry</code> </td>
+            <td>
+ <code>kernel.function("foo")</code> <br /> 
+                                   <code>module("mod").function("foo")</code></td>
+</tr>
+        <tr>
+
+            <td>
+<code>foo()</code> return </td>
+            <td>
+ <code>fbt::foo:return</code> </td>
+            <td>
+ <code>kernel.function("foo").return</code></td>
+</tr>
+        <tr>
+
+            <td>
+Wildcards </td>
+            <td>
+ <code>fbt::foo*:entry</code> </td>
+            <td>
+ <code>kernel.function("foo*")</code></td>
+</tr>
+        <tr>
+
+            <td>
+Static probe <code>mark</code> </td>
+            <td>
+ <code>sdt:::mark</code> </td>
+            <td>
+ <code>kernel.trace("mark")</code></td>
+</tr>
+        <tr>
+
+            <td>
+System call </td>
+            <td>
+ <code>syscall::read:entry</code> </td>
+            <td>
+ <code>syscall.read</code></td>
+</tr>
+        <tr>
+
+            <td>
+Timer once per second </td>
+            <td>
+ <code>tick-1s</code> </td>
+            <td>
+ <code>timer.s(1)</code></td>
+</tr>
+        <tr>
+
+            <td>
+Profiling </td>
+            <td>
+ <code>profile-997hz</code> </td>
+            <td>
+ <code>timer.profile()</code>, <code>perf.*</code></td>
+</tr>
+        <tr>
+
+            <td>
+<code>read()</code> from libc </td>
+            <td>
+ <code>pid$target:libc:read:entry</code> <br /> 
+                     Traces process with <code>pid == $target</code> </td>
+            <td>
+ 
+                     <code>process("/lib64/libc.so.6").function("read")</code> <br /> 
+                     Traces any process that loads libc</td>
+</tr>
+</table>
+</p>
+<p>
+In DTrace parts of probe name may be omitted: <code>fbt::foo:entry</code> -&gt; <code>foo:entry</code> <br />
+Units for timer probes: <code>ns</code>, <code>us</code>, <code>ms</code>, <code>s</code>, <code>hz</code>, <code>jiffies</code> (SystemTap), <code>m</code>, <code>h</code>, <code>d</code> (all three - DTrace)</p>
+<p>
+    <div style="height: 48.0px">
+</div>
+</p>
+<p>
+    <div style="position: absolute; width: 336.0px; ">
+        <p>
+
+            <h3>
+ Printing</h3>
+</p>
+        <p>
+            <table class="table table-bordered" style="width: 98%">
+                <tr>
+                    <td>
+ </td>
+                    <td>
+ <em>DTrace</em> </td>
+                    <td>
+ <em>SystemTap</em></td>
+</tr>
+                <tr>
+
+                    <td>
+Value </td>
+                    <td>
+ <code>trace(v)</code> </td>
+                    <td>
+ <code>print(v)</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Value + newline </td>
+                    <td>
+ - </td>
+                    <td>
+ <code>println(v)</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Delimited values </td>
+                    <td>
+ - </td>
+                    <td>
+ <code>printd(",",v1,v2)</code> <br /> 
+                       <code>printdln(",",v1,v2)</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Memory dump </td>
+                    <td>
+ 
+                            <p>
+                        <pre>
+tracemem(
+    ptr, 16)</pre>
+</p>
+ </td>
+                    <td>
+ <code>printf("%16M", ptr)</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Formatted </td>
+                    <td  colspan="2">
+ <code>printf("%s", str)</code> </td>
+</tr>
+                <tr>
+
+                    <td>
+Backtrace  </td>
+                    <td>
+ 
+                            <p>
+                        <pre>
+<em>u</em>stack(n) 
+<em>u</em>stack()</pre>
+</p>
+ </td>
+                    <td>
+ 
+                            <p>
+                        <pre>
+print_<em>u</em>backtrace()
+print_<em>u</em>stack(
+    <em>u</em>backtrace())</pre>
+</p>
+</td>
+</tr>
+                <tr>
+
+                    <td>
+Symbol </td>
+                    <td>
+ 
+                            <p>
+                        <pre>
+<em>u</em>sym(addr) 
+<em>u</em>func(addr)
+<em>u</em>addr(addr)</pre>
+</p>
+ </td>
+                    <td>
+ 
+                            <p>
+                        <pre>
+print(<em>u</em>symname(addr))
+print(<em>u</em>symdata(addr))</pre>
+</p>
+</td>
+</tr>
+</table>
+</p>
+        <p>
+If <em>u</em> prefix is specified, userspace symbols and backtraces are printed, if not –- kernel symbols are used</p>
+        <p>
+            <h3>
+ String operations</h3>
+</p>
+        <p>
+            <table class="table table-bordered" style="width: 100%">
+                <tr>
+                    <td>
+<em>Operation</em> </td>
+                    <td>
+ <em>DTrace</em> </td>
+                    <td>
+ <strong>SystemTap_</strong></td>
+</tr>
+                <tr>
+
+                    <td>
+Get from kernel </td>
+                    <td  rowspan="2">
+ <code>stringof(expr)</code> <br /> 
+                       <code>(string) expr</code> </td>
+                    <td>
+ <code>kernel_string*()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Convert scalar </td>
+                    <td>
+ <code>sprint()</code> and <code>sprintf()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Copy from user </td>
+                    <td>
+ <code>copyinstr()</code> </td>
+                    <td>
+ <code>user_string*()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Compare </td>
+                    <td  colspan="2">
+ <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Concat </td>
+                    <td>
+ <code>strjoin(str1, str2)</code> </td>
+                    <td>
+ <code>str1 . str2</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Get length </td>
+                    <td  colspan="2">
+ <code>strlen(str)</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Check for substring </td>
+                    <td>
+ 
+                          <p>
+                        <pre>
+strstr(
+    haystack, 
+    needle)</pre>
+</p>
+ </td>
+                    <td>
+ 
+                          <p>
+                        <pre>
+isinstr(
+     haystack, 
+     needle)</pre>
+</p>
+</td>
+</tr>
+</table>
+</p>
+        <p>
+</p>
+</div>
+</p>
+<p>
+    <div style="position: absolute; left: 56.2%; width: 336.0px; ">
+        <p>
+</p>
+        <p>
+            <h3>
+ Context variables</h3>
+</p>
+        <p>
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+<em>Description</em> </td>
+                    <td>
+ <em>DTrace</em> </td>
+                    <td>
+ <em>SystemTap</em></td>
+</tr>
+                <tr>
+
+                    <td>
+Thread </td>
+                    <td>
+ <code>curthread</code> </td>
+                    <td>
+ <code>task_current()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Thread ID </td>
+                    <td>
+ <code>tid</code> </td>
+                    <td>
+ <code>tid()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+PID </td>
+                    <td>
+ <code>pid</code> </td>
+                    <td>
+ <code>pid()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Parent PID </td>
+                    <td>
+ <code>ppid</code> </td>
+                    <td>
+ <code>ppid()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+User/group ID </td>
+                    <td>
+ <code>uid</code>/<code>gid</code> </td>
+                    <td>
+ <code>uid()</code>/<code>gid()</code> <br /> 
+                              <code>euid()</code>/<code>egid()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Executable <br /> name </td>
+                    <td>
+ <code>execname</code> <br /> 
+                      <code>curpsinfo-&gt; ps_fname</code> </td>
+                    <td>
+ <code>execname()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Command line </td>
+                    <td>
+ <code>curpsinfo-&gt; ps_psargs</code> </td>
+                    <td>
+ <code>cmdline_*()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+CPU number </td>
+                    <td>
+ <code>cpu</code> </td>
+                    <td>
+ <code>cpu()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Probe names </td>
+                    <td>
+ <code>probeprov</code> <br /> <code>probemod</code> <br /> 
+              <code>probefunc</code> <br /> <code>probename</code> </td>
+                    <td>
+ <code>pp()</code> <br /> <code>pn()</code> <br /> <code>ppfunc()</code> <br /> 
+                                         <code>probefunc()</code> <br /> <code>probemod()</code></td>
+</tr>
+</table>
+</p>
+        <p>
+            <h3>
+ Time</h3>
+</p>
+        <p>
+            <table class="table table-bordered" style="width: 100%">
+                <tr>
+                    <td>
+<em>Time source</em> </td>
+                    <td>
+ <em>DTrace</em> </td>
+                    <td>
+ <em>SystemTap</em></td>
+</tr>
+                <tr>
+
+                    <td>
+System timer </td>
+                    <td>
+ <code>`lbolt</code> <br /> <code>`lbolt64</code> </td>
+                    <td>
+ <code>jiffies()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+CPU cycles </td>
+                    <td>
+ - </td>
+                    <td>
+ <code>get_cycles()</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Monotonic time </td>
+                    <td>
+ <code>timestamp</code> </td>
+                    <td>
+ 
+                          <p>
+                        <pre>
+local_clock_<em>unit</em>()</pre>
+</p>
+ <br /> 
+                          <p>
+                        <pre>
+cpu_clock_<em>unit</em>(<em>cpu</em>)</pre>
+</p>
+</td>
+</tr>
+                <tr>
+
+                    <td>
+CPU time of thread </td>
+                    <td>
+ <code>vtimestamp</code> </td>
+                    <td>
+ -</td>
+</tr>
+                <tr>
+
+                    <td>
+Real time </td>
+                    <td>
+ <code>walltimestamp</code> </td>
+                    <td>
+ 
+                          <p>
+                        <pre>
+gettimeofday_<em>unit</em>()</pre>
+</p>
+</td>
+</tr>
+</table>
+</p>
+        <p>
+Where <em>unit</em> is one of <code>s</code>, <code>ms</code>, <code>us</code>, <code>ns</code></p>
+        <p>
+</p>
+</div>
+</p>
+<p>
+    <div style="height: 1392.0px">
+</div>
+
+    <h3>
+ Aggregations</h3>
+</p>
+<p>
+    <table class="table table-bordered" style="width: 100%">
+        <tr>
+            <td>
+<em>Time source</em> </td>
+            <td>
+ <em>DTrace</em> </td>
+            <td>
+ <em>SystemTap</em></td>
+</tr>
+        <tr>
+
+            <td>
+Add value </td>
+            <td>
+ 
+                    <p>
+                <pre>
+@aggr[keys] = <em>func</em>(value);</pre>
+</p>
+ </td>
+            <td>
+ 
+                    <p>
+                <pre>
+aggr[keys] <<< value;</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Printing </td>
+            <td>
+ 
+                    <p>
+                <pre>
+printa(@aggr);
+printa("format string", @aggr);</pre>
+</p>
+ </td>
+            <td>
+ 
+                    <p>
+                <pre>
+foreach([keys] in aggr) {
+    print(keys, @<em>func</em>(aggr[keys]));
+}</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Clear </td>
+            <td>
+ 
+    <code>clear(@aggr);</code> or <code>trunc(@aggr);</code> </td>
+            <td>
+ 
+                    <p>
+                <pre>
+delete aggr;</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Normalization by 1000 </td>
+            <td>
+ 
+                    <p>
+                <pre>
+normalize(@aggr, 1000);
+denormalize(@aggr);</pre>
+</p>
+ </td>
+            <td>
+ 
+<code>@func(aggr) / 1000</code> in printing</td>
+</tr>
+        <tr>
+
+            <td>
+Select 20 values </td>
+            <td>
+ 
+                    <p>
+                <pre>
+trunc(@aggr, 20);</pre>
+</p>
+</td>
+            <td>
+ 
+                    <p>
+                <pre>
+foreach([keys] in aggr limit 20) {
+    print(keys, @<em>func</em>(aggr[keys]));
+}</pre>
+</p>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Histograms (linear in [10;100] with step 5 and logarithmical) </td>
+            <td>
+ 
+                    <p>
+                <pre>
+@lin = lquantize(value, 10, 100, 5);
+@log = quantize(value);
+...
+printa(@lin);   printa(@log);</pre>
+</p>
+ </td>
+            <td>
+ 
+                    <p>
+                <pre>
+aggr <<< value;
+...
+print(@hist_linear(aggr, 10, 100, 5));
+print(@hist_log(aggr));</pre>
+</p>
+</td>
+</tr>
+</table>
+</p>
+<p>
+Where <em>func</em> is one of <code>count</code>, <code>sum</code>, <code>min</code>, <code>max</code>, <code>avg</code>, <code>stddev</code></p>
+<p>
+    <div style="height: 0.0px">
+</div>
+
+    <h3>
+ Process management</h3>
+</p>
+<p>
+    <div style="position: absolute; ">
+        <p>
+
+<strong>SystemTap</strong></p>
+        <p>
+Getting task_struct pointers: 
+              <ul>
+                <li>
+ <code>task_current()</code> – current task_struct 
+  </li>
+                <li>
+ <code>task_parent(t)</code> – parent of task <code>t</code> 
+  </li>
+                <li>
+ <code>pid2task(pid)</code> – task_struct by pid</li>
+</ul>
+</p>
+        <p>
+</p>
+        <p>
+Working with task_struct pointers: 
+              <ul>
+                <li>
+ <code>task_pid(t)</code> & <code>task_tid(t)</code> 
+  </li>
+                <li>
+ <code>task_state(t)</code> – 0 (running), 1-2 (blocked) 
+  </li>
+                <li>
+ <code>task_execname(t)</code></li>
+</ul>
+</p>
+        <p>
+<strong>DTrace</strong></p>
+        <p>
+<code>kthread_t* curthread</code> fields: 
+              <ul>
+                <li>
+ t_tid, t_pri, t_start, t_pctcpu</li>
+</ul>
+</p>
+        <p>
+<code>psinfo_t* curpsinfo</code> fields: 
+              <ul>
+                <li>
+ <code>pr_pid</code>, <code>pr_uid</code>, pr_gid, pr_fname, pr_psargs, pr_start</li>
+</ul>
+</p>
+        <p>
+<code>lwpsinfo_t* curlwpsinfo</code> fields: 
+              <ul>
+                <li>
+ <code>pr_lwpid</code>, <code>pr_state</code>/<code>pr_sname</code></li>
+</ul>
+</p>
+        <p>
+<code>psinfo_t*</code> and <code>lwpsinfo_t*</code> are passed to some <code>proc:::</code> probes</p>
+        <p>
+</p>
+</div>
+</p>
+<p>
+    <div style="position: absolute; left: 58.3%; ">
+        <p>
+<img src="../images/forkproc.png" alt="image:forkproc" height="408.0" class="img-rounded" width="438.75"></img>
+</p>
+</div>
+</p>
+<p>
+    <div style="height: 648.0px">
+</div>
+
+    <h3>
+ Scheduler</h3>
+</p>
+<p>
+    <div style="position: absolute; ">
+        <p>
+<img src="../images/sched.png" alt="image:sched" height="284.8" class="img-rounded" width="380.16"></img>
+</p>
+</div>
+</p>
+<p>
+    <div style="position: absolute; left: 43.2%; width: 420.0px; ">
+        <p>
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+      </td>
+                    <td>
+ <em>DTrace</em> </td>
+                    <td>
+ <em>SystemTap</em></td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>1</strong> </td>
+                    <td>
+ <code>sched:::dequeue</code> </td>
+                    <td>
+ <code>kernel.function("dequeue_task")</code></td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>2</strong> </td>
+                    <td>
+ <code>sched:::on-cpu</code> </td>
+                    <td>
+ <code>scheduler.cpu_on</code></td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>3</strong> </td>
+                    <td>
+ <code>sched:::off-cpu</code> </td>
+                    <td>
+ <code>scheduler.cpu_off</code></td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>4</strong> </td>
+                    <td>
+ <code>sched:::enqueue</code> </td>
+                    <td>
+ <code>kernel.function("enqueue_task")</code></td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>5</strong> </td>
+                    <td>
+ - </td>
+                    <td>
+ <code>scheduler.migrate</code></td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>6</strong> </td>
+                    <td>
+ <code>sched:::sleep</code> </td>
+                    <td>
+ -</td>
+</tr>
+                <tr>
+
+                    <td>
+<strong>7</strong> </td>
+                    <td>
+ <code>sched:::wakeup</code> </td>
+                    <td>
+ <code>scheduler.wakeup</code></td>
+</tr>
+</table>
+
+</p>
+</div>
+</p>
+<p>
+    <div style="height: 432.0px">
+</div>
+
+    <h3>
+ Virtual memory</h3>
+</p>
+<p>
+    <div style="position: absolute; ">
+        <p>
+
+            <h5>
+ Probes</h5>
+</p>
+        <p>
+<strong>SystemTap</strong></p>
+        <p>
+              <ul>
+                <li>
+ <code>vm.brk</code> – allocating heap
+  </li>
+                <li>
+ <code>vm.mmap</code> – allocating anon memory
+  </li>
+                <li>
+ <code>vm.munmap</code> – freeing anon memory</li>
+</ul>
+</p>
+        <p>
+ 
+<strong>DTrace</strong></p>
+        <p>
+              <ul>
+                <li>
+ <code>as_map:entry</code> – allocating proc mem
+  </li>
+                <li>
+ <code>as_unmap:entry</code> – freeing proc mem</li>
+</ul>
+</p>
+        <p>
+</p>
+</div>
+</p>
+<p>
+    <div style="position: absolute; left: 43.2%; width: 420.0px; ">
+        <p>
+
+            <h6>
+ Page faults
+                <table class="table table-bordered">
+                    <tr>
+                        <td>
+<em>Type</em> </td>
+                        <td>
+ <em>DTrace</em> </td>
+                        <td>
+ <em>SystemTap</em></td>
+</tr>
+                    <tr>
+
+                        <td>
+<em>Any</em> </td>
+                        <td>
+ <code>vminfo::as_fault</code> </td>
+                        <td>
+ <code>vm.pagefault</code> <br /> 
+                             <code>vm.pagefault.return</code> <br /> 
+                             <code>perf.sw.page_faults</code></td>
+</tr>
+                    <tr>
+
+                        <td>
+<em>Minor</em> </td>
+                        <td>
+  </td>
+                        <td>
+ <code>perf.sw.page_faults_min</code></td>
+</tr>
+                    <tr>
+
+                        <td>
+<em>Major</em> </td>
+                        <td>
+ <code>vminfo:::maj_fault</code> </td>
+                        <td>
+ <code>perf.sw.page_faults_maj</code></td>
+</tr>
+                    <tr>
+
+                        <td>
+<em>CoW</em> </td>
+                        <td>
+ <code>vminfo:::cow_fault</code> </td>
+                        <td>
+</td>
+</tr>
+                    <tr>
+
+                        <td>
+<em>Protection</em> </td>
+                        <td>
+ <code>vminfo:::prot_fault</code> </td>
+                        <td>
+</td>
+</tr>
+</table>
+
+</h6>
+</p>
+</div>
+</p>
+<p>
+    <div style="height: 432.0px">
+</div>
+
+    <h3>
+ Block Input-Output</h3>
+</p>
+<p>
+    <div style="position: absolute; width: 280.0px; ">
+        <p>
+
+Block request structure fields:</p>
+        <p>
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+<em>Field</em> </td>
+                    <td>
+ <code>bufinfo_t</code> <br /> <code>struct buf</code> </td>
+                    <td>
+ <code>struct bio</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Flags </td>
+                    <td>
+ <code>b_flags</code> </td>
+                    <td>
+ <code>bi_flags</code></td>
+</tr>
+                <tr>
+
+                    <td>
+R/W </td>
+                    <td>
+ <code>b_flags</code><em> </em></td>
+                    <td>
+ <code>bi_rw</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Size </td>
+                    <td>
+ <code>b_bcount</code> </td>
+                    <td>
+ <code>bi_size</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Block </td>
+                    <td>
+ <code>b_blkno</code> <br /> <code>b_lblkno</code> </td>
+                    <td>
+ <code>bi_sector</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Callback </td>
+                    <td>
+ <code>b_iodone</code> </td>
+                    <td>
+ <code>bi_end_io</code></td>
+</tr>
+                <tr>
+
+                    <td>
+Device </td>
+                    <td>
+ <code>b_edev</code> <br /> <code>b_dip</code> </td>
+                    <td>
+ <code>bi_bdev</code></td>
+</tr>
+</table>
+</p>
+        <p>
+* flags <code>B_WRITE</code>, <code>B_READ</code> </p>
+        <p>
+</p>
+</div>
+</p>
+<p>
+    <div style="position: absolute; left: 47.5%; ">
+        <p>
+<img src="../images/bio.png" alt="image:bio" height="360.0" class="img-rounded" width="666.0"></img>
+</p>
+</div>
+</p>
+<p>
+    <div style="height: 528.0px">
+</div>
+
+    <h3>
+ Network stack</h3>
+</p>
+<p>
+<img src="../images/netprobes2.png" alt="image:netprobes" class="img-rounded"></img></p>
+<p>
+    <h3>
+ Non-native languages</h3>
+</p>
+<p>
+    <table class="table table-bordered" style="width: 100%">
+        <tr>
+            <td>
+<strong>Function call</strong>  </td>
+            <td>
+ <em>DTrace</em> </td>
+            <td>
+ <em>SystemTap</em></td>
+</tr>
+        <tr>
+
+            <td>
+Java* </td>
+            <td>
+ 
+<code>method-entry</code>                                  
+                  <ul>
+                    <li>
+ arg0 — internal JVM thread's identifier     
+  </li>
+                    <li>
+ arg1:arg2 — class name                      
+  </li>
+                    <li>
+ arg3:arg4 — method name                     
+  </li>
+                    <li>
+ arg5:arg6 — method signature              </li>
+</ul>
+</td>
+            <td>
+ 
+<code>hotspot.method_entry</code>                          
+                  <ul>
+                    <li>
+ thread_id — internal JVM thread's identifier
+  </li>
+                    <li>
+ class — class name                          
+  </li>
+                    <li>
+ method — method name                        
+  </li>
+                    <li>
+ sig — method signature</li>
+</ul>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Perl </td>
+            <td>
+ 
+<code>perl$target:::sub-entry</code>                       
+                  <ul>
+                    <li>
+ <code>arg0</code> –- subroutine name                   
+  </li>
+                    <li>
+ <code>arg1</code> –- source file name                  
+  </li>
+                    <li>
+ <code>arg2</code> –- line number                     </li>
+</ul>
+</td>
+            <td>
+ 
+<code>process("...").mark("sub__entry")</code>             
+                  <ul>
+                    <li>
+ <code>$arg1</code> –- subroutine name                  
+  </li>
+                    <li>
+ <code>$arg2</code> –- source file name                 
+  </li>
+                    <li>
+ <code>$arg3</code> –- line number</li>
+</ul>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Python </td>
+            <td>
+ 
+<code>python$target:::function-entry</code>                
+                  <ul>
+                    <li>
+ <code>arg0</code> –- source file name                  
+  </li>
+                    <li>
+ <code>arg1</code> –- function name                   </li>
+</ul>
+</td>
+            <td>
+ 
+<code>python.function.entry</code>                         
+                  <ul>
+                    <li>
+ <code>$arg1</code> –- source file name                 
+  </li>
+                    <li>
+ <code>$arg2</code> –- function name</li>
+</ul>
+</td>
+</tr>
+        <tr>
+
+            <td>
+PHP </td>
+            <td>
+ 
+<code>function-entry</code>                                
+                  <ul>
+                    <li>
+ <code>arg0</code> — function name                      
+  </li>
+                    <li>
+ <code>arg1</code> — file name                          
+  </li>
+                    <li>
+ <code>arg2</code> — line number                        
+  </li>
+                    <li>
+ <code>arg3</code> — class name                         
+  </li>
+                    <li>
+ <code>arg4</code> — scope operator <code>::</code>            </li>
+</ul>
+</td>
+            <td>
+   
+<code>process("...").mark("function__entry")</code>        
+                  <ul>
+                    <li>
+ <code>$arg1</code> — function name                     
+  </li>
+                    <li>
+ <code>$arg2</code> — file name                         
+  </li>
+                    <li>
+ <code>$arg3</code> — line number                       
+  </li>
+                    <li>
+ <code>$arg4</code> — class name                        
+  </li>
+                    <li>
+ <code>$arg5</code> — scope operator <code>::</code></li>
+</ul>
+</td>
+</tr>
+</table>
+</p>
+<p>
+    <small>
+*requires <code>-XX:+DTraceMethodProbes</code> </small>
+</p>
+<p>
+</p>
+
+	</div>
+</div>
+
+<!-- TAIL -->
+
+<div class="navbar navbar-bottom">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav pull-center">
+<li><a href="../index.html"><strong>Up</strong>(Dynamic Tracing with DTrace & SystemTap)</a></li>
+</ul>
+        </div>
+    </div>
+</div>
+
+<ul class="breadcrumb">
+    <li><a href="https://github.com/myaut/dtrace-stap-book"><small>GitHub</small></a> <span class="divider">|</span></li>
+    <li><a href="https://bitbucket.org/sergey_klyaus/dtrace-stap-book"><small>BitBucket</small></a> <span class="divider">|</span></li>
+    <li style="float: right; ">
+        <small>
+        Published under terms of <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC-BY-NC-SA 3.0</a> license.
+        </small>
+    </li>
+</ul>
+</body>
+</html>

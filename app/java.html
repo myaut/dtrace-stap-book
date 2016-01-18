@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Java Virtual Machine</h3>
+ <a name="__index___Java_Virtual_Machine"></a> Java Virtual Machine</h3>
 <p>
 DTrace and SystemTap are intended to trace applications written in native languages like C or C++ and dependent on compiler ABIs. If application requires virtual machine (in case it is interpreted or translated on-the-fly), virtual machine has to implement USDT probes so it can be traceable by DTrace or SystemTap. For example Zend PHP keeps call arguments in a global object, so you have to access that object to get arguments values instead of using <code>arg0-argN</code> syntax. </p>
 <p>
@@ -61,21 +61,21 @@ Same works for <em>Java Virtual Machine</em>. Oracle's implementation of JVM, ca
 <p>
 By default <code>hotspot</code> provider allows to trace only rare events, such as class loading, starting and stopping threads, VM-wide and GC-wide events and JIT compiler events. That was done to reduce overheads of USDT probes. For example, to trace methods, compiler has to inject two calls into produced code:</p>
 <p>
-<img src="../images/java.png" alt="image:java" class="img-rounded"/></p>
+<img src="../images/java.png" alt="image:java" class="img-rounded"></img></p>
 <p>
 To enable additional probes, use following <code>java</code> command line options:
         <ul>
         <li>
- <code>-XX:+DTraceMethodProbes</code> -- enables function boundary tracing for methids
+ <code>-XX:+DTraceMethodProbes</code> –- enables function boundary tracing for methids
     </li>
         <li>
- <code>-XX:+DTraceAllocProbes</code> -- enables tracing of object allocation and deallocation
+ <code>-XX:+DTraceAllocProbes</code> –- enables tracing of object allocation and deallocation
     </li>
         <li>
- <code>-XX:+DTraceMonitorProbes</code> -- enables object monitors tracing 
+ <code>-XX:+DTraceMonitorProbes</code> –- enables object monitors tracing 
     </li>
         <li>
- <code>-XX:+ExtendedDTraceProbes</code> -- enables all of events listed above</li>
+ <code>-XX:+ExtendedDTraceProbes</code> –- enables all of events listed above</li>
 </ul>
 </p>
 <p>
@@ -269,7 +269,7 @@ method-entry [ 9] java/io/PrintStream.println</pre>
 <p>
 You can see that when thread leaves <code>Thread.sleep()</code> method, it acquires monitor of <code>Greeting</code> object, calls  <code>Greeting.greet()</code> method which  will call <code>PrintStream.println()</code> method to output line. </p>
 <p>
-Here are list of probes provided by JVM in <code>hotspot$target</code> DTrace provider and <code>hotspot</code> tapset:</p>
+<a name="__index___hotspot__tapset__SystemTap_"></a> <a name="__index___hotspot__provider__DTrace_"></a> Here are list of probes provided by JVM in <code>hotspot$target</code> DTrace provider and <code>hotspot</code> tapset:</p>
 <p>
     <table class="table table-bordered">
         <tr>
@@ -361,6 +361,63 @@ Stop </td>
  
 <code>hotspot.thread_stop</code>                       <br /> 
   Arguments are same as for <code>hotspot.thread_start</code></td>
+</tr>
+        <tr>
+
+            <td  colspan="3">
+ <strong>Methods</strong></td>
+</tr>
+        <tr>
+
+            <td>
+Call </td>
+            <td>
+ 
+<code>method-entry</code>                                  
+                  <ul>
+                    <li>
+ arg0 — internal JVM thread's identifier     
+  </li>
+                    <li>
+ arg1:arg2 — class name                      
+  </li>
+                    <li>
+ arg3:arg4 — method name                     
+  </li>
+                    <li>
+ arg5:arg6 — method signature              </li>
+</ul>
+</td>
+            <td>
+ 
+<code>hotspot.method_entry</code>                          
+                  <ul>
+                    <li>
+ thread_id — internal JVM thread's identifier
+  </li>
+                    <li>
+ class — class name                          
+  </li>
+                    <li>
+ method — method name                        
+  </li>
+                    <li>
+ sig — method signature</li>
+</ul>
+</td>
+</tr>
+        <tr>
+
+            <td>
+Return </td>
+            <td>
+ 
+<code>method-return</code>                                 
+  Arguments are same as for  method-entry       
+<code>hotspot.method_return</code>                       </td>
+            <td>
+ 
+  Arguments are same as for  hotspot.method_entry</td>
 </tr>
         <tr>
 
@@ -766,9 +823,8 @@ That attempt will fail, but it will lead DTrace to extract required helper funct
 </div>
 </p>
 <p>
-<a name="jsdt"></a>
     <h4>
- JSDT</h4>
+ <a name="__index___Java_Statically_Defined_Tracing"></a> <a name="jsdt"></a> JSDT</h4>
 </p>
 <p>
 You could notice that we can't extract method's arguments in method probes like we did it in other places via args array. That complicates Java application tracing. As you can remember from USDT description, in DTrace applications can register their probes within DTrace. This is also true for Java applications which can provide <em>Java Statically Defined Tracing</em> probes (JSDT). It is supported only in DTrace and only in BSD or Solaris.</p>

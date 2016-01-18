@@ -88,16 +88,16 @@ Language interpreters provide not only function entry probes, here are other exa
  Function entry and exit probes.
                     <ul>
                 <li>
- In PHP and Python -- <code>function-entry</code>/<code>function-return</code>.
+ In PHP and Python –- <code>function-entry</code>/<code>function-return</code>.
         </li>
                 <li>
- In Perl -- <code>sub-entry</code>/<code>sub-return</code>.
+ In Perl –- <code>sub-entry</code>/<code>sub-return</code>.
         </li>
                 <li>
- In Ruby -- <code>method-entry</code>/<code>method-return</code>.
+ In Ruby –- <code>method-entry</code>/<code>method-return</code>.
         </li>
                 <li>
- In Tcl -- <code>proc-entry</code>/<code>proc-return</code>.
+ In Tcl –- <code>proc-entry</code>/<code>proc-return</code>.
     </li>
 </ul>
 </li>
@@ -284,7 +284,7 @@ We have used non-existent <code>foo</code> provider in DTrace example because li
 <p>
 Arguments and local variables are also inaccessible directly by SystemTap or DTrace when program in non-native language is traced. That happens because they are executed within virtual machine which has its own representation of function frame which is different from CPU representation: languages with dynamic typing are more likely to keep local variables in a dict-like object than in a stack. These frame and dict-like objects, however, are usually implemented in C and available for dynamic tracing. All that you have to do is to provide their layout. </p>
 <p>
-Let's see how this can be done for Python 3 in Solaris and Linux. If you try to get backtrace of program interpreted by Python 3, you will probably see function named <code>PyEval_EvalCodeEx</code> which is responsible for evaluation of code object. Code object itself has type <code>PyCodeObject</code> and passed as first argument of that function. That structure has fields like <code>co_firstlineno</code>, <code>co_name</code> and <code>co_filename</code>. Last two fields not just C-style strings but kind of <code>PyUnicodeObject</code> -- an object which represents strings in Python 3. It have multiple layouts, but we rely on the simplest one: compacted ASCII strings. That may not be true for all string objects in the program, but that works fine for objects produced by the interpreter itself like code objects.</p>
+Let's see how this can be done for Python 3 in Solaris and Linux. If you try to get backtrace of program interpreted by Python 3, you will probably see function named <code>PyEval_EvalCodeEx</code> which is responsible for evaluation of code object. Code object itself has type <code>PyCodeObject</code> and passed as first argument of that function. That structure has fields like <code>co_firstlineno</code>, <code>co_name</code> and <code>co_filename</code>. Last two fields not just C-style strings but kind of <code>PyUnicodeObject</code> –- an object which represents strings in Python 3. It have multiple layouts, but we rely on the simplest one: compacted ASCII strings. That may not be true for all string objects in the program, but that works fine for objects produced by the interpreter itself like code objects.</p>
 <p>
 DTrace cannot recognize type information from Python libraries, but it supports <code>struct</code> definitions in the code. We will use it to provide <code>PyCodeObject</code> and <code>PyUnicodeObject</code> layouts in a separate file <code>pycode.h</code>. DTrace syntax is pretty much like C syntax, so these definitions are almost copy-and-paste from Python sources. Here is an example of DTrace scripts which trace python program execution:</p>
 <p>

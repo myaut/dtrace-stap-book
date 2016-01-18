@@ -57,15 +57,15 @@
 <p>
 SystemTap is not part of Linux Kernel, so it have to adapt to kernel changes: i.e. sometimes runtime and code-generator have to adapt to new kernel releases. Also, Linux kernels in most distributions are stripped which means that debug information in DWARF format or symbol tables are removed. SystemTap supports <em>DWARF-less</em> tracing, but it has very limited capabilities, so we need to provide DWARF information to it.</p>
 <p>
-Many distributions have separate packages with debug information: packages with <code>-debuginfo</code> suffix on RPM-based distributions, packages with <code>-dbg</code> on Debian-based distributions. They have files that originate from same build the binary came from (it is crucial for SystemTap because it verifies buildid of kernel), but instead of text and data sections they contain debug sections. For example, RHEL need <code>kernel-devel</code>, <code>kernel-debuginfo</code> and <code>kernel-debuginfo-common</code> packages to make SystemTap working. Recent SystemTap versions have <code>stap-prep</code> tool that automatically install kernel debuginfo from appropriate repositories with correct versions.</p>
+<a name="__index___debuginfo_packages__Linux_"></a> Many distributions have separate packages with debug information: packages with <code>-debuginfo</code> suffix on RPM-based distributions, packages with <code>-dbg</code> on Debian-based distributions. They have files that originate from same build the binary came from (it is crucial for SystemTap because it verifies buildid of kernel), but instead of text and data sections they contain debug sections. For example, RHEL need <code>kernel-devel</code>, <code>kernel-debuginfo</code> and <code>kernel-debuginfo-common</code> packages to make SystemTap working. Recent SystemTap versions have <code>stap-prep</code> tool that automatically install kernel debuginfo from appropriate repositories with correct versions.</p>
 <p>
 For vanilla kernels you will need to configure <code>CONFIG_DEBUG_INFO</code> option so debug information will be linked with kernel. You will also need to set <code>CONFIG_KPROBES</code> to allow SystemTap patching kernel code, <code>CONFIG_RELAY</code> and <code>CONFIG_DEBUG_FS</code> to allow transfer information between buffers and consumer and <code>CONFIG_MODULES</code> with <code>CONFIG_MODULE_UNLOAD</code> to provide module facilities. You will also need uncompressed <code>vmlinux</code> file and kernel sources located in <code>/lib/modules/$(uname -r)/build/</code>.</p>
 <p>
 SystemTap doesn't have VM in-kernel (unlike DTrace and KTap), instead it generates kernel module source written in C than builds it, so you will also need a compiler toolchain (<code>make</code>, <code>gcc</code> and <code>ld</code>). Compilation takes five phases: <em>parse</em>, <em>elaborate</em> in which tapsets and debuginfo is linked with script, <em>translate</em> in which C code is generated, <em>compile</em> and <em>run</em>:</p>
 <p>
-<img src="../images/stapprocess.png" alt="image:stapprocess" class="img-rounded"/></p>
+<img src="../images/stapprocess.png" alt="image:stapprocess" class="img-rounded"></img></p>
 <p>
-SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. <em>Tapsets</em> are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during <em>elaborate</em> stage. <em>Runtime</em> is written in C and used during <em>compile</em> stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. </p>
+<a name="__index___runtime__SystemTap_"></a> SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. <em>Tapsets</em> are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during <em>elaborate</em> stage. <em>Runtime</em> is written in C and used during <em>compile</em> stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. </p>
 <p>
 Unlike DTrace, SystemTap has several front-end tools with different capabilities:
      <ul>
@@ -88,10 +88,8 @@ If <code>stap</code> parent is exited, than <code>killall -9 stap</code> won't f
 </div>
 </p>
 <p>
-<a name="stap"></a></p>
-<p>
     <h4>
- stap </h4>
+ <a name="stap"></a>  <a name="__index___stap_1_"></a> stap </h4>
 </p>
 <p>
 Like many other scripting tools, SystemTap accepts script as command line option or external file, for example:
@@ -114,25 +112,25 @@ Here are some useful <code>stap(1)</code> options:
    <code># stap -l 'scsi.*'</code>
  </li>
         <li>
- <code>-v</code> -- increases verbosity of SystemTap. The more letters you passed, the more diagnostic information will be printed. If only one <code>-v</code> was passed, <code>stap</code> will report only finishing of each stage.
+ <code>-v</code> –- increases verbosity of SystemTap. The more letters you passed, the more diagnostic information will be printed. If only one <code>-v</code> was passed, <code>stap</code> will report only finishing of each stage.
  </li>
         <li>
- <code>-p STAGE</code> -- ends stap process after <em>STAGE</em>, represented with a number starting with 1 (<em>parse</em>). 
+ <code>-p STAGE</code> –- ends stap process after <em>STAGE</em>, represented with a number starting with 1 (<em>parse</em>). 
  </li>
         <li>
- <code>-k</code> -- stap tool won't delete SystemTap temporary files created during compilation (sources and kernel modules kept in <code>/tmp/stapXXXX</code> directory),
+ <code>-k</code> –- stap tool won't delete SystemTap temporary files created during compilation (sources and kernel modules kept in <code>/tmp/stapXXXX</code> directory),
  </li>
         <li>
- <code>-g</code> -- enables Guru-mode, that allows to bind to blacklisted probes and write into kernel memory along with using Embedded C in your scripts. Generally speaking, it allows dangerous actions.
+ <code>-g</code> –- enables Guru-mode, that allows to bind to blacklisted probes and write into kernel memory along with using Embedded C in your scripts. Generally speaking, it allows dangerous actions.
  </li>
         <li>
- <code>-c COMMAND</code> and <code>-x PID</code> -- like those in DTrace, they allow to bind SystemTap to a specific process
+ <code>-c COMMAND</code> and <code>-x PID</code> –- like those in DTrace, they allow to bind SystemTap to a specific process
  </li>
         <li>
- <code>-o FILE</code> -- redirects output to a file. If it already exists, SystemTap <strong>rewrites</strong> it.
+ <code>-o FILE</code> –- redirects output to a file. If it already exists, SystemTap <strong>rewrites</strong> it.
  </li>
         <li>
- <code>-m NAME</code> -- when compiling a module, give it meaningful name instead of <code>stap_&lt;gibberish&gt;</code>.</li>
+ <code>-m NAME</code> –- when compiling a module, give it meaningful name instead of <code>stap_&lt;gibberish&gt;</code>.</li>
 </ul>
 </p>
 <p>
@@ -140,13 +138,13 @@ Here are some useful <code>stap(1)</code> options:
 When SystemTap needs to resolve address into a symbol (for example, instruction pointer to a corresponding function name), it doesn't look into libraries or kernel modules. Here are some useful command-line options that enable that:
      <ul>
         <li>
- <code>-d MODULEPATH</code> -- enables symbol resolving for a specific library or kernel module. Note that in case it is not provided, <code>stap</code> will print a warning with corresponding <code>-d</code> option. 
+ <code>-d MODULEPATH</code> –- enables symbol resolving for a specific library or kernel module. Note that in case it is not provided, <code>stap</code> will print a warning with corresponding <code>-d</code> option. 
  </li>
         <li>
- <code>--ldd</code> -- for tracing process -- use <code>ldd</code> to add all linked libraries for a resolving.
+ <code>--ldd</code> –- for tracing process –- use <code>ldd</code> to add all linked libraries for a resolving.
  </li>
         <li>
- <code>--all-modules</code> -- enable resolving for all kernel modules</li>
+ <code>--all-modules</code> –- enable resolving for all kernel modules</li>
 </ul>
 </p>
 <p>
@@ -194,16 +192,16 @@ root@host# stap /root/test.stp -c "dd if=/dev/zero of=/dev/null count=1"</pre>
 <p>
      <ul>
         <li>
- <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stap.1.html">STAP</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/man/stap.1.html">STAP</a>
  </li>
         <li>
- <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/staprun.8.html">STAPRUN</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/man/staprun.8.html">STAPRUN</a>
  </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00025000000000000000">The stap command</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00025000000000000000">The stap command</a>
  </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00067000000000000000">Literals passed in from the stap command line</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00067000000000000000">Literals passed in from the stap command line</a></li>
 </ul>
 </p>
 

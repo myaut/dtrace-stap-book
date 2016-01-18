@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Predicates </h3>
+ <a name="__index___predicate"></a> Predicates </h3>
 <p>
 <em>Predicates</em> are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> and logical operators <code>&&</code> for logical AND, <code>||</code> for logical OR and <code>!</code> for logical negation, alas with calling functions or actions.</p>
 <p>
@@ -90,7 +90,7 @@ probe syscall.write if(i > 4) {
 
 This probe will be installed when <code>i</code> becomes more than four. </p>
 <p>
-<code>$target</code> in DTrace (macro-substitution) and <code>target()</code> context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as <code>-c</code> option argument or its PID was passed as <code>-p</code>/<code>-x</code> option argument). In these examples only <code>write</code> syscalls from traced process will be printed.</p>
+<a name="__index___processes__grabbing_PID"></a> <code>$target</code> in DTrace (macro-substitution) and <code>target()</code> context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as <code>-c</code> option argument or its PID was passed as <code>-p</code>/<code>-x</code> option argument). In these examples only <code>write</code> syscalls from traced process will be printed.</p>
 <p>
 <span class="label label-warning">Warning</span>    <div class="well">
         <p>

@@ -134,7 +134,7 @@ Shell scripts have overhead caused by need to spawn new processes for basic oper
  time, spent for <code>fork()</code> and <code>execve()</code> system calls;
  </li>
         <li>
- time, spent for child process initialization in userspace: closing files and resetting signals -- it is time interval between finish of <code>fork()</code> call in child context and calling of <code>execve()</code>;
+ time, spent for child process initialization in userspace: closing files and resetting signals –- it is time interval between finish of <code>fork()</code> call in child context and calling of <code>execve()</code>;
  </li>
         <li>
  own program time after it was loaded with <code>execve()</code> and before it was exited.</li>

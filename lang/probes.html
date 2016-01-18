@@ -53,18 +53,18 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Probes</h3>
+ <a name="__index___probe"></a> Probes</h3>
 <p>
 <span class="label label-inverse">Definition</span>    <div class="well">
         <p>
-<em>Probe</em> -- is a handler of kernel or application event. When probe is installed into kernel or application, so it can handle such event, we will call it <em>attaching a probe</em> or <em>binding a probe</em>. When event occurs and probe code is executing, we will say <em>probe is firing</em>.
+<em>Probe</em> –- is a handler of kernel or application event. When probe is installed into kernel or application, so it can handle such event, we will call it <em>attaching a probe</em> or <em>binding a probe</em>. When event occurs and probe code is executing, we will say <em>probe is firing</em>.
 </p>
 </div>
 </p>
 <p>
 For example, let's see how synchronous writing to a disk is performed in Linux and what can be traced:</p>
 <p>
-<img src="../images/probes.png" alt="image:probes" class="img-rounded"/></p>
+<img src="../images/probes.png" alt="image:probes" class="img-rounded"></img></p>
 <p>
 When process wants to start synchronous write, it issues <code>write()</code> system call and by doing that it transfers control to a kernel code, to a <code>sys_write()</code> function in particular. This function eventually calls a <code>submit_bio()</code> function which pushes data from user process to a queue of corresponding disk device. If we attach probes to these functions, we can gather the following information:
       <ul>
@@ -96,7 +96,7 @@ probe scheduler.cpu_on {
 </p>
 </p>
 <p>
-Probe names in DTrace are four identifiers separated by colons: <code>Provider:Module:Function:Name[-Parameter]</code>.
+<a name="__index___provider__DTrace_"></a> Probe names in DTrace are four identifiers separated by colons: <code>Provider:Module:Function:Name[-Parameter]</code>.
      <ul>
         <li>
  <em>Provider</em> is a hint to DTrace on how to attach a probe. Different providers usually have different mechanisms of attachment. 
@@ -157,7 +157,7 @@ probe kernel.function("unknown_function") ?</pre>
 </p>
 <p>
     <h4>
- Function boundary tracing</h4>
+ <a name="__index___function_boundary_tracing"></a> Function boundary tracing</h4>
 </p>
 <p>
 Function boundary tracing is the largest and most generic class of tracing. Function boundary probes attach to entry point or exit (hence bounds) from a function. Since most functions begin with saving stack and end with <code>retq</code> or similar instruction, tracer simply patches that instruction, by simply replacing it to interrupt or call (depending on a platform). That interrupt is intercepted by probe code which after execution returns control to function, like in <code>submit_bio</code> case described above. Here are similar example for Solaris and DTrace:</p>
@@ -224,13 +224,13 @@ module(<em>module-pattern</em>).statement(<em>function-pattern</em>)</pre>
 When we will use following syntax for probe names:
              <ul>
                 <li>
- <code>{x|y|z}</code> -- one of the options 
+ <code>{x|y|z}</code> –- one of the options 
  </li>
                 <li>
- <code>[optional]</code> -- optional part of name which can be omitted
+ <code>[optional]</code> –- optional part of name which can be omitted
  </li>
                 <li>
- <em>parameter</em> -- changeable parameter which can have different values described below
+ <em>parameter</em> –- changeable parameter which can have different values described below
 </li>
 </ul>
 </p>
@@ -276,7 +276,7 @@ syscall::<em>system-call-name</em>:{entry|return}</pre>
 Note that if you omit provider name, some probes will match both function and system calls, so probe will fire twice.</p>
 <p>
     <h4>
- Statically defined tracing</h4>
+ <a name="__index___statically_defined_tracing"></a> Statically defined tracing</h4>
 </p>
 <p>
 Sometimes is function boundary tracing is not enough: an event may occur inside function, or may be spread through different functions. In <strong>DTrace</strong> and Solaris, for example, there are two implementations of scheduler functions that are responsible for stealing task from cpu: older <code>disp_getbest</code> and newer and available in newer versions of Solaris: <code>disp_getkpq</code>. But they both provide <code>steal</code> probe that fires when dispatcher moves a thread to idle CPU: <code>sdt:::steal</code> or simply <code>steal</code>. You can still distinguish these probes by explicitly setting function name: <code>sdt::disp_getbest:steal</code>.</p>
@@ -340,16 +340,15 @@ In ideal case, statically defined probe is just a <code>nop</code> instruction o
 <p>
 Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as <em>alias probe</em>. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by <a href="tapset.html">Translators and tapsets</a> topic. </p>
 <p>
-<a name="timers"></a>
     <h4>
- Timers and service probes</h4>
+ <a name="__index___timer_probes"></a> <a name="timers"></a> Timers and service probes</h4>
 </p>
 <p>
 These probes are not related to a kernel events, but to execution of tracing script itself. They may trace starting of script, end of it and occured error, thus handle initialization of global variables and printing results on end of script execution. Another kind of service probe is timer probe, which is called every ΔT time on one or all system CPUs. Timers are useful for creating stat-like utilities which print data every second or for profiling. </p>
 <p>
 Take for example profiler probe which records task name from <code>current</code> pointer (it always points to task executing on CPU now):</p>
 <p>
-<img src="../images/timer-probe.png" alt="image:timer-probe" class="img-rounded"/></p>
+<img src="../images/timer-probe.png" alt="image:timer-probe" class="img-rounded"></img></p>
 <p>
 So if we count that timer probe has fired two times, once in context of left process and once in context of right process, we can conclude that they both consume 50% of CPU time, like <code>prstat</code> and <code>top</code> utilities do. Profiling will be covered in <a href="../principles/profiling.html">Profiling</a> section of Module 3.</p>
 <p>
@@ -383,7 +382,7 @@ For example <code>tick-1s</code> will fire every second. Note that, not all plat
 <p>
 SystemTap and DTrace support the following timer units:</p>
 <p>
-    <table class="table table-bordered">
+    <table class="table table-bordered" style="width: 40%">
         <tr>
             <td  colspan="2">
  <strong>Unit</strong> </td>
@@ -565,16 +564,16 @@ Lets take following C code as an example (assuming it is located in kernel-space
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-prog/index.html">D Program Structure</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fbt/index.html">fbt Provider</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-sdt/index.html">sdt Provider</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-profile/index.html">profile Provider</a></li>
 </ul>
 </p>
 <p>
@@ -584,10 +583,10 @@ Lets take following C code as an example (assuming it is located in kernel-space
 <p>
     <ul>
         <li>
- <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"/> <a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a>
+ <img src="../images/icons/manpage.png" alt="image:manpage" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/man/stapprobes.3stap.html">STAPPROBES</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Probe_points.html">Probe points</a></li>
 </ul>
 </p>
 

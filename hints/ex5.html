@@ -59,7 +59,7 @@ We will need to access pointer to <code>block_device</code> pointer in Linux to 
 <p>
 We will attach probes to <code>vfs_write()</code> and <code>vfs_read()</code> functions to trace filesystem operations. First argument of that functions is pointer to file of type <code>struct file*</code>. Amount of data being written or read is passed through argument <code>$count</code>. </p>
 <p>
-BIO level can be traced with <code>ioblock</code> tapset. We will do so by using its <code>ioblock.request</code> probe. It has following arguments: <code>bdev</code> -- <code>block_device</code> pointer, <code>size</code> -- amount of data in request, <code>rw</code> -- read or write flag which can be tested for equality with <code>BIO_READ</code> or <code>BIO_WRITE</code> constants.</p>
+BIO level can be traced with <code>ioblock</code> tapset. We will do so by using its <code>ioblock.request</code> probe. It has following arguments: <code>bdev</code> –- <code>block_device</code> pointer, <code>size</code> –- amount of data in request, <code>rw</code> –- read or write flag which can be tested for equality with <code>BIO_READ</code> or <code>BIO_WRITE</code> constants.</p>
 <p>
 Here is resulting <code>deblock.stp</code> script:</p>
 <p>

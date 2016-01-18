@@ -53,11 +53,11 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Time</h3>
+ <a name="__index___monotonic_time"></a> <a name="__index___wall_clock_time"></a> Time</h3>
 <p>
 A man used to live with a calendar and 24-hour representation of time. Coordinated Universal Time (UTC) is used for that now. These details are not needed for most kernel or application processes, so there is multiple time sources available for tracing tools:</p>
 <p>
-    <table class="table table-bordered">
+    <table class="table table-bordered" style="width: 100%">
         <tr>
             <td>
 <strong>Time source</strong> </td>
@@ -105,7 +105,7 @@ A man used to live with a calendar and 24-hour representation of time. Coordinat
         <tr>
 
             <td>
-<em>Real time</em>. Monotonic time source which starting point is an UNIX Epoch (00:00:00 UTC, Thursday, 1 January 1970). May use extra locks, access RTC, so it generally slower than previous time sources </td>
+<em>Real time</em> or <em>Wall-clock time</em>. Monotonic time source which starting point is an UNIX Epoch (00:00:00 UTC, Thursday, 1 January 1970). May use extra locks, access RTC, so it generally slower than previous time sources </td>
             <td>
  <code>walltimestamp</code> </td>
             <td>
@@ -114,7 +114,7 @@ A man used to live with a calendar and 24-hour representation of time. Coordinat
 </table>
 </p>
 <p>
-In this examples <code>&lt;unit&gt;</code> is one of (<code>s</code> -- seconds, <code>ms</code> -- milliseconds, <code>us</code> -- microseconds and <code>ns</code> -- nanoseconds). DTrace time sources always have nanosecond resolution.</p>
+In this examples <code>&lt;unit&gt;</code> is one of (<code>s</code> –- seconds, <code>ms</code> –- milliseconds, <code>us</code> –- microseconds and <code>ns</code> –- nanoseconds). DTrace time sources always have nanosecond resolution.</p>
 <p>
 Generally speaking, monotonic time sources are better for measurement relative time intervals, while real time is used if you need precise timestamp of an event (i.e. for cross-referencing with logs). To print a real timestamp, use <code>ctime()</code> function in SystemTap which converts time to string, or use <code>%Y</code> format specifier in DTrace print functions. </p>
 <p>
@@ -124,10 +124,10 @@ Generally speaking, monotonic time sources are better for measurement relative t
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfu">Built-in Variables</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfu">Built-in Variables</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/timestamp_stp.html">Timestamp Functions</a></li>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/timestamp_stp.html">Timestamp Functions</a></li>
 </ul>
 </p>
 

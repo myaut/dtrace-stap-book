@@ -53,11 +53,11 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Block Input-Output</h3>
+ <a name="__index___block_input_output"></a> Block Input-Output</h3>
 <p>
 When request is handled by Virtual File System, and if it needs to be handled by underlying block device, VFS creates a request to Block Input-Output subsystem. Operating system in this case either fetches new page from a disk to a page cache or writes dirty page onto disk. Disks are usually referred to as <em>block devices</em> because you can access them by using blocks of fixed size: 512 bytes which is disk sector (not to mention disks with advanced format or SSDs). On the other hand, <em>character devices</em> like terminal emulator pass data byte by byte while <em>network devices</em> might have any length of network packet.</p>
 <p>
-BIO top layer is traceable through <code>io</code> provider in DTrace:
+<a name="__index___io__provider__DTrace_"></a>  BIO top layer is traceable through <code>io</code> provider in DTrace:
     <p>
     <pre>
 # dtrace -qn '
@@ -71,7 +71,7 @@ BIO top layer is traceable through <code>io</code> provider in DTrace:
 
 If you check function name of that probe, you may see that it is handled by <code>bdev_strategy()</code> kernel function which has only one argument of type <code>struct buf</code>. That buffer represents a single request to a block subsystem and passed as <code>arg0</code> to <code>io:::start</code> probe and then translated to a <code>bufinfo_t</code> structure which is considered stable. DTrace also supplies information about block device and file name in <code>args[1]</code> and <code>args[2]</code>. </p>
 <p>
-Linux has similar architecture: it has <code>struct bio</code> which represents single request to block subsystem and <code>generic_make_request()</code> function (which, however, has alternatives) which passes <code>bio</code> structure to device queues. SystemTap tapset <code>ioblock</code> provides access to BIO probes:
+<a name="__index___ioblock__tapset__SystemTap_"></a> Linux has similar architecture: it has <code>struct bio</code> which represents single request to block subsystem and <code>generic_make_request()</code> function (which, however, has alternatives) which passes <code>bio</code> structure to device queues. SystemTap tapset <code>ioblock</code> provides access to BIO probes:
     <p>
     <pre>
 # stap -e '
@@ -182,9 +182,9 @@ When <em>BIO request</em> is created it is passed to scheduler which re-orders r
 <p>
 After scheduling BIO layer passes request to a device level:</p>
 <p>
-<img src="../images/bio.png" alt="image:bio" class="img-rounded"/></p>
+<img src="../images/bio.png" alt="image:bio" class="img-rounded"></img></p>
 <p>
-Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with <em>device mapper</em> in Linux or <em>MPxIO</em> in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called <em>SCSI stack</em>. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:</p>
+<a name="__index___SCSI_stack"></a> <a name="__index___scsi__tapset__SystemTap_"></a> <a name="__index___ioscheduler__tapset__SystemTap_"></a> Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with <em>device mapper</em> in Linux or <em>MPxIO</em> in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called <em>SCSI stack</em>. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:</p>
 <p>
     <table class="table table-bordered">
         <tr>
@@ -245,12 +245,12 @@ Probe <code>scsi.ioexecute</code> can be not fired for all SCSI packets: usually
 <p>
 <span class="label label-info">Note</span>    <div class="well">
         <p>
-We have used Solaris functions starting from <code>sd</code> prefix in this example. They are from <code>sd</code> driver which represents SCSI disk. There is also <code>ssd</code> driver which is used for FC disks -- it is based on <code>sd</code> driver, but all functions in it are using <code>ssd</code> prefix, i.e. <code>ssd_return_command</code>.
+We have used Solaris functions starting from <code>sd</code> prefix in this example. They are from <code>sd</code> driver which represents SCSI disk. There is also <code>ssd</code> driver which is used for FC disks –- it is based on <code>sd</code> driver, but all functions in it are using <code>ssd</code> prefix, i.e. <code>ssd_return_command</code>.
 </p>
 </div>
 </p>
 <p>
-<img src="../images/solaris/bio.png" alt="image:solaris-bio" class="img-rounded"/></p>
+<img src="../images/solaris/bio.png" alt="image:solaris-bio" class="img-rounded"></img></p>
 <p>
 In Solaris each SCSI <em>LUN</em> has a corresponding <code>sd_lun</code> structure which keeps queue of buffers in doubly-linked list referenced by <code>un_waitq_headp</code> and <code>un_waitq_tailp</code> pointers. When new command is passed to SCSI stack, <code>un_ncmds_in_driver</code> is increased and when packet is dispatched to transport, <code>un_ncmds_in_transport</code> is increased. They are decreased when SCSI packet is discarded or when it was successfully processed and interrupt is fired to notify OS about that. SCSI stack uses <code>b_private</code> field to keep <code>sd_xbuf</code> structure that keeps reference to SCSI packet through <code>xb_pktp</code> pointer.</p>
 <p>
@@ -409,7 +409,7 @@ SCSI stack also uses callback mechanism to notify request initiators when it is 
 <p>
 Like we said before, Linux has intermediate layer called a scheduler which can re-order requests. Due to that, BIO layer maintains generic layer of block device queues which are represented by <code>struct request_queue</code> which holds requests as <code>struct request</code> instances:</p>
 <p>
-<img src="../images/linux/bio.png" alt="image:linux-bio" class="img-rounded"/></p>
+<img src="../images/linux/bio.png" alt="image:linux-bio" class="img-rounded"></img></p>
 <p>
 Each request may have multiple <code>bio</code> requests which are kept as linked list. New requests are submitted through <code>blk_queue_bio()</code> kernel function which will either create a new <code>request</code> using <code>get_request()</code> function for it or merge it with already existing <code>request</code>.</p>
 <p>

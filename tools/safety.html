@@ -68,11 +68,12 @@ Like we said, dynamic tracing is intended to be safely used in production system
 </ul>
 </p>
 <p>
-
+<a name="__index___Deadman_mechanism"></a> <a name="__index___probe_overhead_threshold"></a>
 That leads to a common principle for all dynamic tracing systems: <strong>add some checks before executing actual tracing</strong>. For example, DTrace has <em>Deadman Mechanism</em> that detects system unresponsiveness induced by DTrace and aborts tracing, while SystemTap monitors time spent in each tracing probe. The common error messages you'll see due to that are <code>processing aborted: Abort due to systemic unresponsiveness</code> in DTrace and <code>SystemTap probe overhead exceeded threshold</code>. </p>
 <p>
 Unfortunately, SystemTap is not that affective as DTrace, so probe overhead error message is a common thing. To overcome this error in SystemTap you can recompile your script with <code>-t</code> option to see what probes are causing overload and try to optimize them. You may also increase threshold by setting compile macro (with <code>-D</code> option) <code>STP_OVERLOAD_THRESHOLD</code> in percent of overall CPU time or completely disable it with <code>STP_NO_OVERLOAD</code> macro (latest SystemTap versions support it via <code>-g --suppress-time-limits</code>).</p>
 <p>
+<a name="__index___MAXMAPENTRIES__constant_"></a>
 Another resource that is limited is memory. Memory limitations are implemented pretty simple: all allocations should be performed when script is launched and with a fixed size. For associative arrays, SystemTap limits number of entries it can hold (changeable by setting macro <code>MAXMAPENTRIES</code>), and <code>ERROR: Array overflow, check MAXMAPENTRIES near identifier 't' at &lt;input&gt;:1:30</code>, while DTrace limits overall space for them via <code>dynvarsize</code> tunable and it will print it as <code>dynamic variable drops</code> error. Note that SystemTap still can exhaust memory if you create too many associative arrays, but this will be handled by OOM which will simply kill <code>stap</code> tool. Both DTrace and SystemTap limit size of strings used in scripts.</p>
 <p>
 Transport buffer between probes and consumer is also limited, so if you will print in probes faster than consumer can take, you will see <code>There were NN transport failures</code> error in SystemTap or <code>DTrace drops on CPU X</code> error on DTrace. The answer to that problem is simple: be less verbose, take data from buffer more frequently (regulated by <code>cleanrate</code> tunable in DTrace) or increase buffer size (<code>-b</code> option and <code>bufsize</code> tunable in DTrace and <code>-s</code> option in SystemTap).</p>
@@ -112,10 +113,10 @@ To demonstrate segmentation violation, you can interpret wrong integral argument
 <p>
      <ul>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00026000000000000000">Safety and security</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/SystemTap_overview.html#SECTION00026000000000000000">Safety and security</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-perf/index.html">Performance Considerations</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-perf/index.html">Performance Considerations</a>
  </li>
         <li>
  SystemTap Wiki: <a href="http://sourceware.org/systemtap/wiki/TipExhaustedResourceErrors">Exhausted resources</a></li>

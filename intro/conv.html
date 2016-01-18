@@ -220,7 +220,7 @@ print "Hello, " + os.getenv('LOGNAME', 'anonymous') + '!'</pre>
 <p>
 Many kernel-related topics will contain structural diagrams which will represent kernel data structures like this:</p>
 <p>
-<img src="../images/solaris/streams.png" alt="image" class="img-rounded"/></p>
+<img src="../images/solaris/streams.png" alt="image" class="img-rounded"></img></p>
 <p>
 In this example two instances of <code>mblk_t</code> structure (which is typedef alias) are shown which are linked together through pair of <code>mblk_t</code> pointers <code>b_next</code> and <code>b_prev</code>. Not all fields are shown on this diagram, types are omitted, while order of fields may not match real one. Following conventions are used in this type of diagrams:</p>
 <p>
@@ -247,7 +247,7 @@ struct structA {
 </p>
  </td>
             <td>
- <img src="../images/conv/pointer.png" alt="ab" class="img-rounded"/> <br /> 
+ <img src="../images/conv/pointer.png" alt="ab" class="img-rounded"></img> <br /> 
        structure <code>structA</code> points to instance of <code>structB</code></td>
 </tr>
         <tr>
@@ -267,7 +267,7 @@ struct structA {
 </p>
  </td>
             <td>
- <img src="../images/conv/reverse.png" alt="ab" class="img-rounded"/> <br /> 
+ <img src="../images/conv/reverse.png" alt="ab" class="img-rounded"></img> <br /> 
        structure <code>structB</code> contains backward pointer to structure <code>structA</code></td>
 </tr>
         <tr>
@@ -286,7 +286,7 @@ struct structA {
 </p>
  </td>
             <td>
- <img src="../images/conv/embed.png" alt="ab" class="img-rounded"/> <br /> 
+ <img src="../images/conv/embed.png" alt="ab" class="img-rounded"></img> <br /> 
        structure <code>structA</code> has embedded structure (not neccessarily to be anonymous)</td>
 </tr>
         <tr>
@@ -305,7 +305,7 @@ struct structA {
 </p>
  </td>
             <td>
- <img src="../images/conv/array.png" alt="ab" class="img-rounded"/> <br /> 
+ <img src="../images/conv/array.png" alt="ab" class="img-rounded"></img> <br /> 
        structure <code>structA</code> points to a dynamic array of structures <code>structB</code></td>
 </tr>
         <tr>
@@ -325,7 +325,7 @@ struct structA {
 </p>
  </td>
             <td>
- <img src="../images/conv/list.png" alt="ab" class="img-rounded"/> <br /> 
+ <img src="../images/conv/list.png" alt="ab" class="img-rounded"></img> <br /> 
        structure <code>structA</code> contains head of linked list of <code>structB</code> instances <br /> 
        Various structure relations can be shown with this type of arrows:      
                          <ul>
@@ -349,7 +349,7 @@ struct structA {
 <p>
 Timeline diagrams are used to show various processes that exist in traced system and chain of events or operations happening with them and at the same time contains names of probes:</p>
 <p>
-<img src="../images/timeline.png" alt="image:timeline" class="img-rounded"/></p>
+<img src="../images/timeline.png" alt="image:timeline" class="img-rounded"></img></p>
 <p>
 This diagram should be read like this:</p>
 <p>
@@ -357,7 +357,7 @@ This diagram should be read like this:</p>
         <li>
  Thick             <span style="color: #6666ff;">
 <strong>colored</strong> </span>
- arrows represent flow of some processes -- usually they are threads or processes in a system.             <span style="color: #999999;">
+ arrows represent flow of some processes –- usually they are threads or processes in a system.             <span style="color: #999999;">
 <strong>Gray</strong> </span>
  arrows represent processes that are inactive for some reason (usually, blocked and thus cannot be executed on CPU). Arrows corresponding to the same process share same baseline. 
     </li>

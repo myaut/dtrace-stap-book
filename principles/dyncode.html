@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Dynamic code analysis</h3>
+ <a name="__index___dynamic_program_analysis"></a> Dynamic code analysis</h3>
 <p>
 <span class="label label-inverse">Definition</span>    <div class="well">
         <p>
@@ -65,7 +65,7 @@
 We will refer to program analysis as code analysis since program is a product of code compilation, On contrary, static code analysis is performed without actually running the program. Code analysis helps to match program behaviour such as opening files, sending messages over network to their code. </p>
 <p>
     <h4>
- Backtraces (stacks)</h4>
+ <a name="__index___backtrace"></a> <a name="__index___stack"></a> Backtraces (stacks)</h4>
 </p>
 <p>
 Simplest way to perform code analysis is to print a backtrace.</p>
@@ -131,7 +131,7 @@ Functions which have <code>u</code> in their names print userspace backtrace, fu
 </ul>
 </p>
 <p>
-Printing backtraces involves getting a symbol which matches some memory address which involves digging into <code>symtab</code> or similar section of binary files. Dynamic tracing systems can do that and print (DTrace) or return a symbol as a string (SystemTap) with following functions:</p>
+<a name="__index___symbols"></a> Printing backtraces involves getting a symbol which matches some memory address which involves digging into <code>symtab</code> or similar section of binary files. Dynamic tracing systems can do that and print (DTrace) or return a symbol as a string (SystemTap) with following functions:</p>
 <p>
     <table class="table table-bordered">
         <tr>
@@ -249,17 +249,17 @@ By default SystemTap seeks only in <code>vmlinux</code> or binary executable fil
 <p>
 <span class="label label-warning">Warning</span>    <div class="well">
         <p>
-In DTrace symbols are resolved by consumer, not by DIF interpreter -- that is why they do not return strings, and not usable in string functions. Moreover, if when buffers are switched module was unloaded or process is finished, DTrace will fail to resolve symbols and print raw address in stack or symbol functions.
+In DTrace symbols are resolved by consumer, not by DIF interpreter –- that is why they do not return strings, and not usable in string functions. Moreover, if when buffers are switched module was unloaded or process is finished, DTrace will fail to resolve symbols and print raw address in stack or symbol functions.
 </p>
 </div>
 </p>
 <p>
 SystemTap and DTrace have different formats when printing backtrace symbol names:</p>
 <p>
-<img src="../images/stackfmt.png" alt="image:stackfmt" class="img-rounded"/></p>
+<img src="../images/stackfmt.png" alt="image:stackfmt" class="img-rounded"></img></p>
 <p>
     <h4>
- Call trees</h4>
+ <a name="__index___call_tree"></a> Call trees</h4>
 </p>
 <p>
 Note that backtraces show only a stack, a linear structure of functions that lead to event, they do not include callees that were previously called, but already exited. For example in following code (which obviously causes a segmentation fault):
@@ -475,7 +475,7 @@ file
 
 Since this function was removed in recent kernels, this behaviour is not reproducible in them.</p>
 <p>
-In Solaris, however, this function is called only once -- for symbolical link:
+In Solaris, however, this function is called only once –- for symbolical link:
     <p>
     <pre>
 # dtrace -n '

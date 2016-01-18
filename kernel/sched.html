@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Process scheduler</h3>
+ <a name="__index___scheduler"></a> Process scheduler</h3>
 <p>
 <span class="label label-inverse">Definition</span>    <div class="well">
         <p>
@@ -73,9 +73,9 @@ In Solaris functions of the scheduler is invoked through <code>swtch()</code> fu
 <p>
 Process lifetime in terms of the scheduler is shown on the following picture.</p>
 <p>
-<img src="../images/sched.png" alt="image:sched" class="img-rounded"/></p>
+<img src="../images/sched.png" alt="image:sched" class="img-rounded"></img></p>
 <p>
-In scheduler, context switching may be split in two steps:</p>
+<a name="__index___sched__provider__DTrace_"></a> <a name="__index___scheduler__tapset__SystemTap_"></a> In scheduler, context switching may be split in two steps:</p>
 <p>
      <ul>
         <li>
@@ -161,7 +161,7 @@ Solaris implements cyclic scheduling, but it support fair scheduling algorithms 
 <p>
 The following table shows scheduler classes implemented in Solaris.</p>
 <p>
-    <table class="table table-bordered">
+    <table class="table table-bordered" style="width: 100%">
         <tr>
             <td>
 <strong>Class</strong> </td>
@@ -195,7 +195,7 @@ SYS </td>
             <td>
  60-99 </td>
             <td>
- <em>SYStem</em> -- for kernel threads which always have precedence over user processes. Also, timeslices are allocated to them, they consume as much processor time as they can.</td>
+ <em>SYStem</em> –- for kernel threads which always have precedence over user processes. Also, timeslices are allocated to them, they consume as much processor time as they can.</td>
 </tr>
         <tr>
 
@@ -204,7 +204,7 @@ SYSDC </td>
             <td>
  0-99 </td>
             <td>
- <em>SYStem Duty Cycles</em> -- for CPU-bound kernel threads like ZFS pipeline (which involves encryption and compression). This class is implemented to prevent userspace starvation under heavy I/O load.</td>
+ <em>SYStem Duty Cycles</em> –- for CPU-bound kernel threads like ZFS pipeline (which involves encryption and compression). This class is implemented to prevent userspace starvation under heavy I/O load.</td>
 </tr>
         <tr>
 
@@ -213,7 +213,7 @@ TS and IA </td>
             <td>
  0-59 </td>
             <td>
- <em>Time Sharing</em> and <em>InterActive</em> -- default classes for userspace processes. TS class has dynamic priorities: if thread had consumed entire timeslice, its priority is reduced to give room to other threads. IA is a modification of TS class which also adds small "boost" (usually, 10 priorities) for processes which have focused window (useful for graphics stations).</td>
+ <em>Time Sharing</em> and <em>InterActive</em> –- default classes for userspace processes. TS class has dynamic priorities: if thread had consumed entire timeslice, its priority is reduced to give room to other threads. IA is a modification of TS class which also adds small "boost" (usually, 10 priorities) for processes which have focused window (useful for graphics stations).</td>
 </tr>
         <tr>
 
@@ -222,7 +222,7 @@ FX </td>
             <td>
  0-59 </td>
             <td>
- <em>FiXed</em> -- unlike TS/IA, such processes never change their priorities unless it is done by user themself.</td>
+ <em>FiXed</em> –- unlike TS/IA, such processes never change their priorities unless it is done by user themself.</td>
 </tr>
         <tr>
 
@@ -231,18 +231,18 @@ FSS </td>
             <td>
  0-59 </td>
             <td>
- <em>Fair Share Scheduler</em> -- allows to distribute processor time proportionally between groups of processes such as zones or projects.</td>
+ <em>Fair Share Scheduler</em> –- allows to distribute processor time proportionally between groups of processes such as zones or projects.</td>
 </tr>
 </table>
 </p>
 <p>
 Solaris dispatcher control structures are shown on the following picture:</p>
 <p>
-<img src="../images/solaris/sched.png" alt="image:sol-sched" class="img-rounded"/></p>
+<img src="../images/solaris/sched.png" alt="image:sol-sched" class="img-rounded"></img></p>
 <p>
-Each processor has corresponding <code>cpu_t</code> structure, which includes two pointers to threads: <code>cpu_dispthread</code> -- a thread chosen by scheduler to be the next process after resume, and <code>cpu_thread</code> -- process which is currently is on CPU. <code>cpu_last_swtch</code> contains time of last context switch in lbolts (changed into high-resolution time in nanoseconds in Solaris 11). Each <code>cpu_t</code> has dispatcher queue represented by <code>disp_t</code> structure and corresponding array of queue heads of type <code>dispq_t</code>. Each queue head has links to first and last thread in queue (<code>kthread_t</code> objects are linked through <code>t_link</code> pointer) and <code>dq_sruncnt</code> -- number of threads in this queue. </p>
+Each processor has corresponding <code>cpu_t</code> structure, which includes two pointers to threads: <code>cpu_dispthread</code> –- a thread chosen by scheduler to be the next process after resume, and <code>cpu_thread</code> –- process which is currently is on CPU. <code>cpu_last_swtch</code> contains time of last context switch in lbolts (changed into high-resolution time in nanoseconds in Solaris 11). Each <code>cpu_t</code> has dispatcher queue represented by <code>disp_t</code> structure and corresponding array of queue heads of type <code>dispq_t</code>. Each queue head has links to first and last thread in queue (<code>kthread_t</code> objects are linked through <code>t_link</code> pointer) and <code>dq_sruncnt</code> –- number of threads in this queue. </p>
 <p>
-<code>disp_t</code> refers queues through <code>disp_q</code> pointer which refers first queue with priority 0 and <code>disp_q_limit</code> which points one entry beyound array of dispatcher queues. <code>disp_qactmap</code> contains bitmap of queues that have active processes at the moment. <code>disp_npri</code> is the number of priorities serviced by this dispatcher object -- it should be 160. <code>disp_maxrunpri</code> contains maximum priority of a thread in this dispatcher object -- it will be top-most queue which has active processes and when thread will be switched, this queue will be checked first. <code>disp_max_unbound_pri</code> also contains maximum priority of a thread, but only for a thread that is not bound to a corresponding processor and thus may be considered a candidate for task-stealing by free CPUs. Finally, <code>disp_nrunnable</code> has total number of runnable threads which is serviced by this dispatcher object. </p>
+<code>disp_t</code> refers queues through <code>disp_q</code> pointer which refers first queue with priority 0 and <code>disp_q_limit</code> which points one entry beyound array of dispatcher queues. <code>disp_qactmap</code> contains bitmap of queues that have active processes at the moment. <code>disp_npri</code> is the number of priorities serviced by this dispatcher object –- it should be 160. <code>disp_maxrunpri</code> contains maximum priority of a thread in this dispatcher object –- it will be top-most queue which has active processes and when thread will be switched, this queue will be checked first. <code>disp_max_unbound_pri</code> also contains maximum priority of a thread, but only for a thread that is not bound to a corresponding processor and thus may be considered a candidate for task-stealing by free CPUs. Finally, <code>disp_nrunnable</code> has total number of runnable threads which is serviced by this dispatcher object. </p>
 <p>
 <span class="label label-warning">Warning</span>    <div class="well">
         <p>
@@ -634,12 +634,12 @@ Here is sample output for <em>concurrency</em> experiment (some output was omitt
 Note how <code>timeleft</code> field is changing: it is calculated as <code>ts_timer</code> - <code>ts_lwp-&gt;lwp_ac.ac_clock</code>. After each clock tick latter is incremented thus timeleft is decrementing. When timeleft becomes 0, it means that <em>worker</em> has exhausted scheduler quantum, so its priority falls from 40 to 30 and it is being put to the tail of corresponding dispatcher queue. After that <code>sched</code> thread runs for a short time (which is some kernel thread managed by SYS scheduler), and eventually another <em>worker</em> thread gets on CPU.</p>
 <p>
     <h4>
- Scheduling in Linux</h4>
+ <a name="__index___Completely_Fair_Scheduler__Linux_"></a> Scheduling in Linux</h4>
 </p>
 <p>
 Cyclic scheduling was implemented in Linux O(1) scheduler, but it was replaced with Completely Fair Scheduler (CFS) scheduler in 2.6.22 kernel. Cyclic scheduling is represented by RT class which is rarely used. There are also some non-default schedulers like BFS which are not available in vanilla kernel but shipped as separate patches. Each <code>task_struct</code> has field <code>policy</code> which determines which scheduler class will be used for it. Policies are shown in the following table:</p>
 <p>
-    <table class="table table-bordered">
+    <table class="table table-bordered" style="width: 100%">
         <tr>
             <td>
 <strong>Priority</strong> </td>
@@ -684,7 +684,7 @@ Cyclic scheduling was implemented in Linux O(1) scheduler, but it was replaced w
             <td  rowspan="2">
  fair (CFS) </td>
             <td>
- <code>SCHED_NORMAL</code> (<code>SCHED_OTHER</code>) </td>
+ <code>SCHED_NORMAL</code> <br /> (<code>SCHED_OTHER</code>) </td>
             <td>
  Default policy for most kernel and user threads </td>
 </tr>
@@ -704,27 +704,27 @@ Cyclic scheduling was implemented in Linux O(1) scheduler, but it was replaced w
             <td>
  <code>SCHED_IDLE</code> </td>
             <td>
- Idle threads -- picked only when other classes do not have runnbalbe threads.</td>
+ Idle threads –- picked only when other classes do not have runnbalbe threads.</td>
 </tr>
 </table>
 </p>
 <p>
 <span class="label label-info">Information</span>    <div class="well">
         <p>
-Consider the following situation: there are currently two users on a 8-CPU host where user dima had run <code>make -j8</code> and another user, say myaut, had run <code>make -j4</code>. To maintain fairness so users dima and myaut will get equal amount of CPU time, you will need renice processes of user dima, but calculating correct priority penalty will be inobvious. Instead, you can create a two CGroups and add one instance of make per CGroup. Than all tasks which are spawned by dima's <code>make</code> will be accounted in scheduler entity corresponding to dima's CGroup.
+<a name="__index___CGroup__Linux_"></a> Consider the following situation: there are currently two users on a 8-CPU host where user dima had run <code>make -j8</code> and another user, say myaut, had run <code>make -j4</code>. To maintain fairness so users dima and myaut will get equal amount of CPU time, you will need renice processes of user dima, but calculating correct priority penalty will be inobvious. Instead, you can create a two CGroups and add one instance of make per CGroup. Than all tasks which are spawned by dima's <code>make</code> will be accounted in scheduler entity corresponding to dima's CGroup.
 </p>
 </div>
 </p>
 <p>
 Let's look into details of implementation of CFS scheduler. First of all, it doesn't deal with tasks directly, but schedules <em>scheduler entities</em> of type <code>struct sched_entity</code>. Such entity may represent a task or a queue of entities of type <code>struct cfs_rq</code> (which is referenced by field <code>my_q</code>), thus allowing to build hierarchies of entities and allocate resources to task groups which are called <em>CGroups</em> in Linux. Processor run queue is represented by type <code>struct rq</code> contains field <code>cfs</code> which is instance of <code>struct cfs_rq</code> and contains queue of all high-level entities. Each entity has <code>cfs_rq</code> pointer which points to CFS runqueue to which that entity belongs:</p>
 <p>
-<img src="../images/linux/sched.png" alt="image:cfs-sched" class="img-rounded"/></p>
+<img src="../images/linux/sched.png" alt="image:cfs-sched" class="img-rounded"></img></p>
 <p>
 In this example processor run queue has two scheduler entities: one CFS queue with single task (which refers top-level <code>cfs_rq</code> through <code>parent</code> pointer) in it and one top-level task. </p>
 <p>
 CFS doesn't allocate timeslices like TS scheduler from Solaris did. Instead it accounts total time which task had spend on CPU and saves it to <code>sum_exec_runtime</code> field. When task is dispatched onto CPU, its <code>sum_exec_runtime</code> saved into <code>prev_sum_exec_runtime</code>, so calculating their difference will give time period that task spent on CPU since last dispatch. <code>sum_exec_runtime</code> is expressed in nanoseconds but it is not directly used to measure task's runtime. To implement priorities, CFS uses task weight (in field <code>load.weight</code>) and divides runtime by tasks weight, so tasks with higher weights will advance their runtime meter (saved into <code>vruntime</code> field) slower. Tasks are sorted according their <code>vruntime</code> in a red-black tree called <code>tasks_timeline</code>, while left-most task which has lowest <code>vruntime</code> of all tasks and saved into <code>rb_leftmost</code>. </p>
 <p>
-CFS has special case for tasks that have been woken up. Because they can be sleeping too long, their <code>vruntime</code> may be too low and they will get unfairly high amount of CPU time. To prevent this, CFS keeps minimum possible <code>vruntime</code> of all tasks in <code>min_vruntime</code> field, so all waking up tasks will get <code>min_vruntime</code> minus a predefined "timeslice" value. CFS also have a <em>scheduler buddies</em> -- helper pointers for a dispatcher: <code>next</code> -- task that was recently awoken, <code>last</code> -- task that recently was evicted from CPU and <code>skip</code> -- task that called <code>sched_yield()</code> giving CPU to other entities.</p>
+CFS has special case for tasks that have been woken up. Because they can be sleeping too long, their <code>vruntime</code> may be too low and they will get unfairly high amount of CPU time. To prevent this, CFS keeps minimum possible <code>vruntime</code> of all tasks in <code>min_vruntime</code> field, so all waking up tasks will get <code>min_vruntime</code> minus a predefined "timeslice" value. CFS also have a <em>scheduler buddies</em> –- helper pointers for a dispatcher: <code>next</code> –- task that was recently awoken, <code>last</code> –- task that recently was evicted from CPU and <code>skip</code> –- task that called <code>sched_yield()</code> giving CPU to other entities.</p>
 <p>
 So, let's implement a tracer for CFS scheduler:</p>
 <p>

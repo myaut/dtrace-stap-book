@@ -57,7 +57,7 @@
 <p>
 We already discussed problem with probe stability. Some issues may be related to changing data structures in kernel, or several variants may exist in kernel, for example for 32- and 64-bit calls. Let's see how access to fields of that structure may be unified.</p>
 <p>
-DTrace has a <em>translators</em> for doing that:</p>
+<a name="__index___translators__DTrace_"></a> DTrace has a <em>translators</em> for doing that:</p>
 <p>
     <p>
     <div class="well">
@@ -89,7 +89,7 @@ syscall::fstatat64:return
 
 In this example translator describes rules of converting source structure <code>stat64_32</code> to a structure with known format defined in DTrace <code>stat_info</code>. After that, <code>xlate</code> operator is called which receives pointer to <code>stat64_32</code> structure to a <code>stat_info</code>. Note that our translator also responsible for copying data from userspace to kernel. Built-in DTrace translators are located in <code>/usr/lib/dtrace</code>.</p>
 <p>
-SystemTap doesn't have translators, but you can create <em>prologue</em> or <em>epilogue alias</em> which performs necessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called <em>tapsets</em> and put into <code>/usr/share/systemtap/tapset</code> directory. Many probes that we will use in following modules are implemented in such tapsets. </p>
+<a name="__index___tapset"></a> <a name="__index___prologue_probe_alias"></a> <a name="__index___epilogue_probe_alias"></a> SystemTap doesn't have translators, but you can create <em>prologue</em> or <em>epilogue alias</em> which performs necessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called <em>tapsets</em> and put into <code>/usr/share/systemtap/tapset</code> directory. Many probes that we will use in following modules are implemented in such tapsets. </p>
 <p>
 Linux has several variants for <code>stat</code> structure in <code>stat()</code> system call, some of them deprecated, some are intended to support 64-bit sizes for 32-bit callers. By using following tapset we will remove such differences and make them universally available through <code>filename</code> and <code>size</code> variables:</p>
 <p>
@@ -120,7 +120,7 @@ This example is unrealistic: it is easier to attach to <code>vfs_lstat</code> fu
 probe <em>alias-name</em> {=|+=} <em>probe-name-1</em> [?] [,<em>probe-name-2</em> [?] ...] <em>probe-body</em></pre>
 </p>
 
-Here <code>=</code> is used for creating prologue aliases and <code>+=</code> is for epilogue aliases. Question mark <code>?</code> suffix is optional and used if some functions are not present in kernel -- it allows to choose probe from multiple possibilities.</p>
+Here <code>=</code> is used for creating prologue aliases and <code>+=</code> is for epilogue aliases. Question mark <code>?</code> suffix is optional and used if some functions are not present in kernel –- it allows to choose probe from multiple possibilities.</p>
 <p>
 <span class="label label-warning">Warning</span>    <div class="well">
         <p>
@@ -162,10 +162,10 @@ If you have enabled preprocessor with <code>-C</code> option, you may use <code>
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-xlate/index.html">Translators</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Components_SystemTap_script.html#SECTION00042000000000000000">Probe aliases</a></li>
 </ul>
 </p>
 

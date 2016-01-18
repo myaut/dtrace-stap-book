@@ -52,7 +52,7 @@
 		<h3>
  Introduction</h3>
 <p>
-Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have a predicate which acts as a filter of unnecessary probes, i.e. if you want to trace specific process or specific kind of query. </p>
+<a name="__index___script"></a> Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have a predicate which acts as a filter of unnecessary probes, i.e. if you want to trace specific process or specific kind of query. </p>
 <p>
 Each script consists of global variables declarations followed by probes, and possibly function declarations. In SystemTap each declaration is preceded by <code>global</code>, <code>function</code> or <code>probe</code> keyword:
     <p>
@@ -88,7 +88,7 @@ tick-1s {
 <p>
 DTrace language is limited due to safety reasons, so it doesn't support loops and conditional statements. Conditional branch in DTrace may be emulated using predicates, and also a limited support of ternary operator <code>?:</code> is available. SystemTap, on the other hand, supports wider subset of C language: it has <code>for</code>, <code>while</code>, <code>if</code>/<code>else</code>, <code>foreach</code> statements, and <code>break</code>/<code>continue</code> for controlling loop behavior.</p>
 <p>
-SystemTap supports declaration of functions:
+<a name="__index___functions__SystemTap_"></a> SystemTap supports declaration of functions:
     <p>
     <pre>
 function dentry_name:string(dentry:long) {
@@ -106,7 +106,7 @@ DTrace doesn't have a functions, but you may use C macro in simple cases:
 </p>
 </p>
 <p>
-SystemTap language supports <code>try</code>/<code>catch</code> statement to handle tracing errors which were described in <a href="../tools/safety.html">Safety and errors</a> section:
+<a name="__index___try_catch_block__SystemTap_"></a> SystemTap language supports <code>try</code>/<code>catch</code> statement to handle tracing errors which were described in <a href="../tools/safety.html">Safety and errors</a> section:
     <p>
     <pre>
 try {
@@ -134,7 +134,7 @@ timer-1ms
 
 This script prints "Hello, world" phrase each millisecond 10 times. </p>
 <p>
-Finally, SystemTap have Embedded C extension (enabled only in Guru-Mode or in tapsets), which allow to write raw C code compiled directly to module's code without passing first three stages of translation:
+<a name="__index___Embedded_C__SystemTap_"></a> Finally, SystemTap have Embedded C extension (enabled only in Guru-Mode or in tapsets), which allow to write raw C code compiled directly to module's code without passing first three stages of translation:
     <p>
     <pre>
 function task_valid_file_handle:long (task:long, fd:long) %{ /* pure */

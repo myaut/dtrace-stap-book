@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Profiling</h3>
+ <a name="__index___profiling"></a> Profiling</h3>
 <p>
 Consider the following task: you need to know which functions are called more often than others or spend most time when executing because it makes them perfect targets for code optimization. You may do it by attaching to every function entry and exit point the following script:</p>
 <p>
@@ -116,7 +116,7 @@ Or in SystemTap:
 </p>
 </p>
 <p>
-If we want to go down to a function level, we need to access <em>program counter</em> register (or <em>instruction pointer</em> in x86 terminology) each time profiling probe fires. We will refer to program counter as PC later in this book. In DTrace these values are explicitly provided in <code>arg0</code> -- PC in kernel mode and <code>arg1</code> -- PC in userspace mode in <code>profiling</code> probes. Depending on if process was in kernel mode when profiling probe fired or not, <code>arg0</code> or <code>arg1</code> will be set to 0. Moreover, you may always get current userspace program counter using uregs array: <code>uregs[REG_PC]</code>. There is also <code>caller</code> and <code>ucaller</code> built-in variables. </p>
+If we want to go down to a function level, we need to access <em>program counter</em> register (or <em>instruction pointer</em> in x86 terminology) each time profiling probe fires. We will refer to program counter as PC later in this book. In DTrace these values are explicitly provided in <code>arg0</code> –- PC in kernel mode and <code>arg1</code> –- PC in userspace mode in <code>profiling</code> probes. Depending on if process was in kernel mode when profiling probe fired or not, <code>arg0</code> or <code>arg1</code> will be set to 0. Moreover, you may always get current userspace program counter using uregs array: <code>uregs[REG_PC]</code>. There is also <code>caller</code> and <code>ucaller</code> built-in variables. </p>
 <p>
 You can use <code>addr()</code> tapset function in SystemTap which returns userspace PC or kernel PC depending on where probe were fired (some probes do not allow that, so <code>0</code> will be returned). To get userspace address explicitly, use <code>uaddr()</code> function.</p>
 <p>
@@ -128,7 +128,7 @@ Note that we were used <code>profile-997hz</code> probe to avoid "phasing": if w
 </p>
 <p>
     <h4>
- CPU performance measurement</h4>
+ <a name="__index___processor_performance_counter"></a> CPU performance measurement</h4>
 </p>
 <p>
 Even if you collect program counter values, you will get what functions use CPU the most, but that doesn't mean that utilize processor resources effectively. For example, it can spend most of the time waiting for memory or cache or reset pipeline due to branch misprediction instead of utilizing ALU for actual computations. Such wasted cycles are referred as <em>stalled</em> in Intel processor documentation. </p>
@@ -157,7 +157,7 @@ List of pre-defined events (to be used in -e):
 <p>
 You can use userspace tools <code>perf</code> in Linux or <code>cpustat</code>/<code>cputrack</code> in Solaris to gather CPU counters. </p>
 <p>
-DTrace provides CPU counters through <code>cpc</code> provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:
+<a name="__index___cpc__provider__DTrace_"></a> DTrace provides CPU counters through <code>cpc</code> provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:
     <p>
     <pre>
 <em>EventName</em>-{kernel|user|all}[-<em>Mask</em>]-<em>Number</em></pre>
@@ -179,7 +179,7 @@ For example, you may use probe <code>PAPI_l3_tcm-user-10000</code> to measure nu
 </p>
 </p>
 <p>
-SystemTap provides access to CPU counter using <code>perf</code> tapset:
+<a name="__index___perf__tapset__SystemTap_"></a> SystemTap provides access to CPU counter using <code>perf</code> tapset:
     <p>
     <pre>
 # stap -l 'perf.*.*'
@@ -197,7 +197,7 @@ These probes are actually aliases for the following probes:
 perf.type(<em>type</em>).config(<em>config</em>)[.sample(<em>sample</em>)][.process("<em>process-name</em>")][.counter("<em>counter-name</em>")]</pre>
 </p>
 
-<em>type</em> and <em>config</em> are numbers used in <code>perf_event_attr</code> -- their values may be found in header <code>linux/perf_event.h</code>. <em>sample</em> is a number of events after which probe firing. <em>process-name</em> allows to monitor only certain processes instead of system-wide sampling and contains name of the process (path to executable). <em>counter-name</em> allows to set an alias for performance counter which will be later used for <code>@perf</code> expression (see below). </p>
+<em>type</em> and <em>config</em> are numbers used in <code>perf_event_attr</code> –- their values may be found in header <code>linux/perf_event.h</code>. <em>sample</em> is a number of events after which probe firing. <em>process-name</em> allows to monitor only certain processes instead of system-wide sampling and contains name of the process (path to executable). <em>counter-name</em> allows to set an alias for performance counter which will be later used for <code>@perf</code> expression (see below). </p>
 <p>
 To measure last userspace level cache misses in SystemTap, you may use following script:
     <p>

@@ -59,9 +59,9 @@ Despite the flexibility of the dynamic tracing languages, it lacks of common too
 <p>
 In such cases we can use general purpose scripting language such as Python, Perl or even shell-script to generate dynamic tracing on-the fly, run it, read its output in some form and than print it in human-readable form:</p>
 <p>
-<img src="../images/prepost.png" alt="image:prepost" class="img-rounded"/></p>
+<img src="../images/prepost.png" alt="image:prepost" class="img-rounded"></img></p>
 <p>
-For example, let's add the following capabilities to our <code>open()</code> system call tracer: customizable per-pid and per-user filters, and also make it universal -- capable running in DTrace and SystemTap.</p>
+For example, let's add the following capabilities to our <code>open()</code> system call tracer: customizable per-pid and per-user filters, and also make it universal –- capable running in DTrace and SystemTap.</p>
 <p>
     <p>
     <div class="well">
@@ -180,7 +180,7 @@ elif opts.dtrace:
 </div>
 </p>
 
-First half of this script is an option parser implemented with <code>OptionParser</code> Python class and intended to parse command-line arguments, provide help for them and check their correctness -- i.e. mutually-exclusive options, etc. Second half of the script is a <code>run_tracer()</code> function that accepts multiple arguments and <code>if-else</code> statement that depending on chosen dynamic tracing system, generates parameters for <code>run_tracer()</code> as follows:</p>
+First half of this script is an option parser implemented with <code>OptionParser</code> Python class and intended to parse command-line arguments, provide help for them and check their correctness –- i.e. mutually-exclusive options, etc. Second half of the script is a <code>run_tracer()</code> function that accepts multiple arguments and <code>if-else</code> statement that depending on chosen dynamic tracing system, generates parameters for <code>run_tracer()</code> as follows:</p>
 <p>
     <table class="table table-bordered">
         <tr>
@@ -321,7 +321,7 @@ So this script generate predicate condition <code>uid == 100</code> for the foll
 </p>
 </p>
 <p>
-Post-processing is intended to analyse already collected trace file, but it might be run in parallel with tracing process. However, it allows to defer trace analysis -- i.e. collect maximum data as we can, and then cut out irrelevant data, showing only useful. This can be performed using either Python, Perl, or other scripting languages or even use statical analysis languages like R. Moreover, post-processing allows to reorder or sort tracing output which can also help to avoid data mixing caused by per-process buffers. </p>
+Post-processing is intended to analyse already collected trace file, but it might be run in parallel with tracing process. However, it allows to defer trace analysis –- i.e. collect maximum data as we can, and then cut out irrelevant data, showing only useful. This can be performed using either Python, Perl, or other scripting languages or even use statical analysis languages like R. Moreover, post-processing allows to reorder or sort tracing output which can also help to avoid data mixing caused by per-process buffers. </p>
 <p>
 The next script will read <code>opentrace.py</code> output, merge information from entry and return probes, and convert user-ids and time intervals to a convenient form. Like in dynamic tracing languages we will use an associative array <code>states</code> which is implemented as <code>dict</code> type in Python to save data from entry probes and use process ID as a key.</p>
 <p>

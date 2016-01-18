@@ -413,7 +413,7 @@ First of all we have to create several associative arrays which will use PID as 
 <p>
 We will use probes from the section <em>Lifetime of a process</em>. They are shown in the following picture:</p>
 <p>
-<img src="../images/forkproc.png" alt="image:forkproc" class="img-rounded"/></p>
+<img src="../images/forkproc.png" alt="image:forkproc" class="img-rounded"></img></p>
 <p>
 However, we do not know PID at the time <code>fork()</code> is called so we will use thread-local variable for that. We can check return value of <code>fork()</code> in return probe and re-use timestamp saved previously if everything went fine and <code>fork()</code> has returned value greater than 1 or throw it away.</p>
 <p>

@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Associative arrays</h3>
+ <a name="__index___associative_array"></a> Associative arrays</h3>
 <p>
 <span class="label label-inverse">Definition</span>    <div class="well">
         <p>
@@ -114,21 +114,21 @@ Starting with SystemTap 2.1 it allocates <code>MAXMAPENTRIES</code> entries for 
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-variables/index.html#6mlkidlfr">Variables/Associative arrays</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Associative_arrays.html">Associative arrays</a></li>
 </ul>
 </p>
 <p>
 <a name="aggr"></a>
     <h3>
- Aggregations</h3>
+ <a name="__index___aggregation"></a> Aggregations</h3>
 </p>
 <p>
-<em>Aggregations</em> are most useful for evaluating system performance (they are called <em>statistics</em> in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:</p>
+<em>Aggregations</em> are most useful for evaluating system performance (they are called <em>statistics</em> in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value –- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:</p>
 <p>
-<img src="../images/aggrs.png" alt="image:aggrs" class="img-rounded"/></p>
+<img src="../images/aggrs.png" alt="image:aggrs" class="img-rounded"></img></p>
 <p>
 Aggregations in DTrace reside in separate namespace: each name of aggregation begins with at-symbol <code>@</code>. Single at-symbol <code>@</code> is an alias to <code>@_</code> and is a shorter possible aggregation name which is useful for one-liners. Moreover, if it was not printed in the END probe, or timer probe, DTrace will automatically print it for you. There is no need to declare aggregation, and it support key access same way associative array does. When value is added to a aggregation, it is "assigned" to a return value of aggregating function, i.e. <code>@fds = avg(arg0);</code> will create an aggregation which calculates mean value of <code>arg0</code>.</p>
 <p>
@@ -137,22 +137,22 @@ SystemTap have a statistics. They are do not support indexing like associative a
 Here are list of aggregating functions (note that in SystemTap they have to be preceded with <code>@</code>):
      <ul>
         <li>
- <code>count</code> -- counts number of values added
+ <code>count</code> –- counts number of values added
  </li>
         <li>
- <code>sum</code> -- sums added value
+ <code>sum</code> –- sums added value
  </li>
         <li>
- <code>min</code>/<code>max</code>/<code>avg</code> -- minimum, maximum and mean value, respectively
+ <code>min</code>/<code>max</code>/<code>avg</code> –- minimum, maximum and mean value, respectively
  </li>
         <li>
- <code>stddev</code> -- standard deviation (only in DTrace)
+ <code>stddev</code> –- standard deviation (only in DTrace)
  </li>
         <li>
- <code>lquantize</code> -- prints linear histogram (<code>hist_linear</code> in SystemTap)
+ <code>lquantize</code> –- prints linear histogram (<code>hist_linear</code> in SystemTap)
  </li>
         <li>
- <code>quantize</code> -- prints logarithmic histogram (<code>hist_log</code> in SystemTap)</li>
+ <code>quantize</code> –- prints logarithmic histogram (<code>hist_log</code> in SystemTap)</li>
 </ul>
 </p>
 <p>
@@ -305,10 +305,10 @@ PID     EXECNAME  FD     OPS  KBYTES
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs/index.html">Aggregations</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Statistics_aggregates.html">Statistics (aggregates)</a>
 </li>
 </ul>
 </p>

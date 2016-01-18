@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Virtual memory</h3>
+ <a name="__index___virtual_memory"></a> Virtual memory</h3>
 <p>
 Consider the following C program which will be translated into assembler:
     <p>
@@ -66,23 +66,23 @@ When single instance of that program is running, it will work as expected, messa
 <p>
 Modern virtual memory mechanisms are based on <em>page addressing</em>: all physical memory is divided to a pages of a small size (4 kb in x86). Processes are exist in a virtual address space where each subset of addresses, say <code>[BASE;BASE+PAGESIZE)</code>, maps to a single page. List of such mappings is maintained as <em>page table</em>. Modern CPUs also provide support for <em>huge pages</em> (Linux) or <em>large pages</em> (Solaris) which may be megabytes or even gigabyte in size. Speaking of our previous example, kernel <em>binary format loader</em> will set up a virtual address space for our program, copying all data to a new locations in physical memory:</p>
 <p>
-<img src="../images/pagetable.png" alt="image:pagetable" class="img-rounded"/></p>
+<img src="../images/pagetable.png" alt="image:pagetable" class="img-rounded"></img></p>
 <p>
 When second instance of a program will start, new process with separate address space will be created, thus making independent copy of process data, including "Hallo, world" message, but with same addresses. When process (actually its thread or task) is dispatched onto CPU, address of its page table is written to a special register (like CR3 on x86), so only it may access its data. All address translations are performed by <em>Memory Management Unit</em> in CPU and are transparent for it.</p>
 <p>
-From the process point of view, pages are grouped into <em>segments</em> which constitute <em>address space</em>:</p>
+<a name="__index___segments"></a> From the process point of view, pages are grouped into <em>segments</em> which constitute <em>address space</em>:</p>
 <p>
-<img src="../images/pas.png" alt="image:pas" class="img-rounded"/></p>
+<img src="../images/pas.png" alt="image:pas" class="img-rounded"></img></p>
 <p>
 New address spaces are created as a result of <code>execve()</code> system call. When it is finished, new address space constitutes from four segments: <em>text</em> segment contains program code, <em>data</em> segment contains program data. Binary loader also creates two special segments: <em>heap</em> for dynamically allocated memory and <em>stack</em> for program stack. Process arguments and environment are also initially put onto stack. Than, kernel runs process interpreter <code>ld.so</code>, which actually a dynamic linker. That linker searches for libraries for a process such as standard C library <code>libc.so</code> and calls <code>mmap()</code> to load text and data sections of that libraries. </p>
 <p>
-When you try to allocate memory using <code>malloc()</code>, standard C library may increase heap using <code>brk()</code> or <code>sbrk()</code> system call. Program may also use <code>mmap()</code> calls to map files into memory. If no file is passed to <code>mmap()</code> call, then it will create special memory segment called an <em>anonymous memory</em>. Such memory segment may be used for memory allocators, independent from main process heap.</p>
+<a name="__index___anonymous_memory"></a> When you try to allocate memory using <code>malloc()</code>, standard C library may increase heap using <code>brk()</code> or <code>sbrk()</code> system call. Program may also use <code>mmap()</code> calls to map files into memory. If no file is passed to <code>mmap()</code> call, then it will create special memory segment called an <em>anonymous memory</em>. Such memory segment may be used for memory allocators, independent from main process heap.</p>
 <p>
 You can check address space of a process with <code>pmap</code> program or by viewing <code>/proc/PID/mapping</code> file on Linux. </p>
 <p>
 Let's for example see, how memory is dynamically allocated by calling <code>malloc()</code> with relatively large value. I used Python 2 <code>range(10000)</code> built-in which creates list with 10000 numbers.</p>
 <p>
-SystemTap provides corresponding syscalls via tapset <code>vm</code>:
+<a name="__index___vm__tapset__SystemTap_"></a> SystemTap provides corresponding syscalls via tapset <code>vm</code>:
     <p>
     <pre>
 # stap -d $(which python) --ldd -e '
@@ -111,11 +111,11 @@ After running both of these scripts, you will see, that lot's of <code>brk()</co
 <p>
 Process address space is kept in <code>mm_struct</code> in Linux and in <code>as_t</code> structure in Solaris:</p>
 <p>
-<img src="../images/linux/mm.png" alt="image:mm" class="img-rounded"/></p>
+<img src="../images/linux/mm.png" alt="image:mm" class="img-rounded"></img></p>
 <p>
 Each memory segment is represented by instance of <code>vm_area_struct</code> structure which has two addresses: <code>vm_start</code> which points to the beginning of a segment and <code>vm_end</code> which points to the end of the segment. Kernel maintains two lists of segments: linear double-linked list of segments (sorted by their addresses) starting with <code>mmap</code> pointer in <code>mm_struct</code> with <code>vm_next</code> and <code>vm_prev</code> pointers, another list is a red-black tree built with <code>mm_rb</code> as root and <code>vm_rb</code> as node. </p>
 <p>
-Segments may be mapped files, so they have non-NULL value of <code>vm_file</code> pointing to a <code>file</code>. Each <code>file</code> has an <code>address_space</code> which contains all pages of a file in a <code>page_tree</code> in a <code>address_space</code> object. This object also references <code>host</code> inode of a file and all mappings corresponding to that file through linear and non-linear lists, thus making all mappings of a file shared. Another option for mapping is anonymous memory -- its data is kept in <code>anon_vma</code> structure. Every segment has a <code>vm_mm</code> pointer which refers <code>mm_struct</code> to which it belongs. </p>
+Segments may be mapped files, so they have non-NULL value of <code>vm_file</code> pointing to a <code>file</code>. Each <code>file</code> has an <code>address_space</code> which contains all pages of a file in a <code>page_tree</code> in a <code>address_space</code> object. This object also references <code>host</code> inode of a file and all mappings corresponding to that file through linear and non-linear lists, thus making all mappings of a file shared. Another option for mapping is anonymous memory –- its data is kept in <code>anon_vma</code> structure. Every segment has a <code>vm_mm</code> pointer which refers <code>mm_struct</code> to which it belongs. </p>
 <p>
 <code>mm_struct</code> alone contains other useful information, such as base addresses of entire address space <code>mmap_base</code>, addresses of a stack, heap, data and text segments, etc. Linux also caches memory statistics for a process in <code>rss_stat</code> field of <code>mm_struct</code> which can be pretty-printed with <code>proc_mem*</code> functions in SystemTap:
     <p>
@@ -129,17 +129,17 @@ Segments may be mapped files, so they have non-NULL value of <code>vm_file</code
 <p>
 In Solaris <code>as_t</code> structure accessible through <code>p_as</code> field of process and keeps all segments in AVL tree where <code>a_segtree</code> is a root node and <code>s_tree</code> is a nodes embedded to a segment:</p>
 <p>
-<img src="../images/solaris/as.png" alt="image:as" class="img-rounded"/></p>
+<img src="../images/solaris/as.png" alt="image:as" class="img-rounded"></img></p>
 <p>
 Each segment has backward link to address space <code>s_as</code>, <code>s_base</code> as base address of a segment and <code>s_size</code> as its size. Solaris uses so-called <em>segment drivers</em> to distinguish one type of a segment to another, so it provides table of operations through <code>s_ops</code> field and private data through <code>s_data</code> field. One of the segment drivers is <em>segvn</em> driver which handles mmapped segments of memory both from files and anonymous, which keep their data in <code>segvn_data</code> structure which holds two pointers: <code>vp</code> to file's vnode and <code>amp</code> for a map of anonymous memory. </p>
 <p>
 Some memory will be consumed by a process indirectly. For example, when application transfers a packet through the network or writes data to a file on /tmp filesystem, data is buffered by Kernel, but that memory is not mapped to a process. To do so, Kernel uses various in-kernel memory allocators and maintains <em>kernel address space</em>. </p>
 <p>
     <h4>
- Page fault</h4>
+ <a name="__index___page_fault"></a> Page fault</h4>
 </p>
 <p>
-As we mentioned before, when program accesses memory, memory management unit takes address, finds an entry in a page table and gets physical address. That entry, however, may not exist -- in that case CPU will raise an exception called a <em>page fault</em>. There are three types of page faults that may happen:
+As we mentioned before, when program accesses memory, memory management unit takes address, finds an entry in a page table and gets physical address. That entry, however, may not exist –- in that case CPU will raise an exception called a <em>page fault</em>. There are three types of page faults that may happen:
      <ul>
         <li>
  <em>Minor</em> page fault occurs when page table entry should exist, but corresponding page wasn't allocated or page table entry wasn't created. For example, Linux and Solaris do not allocate mmapped pages immediately, but wait until first page access which causes minor page faults.
@@ -190,7 +190,7 @@ You can trace page faults in Linux by attaching to <code>vm.pagefault.return</co
             <td>
  <code>vminfo:::maj_fault</code> usually followed by <code>vminfo::pgin</code> </td>
             <td>
- <code>perf.sw.page_faults_min</code></td>
+ <code>perf.sw.page_faults_maj</code></td>
 </tr>
         <tr>
 
@@ -207,7 +207,7 @@ You can trace page faults in Linux by attaching to <code>vm.pagefault.return</co
 <p>
 <span class="label label-info">Note</span>    <div class="well">
         <p>
-Linux doesn't have distinct probe for invalid page fault -- these situations are handled by architecture-specific function <code>do_page_fault()</code>. They are handled by family of <code>bad_area*()</code> functions on x86 architecture, so you can attach to them:
+Linux doesn't have distinct probe for invalid page fault –- these situations are handled by architecture-specific function <code>do_page_fault()</code>. They are handled by family of <code>bad_area*()</code> functions on x86 architecture, so you can attach to them:
             <p>
             <pre>
 # stap -e '
@@ -509,7 +509,7 @@ Here is an example of its output:
 </p>
 <p>
     <h4>
- Kernel allocator</h4>
+ <a name="__index___memory_allocator"></a> Kernel allocator</h4>
 </p>
 <p>
 Virtual memory is distributed between applications and kernel by a subsystem which called <em>kernel allocator</em>. It may be used both for applications and for internal kernel buffers such as ethernet packets, block input-output buffers, etc. </p>
@@ -545,9 +545,9 @@ Linux page allocator interface consists of <code>alloc_pages*()</code> family of
 <p>
 For most kernel objects granularity of a single page (4 or 8 kilobytes usually) is too high, because most structures have varying size. On the other hand, implementing a classical heap allocator is not very effective considering the fact, that kernel performs many allocations for an object of same size. To solve that problem, a <em>SLAB allocator</em> (which we sometimes will refer to as <em>kmem allocator</em>) was implemented in Solaris. SLAB allocator takes one or more pages, splits it into a buffers of a smaller sizes as shown on picture:</p>
 <p>
-<img src="../images/kmem.png" alt="image:kmem" class="img-rounded"/></p>
+<img src="../images/kmem.png" alt="image:kmem" class="img-rounded"></img></p>
 <p>
-Modern SLAB allocators may have various enhancements like per-cpu slabs, SLUB allocator in Linux. Moreover, cache object is not necessarily created in SLAB allocators -- objects of generic sizes may be allocated through function like <code>kmalloc()</code> in Linux or <code>kmem_alloc</code> in Solaris which will pick cache based on a size, such as <code>size-32</code> cache in Linux or <code>kmem_magazine_32</code> in Solaris. You can check overall SLAB statistics with <code>/proc/slabinfo</code> file in Linux, <code>::kmastat</code> mdb command in Solaris or by using KStat: <code>kstat -m unix -c kmem_cache</code>. </p>
+Modern SLAB allocators may have various enhancements like per-cpu slabs, SLUB allocator in Linux. Moreover, cache object is not necessarily created in SLAB allocators –- objects of generic sizes may be allocated through function like <code>kmalloc()</code> in Linux or <code>kmem_alloc</code> in Solaris which will pick cache based on a size, such as <code>size-32</code> cache in Linux or <code>kmem_magazine_32</code> in Solaris. You can check overall SLAB statistics with <code>/proc/slabinfo</code> file in Linux, <code>::kmastat</code> mdb command in Solaris or by using KStat: <code>kstat -m unix -c kmem_cache</code>. </p>
 <p>
 Here are list of the probes related to kernel allocator:</p>
 <p>
@@ -573,10 +573,10 @@ Block of an unspecified size </td>
 <code>fbt::kmem_alloc:entry</code> and <code>fbt::kmem_zalloc:entry</code> 
                  <ul>
                     <li>
- <code>arg0</code> -- size of the block 
+ <code>arg0</code> –- size of the block 
  </li>
                     <li>
- <code>arg1</code> -- flags         </li>
+ <code>arg1</code> –- flags         </li>
 </ul>
 </td>
             <td>
@@ -584,19 +584,19 @@ Block of an unspecified size </td>
 <code>vm.kmalloc</code> and <code>vm.kmalloc_node</code> 
                  <ul>
                     <li>
- <code>caller_function</code> -- address of caller function 
+ <code>caller_function</code> –- address of caller function 
  </li>
                     <li>
- <code>bytes_req</code> -- requested amount of bytes 
+ <code>bytes_req</code> –- requested amount of bytes 
  </li>
                     <li>
- <code>bytes_alloc</code> -- size of allocated buffer 
+ <code>bytes_alloc</code> –- size of allocated buffer 
  </li>
                     <li>
- <code>gfp_flags</code> and <code>gfp_flags_str</code> -- allocation flags 
+ <code>gfp_flags</code> and <code>gfp_flags_str</code> –- allocation flags 
  </li>
                     <li>
- <code>ptr</code> -- pointer to an allocated block</li>
+ <code>ptr</code> –- pointer to an allocated block</li>
 </ul>
 </td>
 </tr>
@@ -611,10 +611,10 @@ Block of an unspecified size </td>
 <code>fbt::kmem_free:entry</code> 
                  <ul>
                     <li>
- <code>arg0</code> -- pointer to the block 
+ <code>arg0</code> –- pointer to the block 
  </li>
                     <li>
- <code>arg1</code> -- size of the block    </li>
+ <code>arg1</code> –- size of the block    </li>
 </ul>
 </td>
             <td>
@@ -622,10 +622,10 @@ Block of an unspecified size </td>
 <code>vm.kfree</code> 
                  <ul>
                     <li>
- <code>caller_function</code> -- address of caller function 
+ <code>caller_function</code> –- address of caller function 
  </li>
                     <li>
- <code>ptr</code> -- pointer to an allocated block</li>
+ <code>ptr</code> –- pointer to an allocated block</li>
 </ul>
 </td>
 </tr>
@@ -640,10 +640,10 @@ Block from pre-defined cache </td>
 <code>fbt::kmem_cache_alloc:entry</code> 
                  <ul>
                     <li>
- <code>arg0</code> -- pointer to <code>kmem_cache_t</code> 
+ <code>arg0</code> –- pointer to <code>kmem_cache_t</code> 
  </li>
                     <li>
- <code>arg1</code> -- flags </li>
+ <code>arg1</code> –- flags </li>
 </ul>
 </td>
             <td>
@@ -663,10 +663,10 @@ Block from pre-defined cache </td>
 <code>fbt::kmem_cache_free:entry</code> 
                  <ul>
                     <li>
- <code>arg0</code> -- pointer to <code>kmem_cache_t</code> 
+ <code>arg0</code> –- pointer to <code>kmem_cache_t</code> 
  </li>
                     <li>
- <code>arg1</code> -- pointer to a buffer </li>
+ <code>arg1</code> –- pointer to a buffer </li>
 </ul>
 </td>
             <td>

@@ -53,17 +53,17 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Performance analysis</h3>
+ <a name="__index___performance_analysis"></a> Performance analysis</h3>
 <p>
 Computer users, system administrators and developers are interested in improving of performance of computer systems and dynamic tracing languages are very handful in analysing soft spots of computer systems. We will use two characteristics of computer system to evaluate its performance most of the time: <em>throughput</em> and time spent for servicing request (usually referred as <em>latency</em>). These two characteristics depend on each other as following picture shows:</p>
 <p>
-<img src="../images/perf.png" alt="image:perf" class="img-rounded"/></p>
+<img src="../images/perf.png" alt="image:perf" class="img-rounded"></img></p>
 <p>
 <span class="label label-info">Information</span>    <div class="well">
         <p>
-For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its <em>arrival rate</em>. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to <em>queue length</em>. Growing queues is a sign of the system's <em>saturation</em>. <em>Throughput</em> of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line -- they are treated as <em>errors</em>. When kiosk reaches its saturation point or the <em>knee</em>, <em>throughput</em> of the kiosk will fall, and number of errors will increase, because clerk will be tired. </p>
+<a name="__index___throughput"></a> <a name="__index___latency"></a> For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its <em>arrival rate</em>. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to <em>queue length</em>. Growing queues is a sign of the system's <em>saturation</em>. <em>Throughput</em> of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line –- they are treated as <em>errors</em>. When kiosk reaches its saturation point or the <em>knee</em>, <em>throughput</em> of the kiosk will fall, and number of errors will increase, because clerk will be tired. </p>
         <p>
-<em>Latency</em> consists of <em>service time</em> which depends on many factors: i.e. if customer need change or clerk can't find copy of newspaper it will grow,  and <em>waiting time</em> -- time spent by a customer waiting in queue. <em>Utilization</em> is defined by a fraction time that clerk spends servicing their customers. I.e. if clerk spends 15 minutes to sell a magazines or newspapers per hour, utilization is 25%. </p>
+<em>Latency</em> consists of <em>service time</em> which depends on many factors: i.e. if customer need change or clerk can't find copy of newspaper it will grow,  and <em>waiting time</em> –- time spent by a customer waiting in queue. <em>Utilization</em> is defined by a fraction time that clerk spends servicing their customers. I.e. if clerk spends 15 minutes to sell a magazines or newspapers per hour, utilization is 25%. </p>
         <p>
 These definitions are part of <em>queueing theory</em> which was applied to telephone exchange, but it is also applicable to computer systems. Either network packet or block input-output operations may be considered as <em>request</em>, while corresponding driver and device are considered as <em>servers</em>. In our kiosk example, customer were the requests while clerk at the kiosk was the server.
 </p>

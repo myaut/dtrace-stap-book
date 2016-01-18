@@ -50,11 +50,11 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Userspace process tracing</h3>
+ <a name="__index___pid____provider__DTrace_"></a> <a name="__index___userspace_process_tracing"></a> Userspace process tracing</h3>
 <p>
 We had covered kernel organization in detail in previous chapter, but it would be useless without userspace application that services end-user requests. It can be either simple <code>cat</code> program which we used in many previous examples to complex web application which uses web server and relational database. Like with the kernel, DTrace and SystemTap allow to set a probe to any instruction in it, however it will require additional switch to kernel space to execute the code. For example, let's install probe on a <code>read()</code> call on the side of standard C library:</p>
 <p>
-<img src="../images/appprobes.png" alt="image:approbes" class="img-rounded"/></p>
+<img src="../images/appprobes.png" alt="image:approbes" class="img-rounded"></img></p>
 <p>
 In DTrace userspace tracing is performed through <code>pid</code> provider:
     <p>
@@ -62,7 +62,7 @@ In DTrace userspace tracing is performed through <code>pid</code> provider:
 pid1449:libc:__read:entry</pre>
 </p>
 
-In this example entry point of <code>__read()</code> function from standard C library is patched for process with PID=1449. You may use <code>return</code> as name for return probes, or hexadecimal number -- in this case it will represent an instruction offset inside that function. </p>
+In this example entry point of <code>__read()</code> function from standard C library is patched for process with PID=1449. You may use <code>return</code> as name for return probes, or hexadecimal number –- in this case it will represent an instruction offset inside that function. </p>
 <p>
 If you need to trace binary file of application itself, you may use <code>a.out</code> as module name in probe specification. To make specifying PID of tracing process easier, DTrace provides special macro <code>$target</code> which is replaced with PID passed from <code>-p</code> option or with PID of command which was run with <code>-c</code> option:
     <p>
@@ -99,7 +99,7 @@ Like with kernel probes, you may access probe arguments using <code>arg0</code>-
 <p>
 <span class="label label-warning">Warning</span>    <div class="well">
         <p>
-Tracing multiple processes in DTrace is hard -- there is no <code>-f</code> option like in <code>truss</code>. It is also may fail if dynamic library is loaded through <code>dlopen()</code>. This limitations, however, may be bypassed by using destructive DTrace actions. Just track required processes through process creation probes or <code>dlopen()</code> probes, use <code>stop()</code> to pause process execution and start required DTrace script. <code>dtrace_helper.d</code> from JDK uses such approach.
+Tracing multiple processes in DTrace is hard –- there is no <code>-f</code> option like in <code>truss</code>. It is also may fail if dynamic library is loaded through <code>dlopen()</code>. This limitations, however, may be bypassed by using destructive DTrace actions. Just track required processes through process creation probes or <code>dlopen()</code> probes, use <code>stop()</code> to pause process execution and start required DTrace script. <code>dtrace_helper.d</code> from JDK uses such approach.
 </p>
 </div>
 </p>
@@ -108,7 +108,7 @@ Tracing multiple processes in DTrace is hard -- there is no <code>-f</code> opti
  User Statically Defined Tracing</h4>
 </p>
 <p>
-Like in Kernel mode, DTrace and SystemTap allow to add statically defined probes to a user space program. It is usually referred to as <em>User Statically Defined Tracing</em> or <em>USDT</em>. As we discovered for other userspace probes, DTrace is not capable of tracking userspace processes and automatically register probes (as you need explicitly specify PID for <code>pid$$</code> provider). Same works for USDT -- program code needs special post-processing that will add code which will register USDT probes inside DTrace. </p>
+Like in Kernel mode, DTrace and SystemTap allow to add statically defined probes to a user space program. It is usually referred to as <em>User Statically Defined Tracing</em> or <em>USDT</em>. As we discovered for other userspace probes, DTrace is not capable of tracking userspace processes and automatically register probes (as you need explicitly specify PID for <code>pid$$</code> provider). Same works for USDT –- program code needs special post-processing that will add code which will register USDT probes inside DTrace. </p>
 <p>
 SystemTap, on contrary, like in case of ordinary userspace probes, uses its <em>task finder</em> subsystem to find any process that provides a userspace probe. Probes, however are kept in separate ELF section, so it also requires altering build process. Build process involves <code>dtrace</code> tool which is wrapped in SystemTap as Python script, so you can use same build process for DTrace and SystemTap. Building simple program with USDT requires six steps:</p>
 <p>
@@ -278,7 +278,7 @@ Because of the nature of DTrace probes which are registered dynamically, they co
  SystemTap Wiki: <a href="https://sourceware.org/systemtap/wiki/AddingUserSpaceProbingToApps">Adding User Space Probing to an Application</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/>  <a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img>  <a href="http://docs.oracle.com/cd/E18752_01/html/817-6223/chp-usdt.html">Statically Defined Tracing for User Applications</a></li>
 </ul>
 </p>
 

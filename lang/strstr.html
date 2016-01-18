@@ -53,7 +53,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Strings </h3>
+ <a name="__index___string_operations"></a> Strings </h3>
 <p>
 Strings in dynamic tracing languages are wrappers around C-style null-terminated <code>char*</code> string, but they behave differently. In SystemTap it is simple alias, while DTrace add extra limitations, for example, you can't access single character to a string. String operations are listed in following table:</p>
 <p>
@@ -97,7 +97,7 @@ Get userspace string </td>
             <td>
 Compare strings </td>
             <td  colspan="2">
- <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> -- semantically equivalent to <code>strcmp</code></td>
+ <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code> –- semantically equivalent to <code>strcmp</code></td>
 </tr>
         <tr>
 
@@ -142,21 +142,21 @@ syscall::write:entry
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-strings/index.html">Strings</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-strings/index.html">Strings</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062300000000000000">Strings</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062300000000000000">Strings</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/string.stp.html">A collection of standard string functions</a></li>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/string.stp.html">A collection of standard string functions</a></li>
 </ul>
 </p>
 <p>
     <h3>
- Structures</h3>
+ <a name="__index___structure_field_access"></a> Structures</h3>
 </p>
 <p>
 Many subsystems in Linux and Solaris have to represent their data as C structures. For example, path to file corresponds from file-related structure <code>dentry</code> and filesystem-related structure <code>vfsmnt</code>:
@@ -191,10 +191,10 @@ function get_netdev_name:string (addr:long) {
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-structs/index.html">Structs and Unions</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-structs/index.html">Structs and Unions</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION000661000000000000000">Expressions</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION000661000000000000000">Expressions</a></li>
 </ul>
 </p>
 

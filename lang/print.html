@@ -53,17 +53,17 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Printing</h3>
+ <a name="__index___printing"></a> Printing</h3>
 <p>
 As we mentioned earlier, DTrace and SystemTap are printing to a special channel established between probe handlers and consumer process. SystemTap maintains multiple channels, and some of them support prioritized printing through <code>log()</code> and <code>warn()</code> functions. </p>
 <p>
 A simplest printing doesn't allow any formatting. It is performed via <code>trace()</code> action in DTrace which accepts only single argument. In SystemTap it is performed through <code>print[d][ln]</code> functions which accept unspecified number of arguments, and may use first argument as delimiter (should be constant) if <code>d</code> suffix is present, and add a newline if <code>ln</code> suffix is present. I.e. <code>printdln(",", $fd, $pathname)</code> will print comma-separated line with two parameters. Formatting output is supported through using <code>printf()</code> function which accepts format string and unspecified number of arguments. Rules for creating format strings are similiar to C standard <code>printf()</code> function including support for various such as <code>%p</code> stands for pointer, setting width and alignment of field, etc. Dynamic tracing languages are strict about types of arguments and format strings. </p>
 <p>
-DTrace allows to print a memory dump using <code>tracemem()</code> action which accepts address and number of bytes to be printed (should be constant). There is no such function in SystemTap, but it can be simulated using for-cycle, <code>kernel_int()</code> functions and <code>printf()</code> or use <code>%m</code> format specifier with width modifier which is mandatory in this case (and sets length of memory area to be printed). Also, in some cases pretty conversion to a strings is allowed, i.e. <code>inet_ntop()</code> in DTrace and <code>ip_ntop()</code> in SystemTap allow to convert IP-address to a string. </p>
+<a name="__index___dumping_memory"></a> DTrace allows to print a memory dump using <code>tracemem()</code> action which accepts address and number of bytes to be printed (should be constant). There is no such function in SystemTap, but it can be simulated using for-cycle, <code>kernel_int()</code> functions and <code>printf()</code> or use <code>%m</code> format specifier with width modifier which is mandatory in this case (and sets length of memory area to be printed). Also, in some cases pretty conversion to a strings is allowed, i.e. <code>inet_ntop()</code> in DTrace and <code>ip_ntop()</code> in SystemTap allow to convert IP-address to a string. </p>
 <p>
 To reduce competition for output buffers in multicore systems, SystemTap and DTrace allocate buffers on per-cpu basis. Then they need to extract data from them, they switch buffers and walk over it. Consider following example: process A starts on CPU 0 while process B starts on CPU 1, than context switch occurs and both processes migrating on opposite CPU (this is unrealistic situation for scheduler, so it is only an example) as shown on picture:</p>
 <p>
-<img src="../images/cpubufs.png" alt="image:cpubufs" class="img-rounded"/></p>
+<img src="../images/cpubufs.png" alt="image:cpubufs" class="img-rounded"></img></p>
 <p>
 In this example you will get the following output:
     <p>
@@ -82,26 +82,25 @@ This makes interpretation of output is extremely complicated especially in case 
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html">Output Formatting</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-fmt/index.html">Output Formatting</a>
 </li>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Formatted_output.html">Formatted output</a></li>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Formatted_output.html">Formatted output</a></li>
 </ul>
 </p>
 <p>
-<a name="speculations"></a>
     <h3>
- Speculations</h3>
+ <a name="__index___speculations"></a> <a name="speculations"></a> Speculations</h3>
 </p>
 <p>
 Predicates is one form to get rid to useless event, but they only allow to decide when probe is firing. What if there are several probes and decision can be made only in the last one? To answer that problem, dynamic tracing languages support <em>speculations</em>. For example you may want to trace only requests which are finished with an error code. </p>
 <p>
 Speculations allow to create independent output buffer for each request using <code>speculation()</code> function which returns id of that buffer. You may put it to an associative array using some vital request information as a key, for example pointer to a structure. While tracing you may either print data from the buffer to a main buffer using <code>commit()</code> function or reject it using <code>discard()</code> function. Maximum number of speculations in DTrace is regulated by <code>nspec</code> tunable. </p>
 <p>
-To add an output to a speculation in DTrace, call <code>speculate()</code> function which accepts single argument -- speculation id. After that call, all subsequent print statements in current probe body will be redirected to a speculation buffer. In SystemTap <code>speculate()</code> accepts two parameters: one for speculation id and second for string to be put into speculation, so you should use <code>sprintf()</code> instead of <code>printf()</code> to print to a buffer.</p>
+To add an output to a speculation in DTrace, call <code>speculate()</code> function which accepts single argument –- speculation id. After that call, all subsequent print statements in current probe body will be redirected to a speculation buffer. In SystemTap <code>speculate()</code> accepts two parameters: one for speculation id and second for string to be put into speculation, so you should use <code>sprintf()</code> instead of <code>printf()</code> to print to a buffer.</p>
 <p>
 Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scripts. </p>
 <p>
@@ -111,10 +110,10 @@ Speculations are used in <a href="../kernel/bio.html">Block Input-Output</a> scr
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-spec/index.html">Speculative Tracing</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-spec/index.html">Speculative Tracing</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/speculation.stp.html">Speculation</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/speculation.stp.html">Speculation</a>
 </li>
 </ul>
 </p>

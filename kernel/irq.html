@@ -50,7 +50,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Interrupt handling and deferred execution</h3>
+ <a name="__index___interrupt"></a> Interrupt handling and deferred execution</h3>
 <p>
 Single instance of processor (core or hardware thread) can execute only single flow of instructions and won't switch to another flow of instructions unless it is explicitly specified with branch instruction. This model, however, prevents operating system from implementing illusion of multiprocessing by periodically switching active threads (which represent flow of instructions). To implement multiprocessing and many other concepts, processor provide mechanism of <em>interrupts</em>. </p>
 <p>
@@ -85,11 +85,11 @@ Solaris has several SDT probes that can be used to trace interrupt handlers too:
 </p>
 </p>
 <p>
-Interrupt threads is not the only method to defer execution of certain kernel code: kernel provides a lot of other facilities to do so. They are referred to as <em>bottom halves</em> of interrupt, while interrupt handler itself is a <em>top half</em> which responsibility is to activate bottom half. An example of them is defferred interrupt handlers <strong>softirqs</strong> and <strong>tasklets</strong> in Linux which are executed in the context of <code>ksoftirqd-N</code> kernel threads. They are prioritized where <code>TASKLET_SOFTIRQ</code> has the lesser priority and serves for execution of tasklets (they are more lightweight than softirqs). They could be traced using <code>softirq.entry</code> and <code>softirq.exit</code> probes.</p>
+<a name="__index___bottom_half"></a> Interrupt threads is not the only method to defer execution of certain kernel code: kernel provides a lot of other facilities to do so. They are referred to as <em>bottom halves</em> of interrupt, while interrupt handler itself is a <em>top half</em> which responsibility is to activate bottom half. An example of them is defferred interrupt handlers <strong>softirqs</strong> and <strong>tasklets</strong> in Linux which are executed in the context of <code>ksoftirqd-N</code> kernel threads. They are prioritized where <code>TASKLET_SOFTIRQ</code> has the lesser priority and serves for execution of tasklets (they are more lightweight than softirqs). They could be traced using <code>softirq.entry</code> and <code>softirq.exit</code> probes.</p>
 <p>
 If bottom half (or any other in-kernel job) has to be executed at specified moment of time, Linux provides <strong>timers</strong> while Solaris has <em>cyclic subsystem</em> which can be accessed through <strong>callouts</strong> or <code>timeout()</code>/<code>untimeout()</code> calls.</p>
 <p>
-To simplify execution of small chunks of work Linux provide <strong>workqueue</strong> mechanism which has closest analogue in Solaris -- <strong>task queues</strong>. They provide a pool of worker threads whose extract function and data pointers from a queue and call that function. Many drivers may implement their own work queues. Solaris provides static probes to trace task queues:</p>
+<a name="__index___workqueue__Linux_"></a> <a name="__index___taskqueue__Solaris_"></a> To simplify execution of small chunks of work Linux provide <strong>workqueue</strong> mechanism which has closest analogue in Solaris –- <strong>task queues</strong>. They provide a pool of worker threads whose extract function and data pointers from a queue and call that function. Many drivers may implement their own work queues. Solaris provides static probes to trace task queues:</p>
 <p>
     <p>
     <pre>

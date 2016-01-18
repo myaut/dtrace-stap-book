@@ -133,8 +133,10 @@ Lowest  </td>
 </table>
 </p>
 <p>
+<a name="__index___tapset"></a>
 To achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provides fewer information than you could access with other approaches. These options will be described in <a href="../lang/tapset.html">Translators and tapsets</a> section of next module. </p>
 <p>
+<a name="__index___conditional_compilation"></a>
 Linux kernel is changing faster: it has stable releases each 2-3 months, and moreover, its builds are configurable, so some features present in one kernel may be disabled in another and vice versa which makes stability is much more fragile. To overcome that, SystemTap Language has conditional compilation statements which like in C allow to disable certain paths in code. Simplest conditional compilation statements are <code>@defined</code> which evaluates to true if variable passed to it is present in debug information and <code>@choose_defined</code> which chooses from several variables. It also support ternary conditional expression:
     <p>
     <pre>
@@ -147,13 +149,14 @@ Linux kernel is changing faster: it has stable releases each 2-3 months, and mor
 <p>
 Here, <code>kernel_v</code> is numerical version of kernel without suffix (for version with suffix, use <code>kernel_vr</code>). SystemTap also defines <code>arch</code> variable and <code>CONFIG_*</code> tokens similiar to configuration options. These options are not available in Embedded C, use traditional preprocessor there.</p>
 <p>
+<a name="__index___missing_probe"></a>
 Finally, if some probe is missing from kernel, script compilation will fail. DTrace allow to ignore such errors by passing <code>-Z</code> command line option. In SystemTap you may add <code>?</code> at the end of probe name to make this probe optional.</p>
 <p>
     <h4>
  Notes</h4>
 </p>
 <p>
-† -- unless you are running Solaris 11 which was deprecated and obsoleted many of its system calls..</p>
+† –- unless you are running Solaris 11 which was deprecated and obsoleted many of its system calls..</p>
 <p>
     <h4>
  References</h4>
@@ -161,10 +164,10 @@ Finally, if some probe is missing from kernel, script compilation will fail. DTr
 <p>
      <ul>
         <li>
- <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"/> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00068000000000000000">Conditional compilation</a>
+ <img src="../images/icons/staplang.png" alt="image:staplang" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00068000000000000000">Conditional compilation</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-stab/index.html">Stability</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-stab/index.html">Stability</a>
  </li>
 </ul>
 </p>

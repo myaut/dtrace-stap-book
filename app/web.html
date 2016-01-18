@@ -75,7 +75,7 @@ An alternative of that is to use mod_dtrace module, but we won't discuss it in o
 <p>
 We will use Drupal with MySQL database running under Zend PHP interpreter in Apache web-server in mod_php mode. You can also use PHP-FPM, but it makes requests mapping harder as requests would be processed by different processes. In our case, without PHP-FPM, web-application and http-server would be of same context:</p>
 <p>
-<img src="../images/webapp.png" alt="image:webapp" class="img-rounded"/></p>
+<img src="../images/webapp.png" alt="image:webapp" class="img-rounded"></img></p>
 <p>
 You will need to use provider name to access PHP, MySQL and Apache HTTP Server probes. Their naming convention is the same as any other USDT probe:
     <p>

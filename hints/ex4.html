@@ -78,7 +78,7 @@ Note that Linux <code>uselib</code> call may also being used for that.</p>
 <p>
 Even if pages are already loaded into <em>page cache</em>, they might be mapped with different addresses or with different permissions (which is less likely for shared objects), so operating system need to create new memory segments for them. It also performs it lazily and only maps limited amount of pages. The rest are mapped on demand when <em>minor fault</em> occur. That is why they occur often when new processes are spawned.</p>
 <p>
-We will use <code>@count</code> aggregation and <code>vm.pagefault</code> probe to count pagefaults in SystemTap for Linux. Path to file is represented by dentry structure <code>$vma-&gt;vm_file-&gt;f_path-&gt;dentry</code> -- we will use <code>d_name</code> function to access string representation of its name.</p>
+We will use <code>@count</code> aggregation and <code>vm.pagefault</code> probe to count pagefaults in SystemTap for Linux. Path to file is represented by dentry structure <code>$vma-&gt;vm_file-&gt;f_path-&gt;dentry</code> –- we will use <code>d_name</code> function to access string representation of its name.</p>
 <p>
     <p>
     <div class="well">
@@ -167,7 +167,7 @@ kmem_cache_alloc(kmem_cache_t *cp, int kmflag)
     (from usr/src/uts/common/os/kmem.c)</pre>
 </p>
 
-This type is a typedefed alias for a <code>struct kmem_cache</code> which is defined in usr/src/uts/common/sys/kmem_impl.h. When you check its definition, you may find <code>cache_name</code> field -- it is obvious that this field contains name of cache.
+This type is a typedefed alias for a <code>struct kmem_cache</code> which is defined in usr/src/uts/common/sys/kmem_impl.h. When you check its definition, you may find <code>cache_name</code> field –- it is obvious that this field contains name of cache.
     <p>
     <pre>
 struct kmem_cache {

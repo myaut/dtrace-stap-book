@@ -50,7 +50,7 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Process management</h3>
+ <a name="__index___process"></a> Process management</h3>
 <p>
 <span class="label label-inverse">Definition</span>    <div class="well">
         <p>
@@ -66,7 +66,7 @@ According to Andrew Tanenbaum's book "Modern Operating Systems",</p>
 <p>
 <span class="label label-info">Information</span>    <div class="well">
         <p>
-Each process has its own address space -- in modern processors it is implemented as a set of pages which map virtual addresses to a physical memory. When another process has to be executed on CPU, <em>context switch</em> occurs: after it processor special registers point to a new set of page tables, thus new virtual address space is used. Virtual address space also contains all binaries and libraries and saved process counter value, so another process will be executed after context switch. Processes may also have multiple <em>threads</em>. Each thread has independent state, including program counter and stack, thus threads may be executed in parallel, but they all threads share same address space.
+<a name="__index___context_switch"></a> Each process has its own address space –- in modern processors it is implemented as a set of pages which map virtual addresses to a physical memory. When another process has to be executed on CPU, <em>context switch</em> occurs: after it processor special registers point to a new set of page tables, thus new virtual address space is used. Virtual address space also contains all binaries and libraries and saved process counter value, so another process will be executed after context switch. Processes may also have multiple <em>threads</em>. Each thread has independent state, including program counter and stack, thus threads may be executed in parallel, but they all threads share same address space.
 </p>
 </div>
 </p>
@@ -75,26 +75,28 @@ Each process has its own address space -- in modern processors it is implemented
  Process tree in Linux</h4>
 </p>
 <p>
-Processes and threads are implemented through universal <code>task_struct</code> structure (defined in <code>include/linux/sched.h</code>), so we will refer in our book as <em>tasks</em>. The first thread in process is called <em>task group leader</em> and all other threads are linked through list node <code>thread_node</code> and contain pointer <code>group_leader</code> which references <code>task_struct</code> of their process, that is , the <code>task_struct</code> of <em>task group leader</em>. Children processes refer to parent process through <code>parent</code> pointer and link through <code>sibling</code> list node. Parent process is linked with its children using <code>children</code> list head. </p>
+<a name="__index___task__Linux_"></a> Processes and threads are implemented through universal <code>task_struct</code> structure (defined in <code>include/linux/sched.h</code>), so we will refer in our book as <em>tasks</em>. The first thread in process is called <em>task group leader</em> and all other threads are linked through list node <code>thread_node</code> and contain pointer <code>group_leader</code> which references <code>task_struct</code> of their process, that is , the <code>task_struct</code> of <em>task group leader</em>. Children processes refer to parent process through <code>parent</code> pointer and link through <code>sibling</code> list node. Parent process is linked with its children using <code>children</code> list head. </p>
 <p>
-<img src="../images/linux/task.png" alt="image:linux-task" class="img-rounded"/></p>
+Relations between <code>task_struct</code> objects are shown in the following picture:</p>
 <p>
-Task which is currently executed on CPU is accessible through <code>current</code> macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use <code>task_current()</code>. You can also get pointer to a <code>task_struct</code> using <code>pid2task()</code> function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as <a href="../lang/context.html">Probe Context</a>. <a name="task_funcs"></a> They all get pointer to a <code>task_struct</code> as their argument:
+<img src="../images/linux/task.png" alt="image:linux-task" class="img-rounded"></img></p>
+<p>
+<a name="__index___current_pointer__Linux_"></a> Task which is currently executed on CPU is accessible through <code>current</code> macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use <code>task_current()</code>. You can also get pointer to a <code>task_struct</code> using <code>pid2task()</code> function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as <a href="../lang/context.html">Probe Context</a>. <a name="task_funcs"></a> They all get pointer to a <code>task_struct</code> as their argument:
         <ul>
         <li>
- <code>task_pid()</code> and <code>task_tid()</code> -- ID of the process ID (stored in <code>tgid</code> field) and thread (stored in <code>pid</code> field) respectively. Note that kernel most of the kernel code doesn't check cached <code>pid</code> and <code>tgid</code> but use namespace wrappers.
+ <code>task_pid()</code> and <code>task_tid()</code> –- ID of the process ID (stored in <code>tgid</code> field) and thread (stored in <code>pid</code> field) respectively. Note that kernel most of the kernel code doesn't check cached <code>pid</code> and <code>tgid</code> but use namespace wrappers.
     </li>
         <li>
- <code>task_parent()</code> -- returns pointer to a parent process, stored in <code>parent</code>/<code>real_parent</code> fields
+ <code>task_parent()</code> –- returns pointer to a parent process, stored in <code>parent</code>/<code>real_parent</code> fields
     </li>
         <li>
- <code>task_state()</code> -- returns state bitmask stored in <code>state</code>, such as <code>TASK_RUNNING</code> (0), <code>TASK_INTERRUPTIBLE</code> (1), <code>TASK_UNINTTERRUPTIBLE</code> (2). Last 2 values are for sleeping or waiting tasks -- the difference that only interruptible tasks may receive signals. 
+ <code>task_state()</code> –- returns state bitmask stored in <code>state</code>, such as <code>TASK_RUNNING</code> (0), <code>TASK_INTERRUPTIBLE</code> (1), <code>TASK_UNINTTERRUPTIBLE</code> (2). Last 2 values are for sleeping or waiting tasks –- the difference that only interruptible tasks may receive signals. 
     </li>
         <li>
- <code>task_execname()</code> -- reads executable name from <code>comm</code> field, which stores base name of executable path. Note that <code>comm</code> respects symbolic links.
+ <code>task_execname()</code> –- reads executable name from <code>comm</code> field, which stores base name of executable path. Note that <code>comm</code> respects symbolic links.
     </li>
         <li>
- <code>task_cpu()</code> -- returns CPU to which task belongs</li>
+ <code>task_cpu()</code> –- returns CPU to which task belongs</li>
 </ul>
 </p>
 <p>
@@ -107,7 +109,7 @@ There are several other useful fields in <code>task_struct</code>:
  <code>fs</code> (pointer to <code>struct fs_struct</code>) contains filesystem information: <code>path</code> contains working directory of a task, <code>root</code> contains root directory (alterable using <code>chroot</code> system call)
     </li>
         <li>
- <code>start_time</code> and <code>real_start_time</code> (represented as <code>struct timespec</code> until 3.17, replaced with <code>u64</code> nanosecond timestamps) -- <em>monotonic</em> and <em>real</em> start time of a process.
+ <code>start_time</code> and <code>real_start_time</code> (represented as <code>struct timespec</code> until 3.17, replaced with <code>u64</code> nanosecond timestamps) –- <em>monotonic</em> and <em>real</em> start time of a process.
     </li>
         <li>
  <code>files</code> (pointer to <code>struct files_struct</code>) contains table of files opened by process
@@ -298,28 +300,35 @@ probe timer.s(1) {
 </p>
 
     <h4>
- Process tree in Solaris</h4>
+ <a name="__index___curthread__Solaris_"></a> Process tree in Solaris</h4>
 </p>
 <p>
 Solaris Kernel distinguishes threads and processes: on low level all threads represented by <code>kthread_t</code>, which are presented to userspace as <em>Light-Weight Processes</em> (or <em>LWPs</em>) defined as <code>klwp_t</code>. One or multiple LWPs constitute a process <code>proc_t</code>. They all have references to each other, as shown on the following picture:</p>
 <p>
-<img src="../images/solaris/proc.png" alt="image:sol-proc" class="img-rounded"/></p>
+<img src="../images/solaris/proc.png" alt="image:sol-proc" class="img-rounded"></img></p>
 <p>
 Current thread is passed as <code>curthread</code> built-in variable to probes. Solaris <code>proc</code> provider has <code>lwpsinfo_t</code> and <code>psinfo_t</code> providers that extract useful information from corresponding thread, process and LWP structures.</p>
 <p>
-    <table class="table table-bordered">
+    <table class="table table-bordered" style="width: 100%">
         <tr>
+            <td>
+ </td>
+            <td>
+ </td>
+            <td>
+ <em>Description</em></td>
+</tr>
+        <tr>
+
             <td  colspan="3">
  <strong>Process</strong></td>
 </tr>
         <tr>
 
             <td>
-<code>psinfo_t</code> <strong>field</strong> </td>
+<code>psinfo_t</code> <em>field</em> </td>
             <td>
- <code>proc_t</code> <strong>field</strong> </td>
-            <td>
- <strong>Description</strong></td>
+ <code>proc_t</code> <em>field</em></td>
 </tr>
         <tr>
 
@@ -352,7 +361,7 @@ Current thread is passed as <code>curthread</code> built-in variable to probes. 
 
             <td>
 <code>pr_uid</code>, <code>pr_gid</code>, 
-<code>pr_euid</code> <code>pr_egid</code> </td>
+<code>pr_euid</code>, <code>pr_egid</code> </td>
             <td>
  In <code>p_cred</code> of type <code>struct cred</code> </td>
             <td>
@@ -415,7 +424,7 @@ Current thread is passed as <code>curthread</code> built-in variable to probes. 
         <tr>
 
             <td>
-For current process -- <code>fds</code> pseudo-array </td>
+For current process –- <code>fds</code> pseudo-array </td>
             <td>
  <code>p_user.u_finfo</code> </td>
             <td>
@@ -424,16 +433,16 @@ For current process -- <code>fds</code> pseudo-array </td>
         <tr>
 
             <td  colspan="3">
- <strong>Thread / LWP</strong></td>
+ <em>Thread / LWP</em></td>
 </tr>
         <tr>
 
             <td>
-<code>lwpsinfo_t</code> <strong>field</strong> </td>
+<code>lwpsinfo_t</code> <em>field</em> </td>
             <td>
- <code>kthread_t</code> <strong>field</strong> </td>
+ <code>kthread_t</code> <em>field</em> </td>
             <td>
- <strong>Description</strong></td>
+ <em>Description</em></td>
 </tr>
         <tr>
 
@@ -452,7 +461,7 @@ For current process -- <code>fds</code> pseudo-array </td>
             <td>
  <code>t_state</code> </td>
             <td>
-  State of the thread -- one of <code>SSLEEP</code> for sleeping, <code>SRUN</code> for runnable thread, <code>SONPROC</code> for thread that is currently on process, <code>SZOMB</code> for zombie threads, <code>SSTOP</code> for stopped threads and <code>SWAIT</code> for threads that are waiting to be runnable.</td>
+  State of the thread –- one of <code>SSLEEP</code> for sleeping, <code>SRUN</code> for runnable thread, <code>SONPROC</code> for thread that is currently on process, <code>SZOMB</code> for zombie threads, <code>SSTOP</code> for stopped threads and <code>SWAIT</code> for threads that are waiting to be runnable.</td>
 </tr>
         <tr>
 
@@ -637,12 +646,12 @@ DUMP_FILE_PROBE(tick-1s)</pre>
 </p>
 <p>
     <h4>
- Lifetime of a process</h4>
+ <a name="__index___process__spawning"></a> Lifetime of a process</h4>
 </p>
 <p>
 Lifetime of a process and corresponding probes are shown in the following image:</p>
 <p>
-<img src="../images/forkproc.png" alt="image:forkproc" class="img-rounded"/></p>
+<img src="../images/forkproc.png" alt="image:forkproc" class="img-rounded"></img></p>
 <p>
 Unlike Windows, in Unix process is spawned in two stages:
      <ul>
@@ -666,7 +675,7 @@ There is a simpler call, <code>vfork()</code>, which will not cause copying of a
 When child process finishes its job, it will call <code>exit()</code> system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call <code>wait()</code> system call (or <code>waitid()</code> and similar calls), which will stop parent from executing until child exits.
 <code>wait()</code> call also receives process exit code, so only after that corresponding <code>task_struct</code> will be destroyed. If no process waits on a child, and child is exited, it will be treated as <em>zombie</em> process. Parent process may be also notified by kernel with <code>SIGCHLD</code> signal.</p>
 <p>
-Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:</p>
+<a name="__index___proc__provider__DTrace_"></a> <a name="__index___kprocess__tapset__SystemTap_"></a> Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:</p>
 <p>
     <table class="table table-bordered">
         <tr>
@@ -702,17 +711,17 @@ Forked process begins its execution </td>
  
                     <ul>
                     <li>
- <code>proc:::start</code> -- called in new process context </li>
+ <code>proc:::start</code> –- called in new process context </li>
 </ul>
 </td>
             <td>
  
                         <ul>
                     <li>
- <code>kprocess.start</code> -- called in a new process context 
+ <code>kprocess.start</code> –- called in a new process context 
         </li>
                     <li>
- <code>scheduler.wakeup_new</code> -- process has been dispatched onto CPU first time</li>
+ <code>scheduler.wakeup_new</code> –- process has been dispatched onto CPU first time</li>
 </ul>
 </td>
 </tr>
@@ -724,13 +733,13 @@ Forked process begins its execution </td>
  
                     <ul>
                     <li>
- <code>proc:::exec</code> -- entering <code>execve()</code> 
+ <code>proc:::exec</code> –- entering <code>execve()</code> 
     </li>
                     <li>
- <code>proc:::exec-success</code> -- <code>execve()</code> finished successfully 
+ <code>proc:::exec-success</code> –- <code>execve()</code> finished successfully 
     </li>
                     <li>
- <code>proc:::exec-failure</code> -- <code>execve()</code> has failed, 
+ <code>proc:::exec-failure</code> –- <code>execve()</code> has failed, 
         <code>args[0]</code> contains errno </li>
 </ul>
 </td>
@@ -738,10 +747,10 @@ Forked process begins its execution </td>
  
                             <ul>
                     <li>
- <code>kprocess.exec</code> -- entering <code>execve()</code> 
+ <code>kprocess.exec</code> –- entering <code>execve()</code> 
             </li>
                     <li>
- <code>kprocess.exec_complete</code> -- <code>execve()</code> has been completed, 
+ <code>kprocess.exec_complete</code> –- <code>execve()</code> has been completed, 
             <code>success</code> variable has true-value if completed successfully, 
             <code>errno</code> variable has error number in case of error</li>
 </ul>
@@ -755,10 +764,10 @@ Process finished </td>
  
                     <ul>
                     <li>
- <code>process::exit</code> -- process exited normally via <code>exit()</code> syscall 
+ <code>process::exit</code> –- process exited normally via <code>exit()</code> syscall 
     </li>
                     <li>
- <code>process::fault</code> -- process has been terminated due to fault </li>
+ <code>process::fault</code> –- process has been terminated due to fault </li>
 </ul>
 </td>
             <td>
@@ -928,19 +937,19 @@ DTrace will give similar outputs, but also will reveal LWP creation/destruction:
 <p>
     <ul>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/context_stp.html">Context Functions</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/context_stp.html">Context Functions</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/task_time_stp.html">Task Time Tapset</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/task_time_stp.html">Task Time Tapset</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/kprocess.stp.html">Kernel Process Tapset</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/kprocess.stp.html">Kernel Process Tapset</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/sched.stp.html">Scheduler Tapset</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/sched.stp.html">Scheduler Tapset</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-proc/index.html">proc Provider</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-proc/index.html">proc Provider</a>
 </li>
 </ul>
 </p>

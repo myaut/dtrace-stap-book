@@ -53,13 +53,13 @@
 <div class="container max-height no-overflow">
 	<div id="content" nevow:render="content">
 		<h3>
- Pointers</h3>
+ <a name="__index___pointer"></a>  Pointers</h3>
 <p>
 <em>Pointer</em> is a special variable in C language that points (references) to a some data in memory, thus pointer usually contains address of that data. It is a common way to keep complex data structures in dynamically allocated memory, and pass a pointer between functions or share data among them by using same pointers at all consumers. SystemTap supports pointers in DWARF variables, but for locals it treats them as <code>long</code>. DTrace simulates full support of pointers, arrays and even dynamic allocation of them. To create a pointer you can use <code>&</code> operator like you do in C.</p>
 <p>
-Things in kernel get complicated because some pointers point to a <em>user address space</em> which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues <code>open()</code> system call, it keeps <code>pathname</code> argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, <code>badp</code> is bad pointer, which points nowhere, <code>kstr</code> points to a data in <em>kernel address space</em>, while <code>ustr</code> references string in <em>user address space</em>:</p>
+<a name="__index___address_space"></a> Things in kernel get complicated because some pointers point to a <em>user address space</em> which is not trivially accessible, so instead of dereferencing it special function is called to copy data in or out. For example, when application issues <code>open()</code> system call, it keeps <code>pathname</code> argument as a string located in user address space, and passes only pointer to an argument. Moreover, some pointers may be invalid, and dereferencing them may cause system fault. So instead of working with raw pointers, dynamic tracing languages provide set of interfaces. In the following example, <code>badp</code> is bad pointer, which points nowhere, <code>kstr</code> points to a data in <em>kernel address space</em>, while <code>ustr</code> references string in <em>user address space</em>:</p>
 <p>
-<img src="../images/pointers.png" alt="image:pointers" class="img-rounded"/></p>
+<img src="../images/pointers.png" alt="image:pointers" class="img-rounded"></img></p>
 <p>
 Accessing a data in kernel address space in DTrace is performed by simple dereferencing it in C-style. For example, <code>fop_open()</code> function accepts pointer to pointer to <code>vnode_t</code>, so to get actual address of <code>vnode_t</code>, you need to dereference it:
     <p>
@@ -114,75 +114,80 @@ Summarizing all that, we should use following to read or write first character o
     <table class="table table-bordered">
         <tr>
             <td>
- </td>
+<em>Operation</em> </td>
             <td>
- </td>
+ <em>Pointer</em> </td>
             <td>
-                   <code>kptr</code> </td>
+ <em>DTrace</em>            </td>
             <td>
- <code>badp</code> </td>
-            <td>
- <code>uptr</code></td>
+ <em>SystemTap</em></td>
 </tr>
         <tr>
 
+            <td  rowspan="3">
+ <strong>read</strong>  </td>
+            <td>
+ <code>kptr</code> </td>
             <td  rowspan="2">
- DTrace </td>
-            <td>
- <strong>read</strong> </td>
-            <td>
  <code>*((char*) arg0)</code> </td>
             <td>
- <code>*((char*) arg0)</code> </td>
-            <td>
- <code>*((char*) copyin(arg0, 1))</code></td>
+ <code>kernel_char($kptr)</code></td>
 </tr>
         <tr>
 
             <td>
-            <strong>write</strong> </td>
-            <td  colspan="2">
- </td>
+                <code>badp</code> </td>
             <td>
- Use copyout (see below)</td>
+                        <code>kernel_char($kptr)</code> <br />  
+                                                with try-catch-block</td>
 </tr>
         <tr>
 
-            <td  rowspan="2">
- SystemTap </td>
             <td>
- <strong>read</strong> </td>
+                <code>uptr</code> </td>
             <td>
- <code>kernel_char($kptr)</code> </td>
-            <td>
- <code>kernel_char($badp)</code> with try-catch block </td>
+ <code>*((char*) copyin(arg0, 1))</code> </td>
             <td>
  <code>user_char($uptr)</code></td>
 </tr>
         <tr>
 
+            <td  rowspan="3">
+ <strong>write</strong> </td>
             <td>
-               <strong>write</strong> </td>
+ <code>kptr</code> </td>
+            <td  rowspan="2">
+ -                 </td>
             <td>
- <code>set_kernel_char($kptr, 'M')</code> </td>
-            <td>
- <code>set_kernel_char($badp, 'M')</code> with try-catch block </td>
-            <td>
- </td>
+ <code>set_kernel_char($kptr, 'M')</code></td>
 </tr>
-</table>
-</p>
-<p>
-Example for <code>copyout</code>:
-    <p>
-    <pre>
+        <tr>
+
+            <td>
+                <code>badp</code> </td>
+            <td>
+                        <code>set_kernel_char($kptr, 'M')</code> <br />  
+                                                with try-catch-block</td>
+</tr>
+        <tr>
+
+            <td>
+                <code>uptr</code> </td>
+            <td>
+ 
+                <p>
+                <pre>
 this->c = (char*) alloca(1); 
 *this->c = 'M'; 
 copyout(this->c, arg0, 1);</pre>
 </p>
+ </td>
+            <td>
+ -</td>
+</tr>
+</table>
 </p>
 <p>
-
     <h4>
  Safety notes</h4>
 </p>
@@ -221,16 +226,16 @@ Sometimes even correct addresses cause faults if data they point to is not in me
 <p>
     <ul>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-pointers/index.html">Pointers and arrays</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-pointers/index.html">Pointers and arrays</a>
 </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"/> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-actsub/index.html">Actions and Subroutines</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/conversions.stp.html">String and data retrieving functions Tapset</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/conversions.stp.html">String and data retrieving functions Tapset</a>
 </li>
         <li>
- <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"/> <a href="https://sourceware.org/systemtap/tapsets/conversions-guru.stp.html">String and data writing functions Tapset</a>
+ <img src="../images/icons/stapset.png" alt="image:stapset" class="img-rounded"></img> <a href="https://sourceware.org/systemtap/tapsets/conversions-guru.stp.html">String and data writing functions Tapset</a>
 </li>
 </ul>
 </p>
