@@ -1,4 +1,4 @@
-### Arguments
+### [__index__:arguments of probe] [__index__:return value] Arguments
 
 When you bind a probe, you need to collect some data in it. In C, data is usually passed as arguments to a function, or returned as _return value_. So, when you bind a function boundary tracing probe, you may need to gather them. Argument extraction relies on calling conventions, and extracts data directly from registers or stack.
 

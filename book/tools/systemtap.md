@@ -2,7 +2,7 @@
 
 SystemTap is not part of Linux Kernel, so it have to adapt to kernel changes: i.e. sometimes runtime and code-generator have to adapt to new kernel releases. Also, Linux kernels in most distributions are stripped which means that debug information in DWARF format or symbol tables are removed. SystemTap supports _DWARF-less_ tracing, but it has very limited capabilities, so we need to provide DWARF information to it.
 
-Many distributions have separate packages with debug information: packages with `-debuginfo` suffix on RPM-based distributions, packages with `-dbg` on Debian-based distributions. They have files that originate from same build the binary came from (it is crucial for SystemTap because it verifies buildid of kernel), but instead of text and data sections they contain debug sections. For example, RHEL need `kernel-devel`, `kernel-debuginfo` and `kernel-debuginfo-common` packages to make SystemTap working. Recent SystemTap versions have `stap-prep` tool that automatically install kernel debuginfo from appropriate repositories with correct versions.
+[__index__:debuginfo packages (Linux)] Many distributions have separate packages with debug information: packages with `-debuginfo` suffix on RPM-based distributions, packages with `-dbg` on Debian-based distributions. They have files that originate from same build the binary came from (it is crucial for SystemTap because it verifies buildid of kernel), but instead of text and data sections they contain debug sections. For example, RHEL need `kernel-devel`, `kernel-debuginfo` and `kernel-debuginfo-common` packages to make SystemTap working. Recent SystemTap versions have `stap-prep` tool that automatically install kernel debuginfo from appropriate repositories with correct versions.
 
 For vanilla kernels you will need to configure `CONFIG_DEBUG_INFO` option so debug information will be linked with kernel. You will also need to set `CONFIG_KPROBES` to allow SystemTap patching kernel code, `CONFIG_RELAY` and `CONFIG_DEBUG_FS` to allow transfer information between buffers and consumer and `CONFIG_MODULES` with `CONFIG_MODULE_UNLOAD` to provide module facilities. You will also need uncompressed `vmlinux` file and kernel sources located in `/lib/modules/$(uname -r)/build/`.
 
@@ -10,7 +10,7 @@ SystemTap doesn't have VM in-kernel (unlike DTrace and KTap), instead it generat
 
 ![image:stapprocess](stapprocess.png)
 
-SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. _Tapsets_ are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during _elaborate_ stage. _Runtime_ is written in C and used during _compile_ stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. 
+[__index__:runtime (SystemTap)] SystemTap uses two sets of libraries during compilation process to provide kernel-version independent API for accessing. _Tapsets_ are a helpers that are written in SystemTap language (but some parts may be written in C) and they are plugged during _elaborate_ stage. _Runtime_ is written in C and used during _compile_ stage. Because of high complexity of preparing source code and compiling that, SystemTap is slower than a DTrace. To mitigate that issue, it can cache compiled modules, or even use compile servers. 
 
 Unlike DTrace, SystemTap has several front-end tools with different capabilities:
  * `stapio` is a consumer which runs module and prints information from its buffer to a file or stdout. It is never used directly, but called by `stap` and `staprun` tools.
@@ -21,9 +21,7 @@ Unlike DTrace, SystemTap has several front-end tools with different capabilities
 If `stap` parent is exited, than `killall -9 stap` won't finish `stapio` daemon. You have to signal it with SIGTERM: `killall -15 stap`
 !!!
 
-[stap]
-
-#### stap 
+#### [stap]  [__index__:stap(1)] stap 
 
 Like many other scripting tools, SystemTap accepts script as command line option or external file, for example:
  * Command-line script is passed with `-e` option

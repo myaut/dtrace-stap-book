@@ -4,11 +4,13 @@ Like we said, dynamic tracing is intended to be safely used in production system
  * Fatal actions inside kernel like reading from invalid pointer (like `NULL`) or division by zero will cause a panic following by a reboot.
  * If probes are executed for too much time (or too often), it will induce performance degradation in a production system, or at least give results that are very different than from a non-traced system (i.e. making racing condition that you debug a very rare). 
  * Dynamic tracing systems allocate memory for their internal memory which should be limited.
- 
+
+[__index__:Deadman mechanism] [__index__:probe overhead threshold]
 That leads to a common principle for all dynamic tracing systems: __add some checks before executing actual tracing__. For example, DTrace has _Deadman Mechanism_ that detects system unresponsiveness induced by DTrace and aborts tracing, while SystemTap monitors time spent in each tracing probe. The common error messages you'll see due to that are `processing aborted: Abort due to systemic unresponsiveness` in DTrace and `SystemTap probe overhead exceeded threshold`. 
 
 Unfortunately, SystemTap is not that affective as DTrace, so probe overhead error message is a common thing. To overcome this error in SystemTap you can recompile your script with `-t` option to see what probes are causing overload and try to optimize them. You may also increase threshold by setting compile macro (with `-D` option) `STP_OVERLOAD_THRESHOLD` in percent of overall CPU time or completely disable it with `STP_NO_OVERLOAD` macro (latest SystemTap versions support it via `-g --suppress-time-limits`).
 
+[__index__:MAXMAPENTRIES (constant)]
 Another resource that is limited is memory. Memory limitations are implemented pretty simple: all allocations should be performed when script is launched and with a fixed size. For associative arrays, SystemTap limits number of entries it can hold (changeable by setting macro `MAXMAPENTRIES`), and `ERROR: Array overflow, check MAXMAPENTRIES near identifier 't' at <input>:1:30`, while DTrace limits overall space for them via `dynvarsize` tunable and it will print it as `dynamic variable drops` error. Note that SystemTap still can exhaust memory if you create too many associative arrays, but this will be handled by OOM which will simply kill `stap` tool. Both DTrace and SystemTap limit size of strings used in scripts.
 
 Transport buffer between probes and consumer is also limited, so if you will print in probes faster than consumer can take, you will see `There were NN transport failures` error in SystemTap or `DTrace drops on CPU X` error on DTrace. The answer to that problem is simple: be less verbose, take data from buffer more frequently (regulated by `cleanrate` tunable in DTrace) or increase buffer size (`-b` option and `bufsize` tunable in DTrace and `-s` option in SystemTap).

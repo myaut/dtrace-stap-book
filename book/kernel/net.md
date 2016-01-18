@@ -1,4 +1,4 @@
-### Network stack
+### [__index__:socket] [__index__:network stack] Network stack
 
 One of the largest kernel subsystem is a network stack. It is called a _stack_ because it consists from multiple protocols where each of them works on top of the more primitive protocol. That hierarchy is defined by different models such as _OSI model_ or TCP/IP stack. When user data is passed through network, it is encapsulated into packets of that protocols: when data is passed to a protocol driver it puts some service data to the packet header and tail so operating system on receiver host can recognize them and build original message even when some data was lost or order of packets had changed during transmission. 
 
@@ -13,7 +13,7 @@ Network stack in Unix systems can be split into three generic layers:
 
 ![image:net](net.png)
    
-Network input-output can require transferring huge amounts of data, so it may be ineffective to explicitly send write commands for each packet. Instead of handling each packet individually, NIC and its driver maintain shared _ring buffer_ where driver puts data while card uses _DMA_ (direct memory access) mechanisms to read data and send it over network. Ring buffers are defined by two pointers: _head_ and _tail_:
+[__index__:ring buffer] Network input-output can require transferring huge amounts of data, so it may be ineffective to explicitly send write commands for each packet. Instead of handling each packet individually, NIC and its driver maintain shared _ring buffer_ where driver puts data while card uses _DMA_ (direct memory access) mechanisms to read data and send it over network. Ring buffers are defined by two pointers: _head_ and _tail_:
 
 ![image:ringbuf](ringbuf.png)
 
@@ -59,7 +59,7 @@ Earlier versions of Linux (2.6.32 in this example) use different structure calle
     }'
 ```
 
-Solaris has derived _STREAMS_ subsystem from System V which is intended to provide API for passing messages between multiple architectural layers which is perfectly fits to how network stack look like. Each message is represented by an `mblk_t` structure:
+[__index__:STREAMS (Solaris)] Solaris has derived _STREAMS_ subsystem from System V which is intended to provide API for passing messages between multiple architectural layers which is perfectly fits to how network stack look like. Each message is represented by an `mblk_t` structure:
 
 ![image:solaris/streams](solaris/streams.png)
 
@@ -91,7 +91,7 @@ Here are example DTrace script for tracing message receiving in Solaris 11:
     }'
 ```
 
-Solaris 11 introduced new providers for tracing network: `tcp`, `udp` and `ip`. Here are probes that are provided by them and their siblings from Linux and SystemTap:
+[__index__:tcp (provider, Solaris)] [__index__:ip (provider, Solaris)] Solaris 11 introduced new providers for tracing network: `tcp`, `udp` and `ip`. Here are probes that are provided by them and their siblings from Linux and SystemTap:
 
 --- %20,35,45
 _Action_ | _DTrace_ | _SystemTap_

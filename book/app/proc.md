@@ -1,4 +1,4 @@
-### Userspace process tracing
+### [__index__:pid$$ (provider, DTrace)] [__index__:userspace process tracing] Userspace process tracing
 
 We had covered kernel organization in detail in previous chapter, but it would be useless without userspace application that services end-user requests. It can be either simple `cat` program which we used in many previous examples to complex web application which uses web server and relational database. Like with the kernel, DTrace and SystemTap allow to set a probe to any instruction in it, however it will require additional switch to kernel space to execute the code. For example, let's install probe on a `read()` call on the side of standard C library:
 

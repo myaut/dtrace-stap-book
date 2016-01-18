@@ -144,14 +144,22 @@ class IndexPage(MarkdownPage):
             sorted_refs = defaultdict(dict)
             
             for (ref_link, ref_part) in self.references.items():
-                tag, tagvalue = ref_part.parse()
+                tag, name = ref_part.parse()
                 if tag == '__index__':
-                    for name in tagvalue.split(','):
-                        first_letter = name[0].upper()
-                        sorted_refs[first_letter][name] = (ref_link, ref_part)
-                
-            for letter in sorted(sorted_refs.keys()):
-                hobj = Header(IndexPage.REF_LETTER_HSIZE, [letter])
+                    first_letter = name[0].upper()
+                    sorted_refs[first_letter][name] = (ref_link, ref_part)
+            
+            letters = sorted(sorted_refs.keys())
+            
+            letblock = Paragraph([])
+            for letter in letters:
+                letblock.parts.extend([Link(letter, Link.INTERNAL, '#' + letter), ' | '])
+            letblock.parts.pop()
+            self.blocks.append(letblock)
+            
+            for letter in letters:
+                refobj = Reference(letter)
+                hobj = Header(IndexPage.REF_LETTER_HSIZE, [letter, refobj])
                 block = Paragraph([hobj])
                 
                 refs = sorted_refs[letter]
@@ -159,7 +167,7 @@ class IndexPage(MarkdownPage):
                     ref_link, ref_part = refs[name]
                     
                     linkobj = Link(name, Link.INTERNAL, ref_link)
-                    entry = [linkobj, LineBreak()]
+                    entry = [linkobj, BreakLine('')]
                     
                     block.extend(entry)
                     
@@ -456,14 +464,10 @@ class IndexPage(MarkdownPage):
             print 'Generating {0}...'.format(reference.doc_path)
         
         # Generate index entry for reference
-        hobj = Header(IndexPage.CHAPTER_HSIZE, [IndexPage.REFERENCE_HEADER])
-        list = ListBlock()
-        
-        link = Link(IndexPage.REFERENCE_LINK_TEXT, Link.EXTERNAL,
-                    self.gen_link_to(reference))
-        list.add(ListEntry(1, [link]))
-        
-        self.blocks.append(Paragraph([hobj, list]))
+        hobj = Header(IndexPage.CHAPTER_HSIZE, [
+                        Link(IndexPage.REFERENCE_LINK_TEXT, Link.EXTERNAL,
+                             self.gen_link_to(reference))])
+        self.blocks.append(hobj)
         
         stream = file(reference.doc_path, 'w')
         printer.do_print(stream, reference.header, reference)

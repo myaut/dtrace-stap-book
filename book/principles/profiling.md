@@ -1,4 +1,4 @@
-### Profiling
+### [__index__:profiling] Profiling
 
 Consider the following task: you need to know which functions are called more often than others or spend most time when executing because it makes them perfect targets for code optimization. You may do it by attaching to every function entry and exit point the following script:
 
@@ -57,7 +57,7 @@ You can use `addr()` tapset function in SystemTap which returns userspace PC or 
 Note that we were used `profile-997hz` probe to avoid "phasing": if we'd used `profile-1000hz` probe, there were a chance, that all probes were fired while system timer handler is working, thus making profiling useless (we will see that 100% of time kernel spends in system timer). In SystemTap `timer.profile` uses system timer for profiling, but `addr()` and `uaddr()` return correct values. 
 !!!
 
-#### CPU performance measurement
+#### [__index__:processor performance counter] CPU performance measurement
 
 Even if you collect program counter values, you will get what functions use CPU the most, but that doesn't mean that utilize processor resources effectively. For example, it can spend most of the time waiting for memory or cache or reset pipeline due to branch misprediction instead of utilizing ALU for actual computations. Such wasted cycles are referred as _stalled_ in Intel processor documentation. 
 
@@ -81,7 +81,7 @@ List of pre-defined events (to be used in -e):
 
 You can use userspace tools `perf` in Linux or `cpustat`/`cputrack` in Solaris to gather CPU counters. 
 
-DTrace provides CPU counters through `cpc` provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:
+[__index__:cpc (provider, DTrace)] DTrace provides CPU counters through `cpc` provider (which is implemented through separate kernel module). It probe names consists from multiple parameters:
 ```
 <i>EventName</i>-{kernel|user|all}[-<i>Mask</i>]-<i>Number</i>
 ```
@@ -99,7 +99,7 @@ For example, you may use probe `PAPI_l3_tcm-user-10000` to measure number of use
 	}'
 ```
 
-SystemTap provides access to CPU counter using `perf` tapset:
+[__index__:perf (tapset, SystemTap)] SystemTap provides access to CPU counter using `perf` tapset:
 ```
 # stap -l 'perf.*.*'
 perf.hw.branch_instructions

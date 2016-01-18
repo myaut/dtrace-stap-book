@@ -1,4 +1,4 @@
-### Asynchronicity in kernel
+### [__index__:asynchronicity] Asynchronicity in kernel
 
 Let's return to our scripts, `scsitrace.stp` and `sdtrace.d` which we had introduced in previous section, [Block Input-Output][kernel/bio]. We tested it with block I/O. If we create a filesystem on block device and try to write to it, we will see some interesting names of processes which actually perform the write. I.e. on Solaris:
 ```
@@ -10,7 +10,7 @@ PROC: 643/643 flush-8:0
 ```
 This is internal system process which is not related to a process which is actually initiated `write()` call.
 
-This is called an _asynchronicity_, a common kernel idiom when requests are kept in queues and being flushed to receiver at an unspecified moment of time (i.e. when device is ready, when we collected batch of adjacent requests, etc.). That _flush_ is performed by separate kernel process (note how it is named in Linux) which has its own context. In our example `write()` system call won't actually start block input-output but updates page in page cache making it dirty (incorrect ZFS as it actually queues ZIO operation). Then _writeback_ mechanism in Linux or _fsflush_ daemon in Solaris is awoken. They walk dirty pages in page cache and write them back to stable storage. Finally, when disk finishes requested operation, bus driver will generate an interrupt which will create three independent contexts where request was handled:
+[__index__:writeback (Linux)] [__index__:fsflush (Solaris)] This is called an _asynchronicity_, a common kernel idiom when requests are kept in queues and being flushed to receiver at an unspecified moment of time (i.e. when device is ready, when we collected batch of adjacent requests, etc.). That _flush_ is performed by separate kernel process (note how it is named in Linux) which has its own context. In our example `write()` system call won't actually start block input-output but updates page in page cache making it dirty (incorrect ZFS as it actually queues ZIO operation). Then _writeback_ mechanism in Linux or _fsflush_ daemon in Solaris is awoken. They walk dirty pages in page cache and write them back to stable storage. Finally, when disk finishes requested operation, bus driver will generate an interrupt which will create three independent contexts where request was handled:
 
 ![image:aio](aio.png)
 
@@ -65,6 +65,6 @@ Same works for Solaris -- we can rely on `dbuf` pointer which represents a _dnod
     } '
 ```
 
-This technique is usually used _request extraction_ -- in ideal case we could observe all request handling from user clicking in a browser through network I/O, processing in web server, accessing database and, eventually, block I/O caused by that. 
+[__index__:request extraction] This technique is usually used _request extraction_ -- in ideal case we could observe all request handling from user clicking in a browser through network I/O, processing in web server, accessing database and, eventually, block I/O caused by that. 
 
 Modern kernels have low-level primitives for building such asynchronous mechanisms. We will discuss some of them later.

@@ -220,9 +220,10 @@ class TSDocTemplate(BaseDocTemplate):
         canv = self.canv
         
         # Get main page frame boundaries
-        frame = self.pageTemplate.frames[0]
-        l, r = frame._leftPadding, frame._width - frame._rightPadding
-        h = frame._bottomPadding
+        frames = self.pageTemplate.frames
+        w = sum(frame._width for frame in frames)
+        l, r = frames[0]._leftPadding, w - frames[-1]._rightPadding
+        h = max(frames[0]._bottomPadding, frames[-1]._bottomPadding)
         
         # Draw line
         canv.saveState()
@@ -301,6 +302,7 @@ class PDFPrinter(Printer):
     stream_mode = 'wb'
     
     PAGE_WIDTH, PAGE_HEIGHT = defaultPageSize           
+    PAGE_MARGIN = pagesizes.inch
     
     IMAGE_DPI = 150
     IMAGE_PATH = os.environ.get('TSDOC_IMGDIR')
@@ -334,8 +336,11 @@ class PDFPrinter(Printer):
                       ('Other source files', '(?!d|stp)')]
     
     PAGE_TEMPLATES = {
-        'Normal': (PAGE_WIDTH, PAGE_HEIGHT, pagesizes.inch, pagesizes.inch),
-        'CheatSheet': (PAGE_WIDTH, PAGE_HEIGHT, pagesizes.inch / 2, pagesizes.inch / 2)
+        'Normal': [{}],
+        'CheatSheet': [{'lm': PAGE_MARGIN / 2, 'rm': PAGE_MARGIN / 2,
+                        'tm': PAGE_MARGIN / 2, 'bm': PAGE_MARGIN / 2}],
+        'SimpleIndex': [{'w': PAGE_WIDTH / 2, 'rm': PAGE_MARGIN / 2},
+                        {'x': PAGE_WIDTH / 2, 'w': PAGE_WIDTH / 2, 'lm': PAGE_MARGIN / 2}],
         }
     
     def __init__(self, print_index=True, doc_cls=TSDocTemplate):
@@ -424,7 +429,9 @@ class PDFPrinter(Printer):
         self._page_template = self.PAGE_TEMPLATES[name]
     
     def _get_page_width(self):
-        return (self._page_template[0] - 2*self._page_template[2]) 
+        return (self.PAGE_WIDTH - 
+                self._page_template[0].get('lm', self.PAGE_MARGIN) - 
+                self._page_template[-1].get('rm', self.PAGE_MARGIN)) 
     
     def do_print_pages(self, stream, header, pages):
         story = self._story
@@ -446,8 +453,8 @@ class PDFPrinter(Printer):
             self._current_page = page
             if hasattr(page, 'is_external'):
                 story.append(PageBreak())
-                story.append(Spacer(self._page_template[0],
-                                    self._page_template[1] / 5))
+                story.append(Spacer(self.PAGE_WIDTH,
+                                    self.PAGE_HEIGHT / 5))
             
             if self.print_index:
                 story.append(_PageInfoFlowable(page, self._page_info.get(page.page_path)))            
@@ -532,19 +539,28 @@ class PDFPrinter(Printer):
     def _get_page_templates(self):
         templates = []
         
-        for (name, (w, h, xm, ym)) in self.PAGE_TEMPLATES.items():
-            templates.append(PageTemplate(id=name, 
-                                          frames=[Frame(0, 0, w, h, xm, ym, xm, ym, id=name)], 
-                                          pagesize=(w, h)))
+        # Default page template should go first in a list of templates
+        for (name, framedefs) in sorted(self.PAGE_TEMPLATES.items(), 
+                                        key=lambda row: row[0] != self.doc_cls.DEFAULT_PAGE_TEMPLATE):
+            frames = []
+            for i, frame in enumerate(framedefs):
+                frames.append(Frame(frame.get('x', 0), frame.get('y', 0), 
+                                    frame.get('w', self.PAGE_WIDTH), frame.get('h', self.PAGE_HEIGHT), 
+                                    frame.get('lm', self.PAGE_MARGIN), frame.get('tm', self.PAGE_MARGIN),
+                                    frame.get('rm', self.PAGE_MARGIN), frame.get('bm', self.PAGE_MARGIN), 
+                                    id=name+str(i)))
+            
+            templates.append(PageTemplate(id=name, frames=frames, 
+                                          pagesize=(self.PAGE_WIDTH, self.PAGE_HEIGHT)))
             
         return templates
 
     def _print_index(self, index, header):
         # Generate index page and TOC based on it 
         story = self._story
-        story.append(Spacer(self._page_template[0], self._page_template[1] / 4))
+        story.append(Spacer(self._get_page_width(), self.PAGE_HEIGHT / 4))
         story.append(RLParagraph(header, self._styles['title']))
-        story.append(Spacer(self._page_template[0], self._page_template[1] / 5))
+        story.append(Spacer(self._get_page_width(), self.PAGE_HEIGHT / 5))
         story.append(RLParagraph(self.author, self._styles['title-author']))
         
         blocks = iter(index)
@@ -575,6 +591,9 @@ class PDFPrinter(Printer):
     
     def _print_reference(self):
         index = SimpleIndex()
+        index.setup(self._styles['root'])
+        
+        self._story.append(NextPageTemplate('SimpleIndex'))
         self._story.append(PageBreak())
         self._story.append(RLParagraph(self.TITLE_INDEX, self._styles['h3']))
         self._story.append(index)
@@ -624,14 +643,14 @@ class PDFPrinter(Printer):
         if isinstance(block, PageSpacer):
             if block.isbreak:
                 if block.iscond:
-                    return self._story.append(CondPageBreak(block.height * self._page_template[1]))
+                    return self._story.append(CondPageBreak(block.height * self.PAGE_HEIGHT))
                 return self._story.append(PageBreak())
             if block.style:
                 self._set_page_template(block.style)
                 # Break to a new page unless we already have whole page available. This trick
                 # is used to render cheatsheets both in book and in separate PDF without extra page
                 return self._story.append(NextPageTemplate(block.style))
-            return self._story.append(Spacer(0, block.height * self._page_template[1]))
+            return self._story.append(Spacer(0, block.height * self.PAGE_HEIGHT))
         
         # Save state to get paragraphs
         if isinstance(block, FlowableIncut):
@@ -714,7 +733,7 @@ class PDFPrinter(Printer):
         
         image = PIL.Image.open(path)
         
-        maxwidth, maxheight = self._get_page_width() * width, self._page_template[1]
+        maxwidth, maxheight = self._get_page_width() * width, self.PAGE_HEIGHT
         imgwidth, imgheight = image.size
         
         imgwidth *= (pagesizes.inch / self.IMAGE_DPI)
@@ -822,7 +841,7 @@ class PDFPrinter(Printer):
             
             if reftag == '__index__':
                 tag = 'index'
-                tag_attrs['item'] = refvalue
+                tag_attrs['item'] = refvalue.replace(',', ',,')
             else:
                 ref_name = '{0}/{1}'.format(self._current_page.page_path, part.text)
                 
@@ -988,7 +1007,7 @@ class PDFPrinter(Printer):
         for row in data:
             for colid, col in enumerate(row):
                 for para in col:
-                    width, height = para.wrap(table_width, self._page_template[1])
+                    width, height = para.wrap(table_width, self.PAGE_HEIGHT)
                     col_widths[colid] = max(width, col_widths[colid])
                     col_heights[colid] += height
                     

@@ -1,4 +1,4 @@
-### Time
+### [__index__:monotonic time] [__index__:wall-clock time] Time
 
 A man used to live with a calendar and 24-hour representation of time. Coordinated Universal Time (UTC) is used for that now. These details are not needed for most kernel or application processes, so there is multiple time sources available for tracing tools:
 
@@ -8,7 +8,7 @@ _System timer_ is responsible for handling periodical events in kernel such as c
 _Processor cycles counter_ is a special CPU register which act as a counter which increases on each cycle, such as `TSC` in x86 or `%tick` in SPARC. It may not be monotonic. | | `get_cycles()`
 _Monotonic time_. Starts at unspecified moment of time (usually at system boot), but ticks with constant intervals. May use high-resolution time source such as HPET on x86, but may impose some jitter between CPU cores or CPUs. | `timestamp` | `local_clock_<unit>()` or `cpu_clock_<unit>(<cpu>)`
 _Virtual monotonic time of thread_. Similar to previous time source, but only accounts when thread is on CPU, which is useful to calculate CPU usage of a thread | `vtimestamp` |
-_Real time_. Monotonic time source which starting point is an UNIX Epoch (00:00:00 UTC, Thursday, 1 January 1970). May use extra locks, access RTC, so it generally slower than previous time sources | `walltimestamp` | `gettimeofday_<unit>()`
+_Real time_ or _Wall-clock time_. Monotonic time source which starting point is an UNIX Epoch (00:00:00 UTC, Thursday, 1 January 1970). May use extra locks, access RTC, so it generally slower than previous time sources | `walltimestamp` | `gettimeofday_<unit>()`
 ---
 
 In this examples `<unit>` is one of (`s` -- seconds, `ms` -- milliseconds, `us` -- microseconds and `ns` -- nanoseconds). DTrace time sources always have nanosecond resolution.

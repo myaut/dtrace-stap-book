@@ -6,7 +6,7 @@ This work is licensed under the  Creative Commons Attribution-Noncommercial-Shar
 
 [__endbackpage__]
 
-Other formats: [PDF (full)](dtrace-stap-book.pdf), [PDF (no sources)](dtrace-stap-book-ns.pdf), [EPUB (no sources)](dtrace-stap-book.epub)
+Other formats: [PDF (cheatsheets)](dtrace-stap-cheatsheet.pdf), [PDF (full)](dtrace-stap-book.pdf), [PDF (no sources)](dtrace-stap-book-ns.pdf), [EPUB (no sources)](dtrace-stap-book.epub)
 
 ### Introduction
 [__docspace__:intro]

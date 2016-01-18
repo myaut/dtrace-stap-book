@@ -1,4 +1,4 @@
-### Strings 
+### [__index__:string operations] Strings 
 
 Strings in dynamic tracing languages are wrappers around C-style null-terminated `char*` string, but they behave differently. In SystemTap it is simple alias, while DTrace add extra limitations, for example, you can't access single character to a string. String operations are listed in following table:
 
@@ -28,7 +28,7 @@ syscall::write:entry
 * ![image:staplang](icons/staplang.png) [Strings](https://sourceware.org/systemtap/langref/Language_elements.html#SECTION00062300000000000000)
 * ![image:stapset](icons/stapset.png) [A collection of standard string functions](https://sourceware.org/systemtap/tapsets/string.stp.html)
 
-### Structures
+### [__index__:structure field access] Structures
 
 Many subsystems in Linux and Solaris have to represent their data as C structures. For example, path to file corresponds from file-related structure `dentry` and filesystem-related structure `vfsmnt`:
 ```

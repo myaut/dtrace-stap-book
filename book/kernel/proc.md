@@ -1,4 +1,4 @@
-### Process management
+### [__index__:process] Process management
 
 !!! DEF
 According to Andrew Tanenbaum's book "Modern Operating Systems",
@@ -8,16 +8,18 @@ According to Andrew Tanenbaum's book "Modern Operating Systems",
 !!!
 
 !!! INFO
-Each process has its own address space -- in modern processors it is implemented as a set of pages which map virtual addresses to a physical memory. When another process has to be executed on CPU, _context switch_ occurs: after it processor special registers point to a new set of page tables, thus new virtual address space is used. Virtual address space also contains all binaries and libraries and saved process counter value, so another process will be executed after context switch. Processes may also have multiple _threads_. Each thread has independent state, including program counter and stack, thus threads may be executed in parallel, but they all threads share same address space.
+[__index__:context switch] Each process has its own address space -- in modern processors it is implemented as a set of pages which map virtual addresses to a physical memory. When another process has to be executed on CPU, _context switch_ occurs: after it processor special registers point to a new set of page tables, thus new virtual address space is used. Virtual address space also contains all binaries and libraries and saved process counter value, so another process will be executed after context switch. Processes may also have multiple _threads_. Each thread has independent state, including program counter and stack, thus threads may be executed in parallel, but they all threads share same address space.
 !!!
 
 #### Process tree in Linux
 
-Processes and threads are implemented through universal `task_struct` structure (defined in `include/linux/sched.h`), so we will refer in our book as _tasks_. The first thread in process is called _task group leader_ and all other threads are linked through list node `thread_node` and contain pointer `group_leader` which references `task_struct` of their process, that is , the `task_struct` of _task group leader_. Children processes refer to parent process through `parent` pointer and link through `sibling` list node. Parent process is linked with its children using `children` list head. 
+[__index__:task (Linux)] Processes and threads are implemented through universal `task_struct` structure (defined in `include/linux/sched.h`), so we will refer in our book as _tasks_. The first thread in process is called _task group leader_ and all other threads are linked through list node `thread_node` and contain pointer `group_leader` which references `task_struct` of their process, that is , the `task_struct` of _task group leader_. Children processes refer to parent process through `parent` pointer and link through `sibling` list node. Parent process is linked with its children using `children` list head. 
+
+Relations between `task_struct` objects are shown in the following picture:
 
 ![image:linux-task](linux/task.png)
 
-Task which is currently executed on CPU is accessible through `current` macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use `task_current()`. You can also get pointer to a `task_struct` using `pid2task()` function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as [Probe Context][lang/context]. [task-funcs] They all get pointer to a `task_struct` as their argument:
+[__index__:current pointer (Linux)] Task which is currently executed on CPU is accessible through `current` macro which actually calls function to get task from run-queue of CPU where it is called. To get current pointer in SystemTap, use `task_current()`. You can also get pointer to a `task_struct` using `pid2task()` function which accepts PID as its first argument. Task tapset provides several functions similar for functions used as [Probe Context][lang/context]. [task-funcs] They all get pointer to a `task_struct` as their argument:
 	* `task_pid()` and `task_tid()` -- ID of the process ID (stored in `tgid` field) and thread (stored in `pid` field) respectively. Note that kernel most of the kernel code doesn't check cached `pid` and `tgid` but use namespace wrappers.
 	* `task_parent()` -- returns pointer to a parent process, stored in `parent`/`real_parent` fields
 	* `task_state()` -- returns state bitmask stored in `state`, such as `TASK_RUNNING` (0), `TASK_INTERRUPTIBLE` (1), `TASK_UNINTTERRUPTIBLE` (2). Last 2 values are for sleeping or waiting tasks -- the difference that only interruptible tasks may receive signals. 
@@ -35,7 +37,7 @@ Script `dumptask.stp` demonstrates how these fields may be useful to get informa
 
 ````` scripts/stap/dumptask.stp
 
-#### Process tree in Solaris
+#### [__index__:curthread (Solaris)] Process tree in Solaris
 
 Solaris Kernel distinguishes threads and processes: on low level all threads represented by `kthread_t`, which are presented to userspace as _Light-Weight Processes_ (or _LWPs_) defined as `klwp_t`. One or multiple LWPs constitute a process `proc_t`. They all have references to each other, as shown on the following picture:
 
@@ -43,14 +45,15 @@ Solaris Kernel distinguishes threads and processes: on low level all threads rep
 
 Current thread is passed as `curthread` built-in variable to probes. Solaris `proc` provider has `lwpsinfo_t` and `psinfo_t` providers that extract useful information from corresponding thread, process and LWP structures.
 
----
+--- %25,25,50
+ | | _Description_
 3,1 __Process__
-`psinfo_t` __field__ | `proc_t` __field__ | __Description__
+`psinfo_t` _field_ | `proc_t` _field_
 `p_exec` |  | vnode of executable file
 `p_as` | | process address space
 `pr_pid` | In `p_pid` of type `struct pid` | Information about process ID
 `pr_uid`, `pr_gid`, \
-`pr_euid` `pr_egid` | In `p_cred` of type `struct cred` | User and group ID of a process
+`pr_euid`, `pr_egid` | In `p_cred` of type `struct cred` | User and group ID of a process
  | `p_stat` | Process state
 `pr_dmodel` | `p_model` | Data model of a process (32- or 64- bits)
 `pr_start` | `p_user.u_start`, `p_mstart` | Start time of process, from epoch
@@ -58,8 +61,8 @@ Current thread is passed as `curthread` built-in variable to probes. Solaris `pr
  | `p_user.p_cdir` | vnode of current process directory
  | `p_user.p_rdir` | vnode of root process directory
 For current process -- `fds` pseudo-array | `p_user.u_finfo` | Open file table 
-3,1 __Thread / LWP__
-`lwpsinfo_t` __field__ | `kthread_t` __field__ | __Description__
+3,1 _Thread / LWP_
+`lwpsinfo_t` _field_ | `kthread_t` _field_ | _Description_
 `pr_lwpid` | `t_tid` | ID of thread/LWP
 `pr_state` (enumeration) \
  or `pr_sname` (letter) | `t_state` |  State of the thread -- one of `SSLEEP` for sleeping, `SRUN` for runnable thread, `SONPROC` for thread that is currently on process, `SZOMB` for zombie threads, `SSTOP` for stopped threads and `SWAIT` for threads that are waiting to be runnable.
@@ -77,7 +80,7 @@ The following script dumps information about current thread and process. Because
 `psinfo_t` provider features `pr_psargs` field that contains first 80 characters of process arguments. This script uses direct extraction of arguments only for demonstration purposes and to be conformant with dumptask.stp. Like in SystemTap case, this approach doesn't allow to read non-current process arguments. 
 !!!
 
-#### Lifetime of a process
+#### [__index__:process, spawning] Lifetime of a process
 
 Lifetime of a process and corresponding probes are shown in the following image:
 
@@ -94,7 +97,7 @@ There is a simpler call, `vfork()`, which will not cause copying of an address s
 When child process finishes its job, it will call `exit()` system call. However, process may be killed by a kernel due to incorrect condition (like triggering kernel oops) or machine fault. If parent wants to wait until child process finishes, it will call `wait()` system call (or `waitid()` and similar calls), which will stop parent from executing until child exits.
 `wait()` call also receives process exit code, so only after that corresponding `task_struct` will be destroyed. If no process waits on a child, and child is exited, it will be treated as _zombie_ process. Parent process may be also notified by kernel with `SIGCHLD` signal.
 
-Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:
+[__index__:proc (provider, DTrace)] [__index__:kprocess (tapset, SystemTap)] Processes may be traced with kprocess and scheduler tapsets in SystemTap, or DTrace proc provider. System calls may be traced with appropriate probes too. Here are some useful probes:
 
 ---
 __Action__ | __DTrace__ | __SystemTap__

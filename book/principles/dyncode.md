@@ -1,4 +1,4 @@
-### Dynamic code analysis
+### [__index__:dynamic program analysis] Dynamic code analysis
 
 !!! DEF
 [Dynamic program analysis](http://en.wikipedia.org/wiki/Dynamic_program_analysis) is the analysis of computer software that is performed by executing programs on a real or virtual processor.
@@ -6,7 +6,7 @@
 
 We will refer to program analysis as code analysis since program is a product of code compilation, On contrary, static code analysis is performed without actually running the program. Code analysis helps to match program behaviour such as opening files, sending messages over network to their code. 
 
-#### Backtraces (stacks)
+#### [__index__:backtrace] [__index__:stack] Backtraces (stacks)
 
 Simplest way to perform code analysis is to print a backtrace.
 
@@ -52,7 +52,7 @@ Functions which have `u` in their names print userspace backtrace, functions whi
 		{ print_ubacktrace(); } '
 ```
 
-Printing backtraces involves getting a symbol which matches some memory address which involves digging into `symtab` or similar section of binary files. Dynamic tracing systems can do that and print (DTrace) or return a symbol as a string (SystemTap) with following functions:
+[__index__:symbols] Printing backtraces involves getting a symbol which matches some memory address which involves digging into `symtab` or similar section of binary files. Dynamic tracing systems can do that and print (DTrace) or return a symbol as a string (SystemTap) with following functions:
 
 ---
 __Userspace__ | _DTrace_ | _SystemTap_
@@ -97,7 +97,7 @@ SystemTap and DTrace have different formats when printing backtrace symbol names
 
 ![image:stackfmt](stackfmt.png)
 
-#### Call trees
+#### [__index__:call tree] Call trees
 
 Note that backtraces show only a stack, a linear structure of functions that lead to event, they do not include callees that were previously called, but already exited. For example in following code (which obviously causes a segmentation fault):
 ```

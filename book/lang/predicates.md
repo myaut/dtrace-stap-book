@@ -1,4 +1,4 @@
-### Predicates 
+### [__index__:predicate] Predicates 
 
 _Predicates_ are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as `==`, `!=`, `>`, `>=`, `<`, `<=` and logical operators `&&` for logical AND, `||` for logical OR and `!` for logical negation, alas with calling functions or actions.
 
@@ -29,7 +29,7 @@ probe syscall.write if(i > 4) {
 ```
 This probe will be installed when `i` becomes more than four. 
 
-`$target` in DTrace (macro-substitution) and `target()` context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as `-c` option argument or its PID was passed as `-p`/`-x` option argument). In these examples only `write` syscalls from traced process will be printed.
+[__index__:processes, grabbing PID] `$target` in DTrace (macro-substitution) and `target()` context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as `-c` option argument or its PID was passed as `-p`/`-x` option argument). In these examples only `write` syscalls from traced process will be printed.
 
 !!! WARN
 Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with `stp_pid()` which returns PID of consumer.

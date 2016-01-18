@@ -1,4 +1,4 @@
-### Virtual memory
+### [__index__:virtual memory] Virtual memory
 
 Consider the following C program which will be translated into assembler:
 ```
@@ -13,19 +13,19 @@ Modern virtual memory mechanisms are based on _page addressing_: all physical me
 
 When second instance of a program will start, new process with separate address space will be created, thus making independent copy of process data, including "Hallo, world" message, but with same addresses. When process (actually its thread or task) is dispatched onto CPU, address of its page table is written to a special register (like CR3 on x86), so only it may access its data. All address translations are performed by _Memory Management Unit_ in CPU and are transparent for it.
 
-From the process point of view, pages are grouped into _segments_ which constitute _address space_:
+[__index__:segments] From the process point of view, pages are grouped into _segments_ which constitute _address space_:
 
 ![image:pas](pas.png)
 
 New address spaces are created as a result of `execve()` system call. When it is finished, new address space constitutes from four segments: _text_ segment contains program code, _data_ segment contains program data. Binary loader also creates two special segments: _heap_ for dynamically allocated memory and _stack_ for program stack. Process arguments and environment are also initially put onto stack. Than, kernel runs process interpreter `ld.so`, which actually a dynamic linker. That linker searches for libraries for a process such as standard C library `libc.so` and calls `mmap()` to load text and data sections of that libraries. 
 
-When you try to allocate memory using `malloc()`, standard C library may increase heap using `brk()` or `sbrk()` system call. Program may also use `mmap()` calls to map files into memory. If no file is passed to `mmap()` call, then it will create special memory segment called an _anonymous memory_. Such memory segment may be used for memory allocators, independent from main process heap.
+[__index__:anonymous memory] When you try to allocate memory using `malloc()`, standard C library may increase heap using `brk()` or `sbrk()` system call. Program may also use `mmap()` calls to map files into memory. If no file is passed to `mmap()` call, then it will create special memory segment called an _anonymous memory_. Such memory segment may be used for memory allocators, independent from main process heap.
 
 You can check address space of a process with `pmap` program or by viewing `/proc/PID/mapping` file on Linux. 
 
 Let's for example see, how memory is dynamically allocated by calling `malloc()` with relatively large value. I used Python 2 `range(10000)` built-in which creates list with 10000 numbers.
 
-SystemTap provides corresponding syscalls via tapset `vm`:
+[__index__:vm (tapset, SystemTap)] SystemTap provides corresponding syscalls via tapset `vm`:
 ```
 # stap -d $(which python) --ldd -e '
 	probe vm.brk, vm.mmap, vm.munmap { 
@@ -72,7 +72,7 @@ Each segment has backward link to address space `s_as`, `s_base` as base address
 
 Some memory will be consumed by a process indirectly. For example, when application transfers a packet through the network or writes data to a file on /tmp filesystem, data is buffered by Kernel, but that memory is not mapped to a process. To do so, Kernel uses various in-kernel memory allocators and maintains _kernel address space_. 
 
-#### Page fault
+#### [__index__:page fault] Page fault
 
 As we mentioned before, when program accesses memory, memory management unit takes address, finds an entry in a page table and gets physical address. That entry, however, may not exist -- in that case CPU will raise an exception called a _page fault_. There are three types of page faults that may happen:
  * _Minor_ page fault occurs when page table entry should exist, but corresponding page wasn't allocated or page table entry wasn't created. For example, Linux and Solaris do not allocate mmapped pages immediately, but wait until first page access which causes minor page faults.
@@ -172,7 +172,7 @@ Here is an example of its output:
 `vma_flags` are not stable and change from version to version. This script contains values according to CentOS 7. Check `include/linux/mm.h` for details.
 !!!
 
-#### Kernel allocator
+#### [__index__:memory allocator] Kernel allocator
 
 Virtual memory is distributed between applications and kernel by a subsystem which called _kernel allocator_. It may be used both for applications and for internal kernel buffers such as ethernet packets, block input-output buffers, etc. 
 

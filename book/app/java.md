@@ -1,4 +1,4 @@
-### Java Virtual Machine
+### [__index__:Java Virtual Machine] Java Virtual Machine
 
 DTrace and SystemTap are intended to trace applications written in native languages like C or C++ and dependent on compiler ABIs. If application requires virtual machine (in case it is interpreted or translated on-the-fly), virtual machine has to implement USDT probes so it can be traceable by DTrace or SystemTap. For example Zend PHP keeps call arguments in a global object, so you have to access that object to get arguments values instead of using `arg0-argN` syntax. 
 
@@ -73,7 +73,7 @@ method-entry [ 9] java/io/PrintStream.println
 
 You can see that when thread leaves `Thread.sleep()` method, it acquires monitor of `Greeting` object, calls  `Greeting.greet()` method which  will call `PrintStream.println()` method to output line. 
 
-Here are list of probes provided by JVM in `hotspot$target` DTrace provider and `hotspot` tapset:
+[__index__:hotspot (tapset, SystemTap)] [__index__:hotspot (provider, DTrace)] Here are list of probes provided by JVM in `hotspot$target` DTrace provider and `hotspot` tapset:
 
 ---
  _Action_ | _DTrace_ | _SystemTap_
@@ -270,8 +270,8 @@ There is a bug in JDK: [JDK-7187999: dtrace jstack action is broken](https://bug
 That attempt will fail, but it will lead DTrace to extract required helper functions from Java process.
 !!!
 
-[jsdt]
-#### JSDT
+
+#### [__index__:Java Statically Defined Tracing] [jsdt] JSDT
 
 You could notice that we can't extract method's arguments in method probes like we did it in other places via args array. That complicates Java application tracing. As you can remember from USDT description, in DTrace applications can register their probes within DTrace. This is also true for Java applications which can provide _Java Statically Defined Tracing_ probes (JSDT). It is supported only in DTrace and only in BSD or Solaris.
 

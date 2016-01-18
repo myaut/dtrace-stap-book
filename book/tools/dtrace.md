@@ -8,6 +8,8 @@ The heart of DTrace is `libdtrace.so.1` library which contains compiler that tra
 
 DTrace primary front-end tool is `dtrace(1M)` which act both as compiler and consumer and uses `libdtrace.so.1` facilities to do that. There are other front-ends: `trapstat(1M)` and `lockstat(1M)`, but `libdtrace.so.1` APIs are open, so you can create your own front end for that (i.e. for Java using JNI). We will refer to `dtrace(1M)` as DTrace further in a book. 
 
+[__index__:dtrace(1M)]
+
 #### DTrace tool 
 
 DTrace supports three launch modes:
@@ -32,7 +34,7 @@ ID    PROVIDER        MODULE      FUNCTION NAME
 <cut>
 ```
  * `-q` -- enables quiet mode. By default DTrace prints probe id, its name and CPU number when probe fires. `-q` disables that.
- * `-w` -- allows _destructive_ actions, for example system panics or breakpointing applications. That actions may be forbidden globally by setting kernel tunable `dtrace_destructive_disallow`.
+ * `-w` -- [__index__:destructive actions] allows _destructive_ actions, for example system panics or breakpointing applications. That actions may be forbidden globally by setting kernel tunable `dtrace_destructive_disallow`.
  * `-o FILE` -- redirects output to a file. If file already exists, it __appends__ to it.
  * `-x OPTION[=VALUE]` -- sets one of DTrace tunables. Here are some useful tunables:
    * `bufsize` -- size of consumer buffer (same as `-b`). Note that consumer buffers are per-cpu.

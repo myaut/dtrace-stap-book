@@ -2,13 +2,13 @@
 
 We already discussed problem with probe stability. Some issues may be related to changing data structures in kernel, or several variants may exist in kernel, for example for 32- and 64-bit calls. Let's see how access to fields of that structure may be unified.
 
-DTrace has a _translators_ for doing that:
+[__index__:translators (DTrace)] DTrace has a _translators_ for doing that:
 
 ````` scripts/dtrace/stat.d
 
 In this example translator describes rules of converting source structure `stat64_32` to a structure with known format defined in DTrace `stat_info`. After that, `xlate` operator is called which receives pointer to `stat64_32` structure to a `stat_info`. Note that our translator also responsible for copying data from userspace to kernel. Built-in DTrace translators are located in `/usr/lib/dtrace`.
 
-SystemTap doesn't have translators, but you can create _prologue_ or _epilogue alias_ which performs necessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called _tapsets_ and put into `/usr/share/systemtap/tapset` directory. Many probes that we will use in following modules are implemented in such tapsets. 
+[__index__:tapset] [__index__:prologue probe alias] [__index__:epilogue probe alias] SystemTap doesn't have translators, but you can create _prologue_ or _epilogue alias_ which performs necessary conversions before (or after, respectively) probe is called. These aliases are grouped into script libraries called _tapsets_ and put into `/usr/share/systemtap/tapset` directory. Many probes that we will use in following modules are implemented in such tapsets. 
 
 Linux has several variants for `stat` structure in `stat()` system call, some of them deprecated, some are intended to support 64-bit sizes for 32-bit callers. By using following tapset we will remove such differences and make them universally available through `filename` and `size` variables:
 

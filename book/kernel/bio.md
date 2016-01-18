@@ -1,8 +1,8 @@
-### Block Input-Output
+### [__index__:block input-output] Block Input-Output
 
 When request is handled by Virtual File System, and if it needs to be handled by underlying block device, VFS creates a request to Block Input-Output subsystem. Operating system in this case either fetches new page from a disk to a page cache or writes dirty page onto disk. Disks are usually referred to as _block devices_ because you can access them by using blocks of fixed size: 512 bytes which is disk sector (not to mention disks with advanced format or SSDs). On the other hand, _character devices_ like terminal emulator pass data byte by byte while _network devices_ might have any length of network packet.
 
-BIO top layer is traceable through `io` provider in DTrace:
+[__index__:io (provider, DTrace)]  BIO top layer is traceable through `io` provider in DTrace:
 ```
 # dtrace -qn '
     io:::start 
@@ -14,7 +14,7 @@ BIO top layer is traceable through `io` provider in DTrace:
 ```
 If you check function name of that probe, you may see that it is handled by `bdev_strategy()` kernel function which has only one argument of type `struct buf`. That buffer represents a single request to a block subsystem and passed as `arg0` to `io:::start` probe and then translated to a `bufinfo_t` structure which is considered stable. DTrace also supplies information about block device and file name in `args[1]` and `args[2]`. 
 
-Linux has similar architecture: it has `struct bio` which represents single request to block subsystem and `generic_make_request()` function (which, however, has alternatives) which passes `bio` structure to device queues. SystemTap tapset `ioblock` provides access to BIO probes:
+[__index__:ioblock (tapset, SystemTap)] Linux has similar architecture: it has `struct bio` which represents single request to block subsystem and `generic_make_request()` function (which, however, has alternatives) which passes `bio` structure to device queues. SystemTap tapset `ioblock` provides access to BIO probes:
 ```
 # stap -e '
     probe ioblock.request { 
@@ -52,7 +52,7 @@ After scheduling BIO layer passes request to a device level:
 
 ![image:bio](bio.png)
 
-Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with _device mapper_ in Linux or _MPxIO_ in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called _SCSI stack_. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:
+[__index__:SCSI stack] [__index__:scsi (tapset, SystemTap)] [__index__:ioscheduler (tapset, SystemTap)] Both Solaris and Linux use SCSI protocol as unified way to represent low-level device access. SCSI devices can be stacked, i.e. with _device mapper_ in Linux or _MPxIO_ in Solaris, but we will have only single layer in our examples. In any case, this subsystem is called _SCSI stack_. All requests in SCSI stack are translated to SCSI packets (which can be translated to ATA commands or passed as is to SAS devices). SCSI packet is handled in a several steps:
 
 ---
 __Action__ | __Solaris__ | __Linux__

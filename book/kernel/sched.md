@@ -1,4 +1,4 @@
-### Process scheduler
+### [__index__:scheduler] Process scheduler
 
 !!! DEF
 Process _scheduler_ is a key component of modern multitasking operating systems which distributes processor time between several tasks. Because time periods allocated to programs is relatively small to be noticed by human (milliseconds), that creates an illusion of parallel execution or _concurrent_ execution. 
@@ -14,7 +14,7 @@ Process lifetime in terms of the scheduler is shown on the following picture.
 
 ![image:sched](sched.png)
 
-In scheduler, context switching may be split in two steps:
+[__index__:sched (provider, DTrace)] [__index__:scheduler (tapset, SystemTap)] In scheduler, context switching may be split in two steps:
 
  * Current task leaves CPU. This event is traceable as `sched:::off-cpu` in DTrace or `scheduler.cpu_off` in SystemTap. This may be caused by many reasons:
     * Task was blocked on kernel synchronisation object **(6)**, for example due to call to `poll()` and waiting network data. In this case task is put into _sleep queue_ related to that synchronisation object. It would later be unblocked by another task **(7)**, thus being put back to run-queue. 
@@ -187,7 +187,7 @@ Here is sample output for _concurrency_ experiment (some output was omitted):
 
 Note how `timeleft` field is changing: it is calculated as `ts_timer` - `ts_lwp->lwp_ac.ac_clock`. After each clock tick latter is incremented thus timeleft is decrementing. When timeleft becomes 0, it means that _worker_ has exhausted scheduler quantum, so its priority falls from 40 to 30 and it is being put to the tail of corresponding dispatcher queue. After that `sched` thread runs for a short time (which is some kernel thread managed by SYS scheduler), and eventually another _worker_ thread gets on CPU.
 
-#### Scheduling in Linux
+#### [__index__:Completely Fair Scheduler (Linux)] Scheduling in Linux
 
 Cyclic scheduling was implemented in Linux O(1) scheduler, but it was replaced with Completely Fair Scheduler (CFS) scheduler in 2.6.22 kernel. Cyclic scheduling is represented by RT class which is rarely used. There are also some non-default schedulers like BFS which are not available in vanilla kernel but shipped as separate patches. Each `task_struct` has field `policy` which determines which scheduler class will be used for it. Policies are shown in the following table:
 
@@ -202,7 +202,7 @@ __Priority__ | __Class__ | __Policy__ | __Description__
 ---
 
 !!! INFO
-Consider the following situation: there are currently two users on a 8-CPU host where user dima had run `make -j8` and another user, say myaut, had run `make -j4`. To maintain fairness so users dima and myaut will get equal amount of CPU time, you will need renice processes of user dima, but calculating correct priority penalty will be inobvious. Instead, you can create a two CGroups and add one instance of make per CGroup. Than all tasks which are spawned by dima's `make` will be accounted in scheduler entity corresponding to dima's CGroup.
+[__index__:CGroup (Linux)] Consider the following situation: there are currently two users on a 8-CPU host where user dima had run `make -j8` and another user, say myaut, had run `make -j4`. To maintain fairness so users dima and myaut will get equal amount of CPU time, you will need renice processes of user dima, but calculating correct priority penalty will be inobvious. Instead, you can create a two CGroups and add one instance of make per CGroup. Than all tasks which are spawned by dima's `make` will be accounted in scheduler entity corresponding to dima's CGroup.
 !!!
 
 Let's look into details of implementation of CFS scheduler. First of all, it doesn't deal with tasks directly, but schedules _scheduler entities_ of type `struct sched_entity`. Such entity may represent a task or a queue of entities of type `struct cfs_rq` (which is referenced by field `my_q`), thus allowing to build hierarchies of entities and allocate resources to task groups which are called _CGroups_ in Linux. Processor run queue is represented by type `struct rq` contains field `cfs` which is instance of `struct cfs_rq` and contains queue of all high-level entities. Each entity has `cfs_rq` pointer which points to CFS runqueue to which that entity belongs:

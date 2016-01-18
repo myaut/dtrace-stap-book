@@ -1,11 +1,11 @@
-### Performance analysis
+### [__index__:performance analysis] Performance analysis
 
 Computer users, system administrators and developers are interested in improving of performance of computer systems and dynamic tracing languages are very handful in analysing soft spots of computer systems. We will use two characteristics of computer system to evaluate its performance most of the time: _throughput_ and time spent for servicing request (usually referred as _latency_). These two characteristics depend on each other as following picture shows:
 
 ![image:perf](perf.png)
 
 !!! INFO
-For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its _arrival rate_. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to _queue length_. Growing queues is a sign of the system's _saturation_. _Throughput_ of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line -- they are treated as _errors_. When kiosk reaches its saturation point or the _knee_, _throughput_ of the kiosk will fall, and number of errors will increase, because clerk will be tired. 
+[__index__:throughput] [__index__:latency] For example, let's imagine a newspaper kiosk. Than number of customers per hour will be its _arrival rate_. Sometimes, when clerk is busy while servicing customer, other customers will form a queue, which can is measurable to _queue length_. Growing queues is a sign of the system's _saturation_. _Throughput_ of the kiosk is the number of customers which bought a newspaper per hour. However, if number of customers is too large, kiosk couldn't service them all, and some of them will leave after waiting in line -- they are treated as _errors_. When kiosk reaches its saturation point or the _knee_, _throughput_ of the kiosk will fall, and number of errors will increase, because clerk will be tired. 
 
 _Latency_ consists of _service time_ which depends on many factors: i.e. if customer need change or clerk can't find copy of newspaper it will grow,  and _waiting time_ -- time spent by a customer waiting in queue. _Utilization_ is defined by a fraction time that clerk spends servicing their customers. I.e. if clerk spends 15 minutes to sell a magazines or newspapers per hour, utilization is 25%. 
 

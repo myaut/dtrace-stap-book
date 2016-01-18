@@ -1,4 +1,4 @@
-### Associative arrays
+### [__index__:associative array] Associative arrays
 
 !!! DEF
 _Associative array_ is a sequence of values which are accessible through one or more keys. Any types may be used for hashing, but they have to be comparable, and in some cases hashable.
@@ -45,7 +45,7 @@ Starting with SystemTap 2.1 it allocates `MAXMAPENTRIES` entries for associative
 * ![image:staplang](icons/staplang.png) [Associative arrays](https://sourceware.org/systemtap/langref/Associative_arrays.html)
 
 [aggr]
-### Aggregations
+### [__index__:aggregation] Aggregations
 
 _Aggregations_ are most useful for evaluating system performance (they are called _statistics_ in SystemTap). Aggregation will update intermediate set of parameters when new value is added. Overall value is calculated from that intermediate set when its printing is requested. Let's for example see how it works for mean value -- dynamic tracing system saves count of added values and their sum, and when values need to be printed, sum is divided to a count:
 

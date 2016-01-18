@@ -1,4 +1,4 @@
-### Interrupt handling and deferred execution
+### [__index__:interrupt] Interrupt handling and deferred execution
 
 Single instance of processor (core or hardware thread) can execute only single flow of instructions and won't switch to another flow of instructions unless it is explicitly specified with branch instruction. This model, however, prevents operating system from implementing illusion of multiprocessing by periodically switching active threads (which represent flow of instructions). To implement multiprocessing and many other concepts, processor provide mechanism of _interrupts_. 
 
@@ -29,11 +29,11 @@ Solaris has several SDT probes that can be used to trace interrupt handlers too:
         sym(arg1);  } '
 ```
 
-Interrupt threads is not the only method to defer execution of certain kernel code: kernel provides a lot of other facilities to do so. They are referred to as _bottom halves_ of interrupt, while interrupt handler itself is a _top half_ which responsibility is to activate bottom half. An example of them is defferred interrupt handlers __softirqs__ and __tasklets__ in Linux which are executed in the context of `ksoftirqd-N` kernel threads. They are prioritized where `TASKLET_SOFTIRQ` has the lesser priority and serves for execution of tasklets (they are more lightweight than softirqs). They could be traced using `softirq.entry` and `softirq.exit` probes.
+[__index__:bottom half] Interrupt threads is not the only method to defer execution of certain kernel code: kernel provides a lot of other facilities to do so. They are referred to as _bottom halves_ of interrupt, while interrupt handler itself is a _top half_ which responsibility is to activate bottom half. An example of them is defferred interrupt handlers __softirqs__ and __tasklets__ in Linux which are executed in the context of `ksoftirqd-N` kernel threads. They are prioritized where `TASKLET_SOFTIRQ` has the lesser priority and serves for execution of tasklets (they are more lightweight than softirqs). They could be traced using `softirq.entry` and `softirq.exit` probes.
 
 If bottom half (or any other in-kernel job) has to be executed at specified moment of time, Linux provides __timers__ while Solaris has _cyclic subsystem_ which can be accessed through __callouts__ or `timeout()`/`untimeout()` calls.
 
-To simplify execution of small chunks of work Linux provide __workqueue__ mechanism which has closest analogue in Solaris -- __task queues__. They provide a pool of worker threads whose extract function and data pointers from a queue and call that function. Many drivers may implement their own work queues. Solaris provides static probes to trace task queues:
+[__index__:workqueue (Linux)] [__index__:taskqueue (Solaris)] To simplify execution of small chunks of work Linux provide __workqueue__ mechanism which has closest analogue in Solaris -- __task queues__. They provide a pool of worker threads whose extract function and data pointers from a queue and call that function. Many drivers may implement their own work queues. Solaris provides static probes to trace task queues:
 
 ```
 # dtrace -n '

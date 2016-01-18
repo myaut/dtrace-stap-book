@@ -1,6 +1,6 @@
 ### Introduction
 
-Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have a predicate which acts as a filter of unnecessary probes, i.e. if you want to trace specific process or specific kind of query. 
+[__index__:script] Both DTrace and SystemTap languages have C-like syntax for dynamic tracing scripts. Every script is a set of probes, and each of them binds to a certain event in kernel or application, for example dispatching of a process, parsing SQL query, etc. Each probe may have a predicate which acts as a filter of unnecessary probes, i.e. if you want to trace specific process or specific kind of query. 
 
 Each script consists of global variables declarations followed by probes, and possibly function declarations. In SystemTap each declaration is preceded by `global`, `function` or `probe` keyword:
 ```
@@ -29,7 +29,7 @@ tick-1s {
 
 DTrace language is limited due to safety reasons, so it doesn't support loops and conditional statements. Conditional branch in DTrace may be emulated using predicates, and also a limited support of ternary operator `?:` is available. SystemTap, on the other hand, supports wider subset of C language: it has `for`, `while`, `if`/`else`, `foreach` statements, and `break`/`continue` for controlling loop behavior.
 
-SystemTap supports declaration of functions:
+[__index__:functions (SystemTap)] SystemTap supports declaration of functions:
 ```
 function dentry_name:string(dentry:long) {
 	len = @cast(dentry, "dentry")->d_name->len;
@@ -43,7 +43,7 @@ DTrace doesn't have a functions, but you may use C macro in simple cases:
 #define CLOCK_TO_MS(clk)      (clk) * (`nsec_per_tick / 1000000)
 ```
 
-SystemTap language supports `try`/`catch` statement to handle tracing errors which were described in [Safety and errors][tools/safety] section:
+[__index__:try/catch block (SystemTap)] SystemTap language supports `try`/`catch` statement to handle tracing errors which were described in [Safety and errors][tools/safety] section:
 ```
 try {
 	/* Errorneous expression: read integer on address 4 */
@@ -67,7 +67,7 @@ timer-1ms
 ```
 This script prints "Hello, world" phrase each millisecond 10 times. 
 
-Finally, SystemTap have Embedded C extension (enabled only in Guru-Mode or in tapsets), which allow to write raw C code compiled directly to module's code without passing first three stages of translation:
+[__index__:Embedded C (SystemTap)] Finally, SystemTap have Embedded C extension (enabled only in Guru-Mode or in tapsets), which allow to write raw C code compiled directly to module's code without passing first three stages of translation:
 ```
 function task_valid_file_handle:long (task:long, fd:long) %{ /* pure */
 	[...]

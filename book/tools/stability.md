@@ -17,9 +17,10 @@ Mediocre | static tracepoints with `sdt` provider | statically defined ftrace pr
 Lowest  | `fbt` and `pid$$` providers | DWARF probes like `kernel.function("kfree")`
 ---
 
-
+[__index__:tapset]
 To achieve maximum script portability, you should pick highest stability options wherever possible. Downside of that approach is that it provides fewer information than you could access with other approaches. These options will be described in [Translators and tapsets][lang/tapset] section of next module. 
 
+[__index__:conditional compilation]
 Linux kernel is changing faster: it has stable releases each 2-3 months, and moreover, its builds are configurable, so some features present in one kernel may be disabled in another and vice versa which makes stability is much more fragile. To overcome that, SystemTap Language has conditional compilation statements which like in C allow to disable certain paths in code. Simplest conditional compilation statements are `@defined` which evaluates to true if variable passed to it is present in debug information and `@choose_defined` which chooses from several variables. It also support ternary conditional expression:
 ```
 	%( kernel_v >= "2.6.30" 
@@ -30,6 +31,7 @@ Linux kernel is changing faster: it has stable releases each 2-3 months, and mor
 
 Here, `kernel_v` is numerical version of kernel without suffix (for version with suffix, use `kernel_vr`). SystemTap also defines `arch` variable and `CONFIG_*` tokens similiar to configuration options. These options are not available in Embedded C, use traditional preprocessor there.
 
+[__index__:missing probe]
 Finally, if some probe is missing from kernel, script compilation will fail. DTrace allow to ignore such errors by passing `-Z` command line option. In SystemTap you may add `?` at the end of probe name to make this probe optional.
 
 #### Notes

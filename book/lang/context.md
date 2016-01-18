@@ -1,4 +1,4 @@
-### Context
+### [__index__:context of probe] [__index__:context function] Context
 
 !!! DEF
 _Probe context_ contains system state related to a fired probe, including:

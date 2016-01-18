@@ -1,4 +1,4 @@
-### Virtual File System
+### [__index__:file system] Virtual File System
 
 One of the defining principles of Unix design was "_Everything is a file_". Files are organized into filesystems of different nature. Some like FAT are pretty simple, some like ZFS and btrfs are complex and incorporate volume manager into them. Some filesystems doesn't require locally attached storage -- networked filesystems such as NFS and CIFS keep data on remote node, while special filesystems do not keep data at all and just representation of kernel structures: for example pipes are files on _pipefs_ in Linux or _fifofs_ in Solaris.
 
@@ -19,7 +19,7 @@ Table of file/directory operations | `vnodeopts_t` | `file_operations` -- for op
 													 `address_space_operations` -- for working data and page cache
 ---
 
-Each process keeps table of opened files as an array of corresponding structures. When process opens a file, `open()` system call returns index in that array which is usually referred to as _file descriptor_. Following calls such as `read()` or `lseek()` will get this index as first argument, get corresponding entry from array, get `file` structure and use it in VFS calls. 
+[__index__:open file table] Each process keeps table of opened files as an array of corresponding structures. When process opens a file, `open()` system call returns index in that array which is usually referred to as _file descriptor_. Following calls such as `read()` or `lseek()` will get this index as first argument, get corresponding entry from array, get `file` structure and use it in VFS calls. 
 
 Linux management structures are shown on the following schematic:
 
@@ -93,7 +93,7 @@ However, if you need to access `vnode_t` structure directly, you may use schemat
 
 Note that root filesystem have NULL `vfs_vnodecovered`, because there is no upper-layer filesystem on which it mounted. 
 
-__Solaris__ provides stable set of probes which are tracing VFS through `fsinfo` provider. It provides vnode information as `fileinfo_t` structures just like `fds` array:
+[__index__:fsinfo (provider, DTrace)] __Solaris__ provides stable set of probes which are tracing VFS through `fsinfo` provider. It provides vnode information as `fileinfo_t` structures just like `fds` array:
 ```
 # dtrace -n '
 		fsinfo:::mkdir { 
@@ -137,7 +137,7 @@ Now let's see how VFS operations performed on files:
 
 Application uses `open()` system call to open file. At this moment, new `file` object is created and free entry in open files table is filled with a pointer to that object. Kernel, however needs to find corresponding vnode/dentry object -- it will also need to check some preliminary checks here. I.e. if uid of opening process is not equal to `i_uid` provided by operating system and file mode is 0600, access should be forbidden. 
 
-To perform such mapping between file name passed to `open()` system call and dentry object, kernel performs a kind of _lookup_ call which searches needed file over directory and returns object. Such operation may be slow (i.e. for file `/path/to/file` it needs readdir `path` than do the same with `to`, and only then seek for file `file`), so operating systems implement caches of such mappings. They are called _dentry cache_ in Linux and _Directory Name Lookup Cache_ in Solaris. 
+[__index__:dentry cache (Linux)] [__index__:Directory Name Lookup Cache (Solaris)] To perform such mapping between file name passed to `open()` system call and dentry object, kernel performs a kind of _lookup_ call which searches needed file over directory and returns object. Such operation may be slow (i.e. for file `/path/to/file` it needs readdir `path` than do the same with `to`, and only then seek for file `file`), so operating systems implement caches of such mappings. They are called _dentry cache_ in Linux and _Directory Name Lookup Cache_ in Solaris. 
 
 In Solaris top-level function that performs lookup called `lookuppnvp()` (literally, lookup vnode pointer by path name). It calls `fop_lookup()` which will call filesystem driver. Most filesystems however will seek needed path name in DNLC cache, by doing `dnlc_lookup()`:
 ```
@@ -162,7 +162,7 @@ Linux uses unified system for caching file names called _Directory Entry Cache_ 
 	}' -c 'cat /etc/passwd > /dev/null'
 ```
 
-Now, when file is opened, we can read or write its contents. All file data is located on disk (in case of disk-based file systems), but translating every file operation into block operation is expensive, so operating system maintains _page cache_. When data is read from file, it is read from disk to corresponding page and then requested chunk is copied to userspace buffer, so subsequent reads to that file won't need any disk operations -- it would be performed on _page cache_. When data is written onto file, corresponding page is updated and page is marked as dirty (red asterisk on image). 
+[__index__:page cache] Now, when file is opened, we can read or write its contents. All file data is located on disk (in case of disk-based file systems), but translating every file operation into block operation is expensive, so operating system maintains _page cache_. When data is read from file, it is read from disk to corresponding page and then requested chunk is copied to userspace buffer, so subsequent reads to that file won't need any disk operations -- it would be performed on _page cache_. When data is written onto file, corresponding page is updated and page is marked as dirty (red asterisk on image). 
 
 At the unspecified moment of time, page writing daemon which is relocated in kernel scans page cache for _dirty pages_ and writes them back to disk. Note that `mmap()` operation in this case will simply map pages from page cache to process address space. Not all filesystems use page cache. ZFS, for example, uses its own caching mechanism called _Adaptive Replacement Cache_ or ARC which is built on top of kmem allocator. 
 

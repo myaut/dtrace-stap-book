@@ -1,4 +1,4 @@
-### Probes
+### [__index__:probe] Probes
 
 !!! DEF
 _Probe_ -- is a handler of kernel or application event. When probe is installed into kernel or application, so it can handle such event, we will call it _attaching a probe_ or _binding a probe_. When event occurs and probe code is executing, we will say _probe is firing_.
@@ -28,7 +28,7 @@ probe scheduler.cpu_on {
 }
 ```
 
-Probe names in DTrace are four identifiers separated by colons: `Provider:Module:Function:Name[-Parameter]`.
+[__index__:provider (DTrace)] Probe names in DTrace are four identifiers separated by colons: `Provider:Module:Function:Name[-Parameter]`.
  * _Provider_ is a hint to DTrace on how to attach a probe. Different providers usually have different mechanisms of attachment. 
  * _Function_ and _Module_ are relate to a code location where probe will be installed.
  * _Name_ and optional parameters provide meaningful names to a event which will be handled in a probe.
@@ -72,7 +72,7 @@ If DTrace or SystemTap fail to find a probe, it will abort script translation. T
 probe kernel.function("unknown_function") ?
 ```
 
-#### Function boundary tracing
+#### [__index__:function boundary tracing] Function boundary tracing
 
 Function boundary tracing is the largest and most generic class of tracing. Function boundary probes attach to entry point or exit (hence bounds) from a function. Since most functions begin with saving stack and end with `retq` or similar instruction, tracer simply patches that instruction, by simply replacing it to interrupt or call (depending on a platform). That interrupt is intercepted by probe code which after execution returns control to function, like in `submit_bio` case described above. Here are similar example for Solaris and DTrace:
 
@@ -144,7 +144,7 @@ syscall::<i>system-call-name</i>:{entry|return}
 ```
 Note that if you omit provider name, some probes will match both function and system calls, so probe will fire twice.
 
-#### Statically defined tracing
+#### [__index__:statically defined tracing] Statically defined tracing
 
 Sometimes is function boundary tracing is not enough: an event may occur inside function, or may be spread through different functions. In **DTrace** and Solaris, for example, there are two implementations of scheduler functions that are responsible for stealing task from cpu: older `disp_getbest` and newer and available in newer versions of Solaris: `disp_getkpq`. But they both provide `steal` probe that fires when dispatcher moves a thread to idle CPU: `sdt:::steal` or simply `steal`. You can still distinguish these probes by explicitly setting function name: `sdt::disp_getbest:steal`.
 
@@ -197,8 +197,7 @@ In ideal case, statically defined probe is just a `nop` instruction or a sequenc
 
 Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as _alias probe_. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by [Translators and tapsets][lang/tapset] topic. 
 
-[timers]
-#### Timers and service probes
+#### [__index__:timer probes] [timers] Timers and service probes
 
 These probes are not related to a kernel events, but to execution of tracing script itself. They may trace starting of script, end of it and occured error, thus handle initialization of global variables and printing results on end of script execution. Another kind of service probe is timer probe, which is called every ΔT time on one or all system CPUs. Timers are useful for creating stat-like utilities which print data every second or for profiling. 
 
