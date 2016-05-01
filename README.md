@@ -4,11 +4,9 @@ This repository contains source code for book "Dynamic Tracing with DTrace & Sys
 
 ### Contents
 
-This book describes basic principles and languages of dynamic tracing and operating system kernel internals and how they may be exposed with dynamic tracing. Last module of a book is devoted to tracing of userspace applications. Currently only half of kernel chapter is translated. 
+This book describes basic principles and languages of dynamic tracing and operating system kernel internals and how they may be exposed with dynamic tracing. Last module of a book is devoted to tracing of userspace applications. 
 
 There are 7 exercises in this book that allow you to try yourself in writing tracing scripts and observe mildly interesting aspects of computer systems. 
-
-The book is not yet ready (and judging by its progress it would never be).
 
 ### Errors and requests
 
