@@ -4,7 +4,7 @@ One of the largest kernel subsystem is a network stack. It is called a _stack_ b
 
 Each layer of network stack has its responsibilities so they are not of concern of higher-layer protocols. For example, IP allows to send datagrams through multiple routers and networks, can reassemble packets but doesn't guarantee reliability when some data is lost -- it is implemented in TCP protocol. Both of them can only transmit raw data, encoding or compression is implemented on higher layer like HTTP. 
 
-Network subsystem (which transmits data between hosts) has a major difference over block input-output (which stores data): it is very sensible to _latency_, so writing or reading data cannot be deferred. Due to that, sending and receiving is usually performed in the same thread context.
+Network subsystem (which transmits data between hosts) has a major difference over block input-output (which stores data): It is very sensitive to _latency_, so writing or reading data cannot be deferred. Due to that, sending and receiving is usually performed in the same thread context.
 
 Network stack in Unix systems can be split into three generic layers:
    * _Socket layer_ which implements BSD sockets through series of system calls.
