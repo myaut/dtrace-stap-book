@@ -141,8 +141,8 @@ Here are list of availability of that probes in various interpreters shipped as 
 </tr>
         <tr>
 
-            <td>
-<em>Python 3</em> </td>
+            <td  rowspan="2">
+ <em>Python 3</em> </td>
             <td>
  Like Python 2, Python 3 in CentOS (if installed from EPEL) supports <code>function__entry</code> 
              and <code>function__return</code> probes. In addition to that, SystemTap supplies example python3 tapset. </td>
@@ -150,6 +150,12 @@ Here are list of availability of that probes in various interpreters shipped as 
  
              Python 3 is supplied as FOSS (unsupported) package in Solaris 11 and has <code>line</code> probe, 
              instance creation and garbage-collector related probes.</td>
+</tr>
+        <tr>
+
+            <td  colspan="2">
+              Starting with Python 3.6, DTrace probes function entry and exit probes, garbage 
+                 collector probes and <code>line</code> are supported by vanilla interpreter</td>
 </tr>
         <tr>
 
