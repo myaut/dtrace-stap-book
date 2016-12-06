@@ -43,10 +43,12 @@ _Python 2_ |2,1 Python has never accepted DTrace patches into upstream. \
                   However, it was implemented by Solaris developers for Python 2.4, \
                   and being ported to Fedora's and CentOS python. Only function-related \
                   probes are supplied: `function-entry` and `function-return`.
-_Python 3_ | Like Python 2, Python 3 in CentOS (if installed from EPEL) supports `function__entry` \
+1,2 _Python 3_ | Like Python 2, Python 3 in CentOS (if installed from EPEL) supports `function__entry` \
              and `function__return` probes. In addition to that, SystemTap supplies example python3 tapset. | \
              Python 3 is supplied as FOSS (unsupported) package in Solaris 11 and has `line` probe, \
              instance creation and garbage-collector related probes.
+2,1              Starting with Python 3.6, DTrace probes function entry and exit probes, garbage \
+                 collector probes and `line` are supported by vanilla interpreter
 _PHP5_ | Doesn't support USDT tracing but can it be enabled via `--enable-dtrace` switch when it is built from source. | \
     PHP supports tracing functions, exceptions and errors, VM opcodes execution and file compiling from \
     scratch. Its probes will be discussed in the following section, [Web applications][app/web].

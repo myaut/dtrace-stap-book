@@ -322,7 +322,7 @@ __DTrace__
 
 !!!
 
-!!! F x:0.54 s:0.6
+!!! F x:0.54 s:0.75
 ![image:forkproc](forkproc.png)
 !!!
 
@@ -330,7 +330,7 @@ __DTrace__
 
 ### Scheduler
 
-!!! F s:0.5
+!!! F s:0.64
 ![image:sched](sched.png)
 !!!
 
@@ -405,7 +405,7 @@ Device | `b_edev` >>> `b_dip` | `bi_bdev`
 
 !!!
 
-!!! F s:0.6 x:0.44
+!!! F s:0.75 x:0.44
 ![image:bio](bio.png)
 !!!
 
