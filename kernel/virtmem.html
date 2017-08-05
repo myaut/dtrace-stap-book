@@ -62,7 +62,7 @@ char msg[] = "Hallo, world";    // mov %edi, $224cc
 msg[1] += 4;                    // add (%edi), $4</pre>
 </p>
 
-When single instance of that program is running, it will work as expected, message will become "Hello, world". But what will happen if two instances of program will be run simultaneously? Since compiler have used absolute addressing, second program may have been overwritten data of first instance of a program, making it "Hillo, world!" (actually, before that, program loader should load original message "Hallo, world" back). So multiprocessing creates two problems: same addresses of different processes shouldn't point to same physical memory cell and processes should be disallowed to write to memory that doesn't belong to them. <em>Virtual memory</em> is an answer to that problems.</p>
+When single instance of that program is running, it will work as expected, message will become "Hello, world". But what will happen if two instances of program will be run simultaneously? Since compiler have used absolute addressing, second program may have been overwritten data of first instance of a program, making it "Hillo, world!" (actually, before that, program loader should load original message "Hallo, world" back). So multiprocessing creates two problems: same addresses of different processes shouldn't point to same physical memory cell and processes should be disallowed to write to memory that doesn't belong to them. <em>Virtual memory</em> is the answer to these problems.</p>
 <p>
 Modern virtual memory mechanisms are based on <em>page addressing</em>: all physical memory is divided to a pages of a small size (4 kb in x86). Processes are exist in a virtual address space where each subset of addresses, say <code>[BASE;BASE+PAGESIZE)</code>, maps to a single page. List of such mappings is maintained as <em>page table</em>. Modern CPUs also provide support for <em>huge pages</em> (Linux) or <em>large pages</em> (Solaris) which may be megabytes or even gigabyte in size. Speaking of our previous example, kernel <em>binary format loader</em> will set up a virtual address space for our program, copying all data to a new locations in physical memory:</p>
 <p>
@@ -679,7 +679,8 @@ Same params as <code>vm.kfree</code></td>
 <p>
 Note that SystemTap probes are based on a tracepoints and provided by <code>vm</code> tapset.</p>
 <p>
-On the other hand, when kernel needs to perform large allocations which are performed rarely, different subsystems are used: <em>vmalloc</em> in Linux, or <em>vmem</em> in Solaris (which is used by <em>kmem</em> SLAB allocator). Solaris also have segment drivers such as <em>segkmem</em>, <em>segkpm</em>, etc. </p>
+On the other hand, when kernel needs to perform large allocations which are performed rarely, different subsystems are used: <em>vmalloc</em> in Linux, or <em>vmem</em> in Solaris (which is used by <em>kmem</em> SLAB allocator). Solaris also have segment drivers such as <em>segkmem</em>, <em>segkpm</em>, etc. 
+</p>
 
 	</div>
 </div>

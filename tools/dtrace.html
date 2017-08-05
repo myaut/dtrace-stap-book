@@ -168,8 +168,9 @@ Let's create script <code>test.d</code> with following contents:</p>
 <p>
     <p>
     <pre>
-#!/usr/sbin/dtrace -qs -x dynvarsize=64m
+#!/usr/sbin/dtrace -qs
 #pragma D option flowindent
+#pragma D option dynvarsize=64m
 
 syscall::write:entry
 /pid == $target/    
@@ -205,7 +206,8 @@ root@host# /root/test.d -c "dd if=/dev/zero of=/dev/null count=1"</pre>
  <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-dtrace1m/index.html">dtrace(1M) Utility</a>
  </li>
         <li>
- <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a></li>
+ <img src="../images/icons/dtrace.png" alt="image:dtraceicon" class="img-rounded"></img> <a href="http://docs.oracle.com/cd/E19253-01/817-6223/chp-opt/index.html">Options and Tunables</a>
+</li>
 </ul>
 </p>
 
