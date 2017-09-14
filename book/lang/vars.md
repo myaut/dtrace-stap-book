@@ -125,11 +125,18 @@ syscall::read:return {
 Thread-local variables are not supported by SystemTap but may be easily simulated with associative array whose key is a thread ID:
 ```
 global readfd;
-syscall.read {
+probe syscall.read {
 	readfd[tid()] = fd;
 }
-syscall.read.return {
+probe syscall.read.return {
 	printf("read %d --> %d\n", readfd[tid()], $return);
+}
+```
+
+In this case thread-local variable `readfd` is used to pass value from entry (call) probe to return probe. Same effect can be achieved with `@entry` expression in SystemTap, however it is limited to DWARF probes and its arguments, so prologue variable `fd` is not accessible with it:
+```
+probe syscall.read.return {
+    printf("read %d --> %d\n", @entry($fd), $return);
 }
 ```
 

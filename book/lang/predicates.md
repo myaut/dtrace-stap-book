@@ -35,7 +35,7 @@ This probe will be installed when `i` becomes more than four.
 Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with `stp_pid()` which returns PID of consumer.
 !!!
 
-Sometimes, if target process forking and you need to trace its children, like with `-f` option in `truss`/`strace`, comparing `pid()` and even `ppid()` is not enough. In this case you may use DTrace subroutine `progenyof()` which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, `progenyof(1)` will be true for all userspace processes because they are all children to the `init`.
+Sometimes, if target process forking and you need to trace its children, like with `-f` option in `truss`/`strace`, comparing `pid()` and even `ppid()` is not enough. In this case you may use DTrace subroutine `progenyof()` which returns non-zero (treated as true) value if current process is a direct or indirect child of the process which ID was passed as parameter. For example, `progenyof(1)` will be true for all userspace processes because they are all children to the `init`.
 
 `progenyof()` is missing in SystemTap, but it can be simulated with `task_*()` functions and the following SystemTap script (these functions are explained in [Process Management][kernel/proc#task-funcs]):
 ```

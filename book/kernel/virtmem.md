@@ -236,7 +236,7 @@ Block from pre-defined cache | free | \
 `fbt::kmem_cache_free:entry` \
  * `arg0` -- pointer to `kmem_cache_t` \
  * `arg1` -- pointer to a buffer | \
-`vm.kmem_cache_free` and \
+`vm.kmem_cache_free` \
 Same params as `vm.kfree`
 ---
 
