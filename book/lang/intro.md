@@ -56,16 +56,16 @@ catch(msg) {
 
 There is a hackish way of building loops in DTrace using timer probes:
 ```
-int count;
+int i;
 BEGIN {
-	count = 10;
+	i = 10;
 }
-timer-1ms
-/--count > 0/ {
+tick-1ms
+/--i >= 0/ {
 	printf("Hello, world!\n");
 }
 ```
-This script prints "Hello, world" phrase each millisecond 10 times. 
+This script prints "Hello, world" phrase 10 times. Note that there is a delay of 1 millisecond between loop cycles, but it won't be noticed due to larger buffer switching intervals.
 
 [__index__:Embedded C (SystemTap)] Finally, SystemTap have Embedded C extension (enabled only in Guru-Mode or in tapsets), which allow to write raw C code compiled directly to module's code without passing first three stages of translation:
 ```
