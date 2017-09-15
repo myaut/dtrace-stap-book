@@ -99,7 +99,7 @@ Sometimes, SystemTap may trace its consumer. To ignore such probes, compare proc
 </div>
 </p>
 <p>
-Sometimes, if target process forking and you need to trace its children, like with <code>-f</code> option in <code>truss</code>/<code>strace</code>, comparing <code>pid()</code> and even <code>ppid()</code> is not enough. In this case you may use DTrace subroutine <code>progenyof()</code> which returns non-zero (treated as true) value if current process is ancestor to the process which ID was passed as parameter. For example, <code>progenyof(1)</code> will be true for all userspace processes because they are all children to the <code>init</code>.</p>
+Sometimes, if target process forking and you need to trace its children, like with <code>-f</code> option in <code>truss</code>/<code>strace</code>, comparing <code>pid()</code> and even <code>ppid()</code> is not enough. In this case you may use DTrace subroutine <code>progenyof()</code> which returns non-zero (treated as true) value if current process is a direct or indirect child of the process which ID was passed as parameter. For example, <code>progenyof(1)</code> will be true for all userspace processes because they are all children to the <code>init</code>.</p>
 <p>
 <code>progenyof()</code> is missing in SystemTap, but it can be simulated with <code>task_*()</code> functions and the following SystemTap script (these functions are explained in <a href="../kernel/proc.html#task-funcs">Process Management</a>):
     <p>
