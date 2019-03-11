@@ -9,6 +9,8 @@ AddOption('--verbose', dest='verbose', action='store_true', default=False,
           help='Be verbose')
 AddOption('--no-sources', dest='no_sources', action='store_true', default=False,
           help='Do not put source files to book')
+AddOption('--with-cheatsheet', dest='with_cheatsheet', action='store_true', default=False,
+          help='Build cheatsheet')
 
 LessBuilder = Builder(action = Action('lesscpy $LESSFLAGS $SOURCE > $TARGET'),
                       suffix = '.css',

@@ -1,6 +1,8 @@
 [__endfrontpage__]
 
-Copyright © 2011-2016 Sergey Klyaus
+__2nd edition__
+
+Copyright © 2011-2016,2019 Sergey Klyaus
 
 This work is licensed under the  Creative Commons Attribution-Noncommercial-ShareAlike 3.0 License. To view a copy of this license, visit [https://creativecommons.org/licenses/by-nc-sa/3.0/](https://creativecommons.org/licenses/by-nc-sa/3.0/) or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
@@ -23,6 +25,7 @@ Other formats: [PDF (cheatsheets)](dtrace-stap-cheatsheet.pdf), [PDF (full)](dtr
  * [Dynamic tracing][tools/dyntrace]
  * [DTrace][tools/dtrace]
  * [SystemTap][tools/systemtap]
+ * [BPFTrace][tools/bpftrace]
  * [Safety and errors][tools/safety]
  * [Stability][tools/stability]
  

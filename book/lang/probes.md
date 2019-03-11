@@ -12,20 +12,13 @@ When process wants to start synchronous write, it issues `write()` system call a
   * Process and thread which started input/output which is accessible via global `current` pointer.
   * File descriptor number which is passed as first argument of `sys_write` and called `fd`.
   * Disk I/O parameters such as size and requested sector from `bio` structure.
+To satisfy this requirements, tracing languages provide mechanisms of defining probes. 
 
-To satisfy this requirements, tracing languages provide mechanisms of defining probes. Definition of SystemTap probe begins with `probe` keyword followed by probe name and body of probe handler. Name is a dotted-symbol sequence, where each symbol may have optional parameters in braces. SystemTap supports wildcards in probe names or several probe names in `probe` clause if you need to use same handler for multiple probes. For example:
+Definition of SystemTap probe begins with `probe` keyword followed by probe name and body of probe handler. Name is a dotted-symbol sequence, where each symbol may have optional parameters in braces. SystemTap supports wildcards in probe names or several probe names in `probe` clause if you need to use same handler for multiple probes. For example:
 ```
-probe kernel.function("vfs_*") {
-    // Actions
-}
-
-probe timer.ms(100) {
-    // Actions
-}
-
-probe scheduler.cpu_on {
-    // Actions
-}
+probe kernel.function("vfs_*") { }
+probe timer.ms(100) { }
+probe scheduler.cpu_on { }
 ```
 
 [__index__:provider (DTrace)] Probe names in DTrace are four identifiers separated by colons: `Provider:Module:Function:Name[-Parameter]`.
@@ -34,20 +27,19 @@ probe scheduler.cpu_on {
  * _Name_ and optional parameters provide meaningful names to a event which will be handled in a probe.
 For example:
 ```
-fbt::fop_*:entry {
-    // Actions
-}
-
-profile-100ms {
-    // Actions
-}
-
-sched:::on-cpu {
-    // Actions
-}
+fbt::fop_*:entry { /* ... */ }
+tick-100ms { /* ... */ }
+sched:::on-cpu { /* ... */ }
 ```
 
-DTrace support wildcards, and some parts of probe name may be omitted: `fbt:*:*:entry`, `fbt:::entry` are equivalent, while `fop_read:entry` is shorter form of `fbt:genunix:fop_read:entry`. 
+Probe names are similar in BPFTrace: they consist of several tokens separated by colons, but number of tokens my vary (and parameters are separated by colons too). For example:
+```
+kprobe:vfs_* { /* ... */ }
+interval:ms:100 { /* ... */ }
+tracepoint:sched:sched_switch { /* ... */ }
+```
+
+DTrace support wildcards, and some parts of probe name may be omitted: `fbt:*:*:entry`, `fbt:::entry` are equivalent, while `fop_read:entry` is shorter form of `fbt:genunix:fop_read:entry`. BPFTrace only supports wildcards in the probe name, e.g.: `tracepoint:syscalls:sys_enter_open*`.
 
 Probe names may be combined using comma, and have multiple probes attached to same event, for example in SystemTap:
 ```
@@ -64,6 +56,18 @@ syscall::read:entry {
 syscall::read:entry, syscall::write:entry { 
 	/* Common actions for read and write */  }
 ```
+
+Similar syntax is supported in BPFTrace:
+```
+tracepoint:syscalls:sys_enter_read { 
+	/* Preparations */ } 
+tracepoint:syscalls:sys_enter_read, tracepoint:syscalls:sys_enter_write { 
+	/* Common actions for read and write */  }
+```
+
+!!! WARN
+Although syntax is supported, attaching two probes to the same tracepoint will fail in BPFTrace because _FTrace_ subsystem doesn't support it. 
+!!!
 
 First probe body going in script executes first.
 
@@ -82,7 +86,7 @@ bdev_strategy+1:  movq   %rsp,%rbp         movq   %rsp,%rbp
 bdev_strategy+4:  subq   $0x10,%rsp        subq   $0x10,%rsp
 ```
 
-!!! WARN
+!!! NOTE
 Userspace probes will be covered in [Module 5][app/proc].
 !!!
 
@@ -131,6 +135,15 @@ DTrace function tracing is much simpler: it is supported by `fbt` provider which
 fbt:e1000g:e1000g_*:entry
 ```
 
+##### BPFTrace
+
+BPFTrace relies on two in-kernel mechanisms to attach probes to functions: _KProbes_ for kernel and _UProbes_ for applications, hence first part of FBT probes start with `kprobe` or `uprobe`, followed by binary name (in case of userspace application) and function name. For example:
+```
+kprobe:vfs_read
+uprobe:/bin/bash:readline
+```
+For return probes `kretprobe` and `uretprobe` are used, respectively.
+
 #### System call tracing
 
 A simplest variant of function boundary tracing is a system call tracing. In **SystemTap** they are implemented as aliases on top of corresponding functions and accessible in syscall tapset:
@@ -143,6 +156,12 @@ __DTrace__ uses different mechanisms for attaching to a system calls: it is impl
 syscall::<i>system-call-name</i>:{entry|return}
 ```
 Note that if you omit provider name, some probes will match both function and system calls, so probe will fire twice.
+
+
+__BPFTrace__ doesn't have special provider for system calls, instead you should use statically defined tracing. System calls are accessible through `syscalls` group of tracing events and have the following names:
+```
+tracepoint:syscalls:sys_{enter|exit}_<i>system-call-name</i>
+```
 
 #### [__index__:statically defined tracing] Statically defined tracing
 
@@ -193,9 +212,11 @@ prepare_task_switch(struct rq *rq, struct task_struct *prev,
 
 In ideal case, statically defined probe is just a `nop` instruction or a sequence of them. In Linux, however it involves multiple instructions. 
 
+__BPFTrace__ also allows to attach probes to statically defined trace points in kernel, they are supplied in `tracepoint` provider, e.g. `tracepoint:sched:sched_switch`. Unlike other probes, typed arguments to tracing events are supplied for statically defined tracing probes in `args` builtin.
+
 #### Alias probes
 
-Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as _alias probe_. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by [Translators and tapsets][lang/tapset] topic. 
+Function boundary probes lack of stability, so dynamic tracing provide intermediate layer that we will refer as _alias probe_. Alias probe is defined in kernel as statically defined probe, like Solaris does, or provided by tapset in SystemTap and converts and extract data from its arguments using variables in SystemTap or translators in DTrace. Creating aliases will be covered by [Translators and tapsets][lang/tapset] topic. Unfortunately, at the moment of writing this book, BPFTrace doesn't support alias probes which limits portability of tracing scripts.
 
 #### [__index__:timer probes] [timers] Timers and service probes
 
@@ -229,6 +250,11 @@ __DTrace__ has `BEGIN` and `END` probes in `dtrace` providers. Timers are handle
 
 For example `tick-1s` will fire every second. Note that, not all platforms may provide nanosecond or microsecond resolution, so probe will fire rarely when it should be. Timer probes with period above 1 millisecond are usually safe to use. 
 
+__BPFTrace__ allows to execute probe code in the beginning and in the end of script execution using `BEGIN` and `END` probes (no provider name needed). Timers and profiling are handled using  `interval` (similar to `tick` in DTrace) and `profile` probe providers, respectively. However, units and duration delimited via `:`:
+```
+{interval|profile}:<i>unit</i>:<i>period</i>
+```
+
 SystemTap and DTrace support the following timer units:
 
 --- %10,10,20
@@ -243,6 +269,8 @@ d | day | days (DTrace)
 2,1 hz | hertz (frequency per second)
 2,1 jiffies | jiffies (system ticks in SystemTap)
 ---
+
+BPFTrace uses same unit notation, but supports only `ms` and `s` for `interval` probes and `s`, `ms`, `us` and `hz` for `profile` probes.
 
 #### Example
 
@@ -267,14 +295,14 @@ Lets take following C code as an example (assuming it is located in kernel-space
 ```
 
 ---
-__Lineno__ | __DTrace__ | __SystemTap__
-1 | fbt::tri_area:entry | kernel.tri_area("tri_area").call
+__Lineno__ | __DTrace__ | __SystemTap__ | __BPFTrace__
+1 | fbt::tri_area:entry | kernel.tri_area("tri_area").call | kprobe:tri_area
 7 | fbt::tri_area:return | kernel.tri_area("tri_area").return \
-						   kernel.statement("tri_area+6")
-9 | | kernel.statement("tri_area+8")
-11 | sdt::tri_area:triangle-height | kernel.trace("triangle_height")
+						   kernel.statement("tri_area+6") | kretprobe:tri_area
+9 | | kernel.statement("tri_area+8") | 
+11 | sdt::tri_area:triangle-height | kernel.trace("triangle_height") | tracepoint:area:tri_area
 13 | fbt::tri_area:return | kernel.tri_area("tri_area").return \
-                            kernel.statement("tri_area+12")
+                            kernel.statement("tri_area+12") | kretprobe:tri_area
 ---
 
 #### References

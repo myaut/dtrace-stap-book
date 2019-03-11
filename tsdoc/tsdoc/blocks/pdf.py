@@ -91,6 +91,9 @@ class RLFlexibleParagraph(RLParagraph):
         width = self.BASE_WIDTH
         
         for frag in frags:
+            if not hasattr(frag, 'fontName'):
+                continue
+            
             width += stringWidth(getattr(frag, 'text', ''), 
                                  frag.fontName, frag.fontSize)
             

@@ -2,6 +2,8 @@ import sys
 
 from SCons.Errors import StopError
 
+PYTHON = '/usr/bin/python'
+
 Import('env')
 
 def GlobDocs(doc_dir):
@@ -21,16 +23,16 @@ elif doc_format == 'epub':
 else:
     raise StopError("Invalid documentation format '%s'" % doc_format)
 
-DocGenerator = Builder(action = Action('%s tsdoc/gen-doc.py $SOURCES' % (sys.executable)),
+DocGenerator = Builder(action = Action('%s tsdoc/gen-doc.py $SOURCES' % (PYTHON)),
                        src_suffix = '.md', suffix = doc_suffix)
-CheatsheetGenerator = Builder(action = Action('%s tsdoc/gen-cheatsheet.py $SOURCE $TARGET' % (sys.executable)),
+CheatsheetGenerator = Builder(action = Action('%s tsdoc/gen-cheatsheet.py $SOURCE $TARGET' % (PYTHON)),
                               src_suffix = '.md', suffix = '.pdf')
 
 env.Append(BUILDERS = {'DocGenerator': DocGenerator,
                        'CheatsheetGenerator': CheatsheetGenerator})
 
 env.Append(ENV = {'TSDOC_FORMAT': doc_format})
-env.Append(ENV = {'TSDOC_HEADER': 'Dynamic Tracing with DTrace & SystemTap'})
+env.Append(ENV = {'TSDOC_HEADER': 'Dynamic Tracing with DTrace, BPFTrace & SystemTap'})
 env.Append(ENV = {'TSDOC_AUTHOR': 'Sergey Klyaus'})
 env.Append(ENV = {'TSDOC_UID': 'dtrace_stap_book'})
 env.Append(ENV = {'TSDOC_IMGDIR': 'build/book/images'})
@@ -68,6 +70,7 @@ env.Depends(docs, 'template.html')
 env.Depends(docs, 'images')
 env.AlwaysBuild(docs)
 
-csenv = env.Clone()
-csenv.Append(ENV = {'TSDOC_HEADER': 'DTrace & SystemTap cheatsheet'})
-cs = csenv.CheatsheetGenerator('cheatsheet.pdf', 'cheatsheet/cheatsheet.md')
+if GetOption('with_cheatsheet'):
+    csenv = env.Clone()
+    csenv.Append(ENV = {'TSDOC_HEADER': 'DTrace & SystemTap cheatsheet'})
+    cs = csenv.CheatsheetGenerator('cheatsheet.pdf', 'cheatsheet/cheatsheet.md')
