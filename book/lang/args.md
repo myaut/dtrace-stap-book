@@ -10,7 +10,7 @@ For example, let's look at Solaris kernel function from ZFS: `void spa_sync(spa_
 			args[1], args[0]->spa_name); }' 
 ```
 
-DTrace supports two forms of arguments: `arg0`, `arg1` ... `argN` are `uint64_t` values, while `args[0]`, `args[1]` ... `args[N]` have actual types if DTrace is able to extract them (i.e. DTrace forbids type hinting for unstable probes). If `args[N]` is unavailable, you can still treat `argN` as pointer and covert it as you want:
+__DTrace__ supports two forms of arguments: `arg0`, `arg1` ... `argN` are `uint64_t` values, while `args[0]`, `args[1]` ... `args[N]` have actual types if DTrace is able to extract them (i.e. DTrace forbids type hinting for unstable probes). If `args[N]` is unavailable, you can still treat `argN` as pointer and covert it as you want:
 ```
 # dtrace -qn '
 	::spa_sync:entry { 
@@ -20,7 +20,7 @@ DTrace supports two forms of arguments: `arg0`, `arg1` ... `argN` are `uint64_t`
 
 DTrace supplies two arguments for return probes: `arg0` is an instruction pointer to a caller, and `arg1` or `args[1]` is a return value.
 
-DWARF format used in Linux is richer than CTF from Solaris and saves not only argument types, but their names too. They are provided in SystemTap in separate namespace beginning with `$` and followed by name of argument. It provides access to locals as well as arguments. However, some of them may be unavailable at the probe, because they are overwritten by other data (which is called _optimized out_). For example, let's look at `vfs_read` function from Linux kernel:
+DWARF format used in Linux is richer than CTF from Solaris and saves not only argument types, but their names too. They are provided in __SystemTap__ in separate namespace beginning with `$` and followed by name of argument. It provides access to locals as well as arguments. However, some of them may be unavailable at the probe, because they are overwritten by other data (which is called _optimized out_). For example, let's look at `vfs_read` function from Linux kernel:
 ```
 ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos) {
 	ssize_t ret;
@@ -60,6 +60,18 @@ Finally, SystemTap allows to convert arguments to strings, including pretty repr
 # stap -e '
 	probe kernel.function("vfs_read") { 
 		println($file$); }'
+```
+
+Despite DWARF information is also available to __BPFTrace__, it doesn't use it, and follows DTrace notation for semantics for accessing probe arguments. Untyped probe arguments are accessible through builtin variables `arg0` through `arg5` on amd64 machine (it seems like BPFTrace can only access register values, so only six argument values can be read by probe). Return values can be read from `retval` builtin variable. Raw register values are accessible with `reg()` function which has only one argument: register name as string literal, e.g. `reg("ax")`.
+
+The only exception is ftrace-based statically defined tracepoints in kernel which provide `args` as special builtin which behaves like a structure which fields are tracepoint arguments accessible with `->` operator. Those argument names and its types may be checked in correspoding file, i.e. `/sys/kernel/debug/tracing/events/syscalls/sys_enter_read/format`. Here are two BPFTrace calls which use different notations:
+```
+# bpftrace -e '
+    kprobe:vfs_read {
+        printf("%d reads up to %d bytes\n", pid, arg2); }'
+# bpftrace -e '
+    tracepoint:syscalls:sys_enter_read {
+        printf("%d reads up to %d bytes\n", pid, args->count); }'
 ```
 
 #### References

@@ -7,27 +7,30 @@ _Probe context_ contains system state related to a fired probe, including:
  * Currently executing probe
 !!!
  
-Context is provided as built-in variables in DTrace such as `execname` or as tapset functions in SystemTap such as `execname()`. 
+Context is provided as built-in variables in DTrace and BPFTrace such as `execname` or as tapset functions in SystemTap such as `execname()`. 
 
-Userspace register values are available in DTrace through built-in variable `uregs`. In SystemTap, they available through Embedded C and kernel function `task_pt_regs`, or a special Embedded C variable `CONTEXT`, see for example implementation of `uaddr()` and `print_regs()` tapset functions. 
+Userspace register values are available in DTrace through built-in variable `uregs`. In SystemTap, they available through Embedded C and kernel function `task_pt_regs`, or a special Embedded C variable `CONTEXT`, see for example implementation of `uaddr()` and `print_regs()` tapset functions. As mentioned before, BPFTrace provides register values through `reg()` function.
 
 Here are some useful context information:
 
 ---
-_Description_ | _DTrace_ | _SystemTap_
-Current executing thread | `curthread` | `task_current()`
-ID of current thread | `tid` | `tid()`
-ID of current process | `pid` | `pid()`
-ID of parent of current process | `ppid` | `ppid()`
+_Description_ | _DTrace_ | _SystemTap_ | _BPFTrace_
+Current executing thread | `curthread` | `task_current()` | `curtask`
+ID of current thread | `tid` | `tid()` | `tid`
+ID of current process | `pid` | `pid()` | `pid`
+ID of parent of current process | `ppid` | `ppid()` | -
 User ID and group ID of current process | `uid`/`gid` | `uid()`/`gid()`, \
-                                                        `euid()`, `egid()`
+                                                        `euid()`, `egid()` | `uid` / `gid`
 Name of current process executable | `execname` \
-                                     `curpsinfo->ps_fname` | `execname()`
-Command Line Arguments | `curpsinfo->ps_psargs` | `cmdline_*()`
-CPU number | `cpu` | `cpu()`
-Probe names | `probeprov`, `probemod`, \
-              `probefunc`, `probename` | `pp()`, `pn()`, `ppfunc()`,  \
-                                         `probefunc()`, `probemod()`
+                                     `curpsinfo->ps_fname` | `execname()` | `comm`
+Command Line Arguments | `curpsinfo->ps_psargs` | `cmdline_*()` | -
+CPU number | `cpu` | `cpu()` | `cpu`
+CGroup of current process | - | - | `cgroup`
+Probe names | `probeprov`, `probemod`,     \
+              `probefunc`, `probename`     \
+            | `pp()`, `pn()`, `ppfunc()`,  \
+              `probefunc()`, `probemod()`  \
+            | `probe`, `func`
 ---
 
 #### References
