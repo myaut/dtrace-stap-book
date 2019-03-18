@@ -37,38 +37,49 @@ SystemTap allows to access kernel and user memory through set of functions which
  * `user_<type>` reads userspace memory
  * `kread()` used for safely reading kernel space in Embedded C
  
+BPFTrace has the simplest syntax for reading kernel and user space: simple C-style pointer dereferencing should be used to read value. This also can be used to read userspace data as it is available to kernel when userspace code fires the probe (although, only memory of firing process is available). Similar example with pos argument in `vfs_write` can be written like this:
+```
+# bpftrace -e '
+    kprobe:vfs_write {
+        printf("write: off=%ld\n", *arg3); }'
+```
+Recently, writing to the user space and mocking return value of functions was added to the eBPF, but it is not yet adopted by BPFTrace. Note that there is no way to provide size of pointer data: unless _casts_ is used (pointers can be cast to structure types, see following section), dereferencing operation assumes that type of value is 8-byte integer, thus only format specifiers (such as `%c` and `%ld`) can be used to get correct data.
+ 
 Summarizing all that, we should use following to read or write first character of strings in example above:
 
 ---
-_Operation_ | _Pointer_ | _DTrace_            | _SystemTap_
-1,3 __read__  | `kptr` |1,2 `*((char*) arg0)` | `kernel_char($kptr)`
-                `badp` |                        `kernel_char($kptr)` >>>  \
-                                                with try-catch-block
-                `uptr` | `*((char*) copyin(arg0, 1))` | `user_char($uptr)`
-1,3 __write__ | `kptr` |1,2 -                 | `set_kernel_char($kptr, 'M')`
-                `badp` |                        `set_kernel_char($kptr, 'M')` >>>  \
-                                                with try-catch-block
-                `uptr` | \
+_Pointer_  | _Operation_ | _DTrace_           | _SystemTap_                   | _BPFTrace_
+1,2 `kptr` | __read__    | `*((char*) arg0)`  | `kernel_char($kptr)`          | `*arg0` (treated as integer)
+             __write__   | -                  | `set_kernel_char($kptr, 'M')` | -
+1,2 `badp` | __read__    | `*((char*) arg0)`  | `kernel_char($badp)` >>> \
+                                                with try-catch block          | `*arg0`
+             __write__   | -                  | `set_kernel_char($badp, 'M')` >>> \
+                                                with try-catch block          | -
+1,2 `uptr` | __read__    | `*((char*) copyin(arg0, 1))` | `user_char($uptr)`  | `*arg0` (treated as integer)
+             __write__   | See snippet 1 below          | -                            | -
+---
+
+Snippet 1:
 ```
 this->c = (char*) alloca(1); 
 *this->c = 'M'; 
 copyout(this->c, arg0, 1);
-``` | -
----
+```
 
 #### Safety notes
 
-To avoid system panicking, before actually accessing memory through raw pointer, DTrace and SystemTap have to:
+To avoid system panics, before actually accessing memory through raw pointer, DTrace and SystemTap have to:
  * Check correctness of userspace pointer by comparing it with base address
  * Check correctness of address by comparing it to a forbidden segments  (such as OpenFirmware locations in SPARC).
- * Add extra checks to page fault interrupt handlers (in case of DTrace) or temporarily disable pagefaults (SystemTap)
+ * Add extra checks to page fault interrupt handlers (in case of DTrace) or temporarily disable pagefaults (SystemTap, BPFTrace)
 
 If you access to incorrect address, DTrace will warn you, but continue execution:
 `dtrace: error on enabled probe ID 1 (ID 1: dtrace:::BEGIN): invalid address (0x4) 
  in action #1 at DIF offset 16`
-SystemTap prints similiar message and then fail:
+SystemTap prints similar message and then fail:
 `ERROR: kernel string copy fault at 0x0000000000000001 near identifier 
  'kernel_string' at /usr/share/systemtap/tapset/conversions.stp:18:10`
+BPFTrace doesn't produce any meaningful warning, instead all further accesses are replaced with some default value, such as `0` for integers.
 
 !!! WARN
 Sometimes even correct addresses cause faults if data they point to is not in memory. 

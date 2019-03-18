@@ -13,7 +13,7 @@
    height="361.10843"
    id="svg3011"
    version="1.1"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
    sodipodi:docname="pointers.svg">
   <defs
      id="defs3013">
@@ -137,16 +137,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="691.5195"
-     inkscape:cy="113.85159"
+     inkscape:zoom="2"
+     inkscape:cx="368.91233"
+     inkscape:cy="127.38174"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1136"
-     inkscape:window-x="1919"
-     inkscape:window-y="-15"
+     inkscape:window-height="1003"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -162,7 +162,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -239,16 +239,15 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-4-2-3"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-4-2-3"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-4-2-0"
                x="192.31413"
-               y="209.95946" /></text>
+               y="209.95946"> </tspan></text>
         </g>
         <g
            transform="translate(84.91504,54.030926)"
@@ -264,16 +263,15 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-0-7-2-1"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-0-7-2-1"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-5-3-0-0"
                x="192.31413"
-               y="209.95946" /></text>
+               y="209.95946"> </tspan></text>
         </g>
       </g>
     </g>
@@ -342,17 +340,16 @@
            width="12.19737"
            id="rect3218-4-4-5-2-4" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-4-2-3-1"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-4-2-0-2"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <g
          style="fill:#ffccaa;stroke:#aa4400"
@@ -367,17 +364,16 @@
            width="12.19737"
            id="rect3218-4-5-4-0-3-3" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2-1-1"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0-0-0"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
     </g>
     <g
@@ -448,16 +444,15 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-4-2-3-6"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-4-2-3-6"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-4-2-0-4"
                x="192.31413"
-               y="209.95946" /></text>
+               y="209.95946"> </tspan></text>
         </g>
         <g
            transform="translate(84.91504,54.030926)"
@@ -473,16 +468,15 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-0-7-2-1-6"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-0-7-2-1-6"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-5-3-0-0-6"
                x="192.31413"
-               y="209.95946" /></text>
+               y="209.95946"> </tspan></text>
         </g>
       </g>
     </g>
@@ -550,17 +544,16 @@
            width="12.19737"
            id="rect3218-4-4-5-2-4-0" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-4-2-3-1-3"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-4-2-0-2-1"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <g
          style="fill:#ffccaa;stroke:#aa4400"
@@ -575,86 +568,79 @@
            width="12.19737"
            id="rect3218-4-5-4-0-3-3-5" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2-1-1-3"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0-0-0-7"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <text
-         sodipodi:linespacing="125%"
          id="text5006"
          y="291.88394"
          x="192.30505"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="291.88394"
            x="192.30505"
            id="tspan5008"
            sodipodi:role="line">u</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5"
          y="292.00504"
          x="205.2556"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="292.00504"
            x="205.2556"
            id="tspan5008-4"
            sodipodi:role="line">v</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3"
          y="292.00504"
          x="218.15538"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="292.00504"
            x="218.15538"
            id="tspan5008-4-1"
            sodipodi:role="line">w</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-2"
          y="292.00504"
          x="231.05515"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="292.00504"
            x="231.05515"
            id="tspan5008-4-1-8"
            sodipodi:role="line">x</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-9"
          y="292.00504"
          x="243.95044"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="292.00504"
            x="243.95044"
            id="tspan5008-4-1-1"
            sodipodi:role="line">y</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-9-5"
          y="292.01285"
          x="256.81561"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="292.01285"
            x="256.81561"
            id="tspan5008-4-1-1-5"
@@ -673,12 +659,11 @@
          ry="0.69396752" />
       <text
          xml:space="preserve"
-         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
          x="192.31413"
          y="209.79092"
-         id="text3988-3"
-         sodipodi:linespacing="125%"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         id="text3988-3"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono'"
            sodipodi:role="line"
            id="tspan3990-2"
            x="192.31413"
@@ -693,12 +678,11 @@
          ry="0.69396752" />
       <text
          xml:space="preserve"
-         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
          x="205.2139"
          y="209.79092"
-         id="text3988-3-0"
-         sodipodi:linespacing="125%"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         id="text3988-3-0"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono'"
            sodipodi:role="line"
            id="tspan3990-2-5"
            x="205.2139"
@@ -713,12 +697,11 @@
          ry="0.69396752" />
       <text
          xml:space="preserve"
-         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
          x="218.11368"
          y="209.79092"
-         id="text3988-3-4"
-         sodipodi:linespacing="125%"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         id="text3988-3-4"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono'"
            sodipodi:role="line"
            id="tspan3990-2-4"
            x="218.11368"
@@ -733,12 +716,11 @@
          ry="0.69396752" />
       <text
          xml:space="preserve"
-         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
          x="231.01344"
          y="209.79092"
-         id="text3988-3-0-7"
-         sodipodi:linespacing="125%"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         id="text3988-3-0-7"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono'"
            sodipodi:role="line"
            id="tspan3990-2-5-3"
            x="231.01344"
@@ -753,12 +735,11 @@
          ry="0.69396752" />
       <text
          xml:space="preserve"
-         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
          x="243.91321"
          y="209.79092"
-         id="text3988-3-08"
-         sodipodi:linespacing="125%"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         id="text3988-3-08"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono'"
            sodipodi:role="line"
            id="tspan3990-2-2"
            x="243.91321"
@@ -773,12 +754,11 @@
          ry="0.69396752" />
       <text
          xml:space="preserve"
-         style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
          x="256.81299"
          y="209.79092"
-         id="text3988-3-0-8"
-         sodipodi:linespacing="125%"><tspan
-           style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+         id="text3988-3-0-8"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono'"
            sodipodi:role="line"
            id="tspan3990-2-5-4"
            x="256.81299"
@@ -796,17 +776,16 @@
            width="12.19737"
            id="rect3218-4-5-4-0" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"> </tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"> </tspan></text>
       </g>
       <g
          id="g5159">
@@ -824,29 +803,27 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-4-2"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-4-2"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-4-2"
                x="192.31413"
-               y="209.95946"> </tspan></text>
+               y="209.95946"> </tspan></text>
         </g>
         <text
            xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+           style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
            x="269.78876"
            y="206.78116"
-           id="text5006-5-3-9-5-2"
-           sodipodi:linespacing="125%"><tspan
+           id="text5006-5-3-9-5-2"><tspan
              sodipodi:role="line"
              id="tspan5008-4-1-1-5-6"
              x="269.78876"
              y="206.78116"
-             style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">\0</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">\0</tspan></text>
       </g>
     </g>
     <g
@@ -913,17 +890,16 @@
            width="12.19737"
            id="rect3218-4-4-5-2-4-0-8" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-4-2-3-1-3-8"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-4-2-0-2-1-4"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <g
          style="fill:#ffccaa;stroke:#aa4400"
@@ -938,66 +914,61 @@
            width="12.19737"
            id="rect3218-4-5-4-0-3-3-5-3" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2-1-1-3-7"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0-0-0-7-5"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-8"
          y="298.18515"
          x="191.30759"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.18515"
            x="191.30759"
            id="tspan5008-5"
-           sodipodi:role="line">FF</tspan></text>
+           sodipodi:role="line">00</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-0"
          y="298.30624"
          x="204.25813"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="204.25813"
            id="tspan5008-4-4"
-           sodipodi:role="line">FF</tspan></text>
+           sodipodi:role="line">01</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-0"
          y="298.30624"
          x="217.15791"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="217.15791"
            id="tspan5008-4-1-3"
            sodipodi:role="line">00</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-2-6"
          y="298.30624"
          x="230.05768"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="230.05768"
            id="tspan5008-4-1-8-8"
-           sodipodi:role="line">10</tspan></text>
+           sodipodi:role="line">20</tspan></text>
     </g>
     <g
        id="g4852-6"
@@ -1067,16 +1038,15 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-4-2-3-5"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-4-2-3-5"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-4-2-0-8"
                x="192.31413"
-               y="209.95946" /></text>
+               y="209.95946"> </tspan></text>
         </g>
         <g
            transform="translate(84.91504,54.030926)"
@@ -1092,67 +1062,62 @@
              ry="0.69396752" />
           <text
              xml:space="preserve"
-             style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#e9ddaf;fill-opacity:1;stroke:#786721"
              x="192.31413"
              y="209.95946"
-             id="text3988-3-0-7-2-1-2"
-             sodipodi:linespacing="125%"><tspan
-               style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#e9ddaf;stroke:#786721;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+             id="text3988-3-0-7-2-1-2"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#e9ddaf;stroke:#786721"
                sodipodi:role="line"
                id="tspan3990-2-5-3-0-0-3"
                x="192.31413"
-               y="209.95946" /></text>
+               y="209.95946"> </tspan></text>
         </g>
       </g>
     </g>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="503.59061"
        y="178.63731"
-       id="text5390"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390"><tspan
          sodipodi:role="line"
          id="tspan5392"
          x="503.59061"
          y="178.63731"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">FFFF0000</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">FFFF0000</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="503.59061"
        y="143.07146"
-       id="text5390-6"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-6"><tspan
          sodipodi:role="line"
          id="tspan5392-2"
          x="503.59061"
          y="143.07146"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">FFFF0008</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">FFFF0008</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="503.59061"
        y="107.50584"
-       id="text5390-6-8"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-6-8"><tspan
          sodipodi:role="line"
          id="tspan5392-2-8"
          x="503.59061"
          y="107.50584"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">FFFF0010</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">FFFF0010</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="503.59061"
        y="71.939987"
-       id="text5390-6-8-6"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-6-8-6"><tspan
          sodipodi:role="line"
          id="tspan5392-2-8-1"
          x="503.59061"
          y="71.939987"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">FFFF0018</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">FFFF0018</tspan></text>
     <g
        transform="matrix(2,0,0,2,-83.33279,-243.49379)"
        id="g5560-0">
@@ -1217,17 +1182,16 @@
            width="12.19737"
            id="rect3218-4-4-5-2-4-0-8-6" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-4-2-3-1-3-8-2"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-4-2-0-2-1-4-5"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <g
          style="fill:#ffccaa;stroke:#aa4400"
@@ -1242,62 +1206,57 @@
            width="12.19737"
            id="rect3218-4-5-4-0-3-3-5-3-1" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2-1-1-3-7-5"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0-0-0-7-5-4"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-8-4"
          y="298.18515"
          x="191.30759"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.18515"
            x="191.30759"
            id="tspan5008-5-7"
-           sodipodi:role="line">00</tspan></text>
+           sodipodi:role="line">FF</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-0-1"
          y="298.30624"
          x="204.25813"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="204.25813"
            id="tspan5008-4-4-5"
-           sodipodi:role="line">01</tspan></text>
+           sodipodi:role="line">FF</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-0-4"
          y="298.30624"
          x="217.15791"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="217.15791"
            id="tspan5008-4-1-3-8"
            sodipodi:role="line">00</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-2-6-2"
          y="298.30624"
          x="230.05768"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="230.05768"
            id="tspan5008-4-1-8-8-0"
@@ -1368,17 +1327,16 @@
            width="12.19737"
            id="rect3218-4-4-5-2-4-9" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-4-2-3-1-2"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-4-2-0-2-3"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <g
          style="fill:#ffccaa;stroke:#aa4400"
@@ -1393,129 +1351,119 @@
            width="12.19737"
            id="rect3218-4-5-4-0-3-3-1" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2-1-1-9"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0-0-0-18"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
     </g>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="504.23514"
        y="397.20911"
-       id="text5390-9"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9"><tspan
          sodipodi:role="line"
          id="tspan5392-4"
          x="504.23514"
          y="397.20911"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">00010000</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">00010000</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="504.23514"
        y="362.00519"
-       id="text5390-9-3"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5"
          x="504.23514"
          y="362.00519"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">00010008</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">00010008</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="504.23514"
        y="326.80151"
-       id="text5390-9-3-8"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-8"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-1"
          x="504.23514"
          y="326.80151"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">00010010</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">00010010</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="504.23514"
        y="291.59766"
-       id="text5390-9-3-7"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-7"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-5"
          x="504.23514"
          y="291.59766"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">00010018</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">00010018</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="504.23514"
        y="256.39386"
-       id="text5390-9-3-77"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-77"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-8"
          x="504.23514"
          y="256.39386"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">00010020</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">00010020</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="504.23514"
        y="221.19006"
-       id="text5390-9-3-9"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-9"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-12"
          x="504.23514"
          y="221.19006"
-         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">00010028</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">00010028</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:80px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="452.73868"
        y="244.60211"
-       id="text5818"
-       sodipodi:linespacing="125%"><tspan
+       id="text5818"><tspan
          sodipodi:role="line"
          id="tspan5820"
          x="452.73868"
          y="244.60211"
-         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono">\0</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'">\0</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:80px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="162.77823"
        y="281.2793"
-       id="text5390-9-3-7-8"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-7-8"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-5-8"
          x="162.77823"
          y="281.2793"
-         style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"><tspan
    style="font-weight:bold"
    id="tspan5866">char</tspan>* kstr;</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:80px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="162.77823"
        y="351.08795"
-       id="text5390-9-3-7-8-7"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-7-8-7"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-5-8-7"
          x="162.77823"
          y="351.08795"
-         style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"><tspan
    style="font-weight:bold"
    id="tspan5864">char</tspan>* ustr;</tspan></text>
     <path
@@ -1531,36 +1479,38 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot9332"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><flowRegion
-         id="flowRegion9334"><rect
+       style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
+         id="flowRegion9334"
+         style="font-family:sans-serif"><rect
            id="rect9336"
            width="135.5"
            height="49.5"
            x="33.5"
-           y="19.862183" /></flowRegion><flowPara
-         id="flowPara9338">DTRACD</flowPara></flowRoot>    <text
+           y="19.862183"
+           style="font-family:sans-serif" /></flowRegion><flowPara
+         id="flowPara9338"
+         style="font-size:40px;line-height:1.25;font-family:sans-serif">DTRACD</flowPara></flowRoot>    <text
        xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="45.5"
        y="17.362183"
-       id="text9340"
-       sodipodi:linespacing="125%"><tspan
+       id="text9340"><tspan
          sodipodi:role="line"
          id="tspan9342"
          x="45.5"
-         y="17.362183" /></text>
+         y="17.362183"
+         style="font-size:40px;line-height:1.25;font-family:sans-serif"> </tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:80px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="162.77823"
        y="314.98975"
-       id="text5390-9-3-7-8-2"
-       sodipodi:linespacing="125%"><tspan
+       id="text5390-9-3-7-8-2"><tspan
          sodipodi:role="line"
          id="tspan5392-4-5-5-8-2"
          x="162.77823"
          y="314.98975"
-         style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"><tspan
    style="font-weight:bold"
    id="tspan5866-9">char</tspan>* badp;</tspan></text>
     <g
@@ -1627,17 +1577,16 @@
            width="12.19737"
            id="rect3218-4-4-5-2-4-0-8-2" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-4-2-3-1-3-8-0"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-4-2-0-2-1-4-1"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <g
          style="fill:#ffccaa;stroke:#aa4400"
@@ -1652,62 +1601,57 @@
            width="12.19737"
            id="rect3218-4-5-4-0-3-3-5-3-4" />
         <text
-           sodipodi:linespacing="125%"
            id="text3988-3-0-7-2-1-1-3-7-2"
            y="209.95946"
            x="192.31413"
-           style="font-size:23.03813362px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffccaa;fill-opacity:1;stroke:#aa4400"
            xml:space="preserve"><tspan
              y="209.95946"
              x="192.31413"
              id="tspan3990-2-5-3-0-0-0-7-5-40"
              sodipodi:role="line"
-             style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffccaa;stroke:#aa4400;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" /></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:'Droid Sans Mono';-inkscape-font-specification:'Droid Sans Mono';fill:#ffccaa;stroke:#aa4400"> </tspan></text>
       </g>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-8-7"
          y="298.18515"
          x="191.30759"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.18515"
            x="191.30759"
            id="tspan5008-5-6"
            sodipodi:role="line">BA</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-0-9"
          y="298.30624"
          x="204.25813"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="204.25813"
            id="tspan5008-4-4-7"
            sodipodi:role="line">AD</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-0-0"
          y="298.30624"
          x="217.15791"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="217.15791"
            id="tspan5008-4-1-3-85"
            sodipodi:role="line">CA</tspan></text>
       <text
-         sodipodi:linespacing="125%"
          id="text5006-5-3-2-6-20"
          y="298.30624"
          x="230.05768"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
-           style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:DejaVu Sans Mono;-inkscape-font-specification:DejaVu Sans Mono"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono'"
            y="298.30624"
            x="230.05768"
            id="tspan5008-4-1-8-8-6"
@@ -1720,46 +1664,44 @@
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-size:21.74920464px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;line-height:0%;font-family:'Computer Modern';-inkscape-font-specification:'Computer Modern Medium';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="-166.90833"
        y="32.691029"
        id="text3988-3-5"
-       sodipodi:linespacing="125%"
        transform="matrix(0,-1.0592633,0.94405235,0,0,0)"><tspan
-         style="font-size:18.8810463px"
+         style="font-size:18.8810463px;line-height:1.25"
          sodipodi:role="line"
          id="tspan3990-2-1"
          x="-166.90833"
          y="32.691029">User</tspan><tspan
-         style="font-size:18.8810463px"
+         style="font-size:18.8810463px;line-height:1.25"
          sodipodi:role="line"
          x="-166.90833"
          y="56.292336"
          id="tspan9535">address</tspan><tspan
-         style="font-size:18.8810463px"
+         style="font-size:18.8810463px;line-height:1.25"
          sodipodi:role="line"
          x="-166.90833"
          y="79.893646"
          id="tspan9537">space</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:21.74920464px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Computer Modern;-inkscape-font-specification:Computer Modern Medium"
+       style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;line-height:0%;font-family:'Computer Modern';-inkscape-font-specification:'Computer Modern Medium';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none"
        x="-183.12964"
        y="32.502216"
        id="text3988-3-5-8"
-       sodipodi:linespacing="125%"
        transform="matrix(0,-1.0592633,0.94405235,0,0,0)"><tspan
-         style="font-size:18.8810463px;text-align:end;text-anchor:end"
+         style="font-size:18.8810463px;line-height:1.25;text-align:end;text-anchor:end"
          sodipodi:role="line"
          id="tspan3990-2-1-0"
          x="-183.12964"
          y="32.502216">Kernel</tspan><tspan
-         style="font-size:18.8810463px;text-align:end;text-anchor:end"
+         style="font-size:18.8810463px;line-height:1.25;text-align:end;text-anchor:end"
          sodipodi:role="line"
          x="-183.12964"
          y="56.103523"
          id="tspan9535-2">address</tspan><tspan
-         style="font-size:18.8810463px;text-align:end;text-anchor:end"
+         style="font-size:18.8810463px;line-height:1.25;text-align:end;text-anchor:end"
          sodipodi:role="line"
          x="-183.12964"
          y="79.704834"

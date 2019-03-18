@@ -2,7 +2,7 @@
 
 _Predicates_ are usually go in the beginning of the probe and allow to exclude unnecessary data from output, thus saving memory and processor time. Usually predicate is a conditional expression, so you can use C comparison operators in there such as `==`, `!=`, `>`, `>=`, `<`, `<=` and logical operators `&&` for logical AND, `||` for logical OR and `!` for logical negation, alas with calling functions or actions.
 
-In DTrace predicate is a separate language construct which is going in slashes `/` immediately after list of probe names. If it evaluated to true, probe is __executed__:
+In DTrace and BPFTrace predicate is a separate language construct which is going in slashes `/` immediately after list of probe names. If it evaluated to true, probe actions are __executed__:
 ```
 syscall::write:entry 
 /pid == $target/
@@ -29,7 +29,17 @@ probe syscall.write if(i > 4) {
 ```
 This probe will be installed when `i` becomes more than four. 
 
-[__index__:processes, grabbing PID] `$target` in DTrace (macro-substitution) and `target()` context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as `-c` option argument or its PID was passed as `-p`/`-x` option argument). In these examples only `write` syscalls from traced process will be printed.
+[__index__:processes, grabbing PID] `$target` in DTrace (macro-substitution) and `target()` context function in SystemTap have special meaning: they return PID of the process which is traced (command was provided as `-c` option argument or its PID was passed as `-p`/`-x` option argument). In these examples only `write` syscalls from traced process will be printed. 
+
+There is no equivalent of this in BPFTrace, however similar behaviour can be achieved with macro arguments: 
+```
+# bpftrace -e '
+    tracepoint:syscalls:sys_enter_write
+    / pid == $1 / {
+        /* actions */
+    }' $(pgrep -f myprogram)
+```
+In this example, `pgrep -f myprogram` will return a pid of some program, and it will be used as `$1` macro substitution in BPFTrace code.
 
 !!! WARN
 Sometimes, SystemTap may trace its consumer. To ignore such probes, compare process ID with `stp_pid()` which returns PID of consumer.
@@ -37,7 +47,7 @@ Sometimes, SystemTap may trace its consumer. To ignore such probes, compare proc
 
 Sometimes, if target process forking and you need to trace its children, like with `-f` option in `truss`/`strace`, comparing `pid()` and even `ppid()` is not enough. In this case you may use DTrace subroutine `progenyof()` which returns non-zero (treated as true) value if current process is a direct or indirect child of the process which ID was passed as parameter. For example, `progenyof(1)` will be true for all userspace processes because they are all children to the `init`.
 
-`progenyof()` is missing in SystemTap, but it can be simulated with `task_*()` functions and the following SystemTap script (these functions are explained in [Process Management][kernel/proc#task-funcs]):
+`progenyof()` is missing both in BPFTrace and SystemTap, but it can be simulated with `task_*()` functions and the following SystemTap script (these functions are explained in [Process Management][kernel/proc#task-funcs]):
 ```
 function progenyof(pid:long) {
 	parent = task_parent(task_current());

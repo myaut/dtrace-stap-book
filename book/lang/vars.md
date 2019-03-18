@@ -9,7 +9,9 @@ You can explicitly declare variable types in DTrace, thus `long`, `uintptr_t`, `
 printf("The time is %lld\n", (unsigned long long) timestamp);
 ```
 
-[__index__:variable scopes] There are four variable scopes in DTrace: external, global, local and thread-local. SystemTap doesn't support thread-local variables, but it can be emulated via associative arrays.
+BPFTrace has very strict type system: besides `integer` and `string` types, there are many special types for data produced by builtin functions, such as `kstack` and `ustack` for collected stacks, all types of aggregations, etc.
+
+[__index__:variable scopes] There are four variable scopes in DTrace: _external_, _global_, _local_ and _thread-local_. SystemTap and BPFTrace don't support thread-local variables, but it can be emulated via associative arrays.
 
 ![image:varscope](varscope.png)
 
@@ -37,6 +39,14 @@ In earlier versions of SystemTap they can be only read by using Embedded C capab
 
 Recent versions adopted a `@var`-expression, which accept name of variable and optionally a path to a source file where it is located like in function probes: `@var("jiffies")`. 
 
+BPFTrace supplies `kaddr()` and `uaddr()` builtin function that return address of global named kernel or userspace variable respectively. It should be treated like pointer, thus return value should be dereferenced to get actual data:
+```
+# bpftrace -e '
+    interval:s:1 {
+        printf("The time is %lld jiffies\n", 
+            *kaddr("jiffies"));         }'
+```
+
 #### Global variables
 
 Global variables are created on script start and destroyed when script finishes their execution. They are often initialized by begin probes and sometimes printed in the end probe. In SystemTap global variables are declared with `global` keyword:
@@ -55,6 +65,8 @@ uint32_t globalvar;
 ```
 Aggregations in DTrace are implicitly global.
 
+In BPFTrace, any variable which name starts with `@` is treated as global variable. There is no syntax for type declaration: instead, global variable type is inferred.
+
 Global variables in probes are accessible by their names: `globalvar += 1;`.
 
 #### Local variables
@@ -67,12 +79,18 @@ probe kernel.function("vfs_write") {
 ```
 
 In DTrace, their types may be optionally defined with `this` keyword, and later used with `this->` prefix:
-
 ```
 this uint32_t localvar;
 
 ::write:entry {
 	this->localvar = (uint32_t) arg0;
+}
+```
+
+In BPFTrace, local variable names are starting with `$`. Like global variable, there is no need to declare them, assignment is enough:
+```
+kprobe:vfs_write {
+    $pos = ((file*) arg0)->f_pos;
 }
 ```
 
@@ -137,6 +155,16 @@ In this case thread-local variable `readfd` is used to pass value from entry (ca
 ```
 probe syscall.read.return {
     printf("read %d --> %d\n", @entry($fd), $return);
+}
+```
+
+Similar to SystemTap, BPFTrace doesn't support thread-local variables, instead associative arrays with `tid` as a key should be used:
+```
+tracepoint:syscalls:sys_enter_read {
+    @readfd[tid] = args->fd;
+}
+tracepoint:syscalls:sys_exit_read {
+    printf("read %d --> %d\n", @readfd[tid], args->ret);
 }
 ```
 
